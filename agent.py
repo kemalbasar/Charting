@@ -52,6 +52,9 @@ class Agent:
 
             if not os.path.exists(diroffile):
                 fig.write_html(diroffile)
+                if os.path.exists(diroffile):
+                    print("GannChart has been saved succesfully to directory entered.")
+
             else:
                 raise Exception("There is already a file with same name")
 
