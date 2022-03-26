@@ -1,0 +1,115 @@
+from config import database
+from config import username
+from config import password
+from config import server
+from config import directory
+
+import plotly.express as px
+import pyodbc
+import pandas as pd
+import os
+
+
+def readtext(queryx):
+    queryy = queryx
+    if queryy[0:5] == 'SELECT':
+        return queryy
+    elif isinstance(queryy, pd.core.frame.DataFrame):
+        return queryy
+    else:
+        if os.path.exists(queryy):
+            text = open(queryy, 'r')
+            queryy = text.read()
+            return queryy
+
+        else:
+            raise Exception("Please enter correct directory or write SQL Query directly")
+
+
+class Agent:
+
+    def __init__(self, query):
+        self.connection = pyodbc.connect('DRIVER={SQL Server};'
+                                         'SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' +
+                                         password)
+        self.cursor = self.connection.cursor()
+        self.query = readtext(query)
+        self.df = self.run_querry()
+
+        # self.query = query
+        # query = "SELECT * FROM IASPRDBARKOD;"
+
+    # method returns the result of querry as dataframe.
+    # dont accept unvalid query
+    def run_querry(self):
+
+        if isinstance(self.query, pd.core.frame.DataFrame):
+            print("Dataframe is ready")
+            print(self.query)
+            return self.query
+
+        elif isinstance(self.query, str):
+            return pd.read_sql(self.query, self.connection)
+
+        else:
+            raise Exception("You should enter dataframe or SQL Querry")
+
+    # draw gannchart
+    def draw_gannchart(self, saveorshow, xx_start, xx_end, xy, xcolor, filename=None):
+
+        fig = px.timeline(self.df, x_start=xx_start, x_end=xx_end, y=xy, color=xcolor)
+
+        if saveorshow == 'show':
+            fig.show()
+
+        elif saveorshow == 'save':
+            if not filename:
+                raise Exception("Please enter file name for saving GannChart as a html file!!!")
+
+            diroffile = os.path.join(directory, filename)
+
+            if not os.path.exists(diroffile):
+                fig.write_html(diroffile)
+                if os.path.exists(diroffile):
+                    print("GannChart has been saved succesfully to directory entered.")
+
+            else:
+                raise Exception("There is already a file with same name")
+
+        else:
+            raise Exception("Please write 'save or 'show' !!")
+
+    def draw_bubblechart(self, saveorshow, xx, yy, widthofcirc, colorof, item, filename=None):
+        """
+        :param saveorshow: write 'save' if you want to keep as file or 'show' for just casting.
+        :param filename: file name of the chart
+        :param xx: the axis of chart
+        :param yy: the axis of chart
+        :param widthofcirc: the diameter of bubbles
+        :param colorof: another categorization
+        :param item: bubbles
+        """
+
+        fig = px.scatter(self.df, x=xx, y=yy,
+                         size=widthofcirc, color=colorof,
+                         hover_name=item, log_x=True)
+
+        if saveorshow == 'show':
+            fig.show()
+
+        elif saveorshow == 'save':
+            if not filename:
+                raise Exception("Please enter file name for saving Scatter as a html file!!!")
+
+            diroffile = os.path.join(directory, filename)
+
+            if not os.path.exists(diroffile):
+                fig.write_html(diroffile)
+                if os.path.exists(diroffile):
+                    print("Scatter has been saved succesfully to directory entered.")
+
+            else:
+                raise Exception("There is already a file with same name")
+
+        else:
+            raise Exception("Please write 'save or 'show' !!")
