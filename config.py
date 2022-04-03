@@ -6,6 +6,7 @@ username = 'KEMAL'
 password = '7412369kB'
 directory = r'C:\Users\kbbudak\PycharmProjects\Charting\pictures'
 dirofquery = r'C:\Users\kbbudak\PycharmProjects\Charting\queries\query2.txt'
+dirofnewline = r'C:\Users\kbbudak\PycharmProjects\Charting\queries\dateofstart.txt'
 
 
 def set_df_size(maxrow, maxcolumn, maxwidth, maxcolwidth):

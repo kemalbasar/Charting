@@ -10,7 +10,7 @@ import pandas as pd
 import os
 
 
-def readtext(queryx):
+def readquerry(queryx):
     queryy = queryx
     if queryy[0:5] == 'SELECT':
         return queryy
@@ -20,10 +20,24 @@ def readtext(queryx):
         if os.path.exists(queryy):
             text = open(queryy, 'r')
             queryy = text.read()
+            text.close()
             return queryy
 
         else:
             raise Exception("Please enter correct directory or write SQL Query directly")
+
+def change_line_of_text(textfile,linenum,dirofnewtext):
+
+    a_file = open(textfile, "r")
+    list_of_lines = a_file.readlines()
+
+    b_file = open(dirofnewtext, "r")
+    newtext = b_file.read()
+    list_of_lines[linenum-1] = newtext
+
+    a_file = open(textfile, "w")
+    a_file.writelines(list_of_lines)
+    a_file.close()
 
 
 class Agent:
@@ -33,7 +47,7 @@ class Agent:
                                          'SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' +
                                          password)
         self.cursor = self.connection.cursor()
-        self.query = readtext(query)
+        self.query = readquerry(query)
         self.df = self.run_querry()
 
         # self.query = query
@@ -41,6 +55,7 @@ class Agent:
 
     # method returns the result of querry as dataframe.
     # dont accept unvalid query
+
     def run_querry(self):
 
         if isinstance(self.query, pd.core.frame.DataFrame):
@@ -113,3 +128,4 @@ class Agent:
 
         else:
             raise Exception("Please write 'save or 'show' !!")
+

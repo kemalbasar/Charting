@@ -4,3 +4,5 @@
    -go to projects directory
    -run main.py file
    -for the argument help run "-main.py -h"
+
+(You can use  cmd for command example.)

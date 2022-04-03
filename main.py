@@ -1,8 +1,9 @@
-from run.agent import readtext
 from run.agent import Agent
+from run.agent import change_line_of_text
 from config import set_df_size
 from config import dirofquery
-
+from config import dirofnewline
+import os
 import argparse
 
 set_df_size(None, None, None, None)
@@ -23,13 +24,14 @@ args = parser.parse_args()
 inputsofchart = args.columns
 charttype = args.charttype
 
-# checking if directory or string data entered correctly.
+# manupulate the querry if it is .txt file
+if os.path.exists(args.query):
+    change_line_of_text(args.query,2,dirofnewline)
 
 a = Agent(args.query)
 
 listofcolumns = args.columns
 
-readtext(args.query)
 
 if args.filename:
     filename = args.filename + ".html"
