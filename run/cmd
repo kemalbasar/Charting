@@ -1,0 +1,4 @@
+cd C:\users\kbbudak\PycharmProjects\Charting\venv\Scripts
+activate
+cd C:\users\kbbudak\PycharmProjects\Charting\
+python main.py --charttype g --query C:\Users\kbbudak\PycharmProjects\Charting\queries\query1.txt --filename gannofplans --columns BEGINDAY FINISHDAY WORKCENTER MATERIAL
