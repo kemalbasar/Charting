@@ -25,8 +25,8 @@ inputsofchart = args.columns
 charttype = args.charttype
 
 # manupulate the querry if it is .txt file
-if os.path.exists(args.query):
-    change_line_of_text(args.query,2,dirofnewline)
+# if os.path.exists(args.query):
+#     change_line_of_text(args.query,2,dirofnewline)
 
 a = Agent(args.query)
 
