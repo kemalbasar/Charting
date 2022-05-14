@@ -5,8 +5,11 @@ from config import server
 from config import directory
 
 import plotly.express as px
+import matplotlib.pyplot as plt
 # import pyodbc
+import seaborn as sns
 import pandas as pd
+import numpy as np
 import os
 
 
@@ -133,3 +136,19 @@ class Agent:
         else:
             raise Exception("Please write 'save or 'show' !!")
 
+    def correlation_matrix(self):
+
+        corr = self.df.corr()
+        sns.set_theme(style="white")
+        # Generate a mask for the upper triangle
+        mask = np.triu(np.ones_like(corr, dtype=bool))
+
+        # Set up the matplotlib figure
+        f, ax = plt.subplots(figsize=(11, 9))
+
+        # Generate a custom diverging colormap
+        cmap = sns.diverging_palette(500, 220, as_cmap=True)
+
+        # Draw the heatmap with the mask and correct aspect ratio
+        sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+                    square=True, linewidths=.5, cbar_kws={"shrink": .5})
