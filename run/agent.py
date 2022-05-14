@@ -5,16 +5,17 @@ from config import server
 from config import directory
 
 import plotly.express as px
-import pyodbc
+# import pyodbc
 import pandas as pd
 import os
 
 
 def readquerry(queryx):
     queryy = queryx
-    if queryy[0:5] == 'SELECT':
+
+    if isinstance(queryy, pd.core.frame.DataFrame):
         return queryy
-    elif isinstance(queryy, pd.core.frame.DataFrame):
+    elif queryy[0:5] == 'SELECT':
         return queryy
     else:
         if os.path.exists(queryy):
@@ -43,10 +44,13 @@ def change_line_of_text(textfile,linenum,dirofnewtext):
 class Agent:
 
     def __init__(self, query):
-        self.connection = pyodbc.connect('DRIVER={SQL Server};'
+        self.query = readquerry(query)
+        self.df = self.run_querry()
+        if not isinstance(self.df, pd.core.frame.DataFrame):
+            self.connection = pyodbc.connect('DRIVER={SQL Server};'
                                          'SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' +
                                          password)
-        self.cursor = self.connection.cursor()
+            self.cursor = self.connection.cursor()
         self.query = readquerry(query)
         self.df = self.run_querry()
 
