@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Charting.iml" filepath="$PROJECT_DIR$/.idea/Charting.iml" />
       <module fileurl="file://$USER_HOME$/Downloads/Ex_Files_Using_SQL_With_Python/Ex_Files_Using_SQL_With_Python/Exercise Files/.idea/Exercise Files.iml" filepath="$USER_HOME$/Downloads/Ex_Files_Using_SQL_With_Python/Ex_Files_Using_SQL_With_Python/Exercise Files/.idea/Exercise Files.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../mlStudy/.idea/mlStudy.iml" filepath="$PROJECT_DIR$/../mlStudy/.idea/mlStudy.iml" />
     </modules>
   </component>
 </project>
