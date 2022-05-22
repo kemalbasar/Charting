@@ -3,7 +3,7 @@ import pandas as pd
 server = '172.30.134.12'
 database = 'VALFSAN604'
 username = 'KEMAL'
-password = '7412369kB'
+password = 'yı7LjvMGk9'
 directory = r'C:\Users\kbbudak\PycharmProjects\Charting\pictures'
 dirofquery = r'C:\Users\kbbudak\PycharmProjects\Charting\queries\query2.txt'
 dirofnewline = r'C:\Users\kbbudak\PycharmProjects\Charting\queries\dateofstart.txt'

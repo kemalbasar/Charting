@@ -6,7 +6,7 @@ from config import directory
 
 import plotly.express as px
 import matplotlib.pyplot as plt
-# import pyodbc
+import pyodbc
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -47,15 +47,19 @@ def change_line_of_text(textfile,linenum,dirofnewtext):
 class Agent:
 
     def __init__(self, query):
-        self.query = readquerry(query)
-        self.df = self.run_querry()
+        os.path.exists(query)
+        text = open(query, 'r')
+        queryy = text.read()
+        text.close()
+        self.query = queryy
+        self.df = query
         if not isinstance(self.df, pd.core.frame.DataFrame):
             self.connection = pyodbc.connect('DRIVER={SQL Server};'
                                          'SERVER=' + server + ';DATABASE=' + database + ';UID=' + username + ';PWD=' +
                                          password)
             self.cursor = self.connection.cursor()
-        self.query = readquerry(query)
-        self.df = self.run_querry()
+            self.df = self.run_querry()
+
 
         # self.query = query
         # query = "SELECT * FROM IASPRDBARKOD;"
@@ -65,16 +69,8 @@ class Agent:
 
     def run_querry(self):
 
-        if isinstance(self.query, pd.core.frame.DataFrame):
-            print("Dataframe is ready")
-            print(self.query)
-            return self.query
+        return pd.read_sql(self.query, self.connection)
 
-        elif isinstance(self.query, str):
-            return pd.read_sql(self.query, self.connection)
-
-        else:
-            raise Exception("You should enter dataframe or SQL Querry")
 
     # draw gannchart
     def draw_gannchart(self, saveorshow, xx_start, xx_end, xy, xcolor, filename=None):
