@@ -3,184 +3,307 @@ import plotly.graph_objs as go
 import plotly.express as px  # (version 4.7.0 or higher)
 from dash import Dash, dcc, html, Input, Output  # pip install dash (version 2.0.0 or higher)
 import pandas as pd
-from functions import df_for_sunburst, scatter_plot, production_quantities, get_mean_prdqty, get_daily_qty, \
-    generate_for_sparkline, working_machines, get_gann_data
+from functions import calculate_oeemetrics, scatter_plot, get_daily_qty, \
+    generate_for_sparkline, working_machinesf, get_gann_data
 import warnings
+
+new_line = '\n'
+df_oee, df_metrics = calculate_oeemetrics()
 warnings.filterwarnings("ignore")
 pd.set_option('display.float_format', lambda x: '%.2f' % x)
 pd.set_option('display.width', 500)
 pd.set_option('display.max_columns', None)
 
 
-def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=65):
+def return_tops(graph1="fig_up1", margin_top=0, graph2="fig_up2", graph3="fig_up3"):
+    return html.Div(children=[dcc.Graph(id=graph1, figure={}, style={"margin-top": margin_top})])
+
+
+def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
     return html.Div(children=[dcc.Graph(id=graph1, figure={},
-                                        style={'width': '22vh', 'height': '9vh', "margin-top": 70,
+                                        style={'width': '12vh', 'height': '9vh', "margin-top": 50,
                                                "margin-left": margin_left}),
                               dcc.Graph(id=graph2, figure={},
-                                        style={'width': '22vh', 'height': '9vh', "margin-top": 50,
+                                        style={'width': '12vh', 'height': '9vh', "margin-top": 40,
                                                "margin-left": margin_left})])
 
 
-def return_summary_data(data1=["Production Volume", get_daily_qty()],
-                        data2=["Working Machine", working_machines[-1]],
-                        margin_left=60):
-    return html.Div(children=[html.Div(children=data1[1],
-                                       style={"fontSize": 40, "color": "rgba(111, 213, 18, 0.6)",
-                                              'text-align': 'center'}),
-                              html.Div(children=data1[0],
-                                       style={"fontSize": 25, "color": "white",
-                                              'text-align': 'center'}),
-                              html.Br(),
-                              html.Div(children=data2[1],
-                                       style={"fontSize": 40, "color": "rgba(221, 60, 0, 0.6)",
-                                              'text-align': 'center'}),
-                              html.Div(children=data2[0],
-                                       style={"fontSize": 25, "color": "white",
-                                              'text-align': 'center' }),
-                              ],
-                    style={"width": 300, "height": 250, 'color': px.colors.qualitative.Set3[1],
-                           'fontSize': 25, 'text-align': 'left', "margin-top": 80, "margin-left": margin_left,
-                            })
+def return_ind_fig(df_metrics=df_metrics, costcenter='CNC', order=0, istext=0, colorof='yellow'):
+    df_metrics = df_metrics[df_metrics["COSTCENTER"] == costcenter].sort_values(by="OEE", ascending=False)
+    df_metrics.reset_index(inplace=True, drop=True)
+    final_card = df_metrics.iloc[order]
+    text = f"{final_card['WORKCENTER']} worked {int(final_card['AVAILABILITY'] * 100)}% of planned time." \
+           f"Operater <br> processed {int(final_card['QTY'] - (final_card['QTY'] * final_card['RUNTIME']) / final_card['IDEALCYCLETIME'])} " \
+           f"more material then avarge <br> with only {final_card['SCRAPQTY']} scrap"
+
+    if istext == 0:
+
+        fig = go.Figure()
+        fig.add_trace(go.Indicator(
+            mode="gauge+number",
+            value=final_card['OEE'] * 100,
+            title={
+                "text": f"{final_card['WORKCENTER']}</span><br><span style='font-size:1em;color:gray'>"},
+            gauge={
+                'axis': {'range': [None, 150]},
+                'bar': {'color': "black", "thickness": 0.2},
+                'bgcolor': "white",
+                'borderwidth': 1,
+                'bordercolor': "black",
+                'steps': [
+                    {'range': [0, 33], 'color': 'red'},
+                    {'range': [33, 66], 'color': 'yellow'},
+                    {'range': [66, 100], 'color': 'lightgreen'},
+                    {'range': [100, 150], 'color': 'green'}
+                ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 6},
+                    'thickness': 0.75,
+                    'value': 80
+                }
+            },
+
+            #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
+            #        domain={'x': [0, 1], 'y': [0, 1]}
+        ))
+
+        annotation = {
+            "height": 600,
+            "width": 850,
+            'xref': 'paper',  # we'll reference the paper which we draw plot
+            'yref': 'paper',  # we'll reference the paper which we draw plot
+            'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+            'y': -0.2,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+            'text': text,
+            # 'showarrow': True,
+            # 'arrowhead': 3,
+            'font': {'size': 13, 'color': colorof}
+        }
+
+        fig.update_layout({
+            "annotations": [annotation],
+            # title={
+            # # 'text': text,
+            # # 'y': 1,
+            # # 'x': 0.5,
+            # # 'font': {'size': 17}
+            # },
+            "paper_bgcolor": "rgba(0,0,0,0)", "width": 350, "height": 350})
+
+        return fig
+    else:
+        text = f"{final_card['WORKCENTER']} had been worked {final_card['AVAILABILITY']} % of its planned time without breakdown.\n" \
+               f"Operater processed {final_card['QTY'] - (final_card['QTY'] * final_card['IDEALCYCLETIME']) / final_card['RUNTIME']} " \
+               f"more material then avarge with only scrap {final_card['SCRAPQTY']} " \
+               f"{final_card['WORKCENTER']}"
+        return text
 
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO])
+app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 
 app.layout = dbc.Container([
 
     dbc.Row([
         dbc.Col(
-            html.H1("Daily Efficiency Dashboard", style={'text-align': 'center'}))
+            html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
     ]),
 
     dbc.Row([
-        dcc.Dropdown(id="slct_year",
+        dcc.Dropdown(id="costcenter",
                      options=[
                          {"label": "CNC", "value": "CNC"},
-                         {"label": "CNC-To", "value": "CNCTO"},
-                         {"label": "Taslama", "value": "TASLAMA"},
+                         {"label": "CNCTORNA", "value": "CNCTORNA"},
+                         {"label": "TASLAMA", "value": "TASLAMA"},
                      ],
                      multi=False,
                      value="CNC",
-                     style={'width': "40%"}
+                     style={"color":"green","background-color": "DimGray",'width': 200}
                      )
     ]),
 
     dbc.Row([
         dbc.Col([
-            html.H1("CNC Üretim Raporu", style={'text-align': 'center'})
+            dbc.Row([
+                dbc.Col(dcc.Graph(id='sunburst'), width={"size": 4}),
+                dbc.Col([
+                    dbc.Row(
+                        html.H5("Production Summary",
+                                style={"background-color": "darkolivegreen", "text-align": "center",
+                                       "color": px.colors.qualitative.Set1[5], "width": 855})
+                    ),
+                    dbc.Row([
+                        dbc.Col(id="my-output1",
+                                width={"size": 1},
+                                style={"margin-left": 0, 'border-bottom': "1px rgb(218, 255, 160) inset",
+                                       'border-left': "1px rgb(218, 255, 160) inset"}),
+                        dbc.Col(
+                            [return_sparks(graph1="fig_prod", graph2="fig_working_machine", margin_left=120)], style={
+                                'border-bottom': "1px rgb(218, 255, 160) inset"},
+                            width={"size": 1}),
+                        dbc.Col(
+                            id="my-output2",
+                            width={"size": 1}, style={'border-bottom': "1px rgb(218, 255, 160) inset"}),
+                        dbc.Col(
+                            [return_sparks(graph1="fig_ppm", graph2="fig_scrap", margin_left=300)]
+                            , width={"size": 1},
+                            style={'border-right': "1px rgb(218, 255, 160) inset", "padding-right": 600,
+                                   'border-bottom': "1px rgb(218, 255, 160) inset", })]
+                    )
+                ], style={}, width={"size": 8})]
+            ),
 
-        ], width=12)
-    ]),
-    dbc.Row([
-        dbc.Col(
-            dcc.Graph(id='sunburst', figure={}), width={"size": 2}),
-        dbc.Col(
-            [return_summary_data()],
-            width={"offset": 4, "size": 1}, style={"margin-left": 30}),
-        dbc.Col(
-            [return_sparks(graph1="fig_prod", graph2="fig_working_machine",margin_left=115)], style={"margin-bot": 2},
-            width={"size": 1}),
-        dbc.Col(
-            [return_summary_data(data1=["PPM", get_daily_qty(ppm=True)], data2=["Scrap", get_daily_qty(type='HURDA')],margin_left=120)],
-            width={"size": 1}),
-        dbc.Col(
-            [return_sparks(graph1="fig_ppm", graph2="fig_scrap",margin_left=125)], style={"margin-bot": 2,'border-right':"7px rgb(218, 255, 160) dotted"}
-            , width={"size": 2})
+            dbc.Row([
+                dbc.Col([
+                    html.Div(children=[html.H5("Production Schedule",
+                                               style={"width": 1400, "height": 25, "text-align": "center",
+                                                      "background-color": "darkolivegreen",
+                                                      "color": px.colors.qualitative.Set1[5]}),
+                                       dcc.Graph(id='gann', figure={}),
+                                       html.H5("Best Performances",
+                                               style={"width": 1400, "height": 25, "text-align": "center",
+                                                      "background-color": "darkolivegreen",
+                                                      "color": px.colors.qualitative.Set1[5]}),
+                                       dcc.Graph(id='bubble', figure={})
+                                       ])
+                ],
 
-    ],style={"padding":"1px","size":10}),
+                    width=20)
+            ])
+        ], width={"size": 9}),
+        dbc.Col([html.H5("Best Performances", style={"width": 380, "height": 25, "text-align": "center",
+                                                     "background-color": "darkolivegreen",
+                                                     "color": px.colors.qualitative.Set1[5]}),
+                 html.Div(return_tops(), style={"width": 350, "height": 250}),
+                 html.Div(return_tops(graph1="fig_up2"), style={"width": 250, "height": 250}),
+                 html.Div(return_tops(graph1="fig_up3"), style={"width": 250, "height": 250}),
+                 html.H5("Worst Performances", style={"width": 380, "height": 25, "text-align": "center",
+                                                      "background-color": "red",
+                                                      "color": px.colors.qualitative.Set1[5], "margin-top": 160}),
+                 html.Div(return_tops(graph1="fig_down1"), style={"width": 250, "height": 250}),
+                 html.Div(return_tops(graph1="fig_down2"), style={"width": 250, "height": 250}),
+                 html.Div(return_tops(graph1="fig_down3"), style={"width": 250, "height": 250})
 
-    dbc.Row([
-        dbc.Col([
-            html.Div(id='output_container', children=[]),
-            dcc.Graph(id='gann', figure={})
-        ], width=12)
+                 ], style={"border-left": "1px rgb(218, 255, 160) inset", "border-top": "1px rgb(218, 255, 160) inset",
+                           "padding-left": 70}, width=3)
     ])
 
 ], fluid=True)
 
 
+@app.callback(
+    [Output(component_id='my-output1', component_property='children'),
+     Output(component_id='my-output2', component_property='children')],
+    Input(component_id='costcenter', component_property='value')
+)
+def return_summary_data(option_slctd):
+    data1 = ["Production Volume", get_daily_qty(costcenter=option_slctd)]
+    data2 = ["Working Machines", working_machinesf(costcenter=option_slctd)[-1]]
+    data3 = ["PPM", get_daily_qty(costcenter=option_slctd, ppm=True)]
+    data4 = ["Scrap", get_daily_qty(costcenter=option_slctd, type='SCRAPQTY')]
+
+    return [html.Div(children=[html.Div(children=data1[1],
+                                        style={"fontSize": 30, "color": px.colors.qualitative.Set1[5],
+                                               'text-align': 'center'}),
+                               html.Div(children=data1[0],
+                                        style={"fontSize": 12, "color": px.colors.qualitative.Set1[5],
+                                               'text-align': 'center'}),
+                               html.Br(),
+                               html.Div(children=data2[1],
+                                        style={"fontSize": 30, "color": px.colors.qualitative.Set1[5],
+                                               'text-align': 'center', "margin-top": 20}),
+                               html.Div(children=data2[0],
+                                        style={"fontSize": 12, "color": px.colors.qualitative.Set1[5],
+                                               'text-align': 'center'}),
+                               ],
+                     style={"width": 300, "height": 250, 'color': px.colors.qualitative.Set3[1],
+                            'fontSize': 25, 'text-align': 'left', "margin-top": 65, "margin-left": 0
+                            }),
+            html.Div(children=[html.Div(children=data3[1],
+                                        style={"fontSize": 30, "color": px.colors.qualitative.Set1[5],
+                                               'text-align': 'center'}),
+                               html.Div(children=data3[0],
+                                        style={"fontSize": 12, "color": px.colors.qualitative.Set1[5],
+                                               'text-align': 'center'}),
+                               html.Br(),
+                               html.Div(children=data4[1],
+                                        style={"fontSize": 30, "color": px.colors.qualitative.Set1[5],
+                                               'text-align': 'center', "margin-top": 20}),
+                               html.Div(children=data4[0],
+                                        style={"fontSize": 12, "color": px.colors.qualitative.Set1[5],
+                                               'text-align': 'center'}),
+                               ],
+                     style={"width": 300, "height": 250, 'color': px.colors.qualitative.Set3[1],
+                            'fontSize': 25, 'text-align': 'left', "margin-top": 65, "margin-left": 200
+                            })]
+
+
 # ------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
 @app.callback(
-    [Output(component_id='output_container', component_property='children'),
-     Output(component_id='sunburst', component_property='figure')],
-    [Input(component_id='slct_year', component_property='value')]
+    [Output(component_id='sunburst', component_property='figure')],
+    [Input(component_id='costcenter', component_property='value')]
 )
-def update_graph_sunburst(option_slctd, report_day="2022-07-26", thrshlt=70):
-    print(option_slctd)
-    print(type(option_slctd))
-
-    container = "The production field chosen by user was: " + option_slctd
-
+def update_graph_sunburst(option_slctd, report_day="2022-07-26"):
     # Plotly Express
-    df = df_for_sunburst(report_day=report_day)
+    df = df_oee[option_slctd]
+    df.MACHINE = df.MACHINE.astype(str) + '%'
 
-    if df["OEE"]["PLANSIZDURUS"] > thrshlt:
-        last_index = 9
-    elif df["OEE"]["PLANSIZDURUS"] <= thrshlt:
-        last_index = 17
+    print(df)
 
-    index_of_colors = [17, 9, 17, 4, 9, last_index, 19]
-    index_of_colors = [px.colors.qualitative.Alphabet[index] for index in index_of_colors]
-    # index_of_colors.insert(1, px.colors.qualitative.Light24[17])
-    index_of_colors[3] = px.colors.qualitative.Set3[2]
-    index_of_colors[1] = px.colors.qualitative.Light24[17]
-    index_of_colors[4] = px.colors.qualitative.Light24[17]
-    fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=500, height=500,
-                      color="RATES")
+    fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
+                      color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn)
 
-    fig.update_traces(textfont=dict(family=['Arial Black'], size=[20, 20, 20, 20, 20, 20, 35]),
-                      marker_colors=index_of_colors)
+    # fig.update_traces()
     fig.update_layout(showlegend=False, paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
-                      title="Performance/MachineTime/OEE",
-                      title_font_color=px.colors.qualitative.Set3[1], title_x=0.5, title_xanchor="center",
-                      title_font_size=23)
+                      title="Perf.-Avail.-OEE",
+                      title_font_color=px.colors.qualitative.Set1[5], title_x=0.5, title_xanchor="center",
+                      title_font_size=18)
 
     # fig.show(renderer='browser')
 
-    return container, fig
+    return [fig]
 
 
-# @app.callback(
-#     [Output(component_id='bubble', component_property='figure')],
-#     [Input(component_id='slct_year', component_property='value')]
-# )
-# def update_graph_bubble(report_day="2022-07-26"):
-#     figs = scatter_plot()
-#
-#     #
-#     # figs.update_traces(textfont=dict(family=['Arial Black']),
-#     #                   marker_colors= px.colors.qualitative.Alphabet)
-#     figs.update_xaxes(type="date", tickangle=90, fixedrange=True)
-#     figs.update_layout(paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)', font_color="white",
-#                        title_font_family="Times New Roman",
-#                        title_font_color="red")
-#
-#     return [figs]
+@app.callback(
+    [Output(component_id='bubble', component_property='figure')],
+    [Input(component_id='costcenter', component_property='value')]
+)
+def update_graph_bubble(option_slctd, report_day="2022-07-26"):
+    figs = scatter_plot(costcenter=option_slctd)
+
+    figs.update_traces(textfont=dict(family=['Arial Black']))
+    figs.update_xaxes(type="date", tickangle=90, fixedrange=True)
+    figs.update_layout(paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)', font_color="white",
+                       title_font_family="Times New Roman", title_font_color="red", width=1400, height=420
+                       )
+
+    return [figs]
+
 
 @app.callback(
     [Output(component_id='gann', component_property='figure')],
-    [Input(component_id='slct_year', component_property='value')]
+    [Input(component_id='costcenter', component_property='value')]
 )
-def update_chart_gann(report_day="2022-07-26"):
-    df = get_gann_data()
-    print(df)
-    print(df.isnull())
-    figs = px.timeline(data_frame=df[["WORKSTART", "WORKEND", "WORKCENTER","CONFTYPE","STEXT"]], x_start="WORKSTART", x_end="WORKEND",
-                y='WORKCENTER',color="CONFTYPE",color_discrete_map={"PROD":"green","BREAKDOWN":"red","SETUP":"blue"})
+def update_chart_gann(option_slctd, report_day="2022-07-26"):
+    df = get_gann_data(costcenter=option_slctd)
+
+    figs = px.timeline(data_frame=df[["WORKSTART", "WORKEND", "WORKCENTER", "CONFTYPE", "STEXT"]], x_start="WORKSTART",
+                       x_end="WORKEND",
+                       y='WORKCENTER', color="CONFTYPE",
+                       color_discrete_map={"PROD": "rgba(0, 255, 38, 0.3)", "BREAKDOWN": "red",
+                                           "SETUP": px.colors.qualitative.Set1[5]})
 
     #
     # figs.update_traces(textfont=dict(family=['Arial Black']),
     #                   marker_colors= px.colors.qualitative.Alphabet)
     figs.update_xaxes(type="date", tickangle=90, fixedrange=True)
     figs.update_layout(paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)', font_color="white",
-                       title_font_family="Times New Roman",
-                       title_font_color="red")
+                       title_font_family="Times New Roman", title_font_color="red", width=1300, height=420)
 
     return [figs]
 
 
-def get_spark_line(range=list(range(24)), data=generate_for_sparkline(type="HURDA")):
+def get_spark_line(range=list(range(24)), data=generate_for_sparkline(proses="CNC", type="HURDA")):
     return go.Figure(
         {
             "data": [
@@ -189,7 +312,7 @@ def get_spark_line(range=list(range(24)), data=generate_for_sparkline(type="HURD
                     "y": data,
                     "mode": "lines+markers",
                     "name": "item",
-                    "line": {"color": "#f4d44d"},
+                    "line": {"color": px.colors.qualitative.Set1[5]},
                 }
             ],
             "layout": {
@@ -209,6 +332,8 @@ def get_spark_line(range=list(range(24)), data=generate_for_sparkline(type="HURD
                 ),
                 "paper_bgcolor": "rgba(0,0,0,0)",
                 "plot_bgcolor": "rgba(0,0,0,0)",
+                "width": 225,
+                "height": 65
             },
         }
     )
@@ -219,14 +344,34 @@ def get_spark_line(range=list(range(24)), data=generate_for_sparkline(type="HURD
      Output(component_id='fig_scrap', component_property='figure'),
      Output(component_id='fig_working_machine', component_property='figure'),
      Output(component_id='fig_ppm', component_property='figure')],
-    [Input(component_id='slct_year', component_property='value')]
+    [Input(component_id='costcenter', component_property='value')]
 )
-def update_spark_line(report_day="2022-07-26"):
-    fig_prod = get_spark_line(data=generate_for_sparkline())
+def update_spark_line(option_slctd, report_day="2022-07-26"):
+    fig_prod = get_spark_line(data=generate_for_sparkline(proses=option_slctd))
     fig_scrap = get_spark_line()
-    fig_working_machine = get_spark_line(data=working_machines)
-    fig_ppm = get_spark_line(data=generate_for_sparkline(ppm=True))
+    fig_working_machine = get_spark_line(data=working_machinesf(costcenter=option_slctd))
+    fig_ppm = get_spark_line(data=generate_for_sparkline(proses=option_slctd, ppm=True))
     return [fig_prod, fig_scrap, fig_working_machine, fig_ppm]
+
+
+@app.callback(
+    [Output(component_id='fig_up1', component_property='figure'),
+     Output(component_id='fig_up2', component_property='figure'),
+     Output(component_id='fig_up3', component_property='figure'),
+     Output(component_id='fig_down1', component_property='figure'),
+     Output(component_id='fig_down2', component_property='figure'),
+     Output(component_id='fig_down3', component_property='figure')
+     ],
+    [Input(component_id='costcenter', component_property='value')]
+)
+def update_ind_fig(option_slctd, report_day="2022-07-26"):
+    fig_up1 = return_ind_fig(costcenter=option_slctd, istext=0)
+    fig_up2 = return_ind_fig(costcenter=option_slctd, istext=0)
+    fig_up3 = return_ind_fig(costcenter=option_slctd, istext=0)
+    fig_down1 = return_ind_fig(costcenter=option_slctd, istext=0, colorof='red')
+    fig_down2 = return_ind_fig(costcenter=option_slctd, istext=0, colorof='red')
+    fig_down3 = return_ind_fig(costcenter=option_slctd, istext=0, colorof='red')
+    return [fig_up1, fig_up2, fig_up3, fig_down1, fig_down2, fig_down3]
 
 
 # ------------------------------------------------------------------------------
