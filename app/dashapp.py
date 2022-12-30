@@ -28,16 +28,34 @@ def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
                                                "margin-left": margin_left})])
 
 
-def return_ind_fig(df_metrics=df_metrics, costcenter='CNC', order=0, istext=0, colorof='yellow'):
+def return_ind_fig(df_metrics=df_metrics, costcenter='CNC', order=0, istext=0, colorof='green'):
     df_metrics = df_metrics[df_metrics["COSTCENTER"] == costcenter].sort_values(by="OEE", ascending=False)
     df_metrics.reset_index(inplace=True, drop=True)
     final_card = df_metrics.iloc[order]
-    text = f"{final_card['WORKCENTER']} worked {int(final_card['AVAILABILITY'] * 100)}% of planned time." \
-           f"Operater <br> processed {int(final_card['QTY'] - (final_card['QTY'] * final_card['RUNTIME']) / final_card['IDEALCYCLETIME'])} " \
-           f"more material then avarge <br> with only {final_card['SCRAPQTY']} scrap"
+    if order >= 0:
+        if final_card['IDEALCYCLETIME'] == 0:
+            text = None
+        else:
+            text = f"{final_card['WORKCENTER']} worked {int(final_card['AVAILABILITY'] * 100)}% of planned time." \
+                   f"Operater <br> processed {int(final_card['QTY'] - (final_card['QTY'] * final_card['RUNTIME']) / final_card['IDEALCYCLETIME'])} " \
+                   f"more material then avarge <br> with only {final_card['SCRAPQTY']} scrap"
+    else:
+        if  final_card["QTY"] == 0:
+            text = f"{final_card['WORKCENTER']} worked {int(final_card['AVAILABILITY'] * 100)}% of planned time." \
+                   f"Operater <br> processed 0 less material <br> with  {final_card['SCRAPQTY']} scrap"
+        else:
+            if final_card['IDEALCYCLETIME'] == 0:
+                text = None
+            else:
+                text = f"{final_card['WORKCENTER']} worked {int(final_card['AVAILABILITY'] * 100)}% of planned time." \
+                       f"Operater <br> processed {int((final_card['RUNTIME']*final_card['QTY']) / final_card['IDEALCYCLETIME'] - final_card['QTY'] )} " \
+                       f"less material then optimal <br> with  {final_card['SCRAPQTY']} scrap"
 
     if istext == 0:
-
+        if colorof == 'green':
+            colorof2 = 'yellow'
+        else:
+            colorof2 = colorof
         fig = go.Figure()
         fig.add_trace(go.Indicator(
             mode="gauge+number",
@@ -46,19 +64,19 @@ def return_ind_fig(df_metrics=df_metrics, costcenter='CNC', order=0, istext=0, c
                 "text": f"{final_card['WORKCENTER']}</span><br><span style='font-size:1em;color:gray'>"},
             gauge={
                 'axis': {'range': [None, 150]},
-                'bar': {'color': "black", "thickness": 0.2},
+                'bar': {'color': colorof, "thickness": 1},
                 'bgcolor': "white",
-                'borderwidth': 1,
+                'borderwidth': 2,
                 'bordercolor': "black",
                 'steps': [
-                    {'range': [0, 33], 'color': 'red'},
-                    {'range': [33, 66], 'color': 'yellow'},
-                    {'range': [66, 100], 'color': 'lightgreen'},
-                    {'range': [100, 150], 'color': 'green'}
+                    {'range': [0, 33], 'color': 'white'},
+                    {'range': [33, 80], 'color': 'white'},
+                    {'range': [81, 100], 'color': 'white'},
+                    {'range': [100, 150], 'color': 'white'}
                 ],
                 'threshold': {
-                    'line': {'color': "red", 'width': 6},
-                    'thickness': 0.75,
+                    'line': {'color': "black", 'width': 6},
+                    'thickness': 1,
                     'value': 80
                 }
             },
@@ -77,7 +95,7 @@ def return_ind_fig(df_metrics=df_metrics, costcenter='CNC', order=0, istext=0, c
             'text': text,
             # 'showarrow': True,
             # 'arrowhead': 3,
-            'font': {'size': 13, 'color': colorof}
+            'font': {'size': 13, 'color': colorof2}
         }
 
         fig.update_layout({
@@ -159,7 +177,7 @@ app.layout = dbc.Container([
                                                       "background-color": "darkolivegreen",
                                                       "color": px.colors.qualitative.Set1[5]}),
                                        dcc.Graph(id='gann', figure={}),
-                                       html.H5("Best Performances",
+                                       html.H5("Breakdowns & Reasons",
                                                style={"width": 1400, "height": 25, "text-align": "center",
                                                       "background-color": "darkolivegreen",
                                                       "color": px.colors.qualitative.Set1[5]}),
@@ -246,14 +264,14 @@ def return_summary_data(option_slctd):
 def update_graph_sunburst(option_slctd, report_day="2022-07-26"):
     # Plotly Express
     df = df_oee[option_slctd]
-    df.MACHINE = df.MACHINE.astype(str) + '%'
+    # df.MACHINE = df.MACHINE.astype(str) + '%'
 
     print(df)
 
     fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
                       color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn)
 
-    # fig.update_traces()
+    fig.update_traces(hovertemplate='<b>Actual Rate is %{value} </b>')
     fig.update_layout(showlegend=False, paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
                       title="Perf.-Avail.-OEE",
                       title_font_color=px.colors.qualitative.Set1[5], title_x=0.5, title_xanchor="center",
@@ -287,7 +305,7 @@ def update_graph_bubble(option_slctd, report_day="2022-07-26"):
 def update_chart_gann(option_slctd, report_day="2022-07-26"):
     df = get_gann_data(costcenter=option_slctd)
 
-    figs = px.timeline(data_frame=df[["WORKSTART", "WORKEND", "WORKCENTER", "CONFTYPE", "STEXT"]], x_start="WORKSTART",
+    figs = px.timeline(data_frame=df[["WORKSTART", "WORKEND", "WORKCENTER", "CONFTYPE", "STEXT","QTY"]], x_start="WORKSTART",
                        x_end="WORKEND",
                        y='WORKCENTER', color="CONFTYPE",
                        color_discrete_map={"PROD": "rgba(0, 255, 38, 0.3)", "BREAKDOWN": "red",
@@ -366,11 +384,11 @@ def update_spark_line(option_slctd, report_day="2022-07-26"):
 )
 def update_ind_fig(option_slctd, report_day="2022-07-26"):
     fig_up1 = return_ind_fig(costcenter=option_slctd, istext=0)
-    fig_up2 = return_ind_fig(costcenter=option_slctd, istext=0)
-    fig_up3 = return_ind_fig(costcenter=option_slctd, istext=0)
-    fig_down1 = return_ind_fig(costcenter=option_slctd, istext=0, colorof='red')
-    fig_down2 = return_ind_fig(costcenter=option_slctd, istext=0, colorof='red')
-    fig_down3 = return_ind_fig(costcenter=option_slctd, istext=0, colorof='red')
+    fig_up2 = return_ind_fig(costcenter=option_slctd,order=1, istext=0)
+    fig_up3 = return_ind_fig(costcenter=option_slctd,order=2, istext=0)
+    fig_down1 = return_ind_fig(costcenter=option_slctd,order=-1, istext=0, colorof='red')
+    fig_down2 = return_ind_fig(costcenter=option_slctd,order=-2, istext=0, colorof='red')
+    fig_down3 = return_ind_fig(costcenter=option_slctd,order=-3, istext=0, colorof='red')
     return [fig_up1, fig_up2, fig_up3, fig_down1, fig_down2, fig_down3]
 
 

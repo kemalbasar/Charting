@@ -44,7 +44,7 @@ def working_machinesf(costcenter='CNC'):
 
 
 def calculate_oeemetrics(df=prd_conf, costcenter='CNC'):
-    df = df[["COSTCENTER", "CONFIRMATION", "CONFIRMPOS", "QTY", "SCRAPQTY", "REWORKQTY",
+    df = df.loc[df["WORKCENTER"] != "CNC-24",["COSTCENTER", "CONFIRMATION", "CONFIRMPOS", "QTY", "SCRAPQTY", "REWORKQTY",
              "WORKCENTER", "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME"]]
     df.drop_duplicates(inplace=True)
     df.reset_index(drop=True, inplace=True)
@@ -86,7 +86,7 @@ def calculate_oeemetrics(df=prd_conf, costcenter='CNC'):
                "TASLAMA": None,
                "CNCTORNA": None}
 
-    f = lambda a: round(((abs(a) + a) / 2), 2)
+    f = lambda a: round(((abs(a) + a) / 2), 3)
     g = lambda a: int((a * 100) / sum_of)
     h = lambda a: 1 if a > 1 else a
 
@@ -94,12 +94,17 @@ def calculate_oeemetrics(df=prd_conf, costcenter='CNC'):
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
                  df_piechart.loc[costcenter, "SETUPTIME"] + df_piechart.loc[costcenter, "NANTIME"]
 
+
         temp_dic = {
             'RATES': [f(1 - df_piechart.loc[costcenter, "PERFORMANCE"]) * g(df_piechart.loc[costcenter, "RUNTIME"]),
                       g(df_piechart.loc[costcenter, "TOTFAILURETIME"]),
                       g(df_piechart.loc[costcenter, "SETUPTIME"]),
-                      g(df_piechart.loc[costcenter, "PERFORMANCE"]),
-                      h(df_piechart.loc[costcenter, "PERFORMANCE"]) * g(df_piechart.loc[costcenter, "RUNTIME"])
+                      g(df_piechart.loc[costcenter, "NANTIME"]),
+                      # h(df_piechart.loc[costcenter, "PERFORMANCE"]) * g(df_piechart.loc[costcenter, "RUNTIME"]),
+                      (100 - (f(1 - df_piechart.loc[costcenter, "PERFORMANCE"]) * g(df_piechart.loc[costcenter, "RUNTIME"]) +
+                      g(df_piechart.loc[costcenter, "TOTFAILURETIME"])+
+                      g(df_piechart.loc[costcenter, "SETUPTIME"])+
+                      g(df_piechart.loc[costcenter, "NANTIME"])))
                       ],
             'OEE': [round(df_piechart.loc[costcenter, "OEE"], 3),
                     round(df_piechart.loc[costcenter, "OEE"], 3),
@@ -165,20 +170,6 @@ def scatter_plot(df=prd_conf, report_day="2022-07-26", costcenter='CNC'):
     df = df[["BREAKDOWNSTART", "WORKCENTER", "FAILURETIME", "STEXT", "CONFTYPE"]]
     df.reset_index(inplace=True, drop=True)
     return ag.draw_bubblechart(df=df)
-
-
-def production_times(df, report_day="2022-07-21", workcenter=None):
-    summary_df = df[df["SHIFT"] == 0].groupby("TDATE").agg({"ADET": "sum",
-                                                            "SESSIONTIME": "sum",
-                                                            "PLANSIZDURUS": "sum",
-                                                            "SETUP": "sum",
-                                                            "URETIMVERIM": "mean"
-                                                            })
-
-    summary_df.reset_index(inplace=True)
-    summary_df["MAKINA_VERIM"] = 100 * (summary_df["SESSIONTIME"]) / daily_work_minute
-
-    return summary_df[summary_df["TDATE"] == report_day]
 
 
 def get_gann_data(df=prd_conf, work_day="2022-07-26", costcenter='CNC'):
