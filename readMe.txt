@@ -1,3 +1,6 @@
+![alt text](view/jpeg.jpg?raw=true "Title")
+![alt text](view/jpeg2.jpg?raw=true "Title")
+
 1) You should enter  the correct information to the config file.
 2) -download Charting Project.
    -open cmd line.

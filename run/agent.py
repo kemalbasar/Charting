@@ -135,8 +135,7 @@ class Agent:
             self.df = df
 
         cols = [val for val in list(self.df.columns)]
-        print(cols)
-        print(cols[5])
+
         fig = px.scatter(self.df, x=cols[0], y=cols[1],
                          size=cols[2], color=cols[3],
                          hover_name=cols[4], hover_data= ["WORKCENTER"],log_x=True,size_max=50,color_discrete_sequence=px.colors.qualitative.Alphabet,
