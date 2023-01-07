@@ -1,4 +1,5 @@
 ![hello](view/jpeg.jpg)
+![githun-small](https://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_India.png)
 1) You should enter  the correct information to the config file.
 2) -download Charting Project.
    -open cmd line.
