@@ -12,18 +12,19 @@ import pyodbc
 import seaborn as sns
 import pandas as pd
 import numpy as np
+import datetime as dt
 import os
-
 
 import plotly.graph_objects as go
 import plotly.io as pio
+
 
 def readquerry(queryx):
     queryy = queryx
 
     if isinstance(queryy, pd.core.frame.DataFrame):
         return queryy
-    elif queryy[0:6] == 'SELECT':
+    elif queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH':
         return queryy
     else:
         if os.path.exists(queryy):
@@ -48,7 +49,8 @@ def change_line_of_text(textfile, linenum, dirofnewtext):
     a_file.writelines(list_of_lines)
     a_file.close()
 
-def parse_wclist_querry(stand = "'CNCFREZE'"):
+
+def parse_wclist_querry(stand="'CNCFREZE'"):
     query = "SELECT IASWORKCENT.WORKCENTER FROM IASWORKCENT \
 LEFT OUTER JOIN IASWORKCENX ON (IASWORKCENX.CLIENT = IASWORKCENT.CLIENT \
 AND IASWORKCENX.COMPANY = IASWORKCENT.COMPANY \
@@ -61,44 +63,76 @@ AND IASWORKCENT.STAND = "
     return query
 
 
-
 class Agent:
 
     def __init__(self, data_accses):
-    
+
         self.df = data_accses
-        
+
         if not isinstance(self.df, pd.core.frame.DataFrame):
             self.query = readquerry(data_accses)
             self.connection = pyodbc.connect('DRIVER={SQL Server};'
                                              'SERVER=' + server + ';DATABASE='
                                              + database + ';UID=' + username + ';PWD=' +
                                              password)
-                                             
-            self.cursor = self.connection.cursor()
-            
-            self.df = self.run_querry()
 
+            self.cursor = self.connection.cursor()
+
+            self.df = self.run_query()
 
     # method returns the result of querry as dataframe.
     # dont accept unvalid query
 
-    def run_querry(self,query=''):
+    def run_query(self, query=''):
         if query == '':
-            query=self.query
+            query = self.query
         else:
             query = readquerry(query)
         return pd.read_sql(query, self.connection)
 
     # draw gannchart
-    def draw_gannchart(self,df = '1', xx_start = "WORKSTART", xx_end = "WORKEND", xy = "WORKCENTER", xcolor = "PERSONELNUM",saveorshow = 'show', filename=None):
+
+    def write_to_db(self, wquery, data_tuple):
+        self.cursor.execute(wquery, data_tuple)
+        self.connection.commit()
+
+    def editandrun_query(self,textfile=r"C:\Users\kereviz\PycharmProjects\Charting\queries\prdt_report_foryear_calculatıon.sql",
+                         texttofind=["aaaa-bb-cc", "xxxx-yy-zz"],texttoput=[str(dt.date(2022, 1, 1)),str(dt.date(2022, 1, 2))],return_string=1):
+        """This is a Python method called find_and_replace that takes in 3 parameters:
+
+            - textfile (str): the file path of the text file that needs to be modified.
+            - texttofind (str): the text that needs to be found and replaced in the text file.
+            - texttoput (str): the text that needs to be replaced in the text file. """
+
+        with open(textfile, 'r') as file:
+            filedata = file.read()
+
+        if type(texttofind) is not list or type(texttoput) is not list:
+            raise Exception(r"Should give list of strings!")
+        else:
+            if len(texttofind) != len(texttoput):
+                raise Exception(r"String list lengths must be same!")
+
+
+        for i in range(len(texttoput)):
+            filedata = filedata.replace(texttofind[i], texttoput[i])
+
+        with open(r"C:\Users\kereviz\PycharmProjects\Charting\queries\prdt_report_foryear_calculatıon_test.sql", 'w') as file:
+            file.write(filedata)
+        file.close()
+
+        if return_string == 1:
+            df = self.run_query(filedata)
+            return df
+
+
+    def draw_gannchart(self, df='1', xx_start="WORKSTART", xx_end="WORKEND", xy="WORKCENTER", xcolor="PERSONELNUM",
+                       saveorshow='show', filename=None):
 
         if type(df) != pd.core.frame.DataFrame:
             fig = px.timeline(data_frame=self.df, x_start=xx_start, x_end=xx_end, y=xy, color=xcolor)
         else:
             fig = px.timeline(data_frame=df, x_start=xx_start, x_end=xx_end, y=xy, color=xcolor)
-
-
 
         if saveorshow == 'show':
             fig.show()
@@ -120,7 +154,7 @@ class Agent:
         else:
             raise Exception("Please write 'save or 'show' !!")
 
-    def draw_bubblechart(self,df=None, saveorshow = 'show', filename = 'pic', col_list = [0,1,2,3,4]):
+    def draw_bubblechart(self, df=None, saveorshow='show', filename='pic', col_list=[0, 1, 2, 3, 4]):
         """
         :param saveorshow: write 'save' if you want to keep as file or 'show' for just casting.
         :param filename: file name of the chart
@@ -138,8 +172,9 @@ class Agent:
 
         fig = px.scatter(self.df, x=cols[0], y=cols[1],
                          size=cols[2], color=cols[3],
-                         hover_name=cols[4], hover_data= ["WORKCENTER"],log_x=True,size_max=50,color_discrete_sequence=px.colors.qualitative.Alphabet,
-                         width = 1500 , height=500)
+                         hover_name=cols[4], hover_data=["WORKCENTER"], log_x=True, size_max=50,
+                         color_discrete_sequence=px.colors.qualitative.Alphabet,
+                         width=1500, height=500)
 
         if saveorshow == 'show':
             self.df = backup_df
@@ -221,9 +256,6 @@ class Agent:
         # axs[1].yaxis.set_major_formatter(PercentFormatter(xmax=1))
 
         plt.show()
-
-
-
 
     # def pie_multi_layer(self,df):
     #     fig = px.sunburst(df, names='names'  values='value')
