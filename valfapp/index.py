@@ -12,6 +12,8 @@ from pages import pg1, prod_eff, valuation_dashboard
 
 page_container = html.Div(
     children=[
+        dcc.Interval(id='interval', interval=45 * 1000,
+                     n_intervals=0),
         # represents the URL bar, doesn't render anything
         dcc.Location(
             id='url',
@@ -62,6 +64,38 @@ index_layout = dbc.Container([
 
 ], fluid=True)
 
+global refresh_count
+refresh_count = 0
+
+### Update Page Container ###
+@app.callback(
+    Output(
+        component_id='page-content',
+        component_property='children',
+    ),
+    [Input(
+        component_id='url',
+        component_property='pathname',
+    ),
+     Input('interval', 'n_intervals')
+    ]
+)
+def display_page(pathname,n):
+    global refresh_count
+    refresh_count = n
+    # print(n)
+    if pathname == '/':
+        return index_layout
+    elif pathname == '/pg1':
+        return pg1.layout
+    elif pathname == '/prod_eff':
+        return prod_eff.layout
+    elif pathname == '/valuation_dashboard':
+        return valuation_dashboard.layout
+    else:
+        return '404'
+
+
 ### Set app layout to page container ###
 app.layout = page_container
 ### Assemble all layouts ###
@@ -76,25 +110,8 @@ app.validation_layout = html.Div(
 )
 
 
-### Update Page Container ###
-@app.callback(
-    Output(
-        component_id='page-content',
-        component_property='children',
-    ),
-    [Input(
-        component_id='url',
-        component_property='pathname',
-    )]
-)
-def display_page(pathname):
-    if pathname == '/':
-        return index_layout
-    elif pathname == '/pg1':
-        return pg1.layout
-    elif pathname == '/prod_eff':
-        return prod_eff.layout
-    elif pathname == '/valuation_dashboard':
-        return valuation_dashboard.layout
-    else:
-        return '404'
+
+
+
+
+# refresh_store = dcc.Store(id='refresh-store', data=refresh_count)

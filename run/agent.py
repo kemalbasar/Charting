@@ -13,7 +13,11 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import datetime as dt
+from dateutil.relativedelta import relativedelta
 import os
+import warnings
+
+warnings.filterwarnings("ignore")
 
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -92,8 +96,13 @@ class Agent:
 
     # draw gannchart
 
-    def write_to_db(self, wquery, data_tuple):
-        self.cursor.execute(wquery, data_tuple)
+    def write_to_db(self, wquery, data_tuple = ''):
+        with open(wquery, "r") as file:
+            sqlquery = file.read()
+        if data_tuple == '':
+            self.cursor.execute(sqlquery)
+        else:
+            self.cursor.execute(sqlquery, data_tuple)
         self.connection.commit()
 
     def editandrun_query(self,textfile=r"C:\Users\kereviz\PycharmProjects\Charting\queries\prdt_report_foryear_calculatıon.sql",
@@ -124,6 +133,17 @@ class Agent:
         if return_string == 1:
             df = self.run_query(filedata)
             return df
+
+
+    def replace_and_insertinto(self,path = r"C:\Users\kereviz\PycharmProjects\Charting\queries\HİSTORİCALSTOCKS.sql",
+                               rapto=dt.date(2022, 9, 1),torep='xxxx-xx-xx'):
+        with open(path, 'r') as file:
+            filedata = file.read()
+        for i in range(20):
+            query = filedata.replace(torep, str(rapto))
+            self.cursor.execute(query)
+            self.connection.commit()
+            rapto += relativedelta(months=-1)
 
 
     def draw_gannchart(self, df='1', xx_start="WORKSTART", xx_end="WORKEND", xy="WORKCENTER", xcolor="PERSONELNUM",
@@ -260,3 +280,8 @@ class Agent:
     # def pie_multi_layer(self,df):
     #     fig = px.sunburst(df, names='names'  values='value')
     #     fig.show()
+
+
+
+ag = Agent(parse_wclist_querry())
+

@@ -5,9 +5,11 @@ import plotly.express as px  # (version 4.7.0 or higher)
 import dash
 from dash import Dash, dcc, html, Input, Output  # pip install dash (version 2.0.0 or higher)
 import dash_bootstrap_components as dbc
-from valfapp.functions import calculate_oeemetrics, scatter_plot, get_daily_qty, \
+from valfapp.functions_prd import calculate_oeemetrics, scatter_plot, get_daily_qty, \
     generate_for_sparkline, working_machinesf, get_gann_data
 from valfapp.app import app
+import time
+
 
 new_line = '\n'
 df_oee, df_metrics = calculate_oeemetrics()
@@ -15,6 +17,13 @@ warnings.filterwarnings("ignore")
 pd.set_option('display.float_format', lambda x: '%.2f' % x)
 pd.set_option('display.width', 500)
 pd.set_option('display.max_columns', None)
+
+
+refresh_interval = 45  # seconds
+start_time = time.time()
+refresh_count = 0
+
+
 
 
 def return_tops(graph1="fig_up1", margin_top=0, graph2="fig_up2", graph3="fig_up3"):
@@ -118,8 +127,19 @@ def return_ind_fig(df_metrics=df_metrics, costcenter='CNC', order=0, istext=0, c
                f"{final_card['WORKCENTER']}"
         return text
 
+# refresh_store = dcc.Store(id='refresh-store',
+#                           data={'refresh_count': 0, 'dropdown_value': 'default_value'})
 
-layout = dbc.Container([
+costcenters = ["CNC", "CNCTORNA", "TASLAMA"]
+costcenter_value = "CNC"
+
+layout = html.Div([
+    dcc.Interval(
+        id='interval-component',
+        interval=5*1000,  # in milliseconds
+        n_intervals=0
+    ),
+    dbc.Container([
 
     dbc.Row([
         dbc.Col(
@@ -128,13 +148,9 @@ layout = dbc.Container([
 
     dbc.Row([
         dcc.Dropdown(id="costcenter",
-                     options=[
-                         {"label": "CNC", "value": "CNC"},
-                         {"label": "CNCTORNA", "value": "CNCTORNA"},
-                         {"label": "TASLAMA", "value": "TASLAMA"},
-                     ],
+                     options=[{"label": cc, "value": cc} for cc in costcenters],
                      multi=False,
-                     value="CNC",
+                     value="costcenterval",
                      style={"color": "green", "background-color": "DimGray", 'width': 200}
                      )
     ]),
@@ -164,7 +180,7 @@ layout = dbc.Container([
                         dbc.Col(
                             [return_sparks(graph1="fig_ppm", graph2="fig_scrap", margin_left=300)]
                             , width={"size": 1},
-                            style={'border-right': "1px rgb(218, 255, 160) inset", "padding-right": 600,
+                            style={"border-right": "1px rgb(218, 255, 160) inset", "padding-right": 600,
                                    'border-bottom': "1px rgb(218, 255, 160) inset", })]
                     )
                 ], style={}, width={"size": 8})]
@@ -206,6 +222,7 @@ layout = dbc.Container([
     ])
 
 ], fluid=True)
+])
 
 
 @app.callback(
@@ -267,9 +284,9 @@ def update_graph_sunburst(option_slctd, report_day="2022-07-26"):
     # df.MACHINE = df.MACHINE.astype(str) + '%'
 #    list_color = px.colors.diverging.RdYlGn
 #    if df["OEE"][0] < 0.5: list_color.reverse()
-    print(df)
 
-    if df["OEE"][0] < 0.5 :
+
+    if df["OEE"][0] < 0 :
         fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
                           color="RATES", color_continuous_scale=px.colors.diverging.Temps, color_continuous_midpoint=50)
     else:
@@ -397,6 +414,24 @@ def update_ind_fig(option_slctd, report_day="2022-07-26"):
     fig_down3 = return_ind_fig(costcenter=option_slctd, order=-3, istext=0, colorof='red')
     return [fig_up1, fig_up2, fig_up3, fig_down1, fig_down2, fig_down3]
 
+@app.callback(
+    [Output('costcenter', 'value')],
+    [Input('costcenter', 'value')])
+def update_dropdown(options):
+    global refresh_count
+    refresh_count += 1
+    print(refresh_count)
+    print(costcenters[refresh_count%3])
+    new_value = costcenters[refresh_count%3]
+    return [new_value]
+
+
+# @app.callback(Output('page-1-refresh-count', 'children'),
+#               [Input('interval', 'n_intervals')])
+# def update_page_1_refresh_count(n):
+#     global refresh_count
+#     refresh_count = n
+#     return f"Refresh count: {refresh_count}"
 
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':

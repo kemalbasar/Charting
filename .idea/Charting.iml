@@ -7,6 +7,7 @@
     <orderEntry type="jdk" jdkName="Python 3.9 (venv)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Exercise Files" />
+    <orderEntry type="module" module-name="SQLScripts" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="NUMPY" />
