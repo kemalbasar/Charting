@@ -1,5 +1,5 @@
 from valfapp.configuration import daily_work_minute
-from run.agent import Agent, parse_wclist_querry
+from run.agent import ag
 from canias_web_services import get_work_hour
 import pandas as pd
 import datetime as dt
@@ -26,8 +26,9 @@ def apply_nat_replacer(x):
 ########### ########### ########### ###################### ########### ########### ########### ###########
 ########### ########### ########### ########### SQL QUERIES START##### ########### ########### ##########
 ########### ########### ########### ########### ########### ########### ########### ########### ##########
+
 # taking workcenter list from database
-ag = Agent(parse_wclist_querry())
+# ag = Agent(parse_wclist_querry())
 wc_list = ag.df
 # taking placement list of workcenters from database
 wc_usage = ag.run_query("SELECT STAND FROM IASROU009 WHERE STAND != '*'")
@@ -40,9 +41,7 @@ working_machines = ag.run_query(r"C:\Users\kereviz\PycharmProjects\Charting\quer
 prd_conf = ag.run_query(r"C:\Users\kereviz\PycharmProjects\Charting\queries\prdt_report1.sql")
 prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
 planned_hours = ag.run_query(r"C:\Users\kereviz\PycharmProjects\Charting\queries\planned_hours.sql")
-# Year Calculations
-# prd_conf_year = ag.run_query(
-#     r"C:\Users\kereviz\PycharmProjects\Charting\queries\planned_hours_foryerar_calculation.sql")
+
 ########### ########### ########### ###################### ########### ########### ########### ###########
 ########### ########### ########### ########### SQL QUERIES END ######## ########### ########### ##########
 ########### ########### ########### ########### ########### ########### ########### ########### ##########
@@ -52,7 +51,7 @@ def working_machinesf(costcenter='CNC'):
     return working_machines.loc[working_machines["COSTCENTER"] == costcenter, "COUNTOFWC"].tolist()
 
 
-def calculate_oeemetrics(df=prd_conf, costcenter='CNC',planned_hoursx=planned_hours, piechart_data=1):
+def calculate_oeemetrics(df=prd_conf, planned_hoursx=planned_hours, piechart_data=1):
     df = df.loc[
         df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "CONFIRMATION", "CONFIRMPOS", "QTY", "SCRAPQTY", "REWORKQTY",
                                        "WORKCENTER", "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "SETUPTIME",
@@ -72,19 +71,23 @@ def calculate_oeemetrics(df=prd_conf, costcenter='CNC',planned_hoursx=planned_ho
     # df_metrics = df_metrics_backup
     df_metrics = pd.merge(df_metrics, planned_hoursx, how='left', on='WORKCENTER')
     df_metrics["NANTIME"] = df_metrics["VARD"] * 420 - df_metrics["TOTALTIME"]
-    #There will be counter for broken data.
-    df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0 else df_metrics["NANTIME"][row] for row in
+    # There will be counter for broken data.
+    df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0
+                             else df_metrics["NANTIME"][row] for row in
                              range(len(df_metrics))]
     df_metrics = df_metrics[df_metrics["NANTIME"] > -200]
-    df_metrics.reset_index(inplace=True,drop=True)
+    df_metrics.reset_index(inplace=True, drop=True)
     df_metrics["PERFORMANCE"] = [
-        0 if df_metrics["RUNTIME"][row] <= 0 else df_metrics["IDEALCYCLETIME"][row] / df_metrics["RUNTIME"][row] for row
+        0 if df_metrics["RUNTIME"][row] <= 0
+        else df_metrics["IDEALCYCLETIME"][row] / df_metrics["RUNTIME"][row] for row
         in range(len(df_metrics))]
     df_metrics["AVAILABILITY"] = df_metrics["RUNTIME"] / (420 * df_metrics["VARD"])
-    df_metrics["QUALITY"] = df_metrics["QTY"] / (df_metrics["QTY"] + df_metrics["SCRAPQTY"] + df_metrics["REWORKQTY"])
-    df_metrics["QUALITY"] = [0 if str(df_metrics["QUALITY"][row]) == 'nan' else df_metrics["QUALITY"][row] for row in
-                             range(len(df_metrics))]
-    df_metrics["OEE"] = df_metrics["QUALITY"] * df_metrics["AVAILABILITY"] * df_metrics["PERFORMANCE"]
+    df_metrics["QUALITY"] = df_metrics["QTY"] / (df_metrics["QTY"] + df_metrics["SCRAPQTY"]
+                                                 + df_metrics["REWORKQTY"])
+    df_metrics["QUALITY"] = [0 if str(df_metrics["QUALITY"][row]) == 'nan'
+                             else df_metrics["QUALITY"][row] for row in range(len(df_metrics))]
+    df_metrics["OEE"] = df_metrics["QUALITY"] * df_metrics["AVAILABILITY"] * \
+                        df_metrics["PERFORMANCE"]
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"] - df_metrics["SETUPTIME"]
     # df_metrics["PERFORMANCEWITHWEIGHT"] = df_metrics["PERFORMANCE"] * df_metrics["VARD"]
     # df_metrics["PERFORMANCEWITHWEIGHT"].sum() / df_metrics["VARD"].sum()
@@ -113,7 +116,7 @@ def calculate_oeemetrics(df=prd_conf, costcenter='CNC',planned_hoursx=planned_ho
     g = lambda a: int((a * 100) / sum_of)
     h = lambda a: 1 if a > 1 else a
 
-    for costcenter in [costcenter, "TASLAMA", "CNCTORNA"]:
+    for costcenter in ['CNC', "TASLAMA", "CNCTORNA"]:
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
                  df_piechart.loc[costcenter, "SETUPTIME"] + df_piechart.loc[costcenter, "NANTIME"]
 
@@ -150,14 +153,14 @@ def calculate_oeemetrics(df=prd_conf, costcenter='CNC',planned_hoursx=planned_ho
         #        df_piechart_final["OPR"]["SESSIONTIME2"] = str(int(df_piechart_final["OPR"]["SESSIONTIME2"])) + '%'
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
-        return details, df_metrics
+    return details, df_metrics
 
 
-
-def year_summary(dirof_prd=r"C:\Users\kereviz\PycharmProjects\Charting\queries\prdt_report_foryear_calculatıon.sql"
-                 ,dirof_plan=r"C:\Users\kereviz\PycharmProjects\Charting\queries\planned_hours_foryerar_calculation.sql"):
-
-    df_final = pd.DataFrame(columns=['RUNTIME', 'TOTFAILURETIME', 'SETUPTIME', 'NANTIME', 'PERFORMANCE', 'AVAILABILITY', 'OEE', 'COSTCENTER', 'DATEOFY'])
+def year_summary(dirof_prd=r"C:\Users\kereviz\PycharmProjects\Charting\queries\prdt_report_foryear_calculatıon.sql",
+                 dirof_plan=r"C:\Users\kereviz\PycharmProjects\Charting\queries\planned_hours_foryerar_calculation.sql"):
+    df_final = pd.DataFrame(
+        columns=['RUNTIME', 'TOTFAILURETIME', 'SETUPTIME', 'NANTIME', 'PERFORMANCE', 'AVAILABILITY', 'OEE',
+                 'COSTCENTER', 'DATEOFY'])
     date_ofy_f = dt.date(2022, 1, 6)
     date_ofy_s = date_ofy_f - dt.timedelta(days=1)
     for i in range(364):
@@ -165,20 +168,20 @@ def year_summary(dirof_prd=r"C:\Users\kereviz\PycharmProjects\Charting\queries\p
         df_plan = ag.editandrun_query(dirof_plan, ["xxxx-yy-zz", "aaaa-bb-cc"], [str(date_ofy_s), str(date_ofy_f)])
 
         if len(df_prd) == 0 or len(df_plan) == 0:
-            print(date_ofy_s)
+            # print(date_ofy_s)
             date_ofy_s += dt.timedelta(days=1)
             date_ofy_f += dt.timedelta(days=1)
             continue
 
         df_metrics = calculate_oeemetrics(df=df_prd, planned_hoursx=df_plan, piechart_data=0)
         if df_metrics is None:
-            print(date_ofy_s)
+            # print(date_ofy_s)
             date_ofy_s += dt.timedelta(days=1)
             date_ofy_f += dt.timedelta(days=1)
             continue
 
         df_metrics["COSTCENTER"] = df_metrics.index
-        df_metrics.reset_index(inplace= True, drop= True)
+        df_metrics.reset_index(inplace=True, drop=True)
         df_metrics["DATEOFY"] = date_ofy_s
         df_final = df_final.append(df_metrics)
         date_ofy_s += dt.timedelta(days=1)
@@ -209,7 +212,8 @@ def generate_for_sparkline(proses='FR', type='TOPLAM', ppm=False):
 
 def get_daily_qty(costcenter='CNC', type="QTY", ppm=False):
     df = prd_conf
-    df = df.loc[(df["BREAKDOWNSTART"] == "nat_replaced")].groupby(["COSTCENTER"]).agg({"QTY": "sum", "SCRAPQTY": "sum"})
+    df = df.loc[((df["BREAKDOWNSTART"] == "nat_replaced") | (df["BREAKDOWN"] == 10))].groupby(["COSTCENTER"]).agg(
+        {"QTY": "sum", "SCRAPQTY": "sum"})
     df.reset_index(inplace=True)
     if not ppm:
         return str(df.loc[df["COSTCENTER"] == costcenter, type].values[0])
@@ -247,16 +251,17 @@ def get_gann_data(df=prd_conf, work_day="2022-07-26", costcenter='CNC'):
     df = df.loc[(df["BREAKDOWNSTART"] != "nat_replaced"), cols]
     df_final = pd.concat([df, df_helper])
     df_final.reset_index(inplace=True, drop=True)
-    print(df_final)
+    # print(df_final)
     df_final["CONFTYPE"] = ["PROD" if ((df_final["BREAKDOWN"][row]) == 11 & (df_final["CONFTYPE"][row] != 'SETUP'))
                             else df_final["CONFTYPE"][row] for row in range(df_final.shape[0])]
     df_final = df_final.rename(columns={"BREAKDOWNSTART": "WORKSTART", "BREAKDOWNEND": "WORKEND"})
     df_final = df_final.astype({"WORKSTART": 'datetime64[ns]'})
     df_final.reset_index(inplace=True)
     df_final.drop("index", inplace=True, axis=1)
-    print(df_final)
+    # print(df_final)
     return df_final
 
 # def calculate_work_hours(df=get_gann_data()):
 #     df["NET_WORKING_TIME1"] = [get_work_hour(df["WORKCENTER"][row], df["WORKSTART"][row], df["WORKEND"][row]) for row in
 #                                range(df.shape[0])]
+

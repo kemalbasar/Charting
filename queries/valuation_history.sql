@@ -63,8 +63,7 @@ LEFT OUTER JOIN (SELECT IASMATFMS.COMPANY, IASMATFMS.PLANT, IASMATFMS.MATACGRP, 
                                AND IASBAS034.STEXT <> '') T1 ON T1.COMPANY = B.COMPANY 
                                AND B.PLANT = T1.PLANT 
                                AND B.MATERIAL = T1.MATERIAL
-
-WHERE   B.CLIENT = '00' 
+                            WHERE   B.CLIENT = '00'
                                AND B.COMPANY = '01' 
                                AND B.PLANT = '01' 
                                AND B.WAREHOUSE!='BKM' 
