@@ -1,9 +1,6 @@
 import pandas as pd
 
-server = '172.30.134.12'
-database = 'VALFSAN604'
-username = 'kemal'
-password = 'casewhen123..,,'
+
 
 directory = r'C:\Users\kereviz\PycharmProjects\Charting\queries'
 dirofquery = r'C:\Users\kereviz\PycharmProjects\Charting\queries\query2.txt'
