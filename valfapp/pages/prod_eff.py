@@ -35,7 +35,7 @@ def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
                                         style={'width': '12vh', 'height': '9vh', "margin-top": 50,
                                                "margin-left": margin_left}),
                               dcc.Graph(id=graph2, figure={},
-                                        style={'width': '12vh', 'height': '9vh', "margin-top": 40,
+                                        style={'width': '12vh', 'height': '9vh', "margin-top": 75,
                                                "margin-left": margin_left})])
 
 
@@ -151,7 +151,9 @@ layout = html.Div([
                      options=[{"label": cc, "value": cc} for cc in costcenters],
                      multi=False,
                      value="costcenterval",
-                     style={"color": "green", "background-color": "DimGray", 'width': 200}
+                     style={"color":px.colors.qualitative.Dark2[7] ,
+                            "background-color": px.colors.qualitative.Set1[5],
+                            "text-align": "center",'width': 250,'height':15,'font-size':40}
                      )
     ]),
 
@@ -219,7 +221,7 @@ layout = html.Div([
 
                  ], style={"border-left": "1px rgb(218, 255, 160) inset", "border-top": "1px rgb(218, 255, 160) inset",
                            "padding-left": 70}, width=3)
-    ])
+    ],style= {"margin-top":80})
 
 ], fluid=True)
 ])
@@ -237,14 +239,14 @@ def return_summary_data(option_slctd):
     data4 = ["Scrap", get_daily_qty(costcenter=option_slctd, type='SCRAPQTY')]
 
     return [html.Div(children=[html.Div(children=data1[1],
-                                        style={"fontSize": 30, "color": px.colors.qualitative.Set1[5],
+                                        style={"fontSize": 40, "color": px.colors.qualitative.Set1[5],
                                                'text-align': 'center'}),
                                html.Div(children=data1[0],
                                         style={"fontSize": 12, "color": px.colors.qualitative.Set1[5],
                                                'text-align': 'center'}),
                                html.Br(),
                                html.Div(children=data2[1],
-                                        style={"fontSize": 30, "color": px.colors.qualitative.Set1[5],
+                                        style={"fontSize": 40, "color": px.colors.qualitative.Set1[5],
                                                'text-align': 'center', "margin-top": 20}),
                                html.Div(children=data2[0],
                                         style={"fontSize": 12, "color": px.colors.qualitative.Set1[5],
@@ -254,14 +256,14 @@ def return_summary_data(option_slctd):
                             'fontSize': 25, 'text-align': 'left', "margin-top": 65, "margin-left": 0
                             }),
             html.Div(children=[html.Div(children=data3[1],
-                                        style={"fontSize": 30, "color": px.colors.qualitative.Set1[5],
+                                        style={"fontSize": 40, "color": px.colors.qualitative.Set1[5],
                                                'text-align': 'center'}),
                                html.Div(children=data3[0],
                                         style={"fontSize": 12, "color": px.colors.qualitative.Set1[5],
                                                'text-align': 'center'}),
                                html.Br(),
                                html.Div(children=data4[1],
-                                        style={"fontSize": 30, "color": px.colors.qualitative.Set1[5],
+                                        style={"fontSize": 40, "color": px.colors.qualitative.Set1[5],
                                                'text-align': 'center', "margin-top": 20}),
                                html.Div(children=data4[0],
                                         style={"fontSize": 12, "color": px.colors.qualitative.Set1[5],
@@ -297,7 +299,7 @@ def update_graph_sunburst(option_slctd, report_day="2022-07-26"):
     fig.update_layout(showlegend=False, paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
                       title="Perf.-Avail.-OEE",
                       title_font_color=px.colors.qualitative.Set1[5], title_x=0.5, title_xanchor="center",
-                      title_font_size=18)
+                      title_font_size=30)
 
     # fig.show(renderer='browser')
 

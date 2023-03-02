@@ -216,6 +216,8 @@ def get_daily_qty(costcenter='CNC', type="QTY", ppm=False):
     df = prd_conf
     df = df.loc[((df["BREAKDOWNSTART"] == "nat_replaced") | (df["BREAKDOWN"] == 10))].groupby(["COSTCENTER"]).agg(
         {"QTY": "sum", "SCRAPQTY": "sum"})
+    df["SCRAPQTY"] = df["SCRAPQTY"]/10
+    df["SCRAPQTY"] = df["SCRAPQTY"].apply(np.ceil).astype(int)
     df.reset_index(inplace=True)
     if not ppm:
         return str(df.loc[df["COSTCENTER"] == costcenter, type].values[0])
