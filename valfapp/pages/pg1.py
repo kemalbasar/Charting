@@ -193,40 +193,40 @@ def create_line_chart(year):
     return [linechart]
 
 
-@app.callback(
-    [Output(component_id='linechart2', component_property='n_clicks')],
-    [Input(component_id='rawmat', component_property='n_clicks'),
-     Input(component_id='prod', component_property='n_clicks'),
-     Input(component_id='halfprod', component_property='n_clicks')]
-)
-def create_line_chart(year):
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if 'rawmat' in changed_id:
-        df_final = df_histstocks[df_histstocks["ACIKLAMA"] == 'HAMMADDE']
-    elif 'prod' in changed_id:
-        df_final = df_histstocks[df_histstocks["ACIKLAMA"] == 'MAMÜL']
-    elif 'halfprod' in changed_id:
-        df_final = df_histstocks[df_histstocks["ACIKLAMA"] == 'YARI MAMÜL']
-
-    colors = ['red', 'blue', 'green', 'orange']
-    lines = []
-
-    for i, mattype in enumerate(
-            np.delete(df_final['GRUBU'].unique(), np.where(df_final['GRUBU'].unique() == "AMORPRC"))):
-        df = df_final[df_final['MATTYPE'] == mattype]
-        line = go.Scatter(x=df['DATEOF'], y=df['TOTALVALUE'], name=mattype, mode='lines',
-                          line=dict(color=colors[i]))
-        lines.append(line)
-
-    layout = go.Layout(title='Line Chart of Total Value by Material Type and Date', xaxis={'title': 'Date'},
-                       yaxis={'title': 'Total Value'},
-                       font=dict(size=12, color='#cd5c5c'),
-                       paper_bgcolor='rgba(0, 0, 0, 0)',
-                       plot_bgcolor='rgba(0, 0, 0, 0)',
-                       width=600,
-                       height=300)
-
-    linechart = go.Figure(data=lines, layout=layout)
-    linechart.update_yaxes(title_text='Y2-axis', secondary_y=True)
-    linechart.add_trace(px.line(df, x='x', y='y2', color='y2'))
-    return [linechart]
+# @app.callback(
+#     [Output(component_id='linechart2', component_property='n_clicks')],
+#     [Input(component_id='rawmat', component_property='n_clicks'),
+#      Input(component_id='prod', component_property='n_clicks'),
+#      Input(component_id='halfprod', component_property='n_clicks')]
+# )
+# def create_line_chart(year):
+#     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+#     if 'rawmat' in changed_id:
+#         df_final = df_histstocks[df_histstocks["ACIKLAMA"] == 'HAMMADDE']
+#     elif 'prod' in changed_id:
+#         df_final = df_histstocks[df_histstocks["ACIKLAMA"] == 'MAMÜL']
+#     elif 'halfprod' in changed_id:
+#         df_final = df_histstocks[df_histstocks["ACIKLAMA"] == 'YARI MAMÜL']
+#
+#     colors = ['red', 'blue', 'green', 'orange']
+#     lines = []
+#
+#     for i, mattype in enumerate(
+#             np.delete(df_final['GRUBU'].unique(), np.where(df_final['GRUBU'].unique() == "AMORPRC"))):
+#         df = df_final[df_final['MATTYPE'] == mattype]
+#         line = go.Scatter(x=df['DATEOF'], y=df['TOTALVALUE'], name=mattype, mode='lines',
+#                           line=dict(color=colors[i]))
+#         lines.append(line)
+#
+#     layout = go.Layout(title='Line Chart of Total Value by Material Type and Date', xaxis={'title': 'Date'},
+#                        yaxis={'title': 'Total Value'},
+#                        font=dict(size=12, color='#cd5c5c'),
+#                        paper_bgcolor='rgba(0, 0, 0, 0)',
+#                        plot_bgcolor='rgba(0, 0, 0, 0)',
+#                        width=600,
+#                        height=300)
+#
+#     linechart = go.Figure(data=lines, layout=layout)
+#     linechart.update_yaxes(title_text='Y2-axis', secondary_y=True)
+#     linechart.add_trace(px.line(df, x='x', y='y2', color='y2'))
+#     return [linechart]

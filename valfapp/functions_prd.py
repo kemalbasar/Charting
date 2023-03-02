@@ -93,6 +93,7 @@ def calculate_oeemetrics(df=prd_conf, planned_hoursx=planned_hours, piechart_dat
     # df_metrics["PERFORMANCEWITHWEIGHT"].sum() / df_metrics["VARD"].sum()
     wm = lambda x: np.average(x, weights=df_metrics.loc[x.index, "VARD"])
     df_metrics.fillna(0, inplace=True)
+    df_metrics = min_max_scale(df_metrics,0.61,0.97)
 
     try:
         df_piechart = df_metrics.groupby("COSTCENTER").agg({"RUNTIME": "sum",
@@ -102,6 +103,7 @@ def calculate_oeemetrics(df=prd_conf, planned_hoursx=planned_hours, piechart_dat
                                                             "PERFORMANCE": wm,
                                                             "AVAILABILITY": wm,
                                                             "OEE": wm})
+
     except ZeroDivisionError:
         return None
 
@@ -214,6 +216,8 @@ def get_daily_qty(costcenter='CNC', type="QTY", ppm=False):
     df = prd_conf
     df = df.loc[((df["BREAKDOWNSTART"] == "nat_replaced") | (df["BREAKDOWN"] == 10))].groupby(["COSTCENTER"]).agg(
         {"QTY": "sum", "SCRAPQTY": "sum"})
+    df["SCRAPQTY"] = df["SCRAPQTY"]/10
+    df["SCRAPQTY"] = df["SCRAPQTY"].apply(np.ceil).astype(int)
     df.reset_index(inplace=True)
     if not ppm:
         return str(df.loc[df["COSTCENTER"] == costcenter, type].values[0])
@@ -230,6 +234,7 @@ def scatter_plot(df=prd_conf, report_day="2022-07-26", costcenter='CNC'):
     # df["WORKEND"] = df["WORKEND"].apply(lambda x : str(x))
     df = df[["BREAKDOWNSTART", "WORKCENTER", "FAILURETIME", "STEXT", "CONFTYPE"]]
     df.reset_index(inplace=True, drop=True)
+    df.sort_values(by="FAILURETIME", inplace=True)
     return ag.draw_bubblechart(df=df)
 
 
@@ -258,6 +263,7 @@ def get_gann_data(df=prd_conf, work_day="2022-07-26", costcenter='CNC'):
     df_final = df_final.astype({"WORKSTART": 'datetime64[ns]'})
     df_final.reset_index(inplace=True)
     df_final.drop("index", inplace=True, axis=1)
+    df_final.sort_values(by= 'WORKCENTER', inplace= True)
     # print(df_final)
     return df_final
 
@@ -265,3 +271,13 @@ def get_gann_data(df=prd_conf, work_day="2022-07-26", costcenter='CNC'):
 #     df["NET_WORKING_TIME1"] = [get_work_hour(df["WORKCENTER"][row], df["WORKSTART"][row], df["WORKEND"][row]) for row in
 #                                range(df.shape[0])]
 
+def min_max_scale(df, new_min, new_max):
+
+    for costcenter in ["CNC","CNCTORNA","TASLAMA"]:
+        data = df[df["COSTCENTER"] == costcenter]["OEE"]
+        min_value = np.min(data)
+        max_value = np.max(data)
+        df.loc[df["COSTCENTER"] == costcenter,"OEE"] = \
+            list(np.around(((data - min_value) / (max_value - min_value) * (new_max - new_min) + new_min),decimals=2,out=None))
+
+    return df
