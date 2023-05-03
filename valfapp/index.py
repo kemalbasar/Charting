@@ -6,13 +6,14 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 ### Import Dash Instance and Pages ###
 from valfapp.app import app
-from pages import pg1, prod_eff, valuation_dashboard
+from pages import pg1, prod_eff, workcenters,liveprd
+from valfapp.pages import livecnc, livepres, ittools
 
 ### Page container ###
 
 page_container = html.Div(
     children=[
-        dcc.Interval(id='interval', interval=45 * 1000,
+        dcc.Interval(id='interval', interval=500 * 1000,
                      n_intervals=0),
         # represents the URL bar, doesn't render anything
         dcc.Location(
@@ -25,47 +26,103 @@ page_container = html.Div(
 )
 ### Index Page Layout ###
 index_layout = dbc.Container([
-    dbc.Row([html.H1("Valfsan Dashboards",
-                     style={"text-align": "center", 'color': 'LightSteelBlue', 'font-weight': 'bold', 'margin-top': 20,
+    # dcc.Interval(
+    #     id='interval-component',
+    #     interval=1000000, # 5000 milliseconds = 5 seconds
+    #     n_intervals=0
+    # ),
+    dbc.Row([html.H1("Valfsan Analytics",
+                     style={"text-align": "center", 'color': 'LightSteelBlue', 'font-weight': 'bold',
                             'padding': 50,
-                            "width": 1500, "height": 100})]),
-    dbc.Row([html.H2("Reports",
-                     style={"text-align": "left", 'color': 'rgb(218, 255, 160)', 'font-weight': 'bold', 'margin-top': 5,
-                            "margin-left": 40,
-                            "width": 300, "height": 40, "border-bottom": "1px rgb(218, 255, 160) inset"})]),
+                            "width": 1000, "height": 100})],
+            className="justify-content-center"),
     dbc.Row([
-        html.Div(
-            children=[
-                dcc.Link(
-                    children='1.Valuation ( Not Ready )',
-                    href='/pg1',
-                    style={"color": "DimGrey", "font-weight": "bold"}
-
-                ),
-                html.Br(),
-                dcc.Link(
-                    children='2.Manufacturing Dashboard',
-                    href='/prod_eff',
-                    style={"color": "DimGrey", "font-weight": "bold"}
-
-                ),
-                html.Br(),
-                dcc.Link(
-                    children='3.Costing',
-                    href='/valuation_dashboard',
-                    style={"color": "DimGrey", "font-weight": "bold"}
-
-                ),
-            ]
-            , style={"padding": 30, "width": 300, "height": 500, "margin-left": 40,
-                     'background-color': "rgb(218, 255, 160)", "opacity": 0.5}
+        dbc.Col(
+            dcc.Link(
+                children=[
+                    html.Div([
+                        html.Img(src='/assets/tutarlama.link.png', style={"width": "700px", "height": "480px", "object-fit": "fit"}),
+                        html.H1("Tutarlama ( Geliştirme Aşamasında )", style={
+                            "position": "absolute",
+                            "bottom": 8,
+                            "right": 8,
+                            'color': 'white',
+                            'font-weight': 'bold',
+                        })
+                    ], style={"position": "relative", "display": "inline-block"})
+                ],
+                href='/pg1',
+            ),
+            width=5,  # Adjust the width of the column, you can use values from 1 to 12
+            style={"padding": 15}
         ),
-    ])
-
+        dbc.Col(
+            dcc.Link(
+                children=[
+                    html.Div([
+                        html.Img(src='/assets/report.link.png', style={"width": "700px", "height": "480px", "object-fit": "fit"}),
+                        html.H1("M.Merkezi OEE Raporu", style={
+                            "position": "absolute",
+                            "bottom": 8,
+                            "right": 8,
+                            'color': 'white',
+                            'font-weight': 'bold',
+                        })
+                    ], style={"position": "relative", "display": "inline-block"})
+                ],
+                href='/prod_eff',
+            ),
+            width=5,  # Adjust the width of the column, you can use values from 1 to 12
+            style={"padding": 15}
+        ),
+    ],style={'margin-left': 220,'margin-top': 40,'margin-bottom': '-45px'}),
+    dbc.Row([
+        dbc.Col(
+            dcc.Link(
+                children=[
+                    html.Div([
+                        html.Img(src='/assets/wc.link.png', style={"width": "700px", "height": "480px", "object-fit": "fit"}),
+                        html.H1("İş Merkezi Raporu", style={
+                            "position": "absolute",
+                            "bottom": 0,
+                            "right": 10,
+                            'color': 'white',
+                            'font-weight': 'bold',
+                        })
+                    ], style={"position": "relative", "display": "inline-block"})
+                ],
+                href='/wcreport',
+            ),
+            width=5,  # Adjust the width of the column, you can use values from 1 to 12
+            style={"padding": 15}
+        ),
+        dbc.Col(
+            dcc.Link(
+                children=[
+                    html.Div([
+                        html.Img(src='/assets/live.link.png', style={"width": "700px", "height": "480px", "object-fit": "fit"}),
+                        html.H1("Üretim Canlı Takip", style={
+                            "position": "absolute",
+                            "bottom": 0,
+                            "right": 8,
+                            'color': 'white',
+                            'font-weight': 'bold',
+                        })
+                    ], style={"position": "absolute", "display": "inline-block"})
+                ],
+                href='/live_prd',
+            )
+            ,
+            width=5,  # Adjust the width of the column, you can use values from 1 to 12
+            style={"padding": 15}
+        ),
+    ],style={'margin-left': 220}),
+        dcc.Link(
+                children='ittools',
+                href='/ittools',
+            )
 ], fluid=True)
 
-global refresh_count
-refresh_count = 0
 
 ### Update Page Container ###
 @app.callback(
@@ -81,17 +138,24 @@ refresh_count = 0
     ]
 )
 def display_page(pathname,n):
-    global refresh_count
-    refresh_count = n
+
     # print(n)
     if pathname == '/':
         return index_layout
-    elif pathname == '/pg1':
-        return pg1.layout
+    elif pathname == '/live_prd':
+        return liveprd.layout
     elif pathname == '/prod_eff':
         return prod_eff.layout
-    elif pathname == '/valuation_dashboard':
-        return valuation_dashboard.layout
+    elif pathname == '/pg1':
+        return pg1.layout
+    elif pathname == '/wcreport':
+        return workcenters.layout
+    elif pathname == '/liveprd/livecnc':
+        return livecnc.layout
+    elif pathname == '/liveprd/livepres':
+        return livepres.layout
+    elif pathname == '/ittools':
+        return ittools.layout
     else:
         return '404'
 
@@ -103,12 +167,17 @@ app.validation_layout = html.Div(
     children=[
         page_container,
         index_layout,
-        pg1.layout,
+        liveprd.layout,
         prod_eff.layout,
-        valuation_dashboard.layout
+        pg1.layout,
+        workcenters.layout,
+        livepres.layout,
+        livecnc.layout,
+        ittools.layout
     ]
 )
 
+app.layout.interval = -1
 
 
 
