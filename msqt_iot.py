@@ -1,24 +1,39 @@
-from paho.mqtt import client as mqtt_client
+from paho.mqtt import client as mqtt
+import time
 
-broker = '10.50.27.18'
+broker = '172.30.134.22'
 port = 1883
-topic = "Montaj/Fix/OkAdet"
-username = 'mqtt'
-password = '!Valfsan2022**!'
-client_id = '159753'
-
+topic = "P12/DevirHiz"
+topic2 = "P12/ParcaAdetTest"
+topic3 = "P12/SariIsik"
+topic4 = "P12/YesilIsik"
+username = ''
+password = ''
+client_id = ''
+adetbilgisi = None
 
 
 def on_message(client, userdata, msg):
-    print(f"Message received [{msg.topic}]: {msg.payload}")
+    global adetbilgisi
+    current_message = msg.payload.decode()
 
-client = mqtt_client.Client(client_id)
-client.username_pw_set(username, password)
-client.connect(broker, port)
-client.subscribe(topic,qos=0)
+
+client = mqtt.Client()
+# client.username_pw_set(username, password)
 client.on_message = on_message
-client.loop_forever()
+client.connect(broker, 1883, 60)
 
+client.subscribe(topic4,0)
 
-client.publish("house/light","on")
+client.loop_start()
+
+while adetbilgisi is None:
+    pass
+
+# Print the current message
+print("Current message: ", adetbilgisi)
+
+client.loop_stop()
+
+client.publish("P12/AdetRst",True)
 

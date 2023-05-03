@@ -1,20 +1,18 @@
+from config import project_directory
 import dash
 import numpy as np
-import plotly
-from dash import dcc, html
 import dash_bootstrap_components as dbc
 from valfapp.app import app
-from valfapp.functions_val import total_value, df_histval, df_histstocks
+from valfapp.functions.functions_val import total_value, df_histval, df_histstocks
 import plotly.graph_objects as go
-import plotly.express as px
-from dash import Dash, dcc, html, Input, Output
+from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
 
-df_val = pd.read_excel(r"C:\Users\kereviz\PycharmProjects\Charting\outputs(xlsx)\val2022.xlsx")
+df_val = pd.read_excel(project_directory + r"\Charting\outputs(xlsx)\val2022.xlsx")
 dash.register_page(__name__, path='/')
 total_value = format(int(total_value), ",")
-
+layout = []
 layout = dbc.Container([
     dbc.Row(html.Button(id='year', value="2022", children='Click me')),
     dbc.Row([
