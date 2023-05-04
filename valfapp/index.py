@@ -181,6 +181,7 @@ app.layout.interval = -1
 
 
 
+#method takes input as dataframe and return buble graph
 
 
 # refresh_store = dcc.Store(id='refresh-store', data=refresh_count)
