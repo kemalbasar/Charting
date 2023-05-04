@@ -1,0 +1,242 @@
+[33mcommit 11c986e36de2def243644b91477dba77aac1747b[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Merge: 3790c5a cf1a178
+Author: Kereviz <kereviz@valfsan.local>
+Date:   Fri Feb 24 14:00:46 2023 +0300
+
+    Merge branch 'Dash_App_Man_Dashboard' of https://github.com/kemalbasar/Charting
+
+[33mcommit cf1a17846efd130d00c7a28bb8fe75f4fbd1e96e[m[33m ([m[1;31morigin/Dash_App_Man_Dashboard[m[33m)[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Fri Feb 24 13:48:13 2023 +0300
+
+    1.auto refresh activated.
+    2.shift mistakes fixed.
+    3.design of costing improved.
+
+[33mcommit 3790c5a2a9ea55b0bce614ccb1defd81e64ad72f[m
+Merge: bddbc21 6180b31
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Wed Jan 18 11:08:41 2023 +0300
+
+    Merge pull request #3 from kemalbasar/Dash_App_Man_Dashboard
+    
+    Dash app man dashboard
+
+[33mcommit 6180b31c3d3e8c2b65cea077b1448b692549ad04[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Wed Jan 18 11:06:27 2023 +0300
+
+    requirements.txt added.
+
+[33mcommit 9b52d10ff80a1b75506c8570e4f1ae361c5b3076[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Wed Jan 18 09:23:57 2023 +0300
+
+    Seasonal calculation method of oee added for year 2022.
+
+[33mcommit bddbc211b69ddfd36339299d48b777196158f7a2[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sat Jan 7 12:04:29 2023 +0300
+
+    Update readMe.md
+
+[33mcommit 249fb4dc8b56a8138252cda48c1f9d4d9515e883[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sat Jan 7 12:03:57 2023 +0300
+
+    Rename readMe.txt to readMe.md
+
+[33mcommit eb46bd1af64770cb4c341a38caa3d0ef0a092995[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sat Jan 7 12:02:46 2023 +0300
+
+    Update readMe.txt
+
+[33mcommit 91eb43913412bb1a660391e8828e41447dbadc27[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sat Jan 7 12:02:33 2023 +0300
+
+    Update readMe.txt
+
+[33mcommit 1040f9f009ed9be4a0b8d271a7fd9b1125647ba5[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sat Jan 7 11:59:21 2023 +0300
+
+    Update readMe.txt
+
+[33mcommit a0e75cf1b8cb5f4f8e2084ebfab110dc2b63e67c[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sat Jan 7 11:51:33 2023 +0300
+
+    Update readMe.txt
+
+[33mcommit cd11de5b8a0a3e5834d02b11520c7b3efd8d171c[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sat Jan 7 11:49:56 2023 +0300
+
+    Update readMe.txt
+
+[33mcommit 87d59b8af6d8125e9ef51fce344d27855c4a14ee[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sat Jan 7 11:45:11 2023 +0300
+
+    Update readMe.txt
+
+[33mcommit dfdede0b5692bd457ef85805acded952c1075075[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Mon Jan 2 16:20:31 2023 +0300
+
+    Update readMe.txt
+
+[33mcommit 3c6b4d9f8bb32bc96dd5aae3cdff0de2763b054a[m
+Merge: f1db04d 052e143
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Mon Jan 2 16:19:57 2023 +0300
+
+    Merge pull request #2 from kemalbasar/Dash_App_Man_Dashboard
+    
+    Dash app man dashboard
+
+[33mcommit 052e14318d729dc580ec517e8b869b7555e58b40[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Mon Jan 2 16:15:16 2023 +0300
+
+    readMe.txt edited
+
+[33mcommit a58a49f3327be4748f5f92733f7bb37f4098576a[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Mon Jan 2 16:14:05 2023 +0300
+
+    readMe.txt edited
+
+[33mcommit a36bd181e9e30f66cbb29d200384855225d96545[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Fri Dec 30 17:01:54 2022 +0300
+
+    bugs fixex,
+    preview added
+
+[33mcommit 0c6102f6b5acc4c5f0fd4b97768b354e0ad21d32[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Fri Dec 30 17:00:58 2022 +0300
+
+    bugs fixex,
+    preview added
+
+[33mcommit 28ee460d54d1f439ba7c99fe0b0ba8d90d222a61[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Thu Dec 29 13:19:49 2022 +0300
+
+    Overall UI changed,
+    bubble chart added,
+    data piplines optimized
+
+[33mcommit f1db04d1e4fcbcb9aff80e2d4008f05d979d25d5[m
+Merge: a63e66b 464addc
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Sun Dec 11 15:21:47 2022 +0300
+
+    Merge pull request #1 from kemalbasar/Dash_App_Man_Dashboard
+    
+    Dash app man dashboard
+
+[33mcommit 464addc45e545763e379970d39e04c4d37a68e09[m
+Author: kbbudak <kemalbasarbudak@gmail.com>
+Date:   Sun Dec 11 15:16:42 2022 +0300
+
+    Dash Manufacturing Dashbord design script writting with Plotly Dash Framework.
+    Web Services writting for comminication with  Canias Erp Application.
+    Mosquito Protocol created for commincation with machines.
+
+[33mcommit 2adb66c012c09c05fb7c1efcb2b91f5c171a0f5f[m[33m ([m[1;31morigin/added_methods_[m[33m)[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Sun May 22 20:36:11 2022 +0300
+
+    new querry added,
+    branch bug fix
+
+[33mcommit 5647924692e31b1d8b16edc3a0493bd2b17536de[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Sun May 22 19:49:48 2022 +0300
+
+    new querry added,
+    branch bug fix
+
+[33mcommit 0e6d722bca6ea0ef33bca29e307623b855bb1be3[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Sun May 22 19:37:02 2022 +0300
+
+    new querry added
+
+[33mcommit add9e16a94132f2a1bbf1964dddcd515a770089e[m
+Author: basar <kemalbasarbudak@gmail.com>
+Date:   Sat May 14 14:13:35 2022 +0300
+
+    added graph of correlation matrix
+
+[33mcommit 0053754c96a75b303f4fc2616cc469ee3270145b[m
+Author: basar <kemalbasarbudak@gmail.com>
+Date:   Sat May 14 14:12:17 2022 +0300
+
+    added graph of correlation matrix
+
+[33mcommit 8a8113ed4315d4e17c485ca15acad28558873dd5[m
+Author: basar <kemalbasarbudak@gmail.com>
+Date:   Sat May 14 14:05:52 2022 +0300
+
+    change order of initilazie dataframe for inputting dataframe directly as input.
+
+[33mcommit a63e66b8b5d66d687c4daa4e3e49c7f1233565e9[m
+Author: kemal başar budak <kemalbasarbudak@gmail.com>
+Date:   Wed Apr 6 13:40:48 2022 +0300
+
+    changel of line method omitted. Instead of manupulating sql querry with python. It will load all querry from directory. (It will be created from Canias and loaded from python in same session.
+
+[33mcommit 5a415ac9a1a7106e6f18d33fc7685c368a721712[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Sun Apr 3 16:32:25 2022 +0300
+
+    Ready for migrate to server
+
+[33mcommit ccde6730c4f869e69688082f3797593d02d07a15[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Sun Apr 3 16:17:31 2022 +0300
+
+    Ready for migrate to server
+
+[33mcommit c6d4db2a86ee6c20dcd4b6e4c456aeb191a0031c[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Sat Mar 26 21:39:34 2022 +0300
+
+    Read me text added.
+
+[33mcommit 0dfad289b35ea4d870bbefcac17da6414b9455b4[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Sat Mar 26 21:28:22 2022 +0300
+
+    bubble chart class method added.
+    some change at structure.
+
+[33mcommit 8621797d00b903dfbf5ec9a6aa83475065d875e9[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Thu Mar 17 15:23:30 2022 +0300
+
+    some arguments added to main file,now you can pass columns names whıch desired to be used in GannChart dataset.
+
+[33mcommit 1bea355ee83339524432169cce7dab3cf2d3e0ed[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Wed Mar 16 15:40:30 2022 +0300
+
+    hello git
+
+[33mcommit add526e37c1a46a568832797ecfc08acc8b7f026[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Mon Mar 14 11:13:52 2022 +0300
+
+    HELLO GIT
+
+[33mcommit b4a4d5bdfd5fd628966e683f4f76f1dd1bef2bb3[m
+Author: kereviz <kemalbasarbudak@gmail.com>
+Date:   Mon Mar 14 10:56:43 2022 +0300
+
+    hello git

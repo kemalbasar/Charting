@@ -1,14 +1,12 @@
+import time
+
+from config import server,username,password,database,directory,project_directory
 from matplotlib import colors
-
-from config import database
-from config import username
-from config import password
-from config import server
 from config import directory
-
 import plotly.express as px
 import matplotlib.pyplot as plt
 import pyodbc
+
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -24,11 +22,10 @@ import plotly.io as pio
 
 
 def readquerry(queryx):
-    queryy = queryx
 
-    if isinstance(queryy, pd.core.frame.DataFrame):
-        return queryy
-    elif queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH':
+    queryy = queryx
+    if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH'\
+            or queryy[0:4] == 'EXEC':
         return queryy
     else:
         if os.path.exists(queryy):
@@ -41,71 +38,116 @@ def readquerry(queryx):
             raise Exception("Please enter correct directory or write SQL Query directly")
 
 
-def change_line_of_text(textfile, linenum, dirofnewtext):
-    a_file = open(textfile, "r")
-    list_of_lines = a_file.readlines()
-
-    b_file = open(dirofnewtext, "r")
-    newtext = b_file.read()
-    list_of_lines[linenum - 1] = newtext
-
-    a_file = open(textfile, "w")
-    a_file.writelines(list_of_lines)
-    a_file.close()
-
-
-def parse_wclist_querry(stand="'CNCFREZE'"):
-    query = "SELECT IASWORKCENT.WORKCENTER FROM IASWORKCENT \
-LEFT OUTER JOIN IASWORKCENX ON (IASWORKCENX.CLIENT = IASWORKCENT.CLIENT \
-AND IASWORKCENX.COMPANY = IASWORKCENT.COMPANY \
-AND IASWORKCENX.PLANT = IASWORKCENT.PLANT \
-AND IASWORKCENX.WORKCENTER = IASWORKCENT.WORKCENTER \
-AND IASWORKCENX.LANGU = 'T') \
-WHERE IASWORKCENT.CLIENT = '00' AND IASWORKCENT.ISDELETE = 0 AND IASWORKCENT.COMPANY = '01' \
-AND IASWORKCENT.STAND = "
-    query = query + stand
-    return query
+def parse_inserter_sql(table,columns,dbcolumns):
+    a = pd.read_excel(r"C:\Users\kbbudak\Desktop\HURDA DURUŞLARI LİSTESİ.xlsx", sheet_name=r'bölüm bazlı hurda listesi')
+    b = pd.read_excel(r"C:\Users\kbbudak\Desktop\HURDA DURUŞLARI LİSTESİ.xlsx", sheet_name=r'canias hurda listesi')
+    c = a.merge(b, on="STEXT", how='inner')
+    c = c[["SCRAPKEY", "DIVISION", "COSTCENTER", "CREATEDBY", "CREATEDAT", "CHANGEDBY", "CHANGEDAT"]]
+    return c
 
 
 class Agent:
 
-    def __init__(self, data_accses):
+    def __init__(self, server=server, database=database,
+                 username=username, password=password):
 
-        self.df = data_accses
-
-        if not isinstance(self.df, pd.core.frame.DataFrame):
-            self.query = readquerry(data_accses)
-            self.connection = pyodbc.connect('DRIVER={SQL Server};'
-                                             'SERVER=' + server + ';DATABASE='
-                                             + database + ';UID=' + username + ';PWD=' +
-                                             password)
-
-            self.cursor = self.connection.cursor()
-
-            self.df = self.run_query()
+        self.server = server
+        self.database = database
+        self.username = username
+        self.password = password
+        self.connection = pyodbc.connect(f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}')
 
     # method returns the result of querry as dataframe.
     # dont accept unvalid query
 
     def run_query(self, query=''):
-        if query == '':
-            query = self.query
+        query = readquerry(query)
+        max_retries = 5
+        retry_count = 0
+
+        while retry_count < max_retries:
+            try:
+                with self.connection.cursor() as cursor:
+                    cursor.execute(query)
+                    results = cursor.fetchall()
+                    columns = [column[0] for column in cursor.description]
+                    return pd.DataFrame.from_records(results, columns=columns)
+            except pyodbc.Error as e:
+                print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
+                retry_count += 1
+                time.sleep(1)  # wait for 1 second before trying again
+
+        if retry_count == max_retries:
+            print("Maximum number of retries reached. Could not connect to database.")
         else:
-            query = readquerry(query)
-        return pd.read_sql(query, self.connection)
+            return pd.DataFrame.from_records(results, columns=columns)
 
-    # draw gannchart
 
-    def write_to_db(self, wquery, data_tuple = ''):
-        with open(wquery, "r") as file:
-            sqlquery = file.read()
-        if data_tuple == '':
-            self.cursor.execute(sqlquery)
-        else:
-            self.cursor.execute(sqlquery, data_tuple)
-        self.connection.commit()
+    def update_table(self, diro, table_name = '',nullaccept = 0,insert=0):
+        df = pd.read_excel(diro)
+        final_output = ''
+        if table_name == '':
+            raise ValueError("Tablo ismi belirtmediniz.")
+        set_flag = 'SET_'
+        where_flag = 'WHERE_'
 
-    def editandrun_query(self,textfile=r"C:\Users\kereviz\PycharmProjects\Charting\queries\prdt_report_foryear_calculatıon.sql",
+        # Define the SQL update statement to use
+        sql_query = f"UPDATE {table_name} SET "
+
+        for row in df.index:
+            for col in df.columns:
+                # Check if the column has a SET flag
+                if col.startswith(set_flag):
+                    col_name = col[len(set_flag):]
+                    value = df[col][row]
+                    if nullaccept == 0:
+                        if value is None:
+                            continue
+                    sql_query += f"{col_name} = '{value}',"
+            sql_query = sql_query[:-1]
+            sql_query = sql_query + ' '
+            # Check if the column has a WHERE flag
+            for col in df.columns:
+                counter = 0
+                if col.startswith(where_flag):
+                    col_name = col[len(where_flag):]
+                    value = df[col][row]
+                    if nullaccept == 0:
+                        if value is None:
+                            continue
+                    if counter == 1:
+                        sql_query += f" AND  {col_name} = '{value}'"
+                    else:
+                        sql_query += f"WHERE {col_name} = '{value}'"
+                        counter = 1
+            print(sql_query)
+            if insert:
+                with self.connection.cursor() as cursor:
+                    cursor.execute(sql_query)
+            else:
+                final_output = final_output + sql_query + f"\n" + ';'
+
+            sql_query = f"UPDATE {table_name} SET "
+
+        return final_output
+
+    def insert_into_db(self,diro,table_name,update=0):
+        df = pd.read_excel(diro)
+        final_output = ''
+        for _, row in df.iterrows():
+            values = ','.join([f"'{str(val)}'" for val in row])
+            insert_query = f"INSERT INTO {table_name} VALUES ({values})"
+            if update:
+                with self.connection.cursor() as cursor:
+                    cursor.execute(insert_query)
+            else:
+                final_output = final_output  + insert_query + f"\n" +  ';'
+
+        return final_output
+
+
+
+    def editandrun_query(self,textfile=project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon.sql",
                          texttofind=["aaaa-bb-cc", "xxxx-yy-zz"],texttoput=[str(dt.date(2022, 1, 1)),str(dt.date(2022, 1, 2))],return_string=1):
         """This is a Python method called find_and_replace that takes in 3 parameters:
 
@@ -126,100 +168,26 @@ class Agent:
         for i in range(len(texttoput)):
             filedata = filedata.replace(texttofind[i], texttoput[i])
 
-        with open(r"C:\Users\kereviz\PycharmProjects\Charting\queries\prdt_report_foryear_calculatıon_test.sql", 'w') as file:
+        with open(project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon_test.sql", 'w') as file:
             file.write(filedata)
         file.close()
 
         if return_string == 1:
-            df = self.run_query(filedata)
-            return df
+            with self.connection.cursor() as cursor:
+                return cursor.execute(filedata)
 
 
-    def replace_and_insertinto(self,path = r"C:\Users\kereviz\PycharmProjects\Charting\queries\HİSTORİCALSTOCKS.sql",
+
+    def replace_and_insertinto(self,path = project_directory + r"\Charting\queries\HİSTORİCALSTOCKS.sql",
                                rapto=dt.date(2022, 9, 1),torep='xxxx-xx-xx'):
         with open(path, 'r') as file:
             filedata = file.read()
         for i in range(20):
             query = filedata.replace(torep, str(rapto))
-            self.cursor.execute(query)
-            self.connection.commit()
+            with self.connection.cursor() as cursor:
+                cursor.execute(query)
             rapto += relativedelta(months=-1)
 
-
-    def draw_gannchart(self, df='1', xx_start="WORKSTART", xx_end="WORKEND", xy="WORKCENTER", xcolor="PERSONELNUM",
-                       saveorshow='show', filename=None):
-
-        if type(df) != pd.core.frame.DataFrame:
-            fig = px.timeline(data_frame=self.df, x_start=xx_start, x_end=xx_end, y=xy, color=xcolor)
-        else:
-            fig = px.timeline(data_frame=df, x_start=xx_start, x_end=xx_end, y=xy, color=xcolor)
-
-        if saveorshow == 'show':
-            fig.show()
-
-        elif saveorshow == 'save':
-            if not filename:
-                raise Exception("Please enter file name for saving GannChart as a html file!!!")
-
-            diroffile = os.path.join(directory, filename)
-
-            if not os.path.exists(diroffile):
-                fig.write_html(diroffile)
-                if os.path.exists(diroffile):
-                    print("GannChart has been saved succesfully to directory entered.")
-
-            else:
-                raise Exception("There is already a file with same name")
-
-        else:
-            raise Exception("Please write 'save or 'show' !!")
-
-    def draw_bubblechart(self, df=None, saveorshow='show', filename='pic', col_list=[0, 1, 2, 3, 4]):
-        """
-        :param saveorshow: write 'save' if you want to keep as file or 'show' for just casting.
-        :param filename: file name of the chart
-        :param col_list: col xx: the axis of chart
-                         col yy: the axis of chart
-                         col widthofcirc: the diameter of bubbles
-                         col colorof: another categorization
-                         col item: bubbles
-        """
-        if df is not None:
-            backup_df = self.df.copy()
-            self.df = df
-
-        cols = [val for val in list(self.df.columns)]
-
-        fig = px.scatter(self.df, x=cols[0], y=cols[1],
-                         size=cols[2], color=cols[3],
-                         hover_name=cols[4], hover_data=["WORKCENTER"], log_x=True, size_max=50,
-                         color_discrete_sequence=px.colors.qualitative.Alphabet,
-                         width=1500, height=500)
-
-        if saveorshow == 'show':
-            self.df = backup_df
-            return fig
-
-        elif saveorshow == 'save':
-            if not filename:
-                self.df = backup_df
-                raise Exception("Please enter file name for saving Scatter as a html file!!!")
-
-            diroffile = os.path.join(directory, filename)
-
-            if not os.path.exists(diroffile):
-                fig.write_html(diroffile)
-                if os.path.exists(diroffile):
-                    self.df = backup_df
-                    print("Scatter has been saved succesfully to directory entered.")
-
-            else:
-                self.df = backup_df
-                raise Exception("There is already a file with same name")
-
-        else:
-            self.df = backup_df
-            raise Exception("Please write 'save or 'show' !!")
 
     def correlation_matrix(self):
 
@@ -283,5 +251,4 @@ class Agent:
 
 
 
-ag = Agent(parse_wclist_querry())
-
+ag = Agent()
