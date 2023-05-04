@@ -361,7 +361,7 @@ def update_ind_fig(option_slctd, report_day="2022-07-26"):
     [Input(component_id='costcenter', component_property='value')]
 )
 def create_scatterplot_for_scrapqty(costcenter):
-    df_scrap = ag.run_query((project_directory + r"\Charting\queries\prdscrap.sql"))
+    df_scrap = ag.run_query(r"EXEC VLFPRDSCRAP")
     df_scrap = df_scrap[df_scrap["COSTCENTER"] == costcenter]
     cat_order_sumscrap = df_scrap.groupby("STEXT")["SCRAP"].sum().sort_values(ascending=False).index
     df_scrap["SCRAP"] = df_scrap["SCRAP"].astype("int")

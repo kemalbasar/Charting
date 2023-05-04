@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 ### Import Dash Instance and Pages ###
 from valfapp.app import app
 from pages import pg1, prod_eff, workcenters,liveprd
-from valfapp.pages import livecnc, livepres, ittools
+from valfapp.pages import livecnc, livepres
 
 ### Page container ###
 
@@ -74,6 +74,7 @@ index_layout = dbc.Container([
             ),
             width=5,  # Adjust the width of the column, you can use values from 1 to 12
             style={"padding": 15}
+
         ),
     ],style={'margin-left': 220,'margin-top': 40,'margin-bottom': '-45px'}),
     dbc.Row([
@@ -110,7 +111,7 @@ index_layout = dbc.Container([
                         })
                     ], style={"position": "absolute", "display": "inline-block"})
                 ],
-                href='/live_prd',
+                href='/liveprd',
             )
             ,
             width=5,  # Adjust the width of the column, you can use values from 1 to 12
@@ -142,7 +143,7 @@ def display_page(pathname,n):
     # print(n)
     if pathname == '/':
         return index_layout
-    elif pathname == '/live_prd':
+    elif pathname == '/liveprd':
         return liveprd.layout
     elif pathname == '/prod_eff':
         return prod_eff.layout
@@ -154,8 +155,8 @@ def display_page(pathname,n):
         return livecnc.layout
     elif pathname == '/liveprd/livepres':
         return livepres.layout
-    elif pathname == '/ittools':
-        return ittools.layout
+    # elif pathname == '/ittools':
+    #     return ittools.layout
     else:
         return '404'
 
@@ -173,7 +174,7 @@ app.validation_layout = html.Div(
         workcenters.layout,
         livepres.layout,
         livecnc.layout,
-        ittools.layout
+        # ittools.layout
     ]
 )
 
