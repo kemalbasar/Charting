@@ -5,9 +5,12 @@ database = '*******'
 username = '******'
 password = '*******'
 
-directory = r'C:\Users\kereviz\PycharmProjects\Charting\queries'
-dirofquery = r'C:\Users\kereviz\PycharmProjects\Charting\queries\query2.txt'
-dirofnewline = r'C:\Users\kereviz\PycharmProjects\Charting\queries\dateofstart.txt'
+project_directory = r"F:\pycarhm projects"
+
+
+directory = project_directory + r'\Charting\queries'
+dirofquery = project_directory + r'\Charting\queries\query2.txt'
+dirofnewline = project_directory + r'\Charting\queries\dateofstart.txt'
 url_dyn = "**********************************************"
 
 def set_df_size(maxrow, maxcolumn, maxwidth, maxcolwidth):
