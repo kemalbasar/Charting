@@ -43,14 +43,15 @@ def on_message(client, userdata, msg):
     elif topic_cur == topic4:
         presbasıyor = msg.payload.decode()
 
+# Retrieve the message data from MQTT
 
 client.on_message = on_message
+client.subscribe([(topic, 0), (topic2, 0), (topic3, 0), (topic4, 0)])
+client.loop_start()
 
 adetbilgisi = int(0)
-devirhizibilgisi = 80
+devirhizibilgisi = 0
 preshazir = False
-print(preshazir)
-print("bura")
 presbasıyor = True
 
 
@@ -103,10 +104,6 @@ layout = html.Div(children=
 @app.callback(dash.dependencies.Output("live-graph", "figure"),
               [dash.dependencies.Input("interval-component", "n_intervals")])
 def update_graph(n):
-    # Retrieve the message data from MQTT
-    client.subscribe([(topic, 0), (topic2, 0), (topic3, 0), (topic4, 0)])
-    client.loop_start()
-
     # Process the message data and create the plot
     while adetbilgisi is None:
         continue
@@ -114,6 +111,11 @@ def update_graph(n):
     ndevirhizi = int(df.loc[df["WORKCENTER"] == 'P-12', "NDEVIRHIZI"])
     y_data = calculate_current_optimal_qty(int(df.loc[df["WORKCENTER"] == 'P-12', "OPTIMALMIKTAR"]))
     bar_color = "ForestGreen" if x_data > y_data else "red"
+    print(presbasıyor)
+    bgcolor = "ForestGreen" if presbasıyor else ("yellow" if preshazir else "red")
+    print(bgcolor)
+    material = df.loc[df["WORKCENTER"] == 'P-12', "MATERIAL"].tolist()[0]
+
     fig = go.Figure(go.Indicator(
         mode="gauge+number+delta",
         value=x_data,
@@ -136,9 +138,7 @@ def update_graph(n):
             'bar': {'color': bar_color}
         }
     ))
-    print(presbasıyor)
-    bgcolor = "yellow" if preshazir else ("ForestGreen" if presbasıyor else "red")
-    material = df.loc[df["WORKCENTER"] == 'P-12', "MATERIAL"].tolist()[0]
+
     fig.update_layout(
         height = 800,
         annotations=[

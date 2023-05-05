@@ -58,7 +58,7 @@ def return_tops_with_visibility(graph_id, visible=True):
         ],
         id=graph_id,
         style={"display": "flex", "justify-content": "space-between",
-               "align-items": "center", "width": 700, "height": 250},
+               "align-items": "center", "width": 1200, "height": 250},
         hidden=not visible
     )
 
@@ -91,15 +91,17 @@ layout = dbc.Container([
         children='Main Page',
         href='/',
         style={"color": "black", "font-weight": "bold"}
-
     ),
-    dcc.Dropdown(id="costcenter",
+    dbc.InputGroup([
+        dcc.Dropdown(id="costcenter",
                      options=[{"label": cc, "value": cc} for cc in costcenters],
                      multi=False,
                      value="CNC",
-                     style={"color": "green", "background-color": "DimGray", 'width': 200}
-                     ),
-    html.Div([
+                     className="form-control",
+                     style={'width': 200}
+                     )
+    ], className="mr-2"),
+    html.Div(id="toggle_div", children=[
         html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
         dbc.Row([
             dbc.Col(
@@ -122,12 +124,13 @@ layout = dbc.Container([
         ]),
         html.Hr(),
     ]),
-
+    dbc.Button("Hataları Gizle", id="toggle_button", n_clicks=0, className="mr-2"),
     dbc.Row(
-        [dbc.Col(return_tops_with_visibility(f"wc{i + 1}")) for i in range(MAX_OUTPUT)],
+        [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width="6") for i in range(MAX_OUTPUT)],
         justify="start", style={"margin-top": 70}
     )
 ], fluid=True)
+
 
 list_of_callbacks = generate_output_list(MAX_OUTPUT)
 
@@ -162,7 +165,7 @@ def update_pie_chart(costcenter):
               ]
     print(values)
 
-    fig = px.pie(names=labels, values=values, title="Data Validity Distribution")
+    fig = px.pie(names=labels, values=values, title="Veri Geçerlilik Dağalımı")
     return fig
 
 
@@ -247,7 +250,8 @@ def update_ind_fig(list_of_wcs, option_slctd, report_day="2022-07-26"):
             df_details["OEE"] = df_details["OEE"].round(2)
             columns = [{"name": i, "id": i} for i in df_details.columns]
             data = df_details.to_dict("records")
-            style = {"display": "flex", "justify-content": "space-between", "align-items": "center", "width": 700,
+            style = {"display": "flex", "justify-content": "space-between",
+                     "align-items": "center", "width": 700,
                      "height": 250}
 
         else:
@@ -262,3 +266,6 @@ def update_ind_fig(list_of_wcs, option_slctd, report_day="2022-07-26"):
         list_of_styles.append(style)
 
     return tuple(list_of_figs + list_of_data + list_of_columns + list_of_styles)
+
+#visualazi input data ( plotly timeline chart)
+

@@ -204,13 +204,15 @@ def return_summary_data(option_slctd):
 )
 def update_graph_sunburst(option_slctd, report_day="2022-07-26"):
     df = oeelist[0][option_slctd]
-    print(df["OEE"])
+    if int(df["OEE"][0][0:2]) > 38:
+        fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
+                          color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn,
+                          color_continuous_midpoint=50)
+    else:
+        fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
+                  color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn_r,
+                  color_continuous_midpoint=50)
 
-    print(df["OEE"])
-
-    fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
-                      color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn,
-                      color_continuous_midpoint=50)
     fig.update_traces(hovertemplate='<b>Actual Rate is %{value} </b>')
     fig.update_layout(showlegend=False, paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
                       title="Perf.-Avail.-OEE",
