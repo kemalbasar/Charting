@@ -2,20 +2,12 @@
 import dash
 import dash_bootstrap_components as dbc
 from flask_caching import Cache
-from config import project_directory
 from valfapp.functions.functions_prd import calculate_oeemetrics, apply_nat_replacer, get_gann_data
 from run.agent import ag
 import pandas as pd
+from config import project_directory
 
-# external_scripts = [
-#     {
-#         "src": "https://code.jquery.com/jquery-3.6.0.min.js",
-#         "integrity": "sha384-KyZXEAg3QhqLMpG8r+Knujsl7/6en8XCp+HHAAK5GSLf2xlYtvJ8U2Q4U+9cuEnJoa3",
-#         "crossorigin": "anonymous",
-#     }
-# ]
 
-planned_hoursx = pd.read_excel(r"C:\Users\kbbudak\Desktop\GunlukPlanlar.xlsx", sheet_name='adetler')
 
 ### Dash instance ###
 app = dash.Dash(
@@ -41,7 +33,7 @@ TIMEOUT = 100000
 @cache.memoize(timeout=TIMEOUT)
 def prdconf():
     prd_conf = ag.run_query(r"EXEC [VLFPRODALLINONE]")
-    planned_hoursx = pd.read_excel(r"C:\Users\kbbudak\Desktop\GunlukPlanlar.xlsx", sheet_name='adetler')
+    planned_hoursx = pd.read_excel(project_directory + r"\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf = pd.merge(prd_conf, planned_hoursx, how='left',
                         on=['WORKCENTER', "SHIFT", "MATERIAL"])

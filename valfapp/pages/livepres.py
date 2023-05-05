@@ -7,9 +7,9 @@ import dash_bootstrap_components as dbc
 from paho.mqtt import client as mqtt
 from run.agent import ag
 from valfapp.app import app
+from config import project_directory
 
-
-df = ag.run_query(r"F:\pycarhm projects\Charting\queries\mesworkcenter_data.txt")
+df = ag.run_query(project_directory + r"\Charting\queries\mesworkcenter_data.txt")
 
 
 

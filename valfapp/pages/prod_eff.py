@@ -406,5 +406,3 @@ def create_scatterplot_for_scrapqty(costcenter):
 #     return f"Refresh count: {refresh_count}"
 
 # ------------------------------------------------------------------------------
-if __name__ == '__main__':
-    app.run_server(debug=True)
