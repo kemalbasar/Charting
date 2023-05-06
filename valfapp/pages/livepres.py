@@ -81,7 +81,9 @@ costcenters = ["PRESHANE","CNC", "CNCTORNA", "TASLAMA"]
 
 
 layout = html.Div(children=
-[dbc.Container([
+[dcc.Store(id="store-bgcolor"),dcc.Interval(id="bgcolor-interval", interval=1000),
+
+dbc.Container([
 
     dbc.Row([dcc.Dropdown(id="costcenter",
                           options=[{"label": cc, "value": cc} for cc in costcenters],
@@ -100,10 +102,25 @@ layout = html.Div(children=
 ]
 )
 
+@app.callback(
+    dash.dependencies.Output("store-bgcolor", "data"),
+    [dash.dependencies.Input("bgcolor-interval", "n_intervals")]
+)
+def update_bgcolor(n_intervals):
+    if presbasıyor == 'true':
+        return "ForestGreen"
+    elif preshazir == 'true':
+        return "yellow"
+    else:
+        return "red"
+
 
 @app.callback(dash.dependencies.Output("live-graph", "figure"),
-              [dash.dependencies.Input("interval-component", "n_intervals")])
-def update_graph(n):
+              [dash.dependencies.Input("interval-component", "n_intervals"),
+              dash.dependencies.Input("store-bgcolor", "data")
+
+])
+def update_graph(n,bgcolor):
     # Process the message data and create the plot
     while adetbilgisi is None:
         continue
@@ -111,9 +128,8 @@ def update_graph(n):
     ndevirhizi = int(df.loc[df["WORKCENTER"] == 'P-12', "NDEVIRHIZI"])
     y_data = calculate_current_optimal_qty(int(df.loc[df["WORKCENTER"] == 'P-12', "OPTIMALMIKTAR"]))
     bar_color = "ForestGreen" if x_data > y_data else "red"
-    print(presbasıyor)
-    bgcolor = "ForestGreen" if presbasıyor else ("yellow" if preshazir else "red")
-    print(bgcolor)
+    # print(presbasıyor)
+    # print(bgcolor)
     material = df.loc[df["WORKCENTER"] == 'P-12', "MATERIAL"].tolist()[0]
 
     fig = go.Figure(go.Indicator(

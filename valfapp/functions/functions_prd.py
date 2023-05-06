@@ -17,6 +17,15 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', 500)
 
 
+def weighted_average(x,df_metrics):
+    weights = df_metrics.loc[x.index, "PLANNEDTIME"]
+    if np.sum(weights) == 0:
+        # Handle the case when the sum of the weights is zero
+        # You can return a default value, raise an exception, or do whatever makes sense in your context
+        return np.mean(x)  # Returning mean as an example
+    else:
+        return np.average(x, weights=weights)
+
 def apply_nat_replacer(x):
     x = str(x)
     if x == 'NaT':
@@ -100,7 +109,12 @@ def calculate_oeemetrics(df=prd_conf, piechart_data=1, shiftandmat=0):
     # df_metrics["PERFORMANCEWITHWEIGHT"].sum() / df_metrics["VARD"].sum()
     weights = df_metrics.loc[df_metrics.index, "PLANNEDTIME"]
     weights[weights <= 0] = 1
-    wm = lambda x: np.average(x, weights=df_metrics.loc[x.index, "PLANNEDTIME"])
+
+    def weighted_average(x):
+        # Use the updated weights
+        return np.average(x, weights=weights.loc[x.index])
+
+    wm = lambda x: weighted_average(x)
     df_metrics.fillna(0, inplace=True)
     # df_metrics["FLAG_BADDATA"] = [1 if df_metrics["PERFORMANCE"][row]> 1.2 else 0
     #                               for row in df_metrics.index]

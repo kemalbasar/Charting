@@ -33,7 +33,7 @@ TIMEOUT = 100000
 @cache.memoize(timeout=TIMEOUT)
 def prdconf():
     prd_conf = ag.run_query(r"EXEC [VLFPRODALLINONE]")
-    planned_hoursx = pd.read_excel(project_directory + r"\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
+    planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf = pd.merge(prd_conf, planned_hoursx, how='left',
                         on=['WORKCENTER', "SHIFT", "MATERIAL"])
