@@ -125,7 +125,7 @@ def update_graph(n,bgcolor):
     while adetbilgisi is None:
         continue
     x_data = int(df.loc[df["WORKCENTER"] == 'P-12', "PARTITION"]) * int(adetbilgisi)
-    ndevirhizi = int(df.loc[df["WORKCENTER"] == 'P-12', "NDEVIRHIZI"])
+    ndevirhizi = 0 if bgcolor != "ForestGreen"  else int(df.loc[df["WORKCENTER"] == 'P-12', "NDEVIRHIZI"])
     y_data = calculate_current_optimal_qty(int(df.loc[df["WORKCENTER"] == 'P-12', "OPTIMALMIKTAR"]))
     bar_color = "ForestGreen" if x_data > y_data else "red"
     # print(presbasıyor)
