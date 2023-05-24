@@ -1,4 +1,4 @@
-![vs1](https://watch.screencastify.com/v/NNJQ17d0EBCUr4tacSaP)
+![vs1](view/preview.avi)
 ![ss1](view/jpeg.jpg)
 ![ss1](view/jpeg2.jpg)
 
