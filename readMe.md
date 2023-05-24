@@ -1,5 +1,6 @@
-![hello](view/jpeg.jpg)
-![hello](view/jpeg2.jpg)
+![vs1](https://watch.screencastify.com/v/NNJQ17d0EBCUr4tacSaP)
+![ss1](view/jpeg.jpg)
+![ss1](view/jpeg2.jpg)
 
 1) You should enter  the correct information to the config file.
 2) -download Charting Project.
