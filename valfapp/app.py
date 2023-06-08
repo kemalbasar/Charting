@@ -28,8 +28,8 @@ cache = Cache(app.server, config={
     'CACHE_DIR': 'cache-directory'
 })
 
-TIMEOUT = 100000
-    
+TIMEOUT = 20
+
 @cache.memoize(timeout=TIMEOUT)
 def prdconf():
     prd_conf = ag.run_query(r"EXEC [VLFPRODALLINONE]")
@@ -37,12 +37,19 @@ def prdconf():
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf = pd.merge(prd_conf, planned_hoursx, how='left',
                         on=['WORKCENTER', "SHIFT", "MATERIAL"])
+    prd_conf["LABOUR"] = prd_conf.apply(lambda row: apply_nat_replacer(row["LABOUR"]), axis=1)
+
     prd_conf["ADET"] = [0 if not prd_conf["ADET"][row] > 0 else prd_conf["ADET"][row] for row in prd_conf.index]
     prd_conf["IDEALCYCLETIME"] = prd_conf["IDEALCYCLETIME"].astype("float")
+    prd_conf["LABOUR"] =  [99 if prd_conf["LABOUR"][row] == 'nan' else prd_conf["LABOUR"][row] for row in prd_conf.index]
+    prd_conf["LABOUR"] = pd.to_numeric(prd_conf["LABOUR"], errors='coerce')
+    prd_conf["IDEALCYCLETIME"] = [prd_conf["IDEALCYCLETIME"][row] if prd_conf["LABOUR"][row] == 99 else prd_conf["IDEALCYCLETIME"][row] * (
+                prd_conf["SELLAB"][row] / prd_conf["LABOUR"][row]) for row in prd_conf.index]
+    # prd_conf.to_excel(project_directory + r"\Charting\valfapp\assets\prd_conf.xlsx")
     prd_conf["PLANNEDTIME"] = [prd_conf["ADET"][row] * prd_conf["IDEALCYCLETIME"][row] \
                                / prd_conf["QTY"][row] if prd_conf["ADET"][row] != 0 else
                                prd_conf["TOTALTIME"][row] for row in prd_conf.index]
-    prd_conf.drop("ADET", inplace=True, axis=1)
+
     prd_conf["BADDATA_FLAG"] = [ 1 if prd_conf["BADDATA_FLAG"][row] == 1
         else 2 if ((prd_conf["RUNTIME"][row] != 0) &
                    (prd_conf["IDEALCYCLETIME"][row] / prd_conf["RUNTIME"][row] > 1.2) &
@@ -51,7 +58,7 @@ def prdconf():
                    (prd_conf["IDEALCYCLETIME"][row] / prd_conf["RUNTIME"][row] > 1.2) &
                    (prd_conf["RUNTIME"][row] > 3))
         else 0 for row in range(len(prd_conf))]
-
+    print(prd_conf)
     details, df_metrics, df_metrics_forwc = calculate_oeemetrics(df=prd_conf[prd_conf["BADDATA_FLAG"]==0])
     print(details)
     for item in details:
