@@ -55,9 +55,9 @@ def working_machinesf(working_machines = working_machines, costcenter='CNC'):
     return working_machines.loc[working_machines["COSTCENTER"] == costcenter, "COUNTOFWC"].tolist()
 
 
-def calculate_oeemetrics(df=prd_conf, piechart_data=1, shiftandmat=0):
+def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shiftandmat=0):
     df = df.loc[df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS",
-                                               "QTY", "SCRAPQTY", "REWORKQTY",
+                                               "QTY", "SCRAPQTY", "REWORKQTY","ADET","LABOUR",
                                                "WORKCENTER", "RUNTIME", "TOTALTIME",
                                                "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME","PLANNEDTIME","STEXT","SCRAPTEXT","DISPLAY"]]
 
@@ -66,17 +66,24 @@ def calculate_oeemetrics(df=prd_conf, piechart_data=1, shiftandmat=0):
     df["SCRAPTEXT"] = df["SCRAPTEXT"].astype(str)
     df["DISPLAY"] = df["DISPLAY"].astype(str)
 
-    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT"]).agg({"QTY": "sum",
-                                                                                    "SCRAPQTY": "sum",
-                                                                                    "REWORKQTY": "sum",
-                                                                                    "RUNTIME": "sum",
-                                                                                    "TOTALTIME": "sum",
-                                                                                    "TOTFAILURETIME": "sum",
-                                                                                    "IDEALCYCLETIME": "sum",
-                                                                                    "SETUPTIME": "sum",
-                                                                                    "PLANNEDTIME": "sum",
-                                                                                    "DISPLAY": "max",
-                                                                                    "SCRAPTEXT": "max"})
+    def custom_agg(group):
+        agg_dict = {
+            "QTY": group['QTY'].sum(),
+            "SCRAPQTY": group['SCRAPQTY'].sum(),
+            "REWORKQTY": group['REWORKQTY'].sum(),
+            "RUNTIME": group['RUNTIME'].sum(),
+            "TOTALTIME": group['TOTALTIME'].sum(),
+            "TOTFAILURETIME": group['TOTFAILURETIME'].sum(),
+            "IDEALCYCLETIME": group['IDEALCYCLETIME'].sum(),
+            "SETUPTIME": group['SETUPTIME'].sum(),
+            "PLANNEDTIME": group['PLANNEDTIME'].sum() if (group['ADET'] == 0).any() else group['PLANNEDTIME'].max(),
+            "DISPLAY": group['DISPLAY'].max(),
+            "SCRAPTEXT": group['SCRAPTEXT'].max(),
+        }
+        return pd.Series(agg_dict)
+
+    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT"]).apply(custom_agg)
+
     df_metrics.reset_index(inplace=True)
     # df_metrics_backup = df_metrics.copy()
     # df_metrics = df_metrics_backup
@@ -97,7 +104,10 @@ def calculate_oeemetrics(df=prd_conf, piechart_data=1, shiftandmat=0):
         0 if df_metrics["RUNTIME"][row] <= 0
         else df_metrics["IDEALCYCLETIME"][row] / df_metrics["RUNTIME"][row] for row
         in range(len(df_metrics))]
-    df_metrics["AVAILABILITY"] = df_metrics["RUNTIME"] / df_metrics["PLANNEDTIME"]
+    df_metrics["AVAILABILITY"] = df_metrics["RUNTIME"] / df_metrics["TOTALTIME"]
+
+    df_metrics["AVAILABILITY"] = [1 if df_metrics["AVAILABILITY"][row] > 1
+                                  else df_metrics["AVAILABILITY"][row] for row in range(len(df_metrics))]
     df_metrics["QUALITY"] = df_metrics["QTY"] / (df_metrics["QTY"] + df_metrics["SCRAPQTY"]
                                                  + df_metrics["REWORKQTY"])
     df_metrics["QUALITY"] = [0 if str(df_metrics["QUALITY"][row]) == 'nan'
@@ -155,13 +165,15 @@ def calculate_oeemetrics(df=prd_conf, piechart_data=1, shiftandmat=0):
     details = {"CNC": None,
                "TASLAMA": None,
                "CNCTORNA": None,
-               "MONTAJ": None}
+               "MONTAJ": None,
+               "PRESHANE1" : None,
+               "PRESHANE2" : None,}
 
     f = lambda a: round(((abs(a) + a) / 2), 3)
     g = lambda a: int((a * 100) / sum_of)
     # h = lambda a: 1 if a > 1 else a
 
-    for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ"]:
+    for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ","PRESHANE1","PRESHANE2"]:
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
                  df_piechart.loc[costcenter, "SETUPTIME"] + df_piechart.loc[costcenter, "NANTIME"]
 
@@ -343,12 +355,11 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
 
     if len(df_details) != 0:
         df_ann = df_details.loc[df_details["WORKCENTER"] == order,["SHIFT","DISPLAY","SCRAPQTY","SCRAPTEXT"]]
+        df_ann.drop_duplicates(inplace=True, subset=['SHIFT', 'DISPLAY'], keep='first')
         text = ''
         for index, row in df_ann.iterrows():
-            if row['SCRAPQTY'] > 0:
-                text += f"{row['SHIFT']}.Var:{row['DISPLAY']} // {row['SCRAPQTY']} Hurda {row['SCRAPTEXT']} <br>"
-            else:
-                text += f"{row['SHIFT']}.Var:{row['DISPLAY']} <br>"
+            text += f"{row['SHIFT']}.Var:{row['DISPLAY']} <br>"
+
 
     if colorof == 'green':
         colorof2 = coloroftext
@@ -388,8 +399,8 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
     annotation = {
         "height": 600,
         "width": 2000,
-        'x':0.5 ,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': -0.2,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'x':0.55,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y':-0.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': text,
         # 'showarrow': True,
         # 'arrowhead': 3,
@@ -404,7 +415,7 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
         # # 'x': 0.5,
         # # 'font': {'size': 17}
         # },
-        "paper_bgcolor": "rgba(0,0,0,0)", "width": 350, "height": 350})
+        "paper_bgcolor": "rgba(0,0,0,0)", "width": 350, "height": 320})
 
     return fig
 

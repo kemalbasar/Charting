@@ -65,7 +65,9 @@ layout = dbc.Container([
 
     dbc.Row([html.Div(id='output', children=''),
              dcc.Dropdown(id="costcenter",
-                          options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ"]],
+                          options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
+                                                                         "TASLAMA", "MONTAJ",
+                                                                         "PRESHANE1","PRESHANE2"]],
                           multi=False,
                           value='CNC',
                           style={"color": "green", "background-color": "DimGray", 'width': 200}
