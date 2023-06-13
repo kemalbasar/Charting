@@ -123,7 +123,7 @@ layout = dbc.Container([
                     style_cell={
                         "minWidth": "100px",
                         "width": "100px",
-                        "maxWidth": "200px",
+                        "maxWidth": "400px",
                         "textAlign": "center",
                     },
                 ),

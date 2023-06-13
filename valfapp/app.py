@@ -34,6 +34,8 @@ TIMEOUT = 20
 def prdconf():
     prd_conf = ag.run_query(r"EXEC [VLFPRODALLINONE]")
     planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
+    onemonth_prdqty = ag.run_query(r"SELECT * FROM VLFDAILYPRDQUANTITIES WHERE WORKEND > CAST(DATEADD(DAY,-30,GETDATE()) AS DATE)"
+    r" AND TOPLAM != 0")
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf = pd.merge(prd_conf, planned_hoursx, how='left',
                         on=['WORKCENTER', "SHIFT", "MATERIAL"])
@@ -58,9 +60,7 @@ def prdconf():
                    (prd_conf["IDEALCYCLETIME"][row] / prd_conf["RUNTIME"][row] > 1.2) &
                    (prd_conf["RUNTIME"][row] > 3))
         else 0 for row in range(len(prd_conf))]
-    print(prd_conf)
     details, df_metrics, df_metrics_forwc = calculate_oeemetrics(df=prd_conf[prd_conf["BADDATA_FLAG"]==0])
-    print(details)
     for item in details:
         details[item]["OEE"] = (100 * details[item]["OEE"])
         details[item]["OEE"] = details[item]["OEE"].astype(int)
@@ -81,7 +81,8 @@ def prdconf():
             gann_data.to_json(date_format='iso', orient='split'),
             df_metrics_forwc.to_json(date_format='iso', orient='split'),
             df_baddatas.to_json(date_format='iso', orient='split'),
-            df_baddata_rates.to_json(date_format='iso', orient='split')
+            df_baddata_rates.to_json(date_format='iso', orient='split'),
+            onemonth_prdqty.to_json(date_format='iso', orient='split')
             ]
 
 
@@ -91,14 +92,16 @@ def oee():
     if cached_data is not None:
         return cached_data
 
-    oee, metrics, gann_data, df_metrics_forwc, df_baddatas,df_baddata_rates = prdconf()
+    oee, metrics, gann_data, df_metrics_forwc, \
+        df_baddatas,df_baddata_rates,onemonth_prdqty = prdconf()
     oee = {k: pd.read_json(v, orient='split') for k, v in oee.items()}
     metrics = pd.read_json(metrics, orient='split')
     gann_data = pd.read_json(gann_data, orient='split')
     df_metrics_forwc = pd.read_json(df_metrics_forwc, orient='split')
     df_baddatas = pd.read_json(df_baddatas, orient='split')
     df_baddata_rates = pd.read_json(df_baddata_rates, orient='split')
-    result = (oee, metrics, gann_data, df_metrics_forwc,df_baddatas,df_baddata_rates)
+    onemonth_prdqty = pd.read_json(onemonth_prdqty, orient='split')
+    result = (oee, metrics, gann_data, df_metrics_forwc,df_baddatas,df_baddata_rates,onemonth_prdqty)
     cache.set('oee_cached_data', result)
     return result
 

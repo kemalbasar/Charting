@@ -41,7 +41,7 @@ index_layout = dbc.Container([
             dcc.Link(
                 children=[
                     html.Div([
-                        html.Img(src='/assets/tutarlama.link.png', style={"width": "700px", "height": "480px", "object-fit": "fit"}),
+                        html.Img(src='/assets/tutarlama.link.png', style={"width": "600px", "height": "400px", "object-fit": "fit"}),
                         html.H1("Tutarlama ( Geliştirme Aşamasında )", style={
                             "position": "absolute",
                             "bottom": 8,
@@ -53,14 +53,14 @@ index_layout = dbc.Container([
                 ],
                 href='/pg1',
             ),
-            width=5,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding": 15}
+            width=4,  # Adjust the width of the column, you can use values from 1 to 12
+            style={"padding": 14,'margin-left':50}
         ),
         dbc.Col(
             dcc.Link(
                 children=[
                     html.Div([
-                        html.Img(src='/assets/report.link.png', style={"width": "700px", "height": "480px", "object-fit": "fit"}),
+                        html.Img(src='/assets/report.link.png', style={"width": "600px", "height": "400px", "object-fit": "fit"}),
                         html.H1("M.Merkezi OEE Raporu", style={
                             "position": "absolute",
                             "bottom": 8,
@@ -73,16 +73,16 @@ index_layout = dbc.Container([
                 href='/prod_eff',
             ),
             width=5,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding": 15}
+            style={"padding-top": 13,'margin-left':43}
 
         ),
-    ],style={'margin-left': 220,'margin-top': 40,'margin-bottom': '-45px'}),
+    ],style={'margin-left': 270,'margin-top': 37,'margin-bottom': '-45px'}),
     dbc.Row([
         dbc.Col(
             dcc.Link(
                 children=[
                     html.Div([
-                        html.Img(src='/assets/wc.link.png', style={"width": "700px", "height": "480px", "object-fit": "fit"}),
+                        html.Img(src='/assets/wc.link.png', style={"width": "600px", "height": "400px", "object-fit": "fit"}),
                         html.H1("İş Merkezi Raporu", style={
                             "position": "absolute",
                             "bottom": 0,
@@ -94,14 +94,14 @@ index_layout = dbc.Container([
                 ],
                 href='/wcreport',
             ),
-            width=5,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding": 15}
+            width=4,  # Adjust the width of the column, you can use values from 1 to 12
+            style={"padding-top": 30}
         ),
         dbc.Col(
             dcc.Link(
                 children=[
                     html.Div([
-                        html.Img(src='/assets/live.link.png', style={"width": "700px", "height": "480px", "object-fit": "fit"}),
+                        html.Img(src='/assets/live.link.png', style={"width": "600px", "height": "400px", "object-fit": "fit"}),
                         html.H1("Üretim Canlı Takip", style={
                             "position": "absolute",
                             "bottom": 0,
@@ -115,9 +115,9 @@ index_layout = dbc.Container([
             )
             ,
             width=5,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding": 15}
+            style={"padding": 28,'margin-left':42,'margin-top':2}
         ),
-    ],style={'margin-left': 220}),
+    ],style={'margin-left': 322}),
         dcc.Link(
                 children='ittools',
                 href='/ittools',
