@@ -254,7 +254,8 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
 
 
 def generate_for_sparkline(data='',proses='CNC', type='TOPLAM', ppm=False):
-    data["HURDA"] = data["HURDA"].astype(int)
+    if type == 'HURDA':
+        data["HURDA"] = data["HURDA"].astype(int)
     if not ppm:
         df = pd.DataFrame(data[data["COSTCENTER"] == proses][type])
         df.reset_index(inplace=True)

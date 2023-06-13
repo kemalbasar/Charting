@@ -323,10 +323,7 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
     [Input(component_id='costcenter', component_property='value')]
 )
 def update_spark_line(option_slctd, report_day="2022-07-26"):
-    onemonth_prdqty = ag.run_query(
-        r"SELECT * FROM VLFDAILYPRDQUANTITIES WHERE WORKEND > CAST(DATEADD(DAY,-30,GETDATE()) AS DATE)"
-        r" AND TOPLAM != 0")
-
+    onemonth_prdqty = oeelist[6]
     df_working_machines = ag.run_query(project_directory + r"\Charting\queries\working_workcenter.txt")
     fig_prod = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses=option_slctd))
     fig_scrap = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses=option_slctd, type='HURDA'))
