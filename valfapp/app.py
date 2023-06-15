@@ -51,15 +51,21 @@ def prdconf():
     prd_conf["PLANNEDTIME"] = [prd_conf["ADET"][row] * prd_conf["IDEALCYCLETIME"][row] \
                                / prd_conf["QTY"][row] if prd_conf["ADET"][row] != 0 else
                                prd_conf["TOTALTIME"][row] for row in prd_conf.index]
-
-    prd_conf["BADDATA_FLAG"] = [ 1 if prd_conf["BADDATA_FLAG"][row] == 1
-        else 2 if ((prd_conf["RUNTIME"][row] != 0) &
-                   (prd_conf["IDEALCYCLETIME"][row] / prd_conf["RUNTIME"][row] > 1.2) &
-                   (prd_conf["RUNTIME"][row] <= 3))
-        else 3 if ((prd_conf["RUNTIME"][row] != 0) &
-                   (prd_conf["IDEALCYCLETIME"][row] / prd_conf["RUNTIME"][row] > 1.2) &
-                   (prd_conf["RUNTIME"][row] > 3))
+    summary_helper = prd_conf[prd_conf["CONFTYPE"] == 'Uretim'].groupby(["WORKCENTER", "SHIFT", "MATERIAL"])\
+        .agg({"IDEALCYCLETIME": "sum","RUNTIME": "sum"})
+    summary_helper.reset_index(inplace=True)
+    summary_helper["RATER"] = summary_helper["IDEALCYCLETIME"]/summary_helper["RUNTIME"]
+    summary_helper["BADDATA_FLAG"] = [3 if summary_helper["RATER"][row] > 1.2 else 0 for row in range(len(summary_helper))]
+    summary_helper = summary_helper[["WORKCENTER", "SHIFT", "MATERIAL", "BADDATA_FLAG"]]
+    prd_conf = pd.merge(prd_conf, summary_helper, on=['MATERIAL', 'SHIFT', 'WORKCENTER'], how='left')
+    prd_conf["BADDATA_FLAG"] = [ 1 if prd_conf["MACHINE"][row] == 0
+        else 2 if ((prd_conf["TOTALTIME"][row] != 0) &
+                   (prd_conf["TOTALTIME"][row] <= 3) &
+                   (prd_conf["QTY"][row] > 3))
+        else 3 if prd_conf["BADDATA_FLAG"][row] == 3
         else 0 for row in range(len(prd_conf))]
+
+
     details, df_metrics, df_metrics_forwc = calculate_oeemetrics(df=prd_conf[prd_conf["BADDATA_FLAG"]==0])
     for item in details:
         details[item]["OEE"] = (100 * details[item]["OEE"])

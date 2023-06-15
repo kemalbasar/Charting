@@ -13,9 +13,6 @@ from valfapp.pages import livecnc, livepres
 
 page_container = html.Div(
     children=[
-        dcc.Interval(id='interval', interval=500 * 1000,
-                     n_intervals=0),
-        # represents the URL bar, doesn't render anything
         dcc.Location(
             id='url',
             refresh=False,
@@ -134,13 +131,11 @@ index_layout = dbc.Container([
     [Input(
         component_id='url',
         component_property='pathname',
-    ),
-     Input('interval', 'n_intervals')
+    )
     ]
 )
-def display_page(pathname,n):
+def display_page(pathname):
 
-    # print(n)
     if pathname == '/':
         return index_layout
     elif pathname == '/liveprd':

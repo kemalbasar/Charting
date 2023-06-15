@@ -24,7 +24,7 @@ client = mqtt.Client()
 
 client.connect(broker_address, 1883, 60)
 
-client.publish("P12/AdetRst", True, 2)
+# client.publish("P12/AdetRst", True, 2)
 
 
 def on_message(client, userdata, msg):
@@ -125,7 +125,7 @@ def update_graph(n,bgcolor):
     while adetbilgisi is None:
         continue
     x_data = int(df.loc[df["WORKCENTER"] == 'P-12', "PARTITION"]) * int(adetbilgisi)
-    ndevirhizi = 0 if bgcolor != "ForestGreen"  else int(df.loc[df["WORKCENTER"] == 'P-12', "NDEVIRHIZI"])
+    ndevirhizi =int(df.loc[df["WORKCENTER"] == 'P-12', "NDEVIRHIZI"])
     y_data = calculate_current_optimal_qty(int(df.loc[df["WORKCENTER"] == 'P-12', "OPTIMALMIKTAR"]))
     bar_color = "ForestGreen" if x_data > y_data else "red"
     # print(presbasıyor)
@@ -165,7 +165,8 @@ def update_graph(n,bgcolor):
                 xref='paper',  # we'll reference the paper which we draw plot
                 yref='paper',
                 showarrow=False,
-                text=f"İdeal Devir Hızı : {ndevirhizi} --- Anlık Devir Hızı: {devirhizibilgisi}",
+                text=f"İdeal Devir Hızı : {ndevirhizi} --"
+                     f"- Anlık Devir Hızı: {devirhizibilgisi if bgcolor == 'ForestGreen' else 0}",
                 font=dict(
                     size=50,
                     color="black"
