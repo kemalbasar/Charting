@@ -31,9 +31,8 @@ cache = Cache(app.server, config={
 })
 
 
-TIMEOUT = 20
+TIMEOUT = 12000
 
->>>>>>> a273e909a709e8cddf9262c3ea13c3bc93640174
 @cache.memoize(timeout=TIMEOUT)
 def prdconf():
     prd_conf = ag.run_query(r"EXEC [VLFPRODALLINONE]")
@@ -98,9 +97,6 @@ def prdconf():
 
 @cache.memoize(timeout=TIMEOUT)
 def oee():
-    cached_data = cache.get('oee_cached_data')
-    if cached_data is not None:
-        return cached_data
 
     oee, metrics, gann_data, df_metrics_forwc, \
         df_baddatas,df_baddata_rates,onemonth_prdqty = prdconf()
