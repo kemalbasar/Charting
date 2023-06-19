@@ -28,7 +28,7 @@ cache = Cache(app.server, config={
     'CACHE_DIR': 'cache-directory'
 })
 
-TIMEOUT = 20
+TIMEOUT = 12000
 
 @cache.memoize(timeout=TIMEOUT)
 def prdconf():
@@ -94,9 +94,6 @@ def prdconf():
 
 @cache.memoize(timeout=TIMEOUT)
 def oee():
-    cached_data = cache.get('oee_cached_data')
-    if cached_data is not None:
-        return cached_data
 
     oee, metrics, gann_data, df_metrics_forwc, \
         df_baddatas,df_baddata_rates,onemonth_prdqty = prdconf()

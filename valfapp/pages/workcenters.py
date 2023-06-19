@@ -1,24 +1,18 @@
 # Import required libraries and modules
+import dash
 import numpy as np
-from dash import dcc, html, Input, Output, State
+from dash import dcc, html, Input, Output, State, callback_context
 import dash_bootstrap_components as dbc
 from dash_bootstrap_components.themes import PULSE
 from valfapp.functions.functions_prd import return_ind_fig
 import plotly.express as px
-from valfapp.app import cache, oee, app
+from valfapp.app import cache, oee, app, prdconf
 import dash_table
 from dash.exceptions import PreventUpdate
-import pandas as pd
-import io
-
-from dash_table.Format import Format, Scheme
-
-from config import project_directory
-from run.agent import ag
 
 # Define constants and initial data
 MAX_OUTPUT = 50
-costcenters = ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ","PRESHANE1","PRESHANE2"]
+costcenters = ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]
 oeelist = oee()
 
 
@@ -33,9 +27,9 @@ def generate_output_list(max_output):
         list: A list of Output elements.
     """
     return [Output(f"wc{i + 1}_graph", "figure") for i in range(max_output)] + \
-           [Output(f"wc{i + 1}_table", "data") for i in range(max_output)] + \
-           [Output(f"wc{i + 1}_table", "columns") for i in range(max_output)] + \
-           [Output(f"wc{i + 1}", "style") for i in range(max_output)]
+        [Output(f"wc{i + 1}_table", "data") for i in range(max_output)] + \
+        [Output(f"wc{i + 1}_table", "columns") for i in range(max_output)] + \
+        [Output(f"wc{i + 1}", "style") for i in range(max_output)]
 
 
 def return_tops_with_visibility(graph_id, visible=True):
@@ -56,14 +50,14 @@ def return_tops_with_visibility(graph_id, visible=True):
                                  style_cell={
                                      "minWidth": "80px",
                                      "width": "80px",
-                                     "maxWidth": "100px",
+                                     "maxWidth": "250px",
                                      "textAlign": "center",
                                  },
                                  )
         ],
         id=graph_id,
-        style={"display": "flex", "flex-direction": "column","justify-content": "space-between",
-               "margin-top": 100,"align-items": "center", "width": 1200},
+        style={"display": "flex", "flex-direction": "column", "justify-content": "space-between",
+               "margin-top": 100, "align-items": "center", "width": 1200},
         hidden=not visible
     )
 
@@ -102,12 +96,18 @@ layout = dbc.Container([
                      options=[{"label": cc, "value": cc} for cc in costcenters],
                      multi=False,
                      value="CNC",
-                     style={'width': 150,'font':'purple','backgroundColor':'#593196'}
+                     style={'width': 150, 'font': 'purple', 'backgroundColor': '#593196'}
                      )
-    ],style={'width': 150,'font':'purple'}),
+    ], style={'width': 150, 'font': 'purple'}),
+        html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+                    style={"position": "absolute", "right": 175, "top": "-1", "width": "150px", "height": "35px"}),
+        html.Div(id='refresh', style={'display': 'none'}),
+        html.Div(id='output-div'),
+        # Include this line in your app layout
+        dcc.Location(id='location', refresh=True),
         html.Button("Download Data", id="download-button", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
-        style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
-        dcc.Download(id="download-data")],style= {"margin-top":10}),
+                    style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
+        dcc.Download(id="download-data")], style={"margin-top": 10}),
     html.Div(id="toggle_div", children=[
         html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
         html.Hr(),
@@ -140,8 +140,36 @@ layout = dbc.Container([
     )
 ], fluid=True)
 
-
 list_of_callbacks = generate_output_list(MAX_OUTPUT)
+
+
+# Inside a callback
+# Create a callback for the button
+@app.callback(
+    Output('refresh', 'children'),
+    [Input('clear-cache-button', 'n_clicks')]
+)
+def clear_cache(n_clicks):
+    if n_clicks > 0:
+        print(n_clicks)
+        cache.delete_memoized(oee)
+        cache.delete_memoized(prdconf)
+        return str(n_clicks)  # Change the 'refresh' div when the button is clicked
+    else:
+        return dash.no_update  # Don't change the 'refresh' div if the button hasn't been clicked
+
+
+# Add this callback
+@app.callback(
+    Output('location', 'href'),
+    [Input('refresh', 'children')]
+)
+def page_refresh(n):
+    if n:
+        return "/wcreport"
+    return dash.no_update
+
+
 
 # Callback for hiding/showing the first div
 @app.callback(
@@ -245,11 +273,11 @@ def update_ind_fig(list_of_wcs, option_slctd, report_day="2022-07-26"):
 
     for item in range(MAX_OUTPUT):
         if item < len(list_of_wcs):
-            fig = return_ind_fig(df_metrics=df,df_details=df_wclist,
+            fig = return_ind_fig(df_metrics=df, df_details=df_wclist,
                                  costcenter=option_slctd, order=list_of_wcs[item], colorof='black')
 
             df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_wcs[item]),
-                                       ["SHIFT", "MATERIAL", "QTY", "AVAILABILITY", "PERFORMANCE","QUALITY", "OEE","TOTALTIME"]]
+            ["SHIFT", "MATERIAL", "QTY", "AVAILABILITY", "PERFORMANCE", "QUALITY", "OEE", "TOTALTIME"]]
             if len(df_details) == 0:
                 continue
 
@@ -262,18 +290,20 @@ def update_ind_fig(list_of_wcs, option_slctd, report_day="2022-07-26"):
 
             weights = df_details.loc[df_details.index, "TOTALTIME"]
             weights[weights <= 0] = 1
+
             def weighted_average(x):
                 # Use the updated weights
                 return np.average(x, weights=weights.loc[x.index])
+
             wm = lambda x: weighted_average(x)
             aggregations = {
                 'MATERIAL': max,  # Sum of 'performance' column
                 'QTY': "sum",  # Mean of 'availability' column
-                'AVAILABILITY' : wm,
+                'AVAILABILITY': wm,
                 'PERFORMANCE': wm,
-                'QUALITY':wm,
-                'OEE':wm,
-                'SHIFT':'count'
+                'QUALITY': wm,
+                'OEE': wm,
+                'SHIFT': 'count'
             }
             # Burada vardiya özet satırını oluşturup ekliyoruz.
             summary_row = df_details.groupby('SHIFT').agg(aggregations)
@@ -281,9 +311,9 @@ def update_ind_fig(list_of_wcs, option_slctd, report_day="2022-07-26"):
             summary_row["SHIFT"] = summary_row.index
             summary_row["SHIFT"] = summary_row["SHIFT"].astype(str)
             summary_row["SHIFT"] = summary_row["SHIFT"] + ' (Özet)'
-            df_details=df_details.append(summary_row)
+            df_details = df_details.append(summary_row)
             # Verileri yüzde formuna getiriyoruz
-            df_details= df_details.drop(["TOTALTIME"], axis=1)
+            df_details = df_details.drop(["TOTALTIME"], axis=1)
             df_details["AVAILABILITY"] = (df_details["AVAILABILITY"] * 100).round()
             df_details["AVAILABILITY"] = df_details["AVAILABILITY"].astype(str) + '%'
             df_details["QUALITY"] = (df_details["QUALITY"] * 100).round()
@@ -314,6 +344,7 @@ def update_ind_fig(list_of_wcs, option_slctd, report_day="2022-07-26"):
 
     return tuple(list_of_figs + list_of_data + list_of_columns + list_of_styles)
 
+
 @app.callback(
     Output("download-data", "data"),
     [Input("download-button", "n_clicks")],
@@ -326,6 +357,3 @@ def generate_excel(n_clicks, costcenter):
     dff = oeelist[3][oeelist[3]["COSTCENTER"] == costcenter]
 
     return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)
-
-
-
