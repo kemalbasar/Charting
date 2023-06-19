@@ -22,7 +22,10 @@ topic4 = "P12/YesilIsik"
 
 client = mqtt.Client()
 
-client.connect(broker_address, 1883, 60)
+try:
+    client.connect(broker_address, 1883, 60)
+except Exception as e:
+    print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
 
 # client.publish("P12/AdetRst", True, 2)
 

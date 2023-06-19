@@ -1,4 +1,6 @@
 ### Import Packages ###
+import logging
+
 import dash
 import dash_bootstrap_components as dbc
 from flask_caching import Cache
@@ -7,6 +9,7 @@ from run.agent import ag
 import pandas as pd
 from config import project_directory
 
+logger = logging.getLogger(__name__)
 
 
 ### Dash instance ###
@@ -26,9 +29,21 @@ app.css.append_css({
 })
 
 cache = Cache(app.server, config={
-    'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': 'cache-directory'
+    'CACHE_TYPE': 'redis',
+    'CACHE_REDIS_URL': 'redis://localhost:6379'
 })
+@app.server.route('/clear-cache', methods=['GET'])
+def clear_cache():
+    try:
+        with app.server.app_context():
+            cache.delete_memoized(oee)
+            cache.delete_memoized(prdconf)
+        logger.info("Cache cleared successfully")
+        return "Cache has been cleared", 200
+    except Exception as e:
+        logger.error(f"An error occurred when trying to clear cache: {str(e)}")
+        return "An error occurred when trying to clear cache", 500
+
 
 
 TIMEOUT = 12000

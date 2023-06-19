@@ -383,7 +383,7 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
                 {'range': [0, 33], 'color': 'white'},
                 {'range': [33, 80], 'color': 'white'},
                 {'range': [81, 100], 'color': 'white'},
-                {'range': [100, 150], 'color': 'white'}
+                {'range': [100, 120], 'color': 'white'}
             ],
             'threshold': {
                 'line': {'color': "orange", 'width': 6},
