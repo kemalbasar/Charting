@@ -9,6 +9,7 @@ import plotly.express as px
 from valfapp.app import cache, oee, app, prdconf
 import dash_table
 from dash.exceptions import PreventUpdate
+import redis
 
 # Define constants and initial data
 MAX_OUTPUT = 50
@@ -151,9 +152,11 @@ list_of_callbacks = generate_output_list(MAX_OUTPUT)
 )
 def clear_cache(n_clicks):
     if n_clicks > 0:
-        print(n_clicks)
-        cache.delete_memoized(oee)
-        cache.delete_memoized(prdconf)
+        r = redis.Redis(host='localhost', port=6379, db=0)
+        print(r.dbsize())
+        r.flushdb()
+        print("********")
+        print(r.dbsize())
         return str(n_clicks)  # Change the 'refresh' div when the button is clicked
     else:
         return dash.no_update  # Don't change the 'refresh' div if the button hasn't been clicked
