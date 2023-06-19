@@ -157,6 +157,8 @@ def clear_cache(n_clicks):
         r.flushdb()
         print("********")
         print(r.dbsize())
+        global oeelist
+        oeelist = oee()
         return str(n_clicks)  # Change the 'refresh' div when the button is clicked
     else:
         return dash.no_update  # Don't change the 'refresh' div if the button hasn't been clicked
