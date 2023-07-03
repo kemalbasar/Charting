@@ -134,7 +134,7 @@ layout = dbc.Container([
         html.Hr(),
     ]),
     html.Hr(),
-    dbc.Button("Hataları Gizle", id="toggle_button", n_clicks=0, className="mr-2"),
+    dbc.Button("Hataları Gizle", id="toggle_button", n_clicks=0,  className="bbtn btn-primary btn-sm ml-auto"),
     dbc.Row(
         [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width="6") for i in range(MAX_OUTPUT)],
         justify="start"
@@ -153,10 +153,10 @@ list_of_callbacks = generate_output_list(MAX_OUTPUT)
 def clear_cache(n_clicks):
     if n_clicks > 0:
         r = redis.Redis(host='localhost', port=6379, db=0)
-        print(r.dbsize())
+        # print(r.dbsize())
         r.flushdb()
-        print("********")
-        print(r.dbsize())
+        # print("********")
+        # print(r.dbsize())
         global oeelist
         oeelist = oee()
         return str(n_clicks)  # Change the 'refresh' div when the button is clicked
@@ -335,8 +335,8 @@ def update_ind_fig(list_of_wcs, option_slctd, report_day="2022-07-26"):
             columns = [{"name": i, "id": i} for i in df_details.columns]
             data = df_details.to_dict("records")
 
-
         else:
+
             fig = {}
             columns = []
             data = []
@@ -354,11 +354,11 @@ def update_ind_fig(list_of_wcs, option_slctd, report_day="2022-07-26"):
     Output("download-data", "data"),
     [Input("download-button", "n_clicks")],
     [Input("costcenter", "value")],
+    prevent_initial_call=True
 )
 def generate_excel(n_clicks, costcenter):
     if n_clicks < 1:
         raise PreventUpdate
 
     dff = oeelist[3][oeelist[3]["COSTCENTER"] == costcenter]
-
     return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)

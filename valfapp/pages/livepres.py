@@ -2,7 +2,7 @@ import datetime
 
 import plotly.graph_objs as go
 import dash
-from dash import dcc, html # pip install dash (version 2.0.0 or higher)
+from dash import dcc, html, Output  # pip install dash (version 2.0.0 or higher)
 import dash_bootstrap_components as dbc
 from paho.mqtt import client as mqtt
 from run.agent import ag
@@ -10,15 +10,15 @@ from valfapp.app import app
 from config import project_directory
 
 df = ag.run_query(project_directory + r"\Charting\queries\mesworkcenter_data.txt")
-
-
+costcenters = ["PRESHANE", "CNC", "CNCTORNA", "TASLAMA"]
+workcenters = ["P-12","P-13","P-14","P-15","P-16","P-17"]
 
 broker_address = '172.30.134.22'
 port = 1883
-topic = "P12/DevirHiz"
-topic2 = "P12/ParcaAdet"
-topic3 = "P12/SariIsik"
-topic4 = "P12/YesilIsik"
+topic = "DevirHiz"
+topic2 = "ParcaAdet"
+topic3 = "SariIsik"
+topic4 = "YesilIsik"
 
 client = mqtt.Client()
 
@@ -27,35 +27,75 @@ try:
 except Exception as e:
     print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
 
-# client.publish("P12/AdetRst", True, 2)
+
+
+def generate_callbacks_strings():
+    return [Output(f"{wc}", "figure") for wc in workcenters]
+
+devirhizibilgisi = {}
+adetbilgisi = {}
+preshazir = {}
+presbasıyor = {}
+
+for wc in workcenters:
+    adetbilgisi[wc] = int(0)
+    devirhizibilgisi[wc] = 0
+    preshazir[wc] = False
+    presbasıyor[wc] = True
 
 
 def on_message(client, userdata, msg):
-    topic_cur = msg.topic
-    global adetbilgisi
-    global devirhizibilgisi
-    global preshazir
-    global presbasıyor
+    for wc in workcenters:
+        if msg.topic == wc + "/" + topic:
+            devirhizibilgisi[wc] = msg.payload.decode()
+        elif msg.topic ==  wc + "/" + topic2:
+            adetbilgisi[wc] = msg.payload.decode()
+        elif msg.topic ==  wc + "/" + topic3:
+            preshazir[wc] = msg.payload.decode()
+        elif msg.topic == wc + "/" + topic4:
+            presbasıyor[wc] = msg.payload.decode()
 
-    if topic_cur == topic:
-        devirhizibilgisi = msg.payload.decode()
-    elif topic_cur == topic2:
-        adetbilgisi = msg.payload.decode()
-    elif topic_cur == topic3:
-        preshazir = msg.payload.decode()
-    elif topic_cur == topic4:
-        presbasıyor = msg.payload.decode()
-
-# Retrieve the message data from MQTT
 
 client.on_message = on_message
-client.subscribe([(topic, 0), (topic2, 0), (topic3, 0), (topic4, 0)])
+
+# Retrieve the message data from MQTT
+for wc in workcenters:
+    client.subscribe([(wc + "/" + topic, 0), (wc + "/" + topic2, 0), (wc + "/" + topic3, 0), (wc + "/" + topic4, 0)])
+
+
+
 client.loop_start()
 
-adetbilgisi = int(0)
-devirhizibilgisi = 0
-preshazir = False
-presbasıyor = True
+def generate_workcenter_layout():
+    """
+    this method generates the layout of the dashboard, its layout the figures as 3 workcenter for 1 row and 2 columns
+    :return: list of dash rows
+    """
+    layout = []
+    for i in range(0, len(workcenters), 3):
+        layout.append(dbc.Row([
+            dbc.Col(
+                dcc.Graph(id=f"{workcenters[i]}"),
+                width=4,
+                style={'border': '1px solid white', 'padding': 0}
+            ),
+            dbc.Col(
+                dcc.Graph(id=f"{workcenters[i + 1]}"),
+                width=4,
+                style={'border': '1px solid white', 'padding': 0}
+            ),
+            dbc.Col(
+                dcc.Graph(id=f"{workcenters[i + 2]}"),
+                width=4,
+                style={'border': '1px solid white', 'padding': 0}
+            )],
+
+            style={'padding': 0}
+        ))
+    return layout
+
+
+
 
 
 def calculate_current_optimal_qty(optimalqty):
@@ -78,116 +118,131 @@ def calculate_current_optimal_qty(optimalqty):
     minute_diff = int((now - target_datetime).total_seconds() / 60)
     return optimalqty * (minute_diff / 420)
 
+html.Div(children=[dcc.Graph(id=f"{wc}") for wc in workcenters],
+                                         style={"height": 800})
 
-costcenters = ["PRESHANE","CNC", "CNCTORNA", "TASLAMA"]
+layout = html.Div(children=[
+    dcc.Store(id="store-bgcolor"),
+    dcc.Store(id="list_of_wcs"),
+    dcc.Interval(id="bgcolor-interval", interval=1000),
+    dbc.Row([
+        dcc.Dropdown(
+            id="costcenter",
+            options=[{"label": cc, "value": cc} for cc in costcenters],
+            multi=False,
+            value="PRESHANE",
+            style={"color": "green", "background-color": "DimGray", 'width': 200}
+        ),
+        html.Div(children=generate_workcenter_layout(),
+                 style={'width': '100%', 'height': '100%'}),
+        dcc.Interval(
+            id='interval-component',
+            interval=5000,  # Update interval in milliseconds
+            n_intervals=0
+        ),
+    ]),
+     # set margin to zero to omit empty spaces at the right and the left
+])
 
 
 
-layout = html.Div(children=
-[dcc.Store(id="store-bgcolor"),dcc.Interval(id="bgcolor-interval", interval=1000),
-
-dbc.Container([
-
-    dbc.Row([dcc.Dropdown(id="costcenter",
-                          options=[{"label": cc, "value": cc} for cc in costcenters],
-                          multi=False,
-                          value="PRESHANE",
-                          style={"color": "green", "background-color": "DimGray", 'width': 200}
-                          )
-                ,
-             html.Div(children=[dcc.Graph(id="live-graph", style={"margin-top": 20, "height": 800})],
-                      style = {"height":800})])]),
-    dcc.Interval(
-        id='interval-component',
-        interval=5000,  # Update interval in milliseconds
-        n_intervals=0
-    )
-]
-)
 
 @app.callback(
     dash.dependencies.Output("store-bgcolor", "data"),
     [dash.dependencies.Input("bgcolor-interval", "n_intervals")]
 )
 def update_bgcolor(n_intervals):
-    if presbasıyor == 'true':
-        return "ForestGreen"
-    elif preshazir == 'true':
-        return "yellow"
-    else:
-        return "red"
+    bgcolor = {wc: "red" for wc in workcenters}
+    for wc in workcenters:
+        if presbasıyor[wc] == 'true':
+            bgcolor[wc] =  "ForestGreen"
+        elif preshazir[wc] == 'true':
+            bgcolor[wc] = "yellow"
+        else:
+            bgcolor[wc] = "red"
+
+    return bgcolor
 
 
-@app.callback(dash.dependencies.Output("live-graph", "figure"),
+@app.callback(generate_callbacks_strings(),
               [dash.dependencies.Input("interval-component", "n_intervals"),
-              dash.dependencies.Input("store-bgcolor", "data")
-
-])
-def update_graph(n,bgcolor):
+               dash.dependencies.Input("store-bgcolor", "data")
+               ])
+def update_graph(n, bgcolor):
     # Process the message data and create the plot
-    while adetbilgisi is None:
-        continue
-    x_data = int(df.loc[df["WORKCENTER"] == 'P-12', "PARTITION"]) * int(adetbilgisi)
-    ndevirhizi =int(df.loc[df["WORKCENTER"] == 'P-12', "NDEVIRHIZI"])
-    y_data = calculate_current_optimal_qty(int(df.loc[df["WORKCENTER"] == 'P-12', "OPTIMALMIKTAR"]))
-    bar_color = "ForestGreen" if x_data > y_data else "red"
-    # print(presbasıyor)
-    # print(bgcolor)
-    material = df.loc[df["WORKCENTER"] == 'P-12', "MATERIAL"].tolist()[0]
+    figs = []
+    for workcenter in workcenters:
+        while adetbilgisi[workcenter] is None:
+            continue
+        x_data = int(df.loc[df["WORKCENTER"] == workcenter, "PARTITION"]) * int(adetbilgisi[workcenter])
+#        print(adetbilgisi)
+        ndevirhizi = int(df.loc[df["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
+        y_data = calculate_current_optimal_qty(int(df.loc[df["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"]))
+        bar_color = "ForestGreen" if x_data > y_data else "red"
+        # print(presbasıyor)
+        # print(bgcolor)
+        material = df.loc[df["WORKCENTER"] == workcenter, "MATERIAL"].tolist()[0]
 
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number+delta",
-        value=x_data,
-        title={"text": "P-12", "font": {"size": 50}},
-        delta={"reference": y_data,
-               "increasing": {"color": "green"}, "decreasing": {"color": "red"}, "font": {"size": 80}},
-        gauge={
-            "axis": {"range": [None, int(df.loc[df["WORKCENTER"] == 'P-12', "OPTIMALMIKTAR"])]},
-            "steps": [
-                {"range": [0, 5], "color": "lightgray"},
-                {"range": [5, 10], "color": "gray"}
-            ],
-            "threshold": {
-                "line": {"color": "black", "width": 30},
-                "thickness": 1,
-                "value": y_data
-            },
-            "bgcolor": "MintCream",
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number+delta",
+            value=x_data,
+            number={'font': {'color': 'white', 'size': 50}},
+            title={"text": f"{workcenter}", "font": {"size": 40, "color": "white"}},
+            delta={"reference": y_data,"valueformat": ".0f",
+                   "increasing": {"color": "lime"}, "decreasing": {"color": "brown"}, "font": {"size": 40}},
+            gauge={
+                "axis": {"range": [None, int(df.loc[df["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"])],
+                         "tickcolor": "white",
+                         "tickfont": {"color": "white", "size": 10}
+                         },
+                "steps": [
+                    {"range": [0, 5], "color": "lightgray"},
+                    {"range": [5, 10], "color": "gray"}
+                ],
+                "threshold": {
+                    "line": {"color": "#ffd700", "width": 30},
+                    "thickness": 1,
+                    "value": y_data
+                },
+                "bgcolor": "MintCream",
+                "bordercolor": "white",
 
-            'bar': {'color': bar_color}
-        }
-    ))
+                'bar': {'color': bar_color}
+            }
+        ))
 
-    fig.update_layout(
-        height = 800,
-        annotations=[
+        fig.update_layout(
+            height=500,
+            annotations=[
 
-            go.layout.Annotation(
-                x=1.01,
-                y=-0.1,
-                xref='paper',  # we'll reference the paper which we draw plot
-                yref='paper',
-                showarrow=False,
-                text=f"İdeal Devir Hızı : {ndevirhizi} --"
-                     f"- Anlık Devir Hızı: {devirhizibilgisi if bgcolor == 'ForestGreen' else 0}",
-                font=dict(
-                    size=50,
-                    color="black"
-                )
-            ),
                 go.layout.Annotation(
-                x=1.01,
-                y=1.1,
-                xref='paper',  # we'll reference the paper which we draw plot
-                yref='paper',
-                showarrow=False,
-                text=f'\n{material}',
-                font=dict(
-                    size=50,
-                    color="black"
+                    x=0.91,
+                    y=-0.2,
+                    xref='paper',  # we'll reference the paper which we draw plot
+                    yref='paper',
+                    showarrow=False,
+                    text=f"- Devir Hızları: {ndevirhizi}\{devirhizibilgisi[workcenter]} -",
+                    # if bgcolor == 'ForestGreen' else 0
+                    font=dict(
+                        size=30,
+                        color="white"
+                    )
+                ),
+                go.layout.Annotation(
+                    x=1.15,
+                    y=1.30,
+                    xref='paper',  # we'll reference the paper which we draw plot
+                    yref='paper',
+                    showarrow=False,
+                    text=f'\n{material}',
+                    font=dict(
+                        size=30,
+                        color="white"
+                    )
                 )
-            )
-        ],
-        paper_bgcolor=bgcolor
-    )
-    return fig
+            ],
+            paper_bgcolor=bgcolor[workcenter]
+        )
+        figs.append(fig)
+
+    return figs
