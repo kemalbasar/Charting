@@ -11,7 +11,7 @@ from config import project_directory
 
 df = ag.run_query(project_directory + r"\Charting\queries\mesworkcenter_data.txt")
 costcenters = ["PRESHANE", "CNC", "CNCTORNA", "TASLAMA"]
-workcenters = ["P-12","P-13","P-14","P-15","P-16","P-17"]
+workcenters = ["P-12", "P-13", "P-14", "P-15", "P-16", "P-17"]
 
 broker_address = '172.30.134.22'
 port = 1883
@@ -28,9 +28,9 @@ except Exception as e:
     print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
 
 
-
 def generate_callbacks_strings():
     return [Output(f"{wc}", "figure") for wc in workcenters]
+
 
 devirhizibilgisi = {}
 adetbilgisi = {}
@@ -48,9 +48,9 @@ def on_message(client, userdata, msg):
     for wc in workcenters:
         if msg.topic == wc + "/" + topic:
             devirhizibilgisi[wc] = msg.payload.decode()
-        elif msg.topic ==  wc + "/" + topic2:
+        elif msg.topic == wc + "/" + topic2:
             adetbilgisi[wc] = msg.payload.decode()
-        elif msg.topic ==  wc + "/" + topic3:
+        elif msg.topic == wc + "/" + topic3:
             preshazir[wc] = msg.payload.decode()
         elif msg.topic == wc + "/" + topic4:
             presbasıyor[wc] = msg.payload.decode()
@@ -62,9 +62,8 @@ client.on_message = on_message
 for wc in workcenters:
     client.subscribe([(wc + "/" + topic, 0), (wc + "/" + topic2, 0), (wc + "/" + topic3, 0), (wc + "/" + topic4, 0)])
 
-
-
 client.loop_start()
+
 
 def generate_workcenter_layout():
     """
@@ -95,9 +94,6 @@ def generate_workcenter_layout():
     return layout
 
 
-
-
-
 def calculate_current_optimal_qty(optimalqty):
     # Define the current time
     now = datetime.datetime.now()
@@ -118,8 +114,9 @@ def calculate_current_optimal_qty(optimalqty):
     minute_diff = int((now - target_datetime).total_seconds() / 60)
     return optimalqty * (minute_diff / 420)
 
+
 html.Div(children=[dcc.Graph(id=f"{wc}") for wc in workcenters],
-                                         style={"height": 800})
+         style={"height": 800})
 
 layout = html.Div(children=[
     dcc.Store(id="store-bgcolor"),
@@ -141,10 +138,8 @@ layout = html.Div(children=[
             n_intervals=0
         ),
     ]),
-     # set margin to zero to omit empty spaces at the right and the left
+    # set margin to zero to omit empty spaces at the right and the left
 ])
-
-
 
 
 @app.callback(
@@ -155,7 +150,7 @@ def update_bgcolor(n_intervals):
     bgcolor = {wc: "red" for wc in workcenters}
     for wc in workcenters:
         if presbasıyor[wc] == 'true':
-            bgcolor[wc] =  "ForestGreen"
+            bgcolor[wc] = "ForestGreen"
         elif preshazir[wc] == 'true':
             bgcolor[wc] = "yellow"
         else:
@@ -175,7 +170,7 @@ def update_graph(n, bgcolor):
         while adetbilgisi[workcenter] is None:
             continue
         x_data = int(df.loc[df["WORKCENTER"] == workcenter, "PARTITION"]) * int(adetbilgisi[workcenter])
-#        print(adetbilgisi)
+        #        print(adetbilgisi)
         ndevirhizi = int(df.loc[df["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
         y_data = calculate_current_optimal_qty(int(df.loc[df["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"]))
         bar_color = "ForestGreen" if x_data > y_data else "red"
@@ -188,7 +183,7 @@ def update_graph(n, bgcolor):
             value=x_data,
             number={'font': {'color': 'white', 'size': 50}},
             title={"text": f"{workcenter}", "font": {"size": 40, "color": "white"}},
-            delta={"reference": y_data,"valueformat": ".0f",
+            delta={"reference": y_data, "valueformat": ".0f",
                    "increasing": {"color": "lime"}, "decreasing": {"color": "brown"}, "font": {"size": 40}},
             gauge={
                 "axis": {"range": [None, int(df.loc[df["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"])],
@@ -216,12 +211,12 @@ def update_graph(n, bgcolor):
             annotations=[
 
                 go.layout.Annotation(
-                    x=0.91,
+                    x=0.87,
                     y=-0.2,
                     xref='paper',  # we'll reference the paper which we draw plot
                     yref='paper',
                     showarrow=False,
-                    text=f"- Devir Hızları: {ndevirhizi}\{devirhizibilgisi[workcenter]} -",
+                    text=f"- Devir Hızları: {ndevirhizi}\{devirhizibilgisi[workcenter] if bgcolor[workcenter] == 'ForestGreen' else 0} -",
                     # if bgcolor == 'ForestGreen' else 0
                     font=dict(
                         size=30,
