@@ -1,9 +1,14 @@
 # Import required libraries and modules
+import os
+import shutil
+
 import dash
 import numpy as np
 from dash import dcc, html, Input, Output, State, callback_context
 import dash_bootstrap_components as dbc
 from dash_bootstrap_components.themes import PULSE
+
+from config import project_directory
 from valfapp.functions.functions_prd import return_ind_fig
 import plotly.express as px
 from valfapp.app import cache, oee, app, prdconf
@@ -152,17 +157,20 @@ list_of_callbacks = generate_output_list(MAX_OUTPUT)
 )
 def clear_cache(n_clicks):
     if n_clicks > 0:
-        r = redis.Redis(host='localhost', port=6379, db=0)
-        # print(r.dbsize())
-        r.flushdb()
-        # print("********")
-        # print(r.dbsize())
+        # Specify the directory where the cached files are stored
+        cache_directory = project_directory + r'\Charting\valfapp\cache-directory'
+
+        # Clear the cache directory by removing all files
+        shutil.rmtree(cache_directory)
+        os.makedirs(cache_directory)
+
+        # Perform any other necessary operations after clearing the cache
+
         global oeelist
         oeelist = oee()
         return str(n_clicks)  # Change the 'refresh' div when the button is clicked
     else:
         return dash.no_update  # Don't change the 'refresh' div if the button hasn't been clicked
-
 
 # Add this callback
 @app.callback(
