@@ -27,8 +27,8 @@ app.css.append_css({
 })
 
 cache = Cache(app.server, config={
-    'CACHE_TYPE': 'redis',
-    'CACHE_REDIS_URL': 'redis://localhost:6379'
+    'CACHE_TYPE': 'filesystem',
+    'CACHE_DIR': 'cache-directory'
 })
 
 
