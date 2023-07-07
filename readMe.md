@@ -13,16 +13,16 @@ All dashboards developed in Python, Dash framework.
 
 Final goal is, connecting all modules and  datas each other that enables to monitor all layer of manufacturing and financial situation.
 
-                     ########### Main Page ###########
+                                                ########### Main Page ###########
                      
 ![image](https://github.com/kemalbasar/Charting/assets/4936460/912a2f8c-ae84-4a46-917d-401a4de01925)
 
-                     ########### Oee Reports ###########
-![vs1](view/preview.avi)
+                                                ########### Oee Reports ###########
+                     
 ![ss1](view/jpeg.jpg)
 ![ss1](view/jpeg2.jpg)
 
-                     ########### Live Monitoring ###########
+                                                ########### Live Monitoring ###########
                      
 ![image](https://github.com/kemalbasar/Charting/assets/4936460/d5814c31-25c6-4650-ab66-13eddedd46cd)
 
