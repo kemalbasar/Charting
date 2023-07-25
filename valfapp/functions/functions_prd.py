@@ -36,7 +36,7 @@ def apply_nat_replacer(x):
 
 
 ########### ########### ########### ###################### ########### ########### ########### ###########
-########### ########### ########### ########### SQL QUERIES START##### ########### ########### ##########
+########### ########### ########### ########### SQL QUERIES START ##### ########### ########### ##########
 ########### ########### ########### ########### ########### ########### ########### ########### ##########
 
 # taking workcenter list from database
@@ -58,8 +58,8 @@ def working_machinesf(working_machines = working_machines, costcenter='CNC'):
 def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shiftandmat=0):
     df = df.loc[df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS",
                                                "QTY", "SCRAPQTY", "REWORKQTY","ADET","LABOUR",
-                                               "WORKCENTER", "RUNTIME", "TOTALTIME",
-                                               "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME","PLANNEDTIME","STEXT","SCRAPTEXT","DISPLAY"]]
+                                               "WORKCENTER", "RUNTIME", "TOTALTIME","DISPLAY",
+                                               "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME","PLANNEDTIME","STEXT","SCRAPTEXT"]]
 
     df.drop_duplicates(inplace=True,subset=['CONFIRMATION', 'CONFIRMPOS'])
     df.reset_index(drop=True, inplace=True)
@@ -91,7 +91,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"].astype(float)
 
 
-        # buraya machine ile çarpılmış halini otomatik getireceğiz.
+    # buraya machine ile çarpılmış halini otomatik getireceğiz.
 
     df_metrics["NANTIME"] = df_metrics["PLANNEDTIME"] - df_metrics["TOTALTIME"]
     # There will be counter for broken data.
@@ -118,7 +118,9 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     # df_metrics["PERFORMANCEWITHWEIGHT"] = df_metrics["PERFORMANCE"] * df_metrics["VARD"]
     # df_metrics["PERFORMANCEWITHWEIGHT"].sum() / df_metrics["VARD"].sum()
     weights = df_metrics.loc[df_metrics.index, "PLANNEDTIME"]
+    weights2 = df_metrics.loc[df_metrics.index, "RUNTIME"]
     weights[weights <= 0] = 1
+
 
     def weighted_average(x):
         # Use the updated weights
@@ -129,7 +131,23 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     # df_metrics["FLAG_BADDATA"] = [1 if df_metrics["PERFORMANCE"][row]> 1.2 else 0
     #                               for row in df_metrics.index]
     df_metrics_forwc = df_metrics.copy()
-
+    print(df_metrics["DISPLAY"])
+    df_metrics_forpers = df_metrics.groupby(["DISPLAY", "COSTCENTER"]).agg({"QTY": "sum",
+                                                                            "SCRAPQTY": "sum",
+                                                                            "REWORKQTY": "sum",
+                                                                            "RUNTIME": "sum",
+                                                                            "TOTALTIME": "sum",
+                                                                            "TOTFAILURETIME": "sum",
+                                                                            "IDEALCYCLETIME": "sum",
+                                                                            "SETUPTIME": "sum",
+                                                                            "NANTIME": "sum",
+                                                                            "PLANNEDTIME": "sum",
+                                                                            "PERFORMANCE": wm,
+                                                                            "AVAILABILITY": wm,
+                                                                            "OEE": wm
+                                                                            })
+    df_metrics_forpers.reset_index(inplace=True)
+    df_metrics_forpers.to_excel(r"F:\pycarhm projects\Charting\valfapp\assets\bu.xlsx")
 
     df_metrics = df_metrics.groupby(["WORKCENTER", "COSTCENTER"]).agg({"QTY": "sum",
                                                                 "SCRAPQTY": "sum",
@@ -146,6 +164,8 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
                                                                 "OEE": wm
                                                                })
     df_metrics.reset_index(inplace=True)
+
+
 
 
     try:
@@ -172,8 +192,20 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     f = lambda a: round(((abs(a) + a) / 2), 3)
     g = lambda a: int((a * 100) / sum_of)
     # h = lambda a: 1 if a > 1 else a
-
+    temp_dic = {
+        'RATES': [0, 0, 0, 0, 0],
+        'OEE': [0, 0, 0, 0, 0],
+        'MACHINE': ["PRD", "DOWN", "SETUP", "NAN", "PRD"],
+        'OPR': ["FAIL", None, None, None, "SUCCES"]
+    }
+    print(df_piechart)
     for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ","PRESHANE1","PRESHANE2"]:
+        try:
+            len(df_piechart.loc[costcenter])
+        except KeyError as e:
+            details[costcenter] =  pd.DataFrame(temp_dic,index=['SESSIONTIME', 'PLANSIZDURUS', 'SETUP', 'NaN', "SESSIONTIME2"])
+            print(f"KeyError: {e}")
+            continue
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
                  df_piechart.loc[costcenter, "SETUPTIME"] + df_piechart.loc[costcenter, "NANTIME"]
 
@@ -210,7 +242,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         #        df_piechart_final["OPR"]["SESSIONTIME2"] = str(int(df_piechart_final["OPR"]["SESSIONTIME2"])) + '%'
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
-    return details, df_metrics, df_metrics_forwc
+    return details, df_metrics, df_metrics_forwc, df_metrics_forpers
 
 
 # df_oee, df_metrics = calculate_oeemetrics()
@@ -338,7 +370,8 @@ def get_gann_data(df=prd_conf):
 #     df["NET_WORKING_TIME1"] = [get_work_hour(df["WORKCENTER"][row], df["WORKSTART"][row], df["WORKEND"][row]) for row in
 #                                range(df.shape[0])]
 
-def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC', order=0, colorof='green',coloroftext='black'):
+def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC', order=0,
+                   colorof='green',coloroftext='black',title= 'WORKCENTER',height=320,width=350):
     text = ''
     if df_metrics is None:
         return None
@@ -346,20 +379,26 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
         df_metrics = df_metrics.sort_values(by="OEE", ascending=False)
         df_metrics.reset_index(inplace=True, drop=True)
         l_card = df_metrics.iloc[order]
-        final_card = df_metrics.loc[df_metrics["WORKCENTER"] == l_card['WORKCENTER']]
+        final_card = df_metrics.loc[df_metrics[title] == l_card[title]]
 
     else:
-        final_card = df_metrics.loc[df_metrics["WORKCENTER"] == order]
+        final_card = df_metrics.loc[df_metrics[title] == order]
     # text = f"{final_card['WORKCENTER']} worked {int(final_card['AVAILABILITY'] * 100)}% of planned time." \
     #        f"Operater <br> processed {int(final_card['QTY'] - (final_card['QTY'] * final_card['RUNTIME']) / final_card['IDEALCYCLETIME'])} " \
     #        f"more material then avarge <br> with only {final_card['SCRAPQTY']} scrap"
 
-    if len(df_details) != 0:
-        df_ann = df_details.loc[df_details["WORKCENTER"] == order,["SHIFT","DISPLAY","SCRAPQTY","SCRAPTEXT"]]
-        df_ann.drop_duplicates(inplace=True, subset=['SHIFT', 'DISPLAY'], keep='first')
-        text = ''
-        for index, row in df_ann.iterrows():
-            text += f"{row['SHIFT']}.Var:{row['DISPLAY']} <br>"
+    # if len(df_details) != 0:
+    #     df_ann = df_details.loc[df_details["WORKCENTER"] == order,["SHIFT","DISPLAY","SCRAPQTY","SCRAPTEXT"]]
+    #     df_ann.drop_duplicates(inplace=True, subset=['SHIFT', 'DISPLAY'], keep='first')
+    #     text = ''
+    #     for index, row in df_ann.iterrows():
+    #         text += f"{row['SHIFT']}.Var:{row['DISPLAY']} <br>"
+
+    if title == 'WORKCENTER':
+        finalnum = 'OEE'
+    else:
+        finalnum = 'PERFORMANCE'
+
 
 
     if colorof == 'green':
@@ -367,12 +406,16 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
     else:
         colorof2 = coloroftext
 
+    title_txt = final_card[title].values[0]
+
+
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge+number",
-        value=final_card['OEE'].values[0] * 100 ,
+        value=final_card[finalnum].values[0] * 100 ,
         title={
-            "text": f"{final_card['WORKCENTER'].values[0]}</span><br><span style='font-size:1em;color:gray'>"},
+            "text": f"<span style='font-size:1.5em;'>{title_txt}</span><br><br><br><br><br><br><span style='font-size:5em;color:gray'>"}
+        ,
         gauge={
             'axis': {'range': [None, 150]},
             'bar': {'color': colorof, "thickness": 1},
@@ -399,7 +442,7 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
 
     annotation = {
         "height": 600,
-        "width": 2000,
+        "width": 1200,
         'x':0.55,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y':-0.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': text,
@@ -416,7 +459,7 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
         # # 'x': 0.5,
         # # 'font': {'size': 17}
         # },
-        "paper_bgcolor": "rgba(0,0,0,0)", "width": 350, "height": 320})
+        "paper_bgcolor": "rgba(0,0,0,0)", "width": width, "height": height})
 
     return fig
 

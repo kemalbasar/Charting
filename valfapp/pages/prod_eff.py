@@ -1,15 +1,18 @@
 import json
 import warnings
+from datetime import date, timedelta, datetime
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px  # (version 4.7.0 or higher)
-from dash import dcc, html, Input, Output  # pip install dash (version 2.0.0 or higher)
+from dash import dcc, html, Input, Output, State, callback_context, \
+    no_update, exceptions  # pip install dash (version 2.0.0 or higher)
 import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, calculate_oeemetrics, \
     generate_for_sparkline, working_machinesf, get_gann_data, return_ind_fig
 from run.agent import ag
 from config import project_directory
 from valfapp.app import cache, oee, app
+from valfapp.pages.date_class import update_date, update_date_output
 
 summary_color = 'black'
 
@@ -31,7 +34,9 @@ pd.set_option('display.float_format', lambda x: '%.2f' % x)
 pd.set_option('display.width', 500)
 pd.set_option('display.max_columns', None)
 
-oeelist = oee()
+
+oeelist = oee(((date.today() - timedelta(days=1)).isoformat(),
+               date.today().isoformat(),"day"))
 
 
 def return_tops(graph1="fig_up1", margin_top=0, graph2="fig_up2", graph3="fig_up3"):
@@ -47,33 +52,45 @@ def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
                                                "margin-left": margin_left})])
 
 
-# refresh_store = dcc.Store(id='refresh-store',
-#                           data={'refresh_count': 0, 'dropdown_value': 'default_value'})
-
-
 layout = dbc.Container([
     dbc.Row(dcc.Link(
         children='Main Page',
         href='/',
-        style={"color": "black", "font-weight": "bold"}
+        style={"height":40,"color": "black", "font-weight": "bold"}
 
     )),
-    dbc.Row([
+    dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
+                                     date=date.today(),
+                                     persistence=True,
+                                     persistence_type='local'
+                                     ),
         dbc.Col(
             html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
-    ]),
+    ],style={}),
+    html.Div(id='refresh3', style={'display': 'none'}),
+    dbc.Row([
+        dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button'),
+        dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button'),
+        dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
+        dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
+        dcc.Store(id="work-dates", storage_type="session",
+                  data={"workstart" : (date.today() - timedelta(days=1)).isoformat(),
+                         "workend" :  date.today().isoformat(),
+                         "interval" : "day"}),
+        dcc.Location(id='location3', refresh=True),
+        html.Div(id='output', children=''),
+        dcc.Dropdown(id="costcenter", className="dropdown-style",
+                      options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
+                                                                     "TASLAMA", "MONTAJ",
+                                                                     "PRESHANE1", "PRESHANE2"]],
+                      multi=False,
+                      value='CNC',
+                      style={}
+                      )
+                 ]
+    ),
 
-    dbc.Row([html.Div(id='output', children=''),
-             dcc.Dropdown(id="costcenter",
-                          options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
-                                                                         "TASLAMA", "MONTAJ",
-                                                                         "PRESHANE1","PRESHANE2"]],
-                          multi=False,
-                          value='CNC',
-                          style={"color": "green", "background-color": "DimGray", 'width': 200}
-                          )
-             ]),
-
+    dcc.Store(id='store-costcenter', storage_type='local'),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -148,13 +165,74 @@ layout = dbc.Container([
 ], fluid=True)
 
 
+@app.callback(Output('store-costcenter', 'data'),
+              Input('costcenter', 'value'))
+def update_store(value):
+    return value
+
+
+@app.callback(Output('costcenter', 'value'),
+              [Input('store-costcenter', 'modified_timestamp')],
+              [State('store-costcenter', 'data')])
+def update_dropdown(ts, stored_data):
+    if ts is None:
+        # if no data was stored yet, it initializes the dropdown to its default value
+        raise exceptions.PreventUpdate
+    return stored_data\
+
+
+
+################################################################################################
+################################ DATE BUTTONS START  ############################################
+################################################################################################
+
+@app.callback(
+    [Output('work-dates', 'data'),
+     Output('refresh3', 'children')],
+    [Input('btn-day2', 'n_clicks'),
+     Input('date-picker2', 'date'),
+     Input('btn-week2', 'n_clicks'),
+     Input('btn-month2', 'n_clicks'),
+     Input('btn-year2', 'n_clicks')]
+)
+def update_work_dates(n1, date_picker, n2, n3, n4):
+    stored_date = date_picker
+    if n1 or date_picker or n2 or n3 or n4:
+        data = update_date('2', date_picker, callback_context)
+        if data != {}:
+            global oeelist
+            oeelist = oee(params=(data["workstart"], data["workend"], data["interval"]))
+            a = update_date_output( n1, date_picker, n2, n3, n4, data)
+            return a
+        else:
+            return no_update
+    else:
+        return no_update
+
+
+@app.callback(
+    Output('location3', 'href'),
+    Input('refresh3', 'children')
+)
+def page_refresh3(n3):
+    if n3:
+        return "/prod_eff"
+    return no_update
+
+
+################################################################################################
+################################ DATE BUTTONS END  ############################################
+################################################################################################
+
 @app.callback(
     [Output(component_id='my-output1', component_property='children'),
      Output(component_id='my-output2', component_property='children')],
-    Input(component_id='costcenter', component_property='value')
+    [Input(component_id='costcenter', component_property='value'),
+     Input(component_id='work-dates', component_property='data')]
 )
-def return_summary_data(option_slctd):
-    df_working_machines = ag.run_query(project_directory + r"\Charting\queries\working_workcenter.txt")
+def return_summary_data(option_slctd,dates):
+    df_working_machines= ag.run_query(query = r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
+                            , params=(dates["workstart"],dates["workend"]))
     data1 = ["Production Volume", get_daily_qty(df=oeelist[2], costcenter=option_slctd)]
     data2 = ["Working Machines", working_machinesf(working_machines=df_working_machines, costcenter=option_slctd)[-1]]
     data3 = ["PPM", get_daily_qty(df=oeelist[2], costcenter=option_slctd, ppm=True)]
@@ -212,8 +290,8 @@ def update_graph_sunburst(option_slctd, report_day="2022-07-26"):
                           color_continuous_midpoint=50)
     else:
         fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
-                  color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn_r,
-                  color_continuous_midpoint=50)
+                          color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn_r,
+                          color_continuous_midpoint=50)
 
     fig.update_traces(hovertemplate='<b>Actual Rate is %{value} </b>')
     fig.update_layout(showlegend=False, paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
@@ -233,10 +311,10 @@ def update_graph_sunburst(option_slctd, report_day="2022-07-26"):
 def update_graph_bubble(option_slctd, report_day="2022-07-26"):
     df, category_order = scatter_plot(df=oeelist[2].loc[oeelist[2]["COSTCENTER"] == option_slctd])
     figs = px.histogram(df, x="WORKCENTER", y="FAILURETIME",
-                      color="STEXT",
-                      hover_data=["WORKCENTER"],
-                      color_discrete_sequence=px.colors.qualitative.Alphabet,
-                      width=1500, height=500, category_orders={"STEXT": category_order})
+                        color="STEXT",
+                        hover_data=["WORKCENTER"],
+                        color_discrete_sequence=px.colors.qualitative.Alphabet,
+                        width=1500, height=500, category_orders={"STEXT": category_order})
 
     # figs.update_traces(textfont=dict(family=['Arial Black']))
     figs.update_xaxes(type="category", tickangle=90, fixedrange=True)
@@ -320,11 +398,13 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
      Output(component_id='fig_scrap', component_property='figure'),
      Output(component_id='fig_working_machine', component_property='figure'),
      Output(component_id='fig_ppm', component_property='figure')],
-    [Input(component_id='costcenter', component_property='value')]
+    [Input(component_id='costcenter', component_property='value'),
+     Input(component_id='work-dates', component_property='data')]
 )
-def update_spark_line(option_slctd, report_day="2022-07-26"):
+def update_spark_line(option_slctd, dates):
     onemonth_prdqty = oeelist[6]
-    df_working_machines = ag.run_query(project_directory + r"\Charting\queries\working_workcenter.txt")
+    df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
+                 , params=(dates["workstart"], dates["workend"]))
     fig_prod = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses=option_slctd))
     fig_scrap = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses=option_slctd, type='HURDA'))
     fig_working_machine = get_spark_line(
@@ -359,20 +439,24 @@ def update_ind_fig(option_slctd, report_day="2022-07-26"):
 
 @app.callback(
     [Output(component_id='fig_scatscrap', component_property='figure')],
-    [Input(component_id='costcenter', component_property='value')]
+    [Input(component_id='costcenter', component_property='value'),
+     Input(component_id='work-dates', component_property='data')]
 )
-def create_scatterplot_for_scrapqty(costcenter):
-    df_scrap = ag.run_query(r"EXEC VLFPRDSCRAP")
+def create_scatterplot_for_scrapqty(costcenter,dates):
+    now = datetime.now()
+    df_scrap = ag.run_query(query=r"EXEC VLFPRDSCRAPWITHPARAMS @WORKSTART=?, @WORKEND=?"
+                                       , params=(dates["workstart"], dates["workend"]))
+    now = datetime.now()
     df_scrap = df_scrap[df_scrap["COSTCENTER"] == costcenter]
     cat_order_sumscrap = df_scrap.groupby("STEXT")["SCRAP"].sum().sort_values(ascending=False).index
     df_scrap["SCRAP"] = df_scrap["SCRAP"].astype("int")
     fig = px.histogram(data_frame=df_scrap.loc[df_scrap["COSTCENTER"] == costcenter],
-                     x="WORKCENTER",
-                     y="SCRAP",
-                     color="STEXT",
-                     hover_data=["MTEXTX"],
-                     width=1500, height=500,
-                     category_orders={"STEXT": cat_order_sumscrap})
+                       x="WORKCENTER",
+                       y="SCRAP",
+                       color="STEXT",
+                       hover_data=["MTEXTX"],
+                       width=1500, height=500,
+                       category_orders={"STEXT": cat_order_sumscrap})
     # fig.update_traces(textfont=dict(family=['Arial Black']))
     fig.update_xaxes(type="category", tickangle=90, fixedrange=True)
     # figs.update_yaxes(categoryorder="total descending")
@@ -383,25 +467,3 @@ def create_scatterplot_for_scrapqty(costcenter):
 
                       )
     return [fig]
-
-
-# @app.callback(
-# [Output('costcenter', 'value')],
-# [Input('costcenter', 'value')])
-# def update_dropdown(options):
-# global refresh_count
-# refresh_count += 1
-# print(refresh_count)
-# print(costcenters[refresh_count%3])
-# new_value = costcenters[refresh_count%3]
-#    return [new_value]
-
-
-# @app.callback(Output('page-1-refresh-count', 'children'),
-#               [Input('interval', 'n_intervals')])
-# def update_page_1_refresh_count(n):
-#     global refresh_count
-#     refresh_count = n
-#     return f"Refresh count: {refresh_count}"
-
-# ------------------------------------------------------------------------------
