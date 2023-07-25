@@ -56,40 +56,40 @@ layout = dbc.Container([
     dbc.Row(dcc.Link(
         children='Main Page',
         href='/',
-        style={"color": "black", "font-weight": "bold"}
+        style={"height":40,"color": "black", "font-weight": "bold"}
 
     )),
-    dbc.Row([
+    dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
+                                     date=date.today(),
+                                     persistence=True,
+                                     persistence_type='local'
+                                     ),
         dbc.Col(
             html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
-    ]),
+    ],style={}),
     html.Div(id='refresh3', style={'display': 'none'}),
-    dbc.Row(html.Div([
-        dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className="mr-1"),
-        dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className="mr-1"),
-        dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className="mr-1"),
-        dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className="mr-1"),
+    dbc.Row([
+        dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button'),
+        dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button'),
+        dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
+        dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
         dcc.Store(id="work-dates", storage_type="session",
                   data={"workstart" : (date.today() - timedelta(days=1)).isoformat(),
                          "workend" :  date.today().isoformat(),
                          "interval" : "day"}),
         dcc.Location(id='location3', refresh=True),
-    ], style={'padding': 10})),
-    dbc.Row(dcc.DatePickerSingle(id='date-picker2', date=date.today(),
-                                 persistence=True,
-                                 persistence_type='local'
-                                 )),
+        html.Div(id='output', children=''),
+        dcc.Dropdown(id="costcenter", className="dropdown-style",
+                      options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
+                                                                     "TASLAMA", "MONTAJ",
+                                                                     "PRESHANE1", "PRESHANE2"]],
+                      multi=False,
+                      value='CNC',
+                      style={}
+                      )
+                 ]
+    ),
 
-    dbc.Row([html.Div(id='output', children=''),
-             dcc.Dropdown(id="costcenter",
-                          options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
-                                                                         "TASLAMA", "MONTAJ",
-                                                                         "PRESHANE1", "PRESHANE2"]],
-                          multi=False,
-                          value='CNC',
-                          style={"color": "green", "background-color": "DimGray", 'width': 200}
-                          )
-             ]),
     dcc.Store(id='store-costcenter', storage_type='local'),
     dbc.Row([
         dbc.Col([

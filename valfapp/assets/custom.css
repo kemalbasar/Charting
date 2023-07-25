@@ -52,7 +52,7 @@
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;/* no padding */
-    left: 178px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    left: 300px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 34px;
 }
 
@@ -77,7 +77,7 @@
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;
     position: absolute;/* no padding */
-    left: 285px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    left: 408px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 34px;
 }
 
@@ -100,7 +100,7 @@
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 395px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    left: 178px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 30px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
 }
 
@@ -124,7 +124,7 @@
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 448px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    left: 231px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 30px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
 }
 
@@ -148,7 +148,7 @@
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 395px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    left: 178px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 83px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
 }
 
@@ -172,7 +172,7 @@
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 448px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    left: 231px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 83px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
 }
 
@@ -193,8 +193,27 @@
 }
 
 
-
 .dash-date-picker input {
     background-color: #593096;
     color: white;
+}
+
+.dash-empty-button {
+    width: 40px;    /* width of the square button */
+    height: 50px;   /* height of the square button */
+    background-color: #593096;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;  /* position relative to the closest positioned ancestor */
+    left: 500px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 150px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+
 }
