@@ -1,12 +1,12 @@
 ### Import Packages ###
 import logging
-import pandas as pd
-from flask import request,g
-from flask_caching import Cache
+
 import dash
 import dash_bootstrap_components as dbc
+from flask_caching import Cache
 from valfapp.functions.functions_prd import calculate_oeemetrics, apply_nat_replacer, get_gann_data
 from run.agent import ag
+import pandas as pd
 from config import project_directory
 
 logger = logging.getLogger(__name__)
@@ -30,26 +30,16 @@ cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
     'CACHE_DIR': 'cache-directory'
 })
-@app.server.before_request
-def before_request():
-    user_agent = request.user_agent
-    if user_agent.platform in ["android", "iphone", "ipad"]:
-        g.device_type = "Mobile"
-    else:
-        g.device_type = "Desktop"
+
 
 TIMEOUT = 12000
 
-
 @cache.memoize(timeout=TIMEOUT)
-def prdconf(params = None):
-    print(params)
-    paramswith = params[0:2]
-    prd_conf = ag.run_query(query = r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
-    print(prd_conf)
+def prdconf():
+    prd_conf = ag.run_query(r"EXEC [VLFPRODALLINONE]")
     planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
-    onemonth_prdqty = ag.run_query(query = r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?", params=params)
-    # prd_conf["DISPLAY"] = [prd_conf["DISPLAY"][row][0]  for row in prd_conf.index]
+    onemonth_prdqty = ag.run_query(r"SELECT * FROM VLFDAILYPRDQUANTITIES WHERE WORKEND > CAST(DATEADD(DAY,-30,GETDATE()) AS DATE)"
+    r" AND TOPLAM != 0")
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf = pd.merge(prd_conf, planned_hoursx, how='left',
                         on=['WORKCENTER', "SHIFT", "MATERIAL"])
@@ -80,16 +70,11 @@ def prdconf(params = None):
         else 0 for row in range(len(prd_conf))]
 
 
-    details, df_metrics, df_metrics_forwc, df_metrics_forpers= calculate_oeemetrics(df=prd_conf[prd_conf["BADDATA_FLAG"]==0])
+    details, df_metrics, df_metrics_forwc = calculate_oeemetrics(df=prd_conf[prd_conf["BADDATA_FLAG"]==0])
     for item in details:
-        try:
-            details[item]["OEE"] = (100 * details[item]["OEE"])
-            details[item]["OEE"] = details[item]["OEE"].astype(int)
-            details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
-        except TypeError as e:
-            print(f"Error: {e}")
-            print(details)
-            continue
+        details[item]["OEE"] = (100 * details[item]["OEE"])
+        details[item]["OEE"] = details[item]["OEE"].astype(int)
+        details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
     gann_data = get_gann_data(df=prd_conf)
 
     df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0,["COSTCENTER","MATERIAL","QTY","CONFIRMATION"
@@ -107,16 +92,15 @@ def prdconf(params = None):
             df_metrics_forwc.to_json(date_format='iso', orient='split'),
             df_baddatas.to_json(date_format='iso', orient='split'),
             df_baddata_rates.to_json(date_format='iso', orient='split'),
-            onemonth_prdqty.to_json(date_format='iso', orient='split'),
-            df_metrics_forpers.to_json(date_format='iso', orient='split')
+            onemonth_prdqty.to_json(date_format='iso', orient='split')
             ]
 
 
 @cache.memoize(timeout=TIMEOUT)
-def oee(params = None):
+def oee():
 
     oee, metrics, gann_data, df_metrics_forwc, \
-        df_baddatas,df_baddata_rates,onemonth_prdqty,df_metrics_forpers = prdconf(params)
+        df_baddatas,df_baddata_rates,onemonth_prdqty = prdconf()
     oee = {k: pd.read_json(v, orient='split') for k, v in oee.items()}
     metrics = pd.read_json(metrics, orient='split')
     gann_data = pd.read_json(gann_data, orient='split')
@@ -124,8 +108,7 @@ def oee(params = None):
     df_baddatas = pd.read_json(df_baddatas, orient='split')
     df_baddata_rates = pd.read_json(df_baddata_rates, orient='split')
     onemonth_prdqty = pd.read_json(onemonth_prdqty, orient='split')
-    df_metrics_forpers = pd.read_json(df_metrics_forpers, orient='split')
-    result = (oee, metrics, gann_data, df_metrics_forwc,df_baddatas,df_baddata_rates,onemonth_prdqty,df_metrics_forpers)
+    result = (oee, metrics, gann_data, df_metrics_forwc,df_baddatas,df_baddata_rates,onemonth_prdqty)
     cache.set('oee_cached_data', result)
     return result
 

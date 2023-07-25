@@ -1,4 +1,5 @@
 import time
+
 from config import server,username,password,database,directory,project_directory
 from matplotlib import colors
 from config import directory
@@ -59,44 +60,18 @@ class Agent:
     # method returns the result of querry as dataframe.
     # dont accept unvalid query
 
-    def run_query(self, query='', params=None, isselect=1):
+    def run_query(self, query=''):
         query = readquerry(query)
-        max_retries = 10
+        max_retries = 5
         retry_count = 0
 
         while retry_count < max_retries:
             try:
                 with self.connection.cursor() as cursor:
-                    if isselect == 1:
-                        if params is None:
-                            cursor.execute(query)
-                        else:
-                            cursor.execute(query, params)
-                        results = cursor.fetchall()
-                        columns = [column[0] for column in cursor.description]
-                        return pd.DataFrame.from_records(results, columns=columns)
-                    else:
-                        if params is None:
-                            try:
-                                cursor.execute(query)
-                                return pd.DataFrame()
-                            except pyodbc.Error as e:
-                                print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
-                                retry_count += 1
-                                time.sleep(1)  # wait for 1 second before trying again
-
-                        else:
-                            try:
-                                cursor.execute(query, params)
-                                return pd.DataFrame()
-                            except pyodbc.Error as e:
-                                print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
-                                retry_count += 1
-                                time.sleep(1)  # wait for 1 second before trying again
-                            self.connection.commit()
-
-                        self.connection.commit()  # Make sure changes are committed if not a select query.
-
+                    cursor.execute(query)
+                    results = cursor.fetchall()
+                    columns = [column[0] for column in cursor.description]
+                    return pd.DataFrame.from_records(results, columns=columns)
             except pyodbc.Error as e:
                 print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
                 retry_count += 1
@@ -104,6 +79,9 @@ class Agent:
 
         if retry_count == max_retries:
             print("Maximum number of retries reached. Could not connect to database.")
+        else:
+            return pd.DataFrame.from_records(results, columns=columns)
+
 
     def update_table(self, diro, table_name = '',nullaccept = 0,insert=0):
         df = pd.read_excel(diro)
