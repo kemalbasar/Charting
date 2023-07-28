@@ -9,9 +9,17 @@ from run.agent import ag
 from valfapp.app import app
 from config import project_directory
 
-df = ag.run_query(project_directory + r"\Charting\queries\mesworkcenter_data.txt")
 costcenters = ["PRESHANE", "CNC", "CNCTORNA", "TASLAMA"]
-workcenters = ["P-12", "P-13", "P-14", "P-15", "P-16", "P-17"]
+workcenters = ["P-12", "P-34", "P-65", "P-66", "P-16", "P-17"]
+workcenters_t = "('P-12', 'P-34', 'P-65', 'P-66', 'P-16', 'P-17')"
+
+with open(r"\Charting\queries\mesworkcenter_data.txt", 'r') as file:
+    query = file.read()
+    print(query)
+
+print(query + ' ' +  workcenters_t)
+df = ag.run_query(query + ' ' +  workcenters_t)
+
 
 broker_address = '172.30.134.22'
 port = 1883
@@ -211,7 +219,7 @@ def update_graph(n, bgcolor):
             annotations=[
 
                 go.layout.Annotation(
-                    x=0.87,
+                    x=0.76,
                     y=-0.2,
                     xref='paper',  # we'll reference the paper which we draw plot
                     yref='paper',
