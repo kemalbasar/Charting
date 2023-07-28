@@ -13,13 +13,10 @@ costcenters = ["PRESHANE", "CNC", "CNCTORNA", "TASLAMA"]
 workcenters = ["P-12", "P-34", "P-65", "P-66", "P-16", "P-17"]
 workcenters_t = "('P-12', 'P-34', 'P-65', 'P-66', 'P-16', 'P-17')"
 
-with open(r"\Charting\queries\mesworkcenter_data.txt", 'r') as file:
+with open(project_directory + r"\Charting\queries\mesworkcenter_data.txt", 'r') as file:
     query = file.read()
-    print(query)
 
-print(query + ' ' +  workcenters_t)
 df = ag.run_query(query + ' ' +  workcenters_t)
-
 
 broker_address = '172.30.134.22'
 port = 1883
@@ -27,6 +24,8 @@ topic = "DevirHiz"
 topic2 = "ParcaAdet"
 topic3 = "SariIsik"
 topic4 = "YesilIsik"
+topic5 = "KırmızıIsik"
+
 
 client = mqtt.Client()
 
@@ -44,12 +43,14 @@ devirhizibilgisi = {}
 adetbilgisi = {}
 preshazir = {}
 presbasıyor = {}
+preskapali = {}
 
 for wc in workcenters:
     adetbilgisi[wc] = int(0)
     devirhizibilgisi[wc] = 0
-    preshazir[wc] = False
-    presbasıyor[wc] = True
+    preshazir[wc] = 0
+    presbasıyor[wc] = 0
+    preskapali[wc] = 0
 
 
 def on_message(client, userdata, msg):
@@ -62,13 +63,16 @@ def on_message(client, userdata, msg):
             preshazir[wc] = msg.payload.decode()
         elif msg.topic == wc + "/" + topic4:
             presbasıyor[wc] = msg.payload.decode()
+        elif msg.topic == wc + "/" + topic5:
+            preskapali[wc] = msg.payload.decode()
 
 
 client.on_message = on_message
 
 # Retrieve the message data from MQTT
 for wc in workcenters:
-    client.subscribe([(wc + "/" + topic, 0), (wc + "/" + topic2, 0), (wc + "/" + topic3, 0), (wc + "/" + topic4, 0)])
+    client.subscribe([(wc + "/" + topic, 0), (wc + "/" + topic2, 0),
+                      (wc + "/" + topic3, 0), (wc + "/" + topic4, 0), (wc + "/" + topic5, 0)])
 
 client.loop_start()
 
@@ -157,13 +161,22 @@ layout = html.Div(children=[
 def update_bgcolor(n_intervals):
     bgcolor = {wc: "red" for wc in workcenters}
     for wc in workcenters:
-        if presbasıyor[wc] == 'true':
-            bgcolor[wc] = "ForestGreen"
-        elif preshazir[wc] == 'true':
-            bgcolor[wc] = "yellow"
-        else:
-            bgcolor[wc] = "red"
 
+        print("*****")
+        print(wc)
+        print(preshazir[wc])
+        print(presbasıyor[wc])
+        print(preskapali[wc])
+        print("*****")
+
+        if presbasıyor[wc] == 'true' or presbasıyor[wc] == '1':
+            bgcolor[wc] = "ForestGreen"
+        elif preshazir[wc] == 'true' or preshazir[wc] == '1':
+            bgcolor[wc] = "yellow"
+        elif preskapali[wc] == 'true' or preskapali[wc] == '1':
+            bgcolor[wc] = "red"
+        else:
+            bgcolor[wc] = "grey"
     return bgcolor
 
 
@@ -172,11 +185,12 @@ def update_bgcolor(n_intervals):
                dash.dependencies.Input("store-bgcolor", "data")
                ])
 def update_graph(n, bgcolor):
+    # print(bgcolor)
     # Process the message data and create the plot
     figs = []
     for workcenter in workcenters:
-        while adetbilgisi[workcenter] is None:
-            continue
+        # while adetbilgisi[workcenter] is None:
+        #     continue
         x_data = int(df.loc[df["WORKCENTER"] == workcenter, "PARTITION"]) * int(adetbilgisi[workcenter])
         #        print(adetbilgisi)
         ndevirhizi = int(df.loc[df["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
@@ -185,6 +199,11 @@ def update_graph(n, bgcolor):
         # print(presbasıyor)
         # print(bgcolor)
         material = df.loc[df["WORKCENTER"] == workcenter, "MATERIAL"].tolist()[0]
+
+        if bgcolor[workcenter] == 'grey':
+             atext = "MAKİNA VERİSİ YOKTUR"
+        else:
+            atext = f"- Devir Hızları: {ndevirhizi}\{devirhizibilgisi[workcenter] if bgcolor[workcenter] == 'ForestGreen' else 0} -"
 
         fig = go.Figure(go.Indicator(
             mode="gauge+number+delta",
@@ -215,16 +234,18 @@ def update_graph(n, bgcolor):
         ))
 
         fig.update_layout(
-            height=500,
+            height=475,
+            width=600,
             annotations=[
 
                 go.layout.Annotation(
-                    x=0.76,
+                    # x=0.76,
                     y=-0.2,
-                    xref='paper',  # we'll reference the paper which we draw plot
-                    yref='paper',
+                    # xref='paper',  # we'll reference the paper which we draw plot
+                    # yref='paper',
+                    xanchor='center',
                     showarrow=False,
-                    text=f"- Devir Hızları: {ndevirhizi}\{devirhizibilgisi[workcenter] if bgcolor[workcenter] == 'ForestGreen' else 0} -",
+                    text=atext,
                     # if bgcolor == 'ForestGreen' else 0
                     font=dict(
                         size=30,

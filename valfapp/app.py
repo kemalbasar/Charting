@@ -46,7 +46,6 @@ def prdconf(params = None):
     print(params)
     paramswith = params[0:2]
     prd_conf = ag.run_query(query = r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
-    print(prd_conf)
     planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
     onemonth_prdqty = ag.run_query(query = r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?", params=params)
     # prd_conf["DISPLAY"] = [prd_conf["DISPLAY"][row][0]  for row in prd_conf.index]
@@ -88,7 +87,6 @@ def prdconf(params = None):
             details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
         except TypeError as e:
             print(f"Error: {e}")
-            print(details)
             continue
     gann_data = get_gann_data(df=prd_conf)
 
