@@ -270,3 +270,6 @@ def update_graph(n, bgcolor):
         figs.append(fig)
 
     return figs
+
+
+
