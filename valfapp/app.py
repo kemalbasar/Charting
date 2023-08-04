@@ -1,7 +1,6 @@
 ### Import Packages ###
 import logging
 import pandas as pd
-from flask import request,g
 from flask_caching import Cache
 import dash
 import dash_bootstrap_components as dbc
@@ -15,6 +14,7 @@ logger = logging.getLogger(__name__)
 ### Dash instance ###
 app = dash.Dash(
     __name__,
+    meta_tags=[{'name': 'viewport','content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
     external_stylesheets=[dbc.themes.PULSE],
     suppress_callback_exceptions=True)
 
@@ -30,13 +30,7 @@ cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
     'CACHE_DIR': 'cache-directory'
 })
-@app.server.before_request
-def before_request():
-    user_agent = request.user_agent
-    if user_agent.platform in ["android", "iphone", "ipad"]:
-        g.device_type = "Mobile"
-    else:
-        g.device_type = "Desktop"
+
 
 TIMEOUT = 12000
 

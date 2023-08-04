@@ -134,6 +134,12 @@ layout = html.Div(children=[
     dcc.Store(id="store-bgcolor"),
     dcc.Store(id="list_of_wcs"),
     dcc.Interval(id="bgcolor-interval", interval=1000),
+    dbc.Row(dcc.Link(
+        children='Main Page',
+        href='/',
+        style={"height":40,"color": "black", "font-weight": "bold"}
+
+    )),
     dbc.Row([
         dcc.Dropdown(
             id="costcenter",
@@ -162,12 +168,12 @@ def update_bgcolor(n_intervals):
     bgcolor = {wc: "red" for wc in workcenters}
     for wc in workcenters:
 
-        print("*****")
-        print(wc)
-        print(preshazir[wc])
-        print(presbasıyor[wc])
-        print(preskapali[wc])
-        print("*****")
+        # print("*****")
+        # print(wc)
+        # print(preshazir[wc])
+        # print(presbasıyor[wc])
+        # print(preskapali[wc])
+        # print("*****")
 
         if presbasıyor[wc] == 'true' or presbasıyor[wc] == '1':
             bgcolor[wc] = "ForestGreen"
