@@ -42,6 +42,8 @@ def prdconf(params = None):
     prd_conf = ag.run_query(query = r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
     planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
     onemonth_prdqty = ag.run_query(query = r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?", params=params)
+    if len(prd_conf) == 0:
+        return [None,None,None,None,None,None,None,None]
     # prd_conf["DISPLAY"] = [prd_conf["DISPLAY"][row][0]  for row in prd_conf.index]
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf = pd.merge(prd_conf, planned_hoursx, how='left',
@@ -109,6 +111,8 @@ def oee(params = None):
 
     oee, metrics, gann_data, df_metrics_forwc, \
         df_baddatas,df_baddata_rates,onemonth_prdqty,df_metrics_forpers = prdconf(params)
+    if oee == None:
+        return  (None,None,None,None,None,None,None,None)
     oee = {k: pd.read_json(v, orient='split') for k, v in oee.items()}
     metrics = pd.read_json(metrics, orient='split')
     gann_data = pd.read_json(gann_data, orient='split')

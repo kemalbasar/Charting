@@ -238,10 +238,10 @@ def binary_encoder(df):
     # labelencoder.inverse_transform([])
     return df
 
+
 def one_hot_encoder(dataframe, categorical_cols, drop_first=False):
     dataframe = pd.get_dummies(dataframe, columns=categorical_cols, drop_first=drop_first)
     return dataframe
-
 
 # def local_outlier_plot(df,X_scores):
 #     plt.scatter(df[:, 0], df[:, 1], color="k", s=3.0, label="Data points")

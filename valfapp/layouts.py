@@ -1,11 +1,19 @@
 import dash_bootstrap_components as dbc
+import datetime as dt
 from dash import dcc, html
-from valfapp.functions.functions_val import total_value
-total_value_with_separator = "{:,.0f}".format(int(total_value))
+from run.agent import ag
 
-
+cur_week = (dt.datetime.now()).strftime('%Y-%U').zfill(6)
+total_value_with_separator = format(
+    ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0], ",")
 
 layout_27 = dbc.Container([
+    dbc.Row(dcc.Link(
+        children='Main Page',
+        href='/',
+        style={"height": 40, "color": "black", "font-weight": "bold"}
+
+    )),
     dbc.Row(html.Button(id='year', value="2022", children='Click me')),
     dbc.Row([
 
@@ -24,21 +32,18 @@ layout_27 = dbc.Container([
                                    dcc.Graph(id="linechart", figure={},
                                              style={"margin-top": 1, 'margin-right': 520})],
                          style={"height": 100, "width": 250})),
-        dbc.Col(html.Div(children=[html.Div(["Current Value2", html.Br(), total_value],
-                                            style={"fontSize": 24, "text-align": "center",
-                                                   "color": "white",
-                                                   "font-weight": "bold",
-                                                   "background-color": "firebrick",
-                                                   'margin-top': 50,
-                                                   'margin-right': 80, "height": 70,
-                                                   "width": 300}),
-                                   html.Div(children=[
+        dbc.Col(html.Div(children=[html.Div(children=[
                                        html.Button(id='rawmat', n_clicks=0,
                                                    children='Raw Material'),
                                        html.Button(id='prod', n_clicks=0,
                                                    children='Product'),
                                        html.Button(id='halfprod', n_clicks=0,
-                                                   children='Half Product')],
+                                                   children='Half Product'),
+                                       html.Button(id='main', n_clicks=0, children='General',
+
+                                   style={"margin-left": 0, "color": '#cd5c5c',
+                                          "background-color": "#FFEBCD"}),
+                                   ],
                                        style={"margin-top": 50,
                                               "background-color": "burlywood"})
                                    ], style={}))],
@@ -80,6 +85,12 @@ layout_27 = dbc.Container([
 )
 
 layout_12 = dbc.Container([
+    dbc.Row(dcc.Link(
+        children='Main Page',
+        href='/',
+        style={"height":40,"color": "black", "font-weight": "bold"}
+
+    )),
     dbc.Row(html.Div(html.Button(id='year', value="2022", children='Click me'),hidden=True)),
     dbc.Row(
         html.Div(
@@ -113,6 +124,8 @@ layout_12 = dbc.Container([
                             html.Button(id='prod', n_clicks=0, children='Product',
                                         style={"margin-left":0,"color": '#cd5c5c' , "background-color": "#FFEBCD"}),
                             html.Button(id='halfprod', n_clicks=0, children='Half Product',
+                                        style={"margin-left":0,"color": '#cd5c5c' , "background-color": "#FFEBCD"}),
+                            html.Button(id='main', n_clicks=0, children='General',
                                         style={"margin-left":0,"color": '#cd5c5c' , "background-color": "#FFEBCD"}),
                             html.Br(),
                             dcc.Graph(id="linechart", figure={}, style={"margin-top": 1}),

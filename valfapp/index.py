@@ -158,6 +158,7 @@ def before_request():
 def update_device_info(login_status):
     if login_status and login_status.get('logged_in'):
         device_type = getattr(g, 'device_type', 'Desktop') # Default to 'Desktop' if not set
+        print({'device_type': device_type})
         return {'device_type': device_type}
 
 @app.callback(
