@@ -10,7 +10,7 @@ from run.agent import ag
 dash.register_page(__name__, path='/')
 
 cur_week = (dt.datetime.now()).strftime('%Y-%U').zfill(6)
-df_val = ag.run_query(f"SELECT * FROM VLFVALUATION")
+df_val = ag.run_query(f"SELECT * FROM VLFVALUATION  WHERE ACIKLAMA != '' ")
 df_curval = df_val.loc[df_val["VALDATE"] == cur_week]
 
 layout = []
@@ -59,13 +59,14 @@ def plotly_histogram(year):
             font=dict(size=12, color='#cd5c5c'),
             paper_bgcolor='rgba(0, 0, 0, 0)',
             plot_bgcolor='rgba(0, 0, 0, 0)',
-            xaxis={'categoryorder': 'total ascending'},
             # width=800,
             # height=500,
             bargap=0.80,
             autosize=True
 
         )
+
+        globals()[mattype].update_yaxes(categoryorder='total ascending')
 
         globals()[mattype].update_traces(width=1)
 
@@ -164,7 +165,7 @@ def create_line_chart(year, rawmat, prod, halfprod,main):
             break
 
     layout = go.Layout(title='Line Chart of Total Value by Material '
-                             'Type and Date', xaxis={'title': 'Date'},
+                             'Type and Date', xaxis={'title': 'Date','tickangle': 50},
                        yaxis={'title': 'Total Value'},
                        font=dict(size=12, color='#cd5c5c'),
                        paper_bgcolor='rgba(0, 0, 0, 0)',

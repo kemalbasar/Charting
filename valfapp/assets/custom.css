@@ -224,3 +224,6 @@
     }
 }
 
+.modebar{
+      display: none !important;
+}

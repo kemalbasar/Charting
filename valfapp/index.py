@@ -6,7 +6,8 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 ### Import Dash Instance and Pages ###
 from valfapp.app import app
-from pages import pg1, prod_eff, workcenters,liveprd
+from pages import value, prod_eff, workcenters,liveprd
+from valfapp.layouts import layout_27_loginpage, layout_12_loginpage
 from valfapp.pages import livecnc, livepres
 from flask import request,g
 
@@ -45,104 +46,8 @@ login_layout = dbc.Container([
 
 
 ### Index Page Layout ###
-index_layout = dbc.Container([
-    # dcc.Interval(
-    #     id='interval-component',
-    #     interval=1000000, # 5000 milliseconds = 5 seconds
-    #     n_intervals=0
-    # ),
-    dbc.Row([html.H1("Valfsan Analytics",
-                     style={"text-align": "center", 'color': 'LightSteelBlue', 'font-weight': 'bold',
-                            'padding': 50,
-                            "width": 1000, "height": 100})],
-            className="justify-content-center"),
-    dbc.Row([
-        dbc.Col(
-            dcc.Link(
-                children=[
-                    html.Div([
-                        html.Img(src='/assets/tutarlama.link.png', style={"width": "600px", "height": "400px", "object-fit": "fit"}),
-                        html.H1("Tutarlama ( Geliştirme Aşamasında )", style={
-                            "position": "absolute",
-                            "bottom": 8,
-                            "right": 8,
-                            'color': 'white',
-                            'font-weight': 'bold',
-                        })
-                    ], style={"position": "relative", "display": "inline-block"})
-                ],
-                href='/pg1',
-            ),
-            width=4,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding": 14,'margin-left':50}
-        ),
-        dbc.Col(
-            dcc.Link(
-                children=[
-                    html.Div([
-                        html.Img(src='/assets/report.link.png', style={"width": "600px", "height": "400px", "object-fit": "fit"}),
-                        html.H1("M.Merkezi OEE Raporu", style={
-                            "position": "absolute",
-                            "bottom": 8,
-                            "right": 8,
-                            'color': 'white',
-                            'font-weight': 'bold',
-                        })
-                    ], style={"position": "relative", "display": "inline-block"})
-                ],
-                href='/prod_eff',
-            ),
-            width=5,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding-top": 13,'margin-left':43}
 
-        ),
-    ],style={'margin-left': 270,'margin-top': 37,'margin-bottom': '-45px'}),
-    dbc.Row([
-        dbc.Col(
-            dcc.Link(
-                children=[
-                    html.Div([
-                        html.Img(src='/assets/wc.link.png', style={"width": "600px", "height": "400px", "object-fit": "fit"}),
-                        html.H1("İş Merkezi Raporu", style={
-                            "position": "absolute",
-                            "bottom": 0,
-                            "right": 10,
-                            'color': 'white',
-                            'font-weight': 'bold',
-                        })
-                    ], style={"position": "relative", "display": "inline-block"})
-                ],
-                href='/wcreport',
-            ),
-            width=4,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding-top": 30}
-        ),
-        dbc.Col(
-            dcc.Link(
-                children=[
-                    html.Div([
-                        html.Img(src='/assets/live.link.png', style={"width": "600px", "height": "400px", "object-fit": "fit"}),
-                        html.H1("Üretim Canlı Takip", style={
-                            "position": "absolute",
-                            "bottom": 0,
-                            "right": 8,
-                            'color': 'white',
-                            'font-weight': 'bold',
-                        })
-                    ], style={"position": "absolute", "display": "inline-block"})
-                ],
-                href='/liveprd',
-            )
-            ,
-            width=5,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding": 28,'margin-left':42,'margin-top':2}
-        ),
-    ],style={'margin-left': 322}),
-        dcc.Link(
-                children='ittools',
-                href='/ittools',
-            )
-], fluid=True)
+index_layout = layout_12_loginpage
 
 # Update the before_request method
 @app.server.before_request
@@ -158,7 +63,7 @@ def before_request():
 def update_device_info(login_status):
     if login_status and login_status.get('logged_in'):
         device_type = getattr(g, 'device_type', 'Desktop') # Default to 'Desktop' if not set
-        print({'device_type': device_type})
+        # print({'device_type': device_type})
         return {'device_type': device_type}
 
 @app.callback(
@@ -204,8 +109,8 @@ def display_page(pathname,login_status_data):
             return liveprd.layout
         elif pathname == '/prod_eff':
             return prod_eff.layout
-        elif pathname == '/pg1':
-            return pg1.layout
+        elif pathname == '/value':
+            return value.layout
         elif pathname == '/wcreport':
             return workcenters.layout
         elif pathname == '/liveprd/livecnc':
@@ -231,7 +136,7 @@ app.validation_layout = html.Div(
         index_layout,
         liveprd.layout,
         prod_eff.layout,
-        pg1.layout,
+        value.layout,
         workcenters.layout,
         livepres.layout,
         livecnc.layout,
