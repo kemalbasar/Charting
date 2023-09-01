@@ -1,19 +1,30 @@
-Hello Everyone.
+VALFSAN MES Application
+Welcome to VALFSAN's web-based Manufacturing Execution System (MES) application. Developed entirely in-house, this dynamic platform provides real-time insights and data-driven perspectives on various aspects of the manufacturing process.
 
-This is a web-based MES application of VALFSAN. It is a %100 in-house project.
-It is now consist of 
-   1.Costcenter and workcenter oee reports.
-   2.Live monitoring of workcenters.
-   3.Valuation reports of goods.
+Features
+OEE Reports for Costcenters & Workcenters: Dive deep into the operational efficiency of your costcenters and workcenters through detailed OEE (Overall Equipment Efficiency) reports.
 
-Application uses pyodbc for database connection.
-For the machine comminication, plc and network systems also designed in-house.
-For the data serve node-red and maho-mqtt used.
-All dashboards developed in Python, Dash framework.
+Live Workcenter Monitoring: Stay updated in real-time with the performance and activities of different workcenters.
 
-Final goal is, connecting all modules and  datas each other that enables to monitor all layer of manufacturing and financial situation.
+Valuation Reports: Understand the financial worth of your goods with comprehensive valuation reports.
 
-                                                ########### Main Page ###########
+Technical Overview
+Database Connection: Seamless integration with databases through pyodbc.
+
+Machine Communication: Our proprietary system, built entirely in-house, leverages PLC and network systems for flawless machine communication.
+
+Data Serving: Efficient and real-time data serving is made possible through the combined capabilities of Node-RED and Maho-MQTT.
+
+Dashboard Development: All of our interactive dashboards are crafted using the Python Dash framework, allowing for flexible, fast, and efficient data representation.
+
+Vision
+Our ultimate vision for the VALFSAN MES application is to foster seamless connections between all modules and data. This interconnected ecosystem will empower users to monitor every layer of the manufacturing process and grasp the holistic financial situation, all in real-time.
+
+Get Involved
+We're constantly working to improve and expand our application's capabilities. Contributions, feedback, and suggestions are always welcome. Dive into the code, open an issue, or propose a feature
+  
+
+        ########### Main Page ###########
                      
 ![image](https://github.com/kemalbasar/Charting/assets/4936460/912a2f8c-ae84-4a46-917d-401a4de01925)
 
