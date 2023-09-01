@@ -1,7 +1,6 @@
 ### Import Packages ###
 import logging
 import pandas as pd
-from flask import request,g
 from flask_caching import Cache
 import dash
 import dash_bootstrap_components as dbc
@@ -15,6 +14,7 @@ logger = logging.getLogger(__name__)
 ### Dash instance ###
 app = dash.Dash(
     __name__,
+    meta_tags=[{'name': 'viewport','content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
     external_stylesheets=[dbc.themes.PULSE],
     suppress_callback_exceptions=True)
 
@@ -30,13 +30,7 @@ cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
     'CACHE_DIR': 'cache-directory'
 })
-@app.server.before_request
-def before_request():
-    user_agent = request.user_agent
-    if user_agent.platform in ["android", "iphone", "ipad"]:
-        g.device_type = "Mobile"
-    else:
-        g.device_type = "Desktop"
+
 
 TIMEOUT = 12000
 
@@ -46,9 +40,10 @@ def prdconf(params = None):
     print(params)
     paramswith = params[0:2]
     prd_conf = ag.run_query(query = r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
-    print(prd_conf)
     planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
     onemonth_prdqty = ag.run_query(query = r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?", params=params)
+    if len(prd_conf) == 0:
+        return [None,None,None,None,None,None,None,None]
     # prd_conf["DISPLAY"] = [prd_conf["DISPLAY"][row][0]  for row in prd_conf.index]
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf = pd.merge(prd_conf, planned_hoursx, how='left',
@@ -88,7 +83,6 @@ def prdconf(params = None):
             details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
         except TypeError as e:
             print(f"Error: {e}")
-            print(details)
             continue
     gann_data = get_gann_data(df=prd_conf)
 
@@ -117,6 +111,8 @@ def oee(params = None):
 
     oee, metrics, gann_data, df_metrics_forwc, \
         df_baddatas,df_baddata_rates,onemonth_prdqty,df_metrics_forpers = prdconf(params)
+    if oee == None:
+        return  (None,None,None,None,None,None,None,None)
     oee = {k: pd.read_json(v, orient='split') for k, v in oee.items()}
     metrics = pd.read_json(metrics, orient='split')
     gann_data = pd.read_json(gann_data, orient='split')

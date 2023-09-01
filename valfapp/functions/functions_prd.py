@@ -147,7 +147,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
                                                                             "OEE": wm
                                                                             })
     df_metrics_forpers.reset_index(inplace=True)
-    df_metrics_forpers.to_excel(r"F:\pycarhm projects\Charting\valfapp\assets\bu.xlsx")
+    # df_metrics_forpers.to_excel(r"F:\pycarhm projects\Charting\valfapp\assets\bu.xlsx")
 
     df_metrics = df_metrics.groupby(["WORKCENTER", "COSTCENTER"]).agg({"QTY": "sum",
                                                                 "SCRAPQTY": "sum",

@@ -90,7 +90,7 @@ layout = dbc.Container([
                  ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='local'),
+    dcc.Store(id='store-costcenter', storage_type='local',data={'default_key': 'CNC'}),
     dbc.Row([
         dbc.Col([
             dbc.Row([
