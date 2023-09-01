@@ -290,7 +290,7 @@ layout = html.Div([
 def set_layout(device_info):
     if not device_info:
         raise exceptions.PreventUpdate
-
+    print(device_info)
     device_type = device_info.get('device_type', 'Desktop')
 
     if device_type == "12inchDevice":  # Replace "12inchDevice" with the actual identifier for the device
@@ -589,7 +589,6 @@ def update_ind_fig(option_slctd, report_day="2022-07-26"):
      Input('device-info-store', 'data')]
 )
 def create_scatterplot_for_scrapqty(costcenter,dates,dev_type):
-    print(dev_type)
     if dev_type["device_type"] == "Desktop":
         graphwidth = 1400
     else:

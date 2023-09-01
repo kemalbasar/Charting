@@ -14,15 +14,14 @@ from flask import request,g
 ### Page container ###
 # login_status_store = dcc.Store(id='login-status-store', data={'logged_in': False})
 
-page_container = html.Div(
+page_container = dbc.Container([ html.Div(
     children=[
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='login-status-store', data={'logged_in': False}, storage_type='local'),
         dcc.Store(id='device-info-store'), # Store without initial data
-        html.Div(id='page-content')
-    ]
-)
-
+        html.Div(id='page-content') ]),
+                           html.Div(id='touch-support-output', style={'display': 'none'})
+    ])
 
 
 
@@ -54,6 +53,11 @@ index_layout = layout_12_loginpage
 def before_request():
     user_agent = request.user_agent
     g.device_type = "Mobile" if user_agent.platform in ["android", "iphone", "ipad"] else "Desktop"
+    touch_support = request.form.get('touch-support-output', 'no-touch')
+    if touch_support == 'touch':
+        g.device_type = "Mobile"  # or "Touch" to be more accurate
+    else:
+        g.device_type = "Desktop"
 
 # Callback to update the device info store
 @app.callback(
@@ -64,6 +68,7 @@ def update_device_info(login_status):
     if login_status and login_status.get('logged_in'):
         device_type = getattr(g, 'device_type', 'Desktop') # Default to 'Desktop' if not set
         # print({'device_type': device_type})
+        print(g)
         return {'device_type': device_type}
 
 @app.callback(
