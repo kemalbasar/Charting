@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 ### Import Dash Instance and Pages ###
 from valfapp.app import app
-from pages import value, prod_eff, workcenters,liveprd
+from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage
 from valfapp.pages import livecnc, livepres
 from flask import request,g
@@ -18,7 +18,7 @@ page_container = dbc.Container([ html.Div(
     children=[
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='login-status-store', data={'logged_in': False}, storage_type='local'),
-        dcc.Store(id='device-info-store'), # Store without initial data
+        dcc.Store(id='device-info-store'),
         html.Div(id='page-content') ]),
                            html.Div(id='touch-support-output', style={'display': 'none'})
     ])
@@ -122,8 +122,8 @@ def display_page(pathname,login_status_data):
             return livecnc.layout
         elif pathname == '/liveprd/livepres':
             return livepres.layout
-        # elif pathname == '/ittools':
-        #     return ittools.layout
+        elif pathname == '/dragtester':
+            return dragtester.layout
         else:
             return '404'
     else:
@@ -145,6 +145,7 @@ app.validation_layout = html.Div(
         workcenters.layout,
         livepres.layout,
         livecnc.layout,
+        dragtester.layout
         # ittools.layout
     ]
 )

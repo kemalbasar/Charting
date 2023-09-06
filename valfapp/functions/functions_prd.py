@@ -190,7 +190,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
                "PRESHANE2" : None,}
 
     f = lambda a: round(((abs(a) + a) / 2), 3)
-    g = lambda a: int((a * 100) / sum_of)
+    g = lambda a: 1 if sum_of == 0 else int((a * 100) / sum_of)
     # h = lambda a: 1 if a > 1 else a
     temp_dic = {
         'RATES': [0, 0, 0, 0, 0],
@@ -208,7 +208,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
             continue
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
                  df_piechart.loc[costcenter, "SETUPTIME"] + df_piechart.loc[costcenter, "NANTIME"]
-
+        print(f"sum of = {sum_of}")
         temp_dic = {
             'RATES': [f(1 - df_piechart.loc[costcenter, "PERFORMANCE"]) * g(df_piechart.loc[costcenter, "RUNTIME"]),
                       g(df_piechart.loc[costcenter, "TOTFAILURETIME"]),

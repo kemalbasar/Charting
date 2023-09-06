@@ -257,6 +257,11 @@ layout_12_loginpage = dbc.Container([
                          style={"position": "relative", "padding": 0, "margin": 0}
                      ),
                  ], className="justify-content-center align-items-center", style={"margin": 0}),
+                dcc.Link(
+                children='dragtester',
+                href='/dragtester',
+            )
+
              ]),
 
 ], fluid=True, style={"height": "100vh", "position": "relative"})
@@ -335,7 +340,8 @@ layout_27_loginpage = dbc.Container([
                 href='/wcreport',
             ),
             width=4,  # Adjust the width of the column, you can use values from 1 to 12
-            style={"padding-top": 30}
+            style={"padding-top": 30},
+
         ),
         dbc.Col(
             dcc.Link(
@@ -359,7 +365,7 @@ layout_27_loginpage = dbc.Container([
         ),
     ],style={'margin-left': 322}),
         dcc.Link(
-                children='ittools',
-                href='/ittools',
+                children='dragtester',
+                href='/dragtester',
             )
 ], fluid=True)

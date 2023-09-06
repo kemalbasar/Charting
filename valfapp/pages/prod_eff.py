@@ -11,7 +11,7 @@ from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, calcula
     generate_for_sparkline, working_machinesf, get_gann_data, return_ind_fig
 from run.agent import ag
 from config import project_directory
-from valfapp.app import cache, oee, app
+from valfapp.app import cache, oee, app, prdconf
 from valfapp.pages.date_class import update_date, update_date_output
 
 summary_color = 'black'
@@ -35,8 +35,9 @@ pd.set_option('display.width', 500)
 pd.set_option('display.max_columns', None)
 
 
-oeelist = oee(((date.today() - timedelta(days=1)).isoformat(),
-               date.today().isoformat(),"day"))
+# oeelist = oee(((date.today() - timedelta(days=1)).isoformat(),
+#                date.today().isoformat(),"day"))
+# prev_date = (date.today() - timedelta(days=1)).isoformat()
 
 
 def return_tops(graph1="fig_up1", margin_top=0, graph2="fig_up2", graph3="fig_up3"):
@@ -257,21 +258,28 @@ layout_12 = dbc.Container([
                     width=20)
             ])
         ], width={"size": 9}),
-        dbc.Row([dbc.Col([html.H5("Best Performances", style={"width": 380, "height": 25, "text-align": "center",
+        dbc.Row([dbc.Col([html.H5("Best Performances", style={"width": 400, "height": 25, "text-align": "center",
                                                      "background-color": "darkolivegreen",
                                                      "color": summary_color}),
-                 html.Div(return_tops(), style={"width": 350, "height": 250}),
-                 html.Div(return_tops(graph1="fig_up2"), style={"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_up3"), style={"width": 250, "height": 250})]),
-                 dbc.Col([html.H5("Worst Performances", style={"width": 380, "height": 25, "text-align": "center",
+                 html.Div(return_tops(), style={"margin-left":35,"width": 350, "height": 250}),
+                 html.Div(return_tops(graph1="fig_up2"), style={"margin-left":35,"width": 250, "height": 250}),
+                 html.Div(return_tops(graph1="fig_up3"), style={"margin-left":35,"width": 250, "height": 250})],
+                         width=4, style={"border-right": "1px rgb(218, 255, 160) inset",
+                                         "border-left": "1px rgb(218, 255, 160) inset",
+                                         "border-top": "1px rgb(218, 255, 160) inset"}
+                         ),
+                 dbc.Col([html.H5("Worst Performances", style={"width": 400, "height": 25, "text-align": "center",
                                                       "background-color": "red",
                                                       "color": summary_color}),
-                 html.Div(return_tops(graph1="fig_down1"), style={"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_down2"), style={"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_down3"), style={"width": 250, "height": 250})])
+                 html.Div(return_tops(graph1="fig_down1"), style={"margin-left":35,"width": 250, "height": 250}),
+                 html.Div(return_tops(graph1="fig_down2"), style={"margin-left":35,"width": 250, "height": 250}),
+                 html.Div(return_tops(graph1="fig_down3"), style={"margin-left":35,"width": 250, "height": 250})],
+                         width=4,style= {"border-right": "1px rgb(218, 255, 160) inset",
+                            "border-left": "1px rgb(218, 255, 160) inset",
+                           "border-top": "1px rgb(218, 255, 160) inset",
+                                         "margin-left":80})
 
-                 ], style={"border-left": "1px rgb(218, 255, 160) inset", "border-top": "1px rgb(218, 255, 160) inset",
-                           "padding-left": 70})
+                 ], style={"margin-left":195})
     ])
 
 ], fluid=True)
@@ -292,7 +300,7 @@ def set_layout(device_info):
         raise exceptions.PreventUpdate
     print(device_info)
     device_type = device_info.get('device_type', 'Desktop')
-
+    device_type = "12inchDevice"
     if device_type == "12inchDevice":  # Replace "12inchDevice" with the actual identifier for the device
         return layout_12
     else:

@@ -174,8 +174,7 @@ layout = dbc.Container([
     html.Hr(),
     dbc.Button("Hataları Gizle", id="toggle_button", n_clicks=1, className="mr-1"),
     dbc.Row(
-        [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,style={"height":600,"margin-left":115 if i%2 == 0 else 35}) for i in range(MAX_OUTPUT)],
-        justify="start"
+        [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,style={"height":600,"margin-left":80 if i%2 == 0 else 0}) for i in range(MAX_OUTPUT)],
     )
 ], fluid=True)
 
