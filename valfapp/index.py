@@ -21,7 +21,7 @@ page_container = dbc.Container([ html.Div(
         dcc.Store(id='device-info-store'),
         html.Div(id='page-content') ]),
                            html.Div(id='touch-support-output', style={'display': 'none'})
-    ])
+    ], fluid=True)
 
 
 

@@ -63,7 +63,7 @@ class Agent:
         query = readquerry(query)
         max_retries = 10
         retry_count = 0
-
+        print(query)
         while retry_count < max_retries:
             try:
                 with self.connection.cursor() as cursor:

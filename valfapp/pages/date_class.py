@@ -54,6 +54,7 @@ def update_date(callbackid,date_picker,callback_context):
             "workend": end.isoformat(),
             "interval": "year"
         }
+    print(data)
     return data
 
 

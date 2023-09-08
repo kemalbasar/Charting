@@ -131,7 +131,6 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     # df_metrics["FLAG_BADDATA"] = [1 if df_metrics["PERFORMANCE"][row]> 1.2 else 0
     #                               for row in df_metrics.index]
     df_metrics_forwc = df_metrics.copy()
-    print(df_metrics["DISPLAY"])
     df_metrics_forpers = df_metrics.groupby(["DISPLAY", "COSTCENTER"]).agg({"QTY": "sum",
                                                                             "SCRAPQTY": "sum",
                                                                             "REWORKQTY": "sum",
@@ -198,7 +197,6 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         'MACHINE': ["PRD", "DOWN", "SETUP", "NAN", "PRD"],
         'OPR': ["FAIL", None, None, None, "SUCCES"]
     }
-    print(df_piechart)
     for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ","PRESHANE1","PRESHANE2"]:
         try:
             len(df_piechart.loc[costcenter])
