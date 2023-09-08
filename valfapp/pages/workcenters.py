@@ -15,17 +15,30 @@ from dash.exceptions import PreventUpdate
 from valfapp.pages.date_class import update_date, update_date_output
 
 # Define constants and initial data
+MAX_OUTPUT = 25
 costcenters = ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]
 # start_day = (date.today() - timedelta(days=1)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
 #     else (date.today() - timedelta(days=2)).isoformat()
 # end_day = (date.today() - timedelta(days=0)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
 #     else (date.today() - timedelta(days=1)).isoformat()
 # oeelist = oee((start_day, end_day, "day"))
-maxoutput=13
-list_of_callbacks = [Output(f"wc{i + 1}_graph", "figure") for i in range(maxoutput)] + \
-        [Output(f"wc{i + 1}_table", "data") for i in range(maxoutput)] + \
-        [Output(f"wc{i + 1}_table", "columns") for i in range(maxoutput)] + \
-        [Output(f"wc{i + 1}", "style") for i in range(maxoutput)]
+
+
+def generate_output_list(max_output):
+    """
+    Generates a list of Output elements for the Dash app.
+
+    Args:
+        max_output (int): The maximum number of output elements to generate.
+
+    Returns:
+        list: A list of Output elements.
+    """
+    return [Output(f"wc{i + 1}_graph", "figure") for i in range(max_output)] + \
+        [Output(f"wc{i + 1}_table", "data") for i in range(max_output)] + \
+        [Output(f"wc{i + 1}_table", "columns") for i in range(max_output)] + \
+        [Output(f"wc{i + 1}", "style") for i in range(max_output)]
+
 
 def return_tops_with_visibility(graph_id, visible=True):
     """
@@ -61,6 +74,28 @@ def return_tops_with_visibility(graph_id, visible=True):
     )
 
 
+
+# def create_pie_chart(df, costcenter):
+#     """
+#     Creates a pie chart showing the rate of rows with FLAG_BADDATA = 1 to FLAG_BADDATA = 0
+#     for the selected cost center.
+#
+#     Args:
+#         df (DataFrame): The input DataFrame containing the FLAG_BADDATA and COSTCENTER columns.
+#         costcenter (str): The selected cost center.
+#
+#     Returns:
+#         plotly.graph_objs.Figure: A Plotly Figure object representing the pie chart.
+#     """
+#     df_filtered = df[df["COSTCENTER"] == costcenter]
+#     flag_counts = df_filtered["FLAG_BADDATA"].value_counts()
+#     labels = ["0 - Valid Data", "1 - Invalid Data"]
+#     values = [flag_counts.get(0, 0), flag_counts.get(1, 0)]
+#
+#     fig = px.pie(names=labels, values=values, title="Data Validity Distribution")
+#     return fig
+
+
 # Create the layout for the app
 layout = dbc.Container([
     dbc.Row(
@@ -69,10 +104,9 @@ layout = dbc.Container([
         href='/',
         style={"color": "black", "font-weight": "bold"}
     )),
-    dbc.Row([dcc.Store(id="list_of_wcs"),
+    dbc.Row(
+[           dcc.Store(id="list_of_wcs"),
             dcc.Store(id="max_output"),
-            dcc.Store(id="list_of_wcs_temp"),
-            dcc.Store(id="max_output_temp"),
             dcc.Store(id='oeelistw1',
                       data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
                           1]),
@@ -153,27 +187,12 @@ layout = dbc.Container([
         html.Hr(),
     ])),
 
-    dbc.Row(html.Div(id='output-container'))
+    dbc.Row(
+        [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,style={"height":600,"margin-left":100 if i%2 == 0 else 180}) for i in range(MAX_OUTPUT)],
+className="no-gutters")
 ], fluid=True)
 
-# list_of_callbacks = generate_output_list(MAX_OUTPUT)
-
-@app.callback(
-    Output('output-container', 'children'),
-    Input("max_output", "value")
-)
-def update_layout(dynamic_output):
-    print("qqqqqqqq")
-    print(dynamic_output)
-    print("qqqqqqqq")
-
-    return [
-        dbc.Col(
-            return_tops_with_visibility(f"wc{i + 1}"),
-            width=5,
-            style={"height":600, "margin-left":100 if i%2 == 0 else 180}
-        ) for i in range(dynamic_output +1)
-    ]
+list_of_callbacks = generate_output_list(MAX_OUTPUT)
 
 
 @app.callback(Output('store-costcenter1', 'data'),
@@ -358,30 +377,6 @@ def update_table_data(costcenter,oeelist4w):
 
 
 @app.callback(
-    [Output("list_of_wcs_temp", "value"),
-    Output("max_output_temp", "value")],
-    [Input("list_of_wcs", "value"),
-    Input("max_output", "value")] )
-def generate_output_list(listofwcs,maxoutput):
-    """
-    Generates a list of Output elements for the Dash app.
-
-    Args:
-        max_output (int): The maximum number of output elements to generate.
-
-    Returns:
-        list: A list of Output elements.
-    """
-    global list_of_callbacks
-    list_of_callbacks = [Output(f"wc{i + 1}_graph", "figure") for i in range(maxoutput)] + \
-        [Output(f"wc{i + 1}_table", "data") for i in range(maxoutput)] + \
-        [Output(f"wc{i + 1}_table", "columns") for i in range(maxoutput)] + \
-        [Output(f"wc{i + 1}", "style") for i in range(maxoutput)]
-    print(list_of_callbacks)
-    return [listofwcs,maxoutput]
-
-
-@app.callback(
     Output("list_of_wcs", "value"),
     Output("max_output", "value"),
     [Input("costcenter1", "value"),
@@ -404,25 +399,28 @@ def update_work_center_list(option_slctd, report_type,oeelist1w,oeelist7w):
     oeelist7w = pd.read_json(oeelist7w, orient='split')
     list_of_wcs = []
     if report_type == 'wc':
+        max_output = len(oeelist1w)
         for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
             list_of_wcs.append(item)
     else:
+        max_output =len(oeelist7w)
         for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
             list_of_wcs.append(item)
 
-    return list_of_wcs,len(list_of_wcs)
+    return list_of_wcs,max_output
 
 
 @app.callback(
     [*list_of_callbacks],
-    [Input("list_of_wcs_temp", "value"),
-    Input("max_output_temp", "value"),
+    [Input("list_of_wcs", "value"),
+    Input("max_output", "value"),
     Input("costcenter1", "value"),
     Input("store-report-type", "data"),
     Input("work-dates1", "data"),
     Input(component_id='oeelistw1', component_property='data'),
     Input(component_id='oeelistw3', component_property='data'),
     Input(component_id='oeelistw7', component_property='data')]
+
 )
 def update_ind_fig(list_of_wcs,max_output,option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist7w):
     """
@@ -467,7 +465,7 @@ def update_ind_fig(list_of_wcs,max_output,option_slctd, report_type, params,oeel
     wc_col = ["SHIFT", "MATERIAL", "QTY", "DISPLAY", "AVAILABILITY", "PERFORMANCE", "QUALITY", "OEE", "TOTALTIME"]
     pers_col = ["SHIFT", "MATERIAL", "QTY", "DISPLAY", "AVAILABILITY", "PERFORMANCE", "QUALITY", "OEE", "TOTALTIME"]
 
-    for item in range(max_output):
+    for item in range(MAX_OUTPUT):
 
         if item < len(list_of_wcs):
             if report_type == 'wc':
