@@ -70,7 +70,7 @@ layout_27 = dbc.Container([
         dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button'),
         dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
         dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
-        dcc.Store(id="work-dates", storage_type="session",
+        dcc.Store(id="work-dates", storage_type="memory",
                   data={"workstart" : (date.today() - timedelta(days=1)).isoformat(),
                          "workend" :  date.today().isoformat(),
                          "interval" : "day"}),
@@ -87,7 +87,7 @@ layout_27 = dbc.Container([
                  ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='local',data={'default_key': 'CNC'}),
+    dcc.Store(id='store-costcenter', storage_type='memory',data={'default_key': 'CNC'}),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -181,7 +181,7 @@ layout_12 = dbc.Container([
         dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button'),
         dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
         dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
-        dcc.Store(id="work-dates", storage_type="session",
+        dcc.Store(id="work-dates", storage_type="memory",
                   data={"workstart" : (date.today() - timedelta(days=1)).isoformat(),
                          "workend" :  date.today().isoformat(),
                          "interval" : "day"}),
@@ -198,7 +198,7 @@ layout_12 = dbc.Container([
                  ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='local',data={'default_key': 'CNC'}),
+    dcc.Store(id='store-costcenter', storage_type='memory',data={'default_key': 'CNC'}),
     dbc.Row([
         dbc.Col([
             dbc.Row(html.Div([dcc.Graph(id='sunburst')],

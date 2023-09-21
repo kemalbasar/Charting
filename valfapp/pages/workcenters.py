@@ -122,7 +122,7 @@ layout = dbc.Container([
             dcc.Store(id='oeelistw7',
                       data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
                           7]),
-            dcc.Store(id='store-costcenter1', storage_type='local'),
+            dcc.Store(id='store-costcenter1', storage_type='memory'),
             dcc.Store(id='store-report-type', data='wc', storage_type='memory'),
             dbc.Button("Day", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
             dcc.Dropdown(id="costcenter1",
@@ -142,7 +142,7 @@ layout = dbc.Container([
                         id='wc-button', className='wc-button'),
             html.Button(html.Img(src='/assets/pers.png', style={'width': '100%', 'height': '100%'}),
                         id='pers-button', className='pers-button'),
-            dcc.Store(id="work-dates1", storage_type="session",
+            dcc.Store(id="work-dates1", storage_type="memory",
                       data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
                             "workend": date.today().isoformat(),
                             "interval": "day"}),
