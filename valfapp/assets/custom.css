@@ -1,0 +1,259 @@
+
+.dropdown-style {
+    color:#593096;
+    width: 150px;
+    /*font-size: 15px;   !* set the font size *!*/
+    /*font-family: Arial, sans-serif;  !* set the font family *!*/
+    background-color: #593096;  /* purple background color */
+    text-align: center;
+    display: inline-block;
+    transition-duration: 0.4s;  /* transition effect duration */
+    border-radius: 0;  /* square shape */
+    padding: 0;  /* no padding */
+}
+.Select-value {
+    color: #593096;
+}
+
+
+/*.Select-control {*/
+/*    color: white;*/
+/*    background-color: #593096;*/
+/*}*/
+/*.Select-multi-value-wrapper {*/
+/*    color: white;*/
+/*    background-color: #593096;*/
+/*}*/
+.Select-placeholder,
+.Select--single > .Select-control .Select-value {
+    color: white;
+    background-color: #593096;
+}
+
+/*.Select__single-value {*/
+/*    color: white !important;*/
+/*}*/
+/*.Select__option {*/
+/*    color: white !important;*/
+/*}*/
+
+.estop-button {
+    width: 100px;    /* width of the square button */
+    height: 100px;   /* height of the square button */
+    background-color: #593096;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 48px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;/* no padding */
+    left: 300px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 34px;
+}
+
+.estop-button:hover {
+    background-color: #45a049;  /* color when mouse hovers over */
+    color: white;
+}
+
+.wc-button {
+    width: 100px;    /* width of the square button */
+    height: 100px;   /* height of the square button */
+    background-color: #593096;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 48px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;/* no padding */
+    left: 300px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 34px;
+}
+
+.wc-button:hover {
+    background-color: #45a049;  /* color when mouse hovers over */
+    color: white;
+}
+
+
+.pers-button {
+    width: 100px;    /* width of the square button */
+    height: 100px;   /* height of the square button */
+    background-color: #FF6347;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 48px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;
+    position: absolute;/* no padding */
+    left: 408px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 34px;
+}
+
+.pers-button:hover {
+    background-color: #45a049;  /* color when mouse hovers over */
+    color: white;
+}
+.day-button {
+    width: 50px;    /* width of the square button */
+    height: 50px;   /* height of the square button */
+    background-color: #593096 ;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;  /* position relative to the closest positioned ancestor */
+    left: 178px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 30px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+}
+
+.day-button:hover {
+    background-color: #45a049;  /* color when mouse hovers over */
+    color: white;
+}
+
+.week-button {
+    width: 50px;    /* width of the square button */
+    height: 50px;   /* height of the square button */
+    background-color: #593096;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;  /* position relative to the closest positioned ancestor */
+    left: 231px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 30px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+}
+
+.week-button:hover {
+    background-color: #45a049; /* color when mouse hovers over */
+    color: white;
+}
+
+.month-button {
+    width: 50px;    /* width of the square button */
+    height: 50px;   /* height of the square button */
+    background-color: #593096;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;  /* position relative to the closest positioned ancestor */
+    left: 178px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 83px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+}
+
+.month-button:hover {
+    background-color: #45a049; /* color when mouse hovers over */
+    color: white;
+}
+
+.year-button {
+    width: 50px;    /* width of the square button */
+    height: 50px;   /* height of the square button */
+    background-color: #593096;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;  /* position relative to the closest positioned ancestor */
+    left: 231px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 83px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+}
+
+.year-button:hover {
+    background-color: #45a049; /* color when mouse hovers over */
+    color: white;
+}
+
+
+
+.dash-date-picker {
+    width: 150px;
+    height: 60px;
+    border-radius: 0;
+    border: none;
+    margin-left: 10px;
+    display: inline-block;
+}
+
+
+.dash-date-picker input {
+    background-color: #593096;
+    color: white;
+}
+
+.dash-empty-button {
+    width: 40px;    /* width of the square button */
+    height: 50px;   /* height of the square button */
+    background-color: #593096;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;  /* position relative to the closest positioned ancestor */
+    left: 500px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 150px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+
+}
+
+@media only screen and (max-width: 600px) {
+    .dash-graph-container {
+        height: 300px !important; /* Adjust according to your need */
+    }
+}
+
+/*.container-fluid {*/
+/*    padding-left: 0;*/
+/*    padding-right: 0;*/
+/*}*/
+
+/*#my-specific-container {*/
+/*    padding-left: 0;*/
+/*    padding-right: 0;*/
+/*}*/
