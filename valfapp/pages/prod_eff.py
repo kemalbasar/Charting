@@ -1,4 +1,3 @@
-import json
 import warnings
 from datetime import date, timedelta, datetime
 import pandas as pd
@@ -7,11 +6,10 @@ import plotly.express as px  # (version 4.7.0 or higher)
 from dash import dcc, html, Input, Output, State, callback_context, \
     no_update, exceptions  # pip install dash (version 2.0.0 or higher)
 import dash_bootstrap_components as dbc
-from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, calculate_oeemetrics, \
-    generate_for_sparkline, working_machinesf, get_gann_data, return_ind_fig
+from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
+    generate_for_sparkline, working_machinesf, return_ind_fig
 from run.agent import ag
-from config import project_directory
-from valfapp.app import cache, oee, app, prdconf
+from valfapp.app import app, prdconf
 from valfapp.pages.date_class import update_date, update_date_output
 
 summary_color = 'black'
@@ -354,10 +352,6 @@ def update_dropdown(ts, stored_data):
 )
 def update_work_dates(n1, date_picker, n2, n3, n4):
     stored_date = date_picker
-    # print(f"**{date_picker}**")
-    # print("burasııı")
-    # print(callback_context.triggered)
-    # print(callback_context.triggered[0]['prop_id'])
     if n1 or date_picker or n2 or n3 or n4:
         data = update_date('2', date_picker, callback_context)
         print(f"params= {data}")
@@ -391,16 +385,16 @@ def page_refresh3(n3):
      Output(component_id='my-output2', component_property='children')],
     [Input(component_id='costcenter', component_property='value'),
      Input(component_id='work-dates', component_property='data'),
-     Input(component_id='oeelist2', component_property='data')]
+     Input(component_id='oeelist6', component_property='data')]
 )
-def return_summary_data(option_slctd,dates,oeelist2):
-    oeelist2 = pd.read_json(oeelist2, orient='split')
+def return_summary_data(option_slctd,dates,oeelist6):
+    oeelist6 = pd.read_json(oeelist6, orient='split')
     df_working_machines= ag.run_query(query = r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                             , params=(dates["workstart"],dates["workend"]))
-    data1 = ["Production Volume", get_daily_qty(df=oeelist2, costcenter=option_slctd)]
+    data1 = ["Production Volume", get_daily_qty(df=oeelist6, costcenter=option_slctd)]
     data2 = ["Working Machines", working_machinesf(working_machines=df_working_machines, costcenter=option_slctd)[-1]]
-    data3 = ["PPM", get_daily_qty(df=oeelist2, costcenter=option_slctd, ppm=True)]
-    data4 = ["Scrap", get_daily_qty(df=oeelist2, costcenter=option_slctd, type='SCRAPQTY')]
+    data3 = ["PPM", get_daily_qty(df=oeelist6, costcenter=option_slctd, ppm=True)]
+    data4 = ["Scrap", get_daily_qty(df=oeelist6, costcenter=option_slctd, type='HURDA')]
 
     return [html.Div(children=[html.Div(children=data1[1],
                                         style={"fontSize": 30, "color": summary_color,
@@ -449,7 +443,6 @@ def return_summary_data(option_slctd,dates,oeelist2):
 )
 def update_graph_sunburst(option_slctd,oeelist0):
     oeelist0 = {k: pd.read_json(v, orient='split') for k, v in oeelist0.items()}
-    print(oeelist0)
     df = oeelist0[option_slctd]
 
     if int(df["OEE"][0][0:2]) > 38:
@@ -496,20 +489,19 @@ def update_graph_bubble(option_slctd,oeelist2,dev_type):
         graphwidth = 1100
     oeelist2 =  pd.read_json(oeelist2, orient='split')
     df, category_order = scatter_plot(df=oeelist2.loc[oeelist2["COSTCENTER"] == option_slctd])
+
     figs = px.histogram(df, x="WORKCENTER", y="FAILURETIME",
                         color="STEXT",
                         hover_data=["WORKCENTER"],
                         color_discrete_sequence=px.colors.qualitative.Alphabet,
                         width=1500, height=500, category_orders={"STEXT": category_order})
-
     # figs.update_traces(textfont=dict(family=['Arial Black']))
-    figs.update_xaxes(type="category", tickangle=90, fixedrange=True)
+    figs.update_xaxes(type="category", tickangle=90, fixedrange=True,categoryorder='total ascending')
     # figs.update_yaxes(categoryorder="total descending")
     figs.update_layout(xaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
                        yaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
                        paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='white', font_color=summary_color,
                        title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420,
-
                        )
 
     return [figs]

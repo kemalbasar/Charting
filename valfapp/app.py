@@ -40,7 +40,6 @@ TIMEOUT = 12000
 
 @cache.memoize(timeout=TIMEOUT)
 def prdconf(params = None):
-    print(params)
     paramswith = params[0:2]
     prd_conf = ag.run_query(query = r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
     planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
