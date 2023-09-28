@@ -131,7 +131,6 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     # df_metrics["FLAG_BADDATA"] = [1 if df_metrics["PERFORMANCE"][row]> 1.2 else 0
     #                               for row in df_metrics.index]
     df_metrics_forwc = df_metrics.copy()
-    print(df_metrics["DISPLAY"])
     df_metrics_forpers = df_metrics.groupby(["DISPLAY", "COSTCENTER"]).agg({"QTY": "sum",
                                                                             "SCRAPQTY": "sum",
                                                                             "REWORKQTY": "sum",
@@ -190,7 +189,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
                "PRESHANE2" : None,}
 
     f = lambda a: round(((abs(a) + a) / 2), 3)
-    g = lambda a: int((a * 100) / sum_of)
+    g = lambda a: 1 if sum_of == 0 else int((a * 100) / sum_of)
     # h = lambda a: 1 if a > 1 else a
     temp_dic = {
         'RATES': [0, 0, 0, 0, 0],
@@ -198,7 +197,6 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         'MACHINE': ["PRD", "DOWN", "SETUP", "NAN", "PRD"],
         'OPR': ["FAIL", None, None, None, "SUCCES"]
     }
-    print(df_piechart)
     for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ","PRESHANE1","PRESHANE2"]:
         try:
             len(df_piechart.loc[costcenter])
@@ -208,7 +206,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
             continue
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
                  df_piechart.loc[costcenter, "SETUPTIME"] + df_piechart.loc[costcenter, "NANTIME"]
-
+        print(f"sum of = {sum_of}")
         temp_dic = {
             'RATES': [f(1 - df_piechart.loc[costcenter, "PERFORMANCE"]) * g(df_piechart.loc[costcenter, "RUNTIME"]),
                       g(df_piechart.loc[costcenter, "TOTFAILURETIME"]),
@@ -299,24 +297,18 @@ def generate_for_sparkline(data='',proses='CNC', type='TOPLAM', ppm=False):
         return df["PPM"].tolist()
 
 
-def get_daily_qty(df=prd_conf, costcenter='CNC', type="QTY", ppm=False):
-
-    df = df.loc[((df["CONFTYPE"] == "Uretim"))].groupby(["COSTCENTER"]).agg(
-        {"QTY": "sum", "SCRAPQTY": "sum"})
+def get_daily_qty(df=prd_conf, costcenter='CNC', type="TOPLAM", ppm=False):
+    df = df.loc[df["COSTCENTER"] == costcenter]
     df.reset_index(inplace=True)
     if not ppm:
-        return str(df.loc[df["COSTCENTER"] == costcenter, type].values[0])
+        return str(df[type].iloc[-1])
     else:
-        return int(int(df.loc[df["COSTCENTER"] == costcenter, ["SCRAPQTY"]].values) / \
-                   int(df.loc[
-                           df["COSTCENTER"] == costcenter, ["QTY"]].values) * 1000000)
+        return int(1000000*int(df["HURDA"].iloc[-1]) / int(df["TOPLAM"].iloc[-1]))
 
 
 def scatter_plot(df=prd_conf, report_day="2022-07-26"):
-    # df["BREAKDOWNSTART"] = df.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
-    # df = df.loc[(((df["BREAKDOWNSTART"] != "nat_replaced")) & (df["COSTCENTER"] == costcenter))]
 
-    # df["WORKEND"] = df["WORKEND"].apply(lambda x : str(x))
+
     df = df.loc[df["CONFTYPE"] != 'Uretim',
                 ["WORKSTART", "WORKCENTER", "FAILURETIME", 'SETUPTIME',"STEXT", "CONFTYPE"]]
     df["FAILURETIME"] = df.apply(lambda row: apply_nat_replacer(row["FAILURETIME"]), axis=1)
@@ -326,7 +318,18 @@ def scatter_plot(df=prd_conf, report_day="2022-07-26"):
     df.sort_values(by="WORKCENTER", inplace=True)
     df["STEXT"] = [df["CONFTYPE"][row] if df["CONFTYPE"][row] == 'Kurulum'\
         else df["STEXT"][row] for row in df.index]
+
     df["FAILURETIME"] = df["FAILURETIME"].astype(float)
+    total_quantity = df['FAILURETIME'].sum()
+    df_percs = df.groupby("STEXT").agg({"FAILURETIME": "sum"})
+    df_percs['PERCENTAGE'] = df_percs['FAILURETIME'].apply(lambda x: int((x / total_quantity) * 100))
+    df = df.merge(df_percs.drop(axis=1, columns="FAILURETIME"), on='STEXT', how='left')
+    df['PERCENTAGE'] = df['PERCENTAGE'].astype(str)
+
+    print("*********************")
+    print(df)
+
+    df["STEXT"] = df["STEXT"] + ' ' + df["PERCENTAGE"] + '%'
     df_legend = df.groupby(["STEXT"]).agg({"FAILURETIME":sum})
     df_legend.reset_index(inplace=True)
     df_legend = df_legend.sort_values(by="FAILURETIME", ascending=False)
@@ -355,7 +358,6 @@ def get_gann_data(df=prd_conf):
     df = df.loc[(df["BREAKDOWNSTART"] != "nat_replaced"), cols]
     df_final = pd.concat([df, df_helper])
     df_final.reset_index(inplace=True, drop=True)
-    # print(df_final)
     df_final["CONFTYPE"] = ["Uretim" if ((df_final["BREAKDOWN"][row]) == 11 & (df_final["CONFTYPE"][row] != 'Kurulum'))
                             else df_final["CONFTYPE"][row] for row in range(df_final.shape[0])]
     df_final = df_final.rename(columns={"BREAKDOWNSTART": "WORKSTART", "BREAKDOWNEND": "WORKEND"})
@@ -363,6 +365,7 @@ def get_gann_data(df=prd_conf):
     df_final.reset_index(inplace=True)
     df_final.drop("index", inplace=True, axis=1)
     df_final.sort_values(by="WORKCENTER", inplace=True)
+    df_final.to_excel(f"{project_directory}/Charting/outputs(xlsx)/qty.xlsx")
     return df_final
 
 

@@ -37,6 +37,30 @@
 /*    color: white !important;*/
 /*}*/
 
+.estop-button {
+    width: 100px;    /* width of the square button */
+    height: 100px;   /* height of the square button */
+    background-color: #593096;  /* button color */
+    border: none;  /* no border */
+    color: white;  /* text (icon) color */
+    text-align: center;
+    display: inline-block;
+    font-size: 48px;  /* icon size */
+    transition-duration: 0.4s;  /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;  /* square shape */
+    overflow: hidden;  /* in case of text exceeding button size */
+    padding: 0;  /* no padding */
+    position: absolute;/* no padding */
+    left: 300px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 34px;
+}
+
+.estop-button:hover {
+    background-color: #45a049;  /* color when mouse hovers over */
+    color: white;
+}
+
 .wc-button {
     width: 100px;    /* width of the square button */
     height: 100px;   /* height of the square button */
@@ -224,3 +248,12 @@
     }
 }
 
+/*.container-fluid {*/
+/*    padding-left: 0;*/
+/*    padding-right: 0;*/
+/*}*/
+
+/*#my-specific-container {*/
+/*    padding-left: 0;*/
+/*    padding-right: 0;*/
+/*}*/

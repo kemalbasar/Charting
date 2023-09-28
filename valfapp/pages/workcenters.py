@@ -3,27 +3,25 @@ import os
 import shutil
 from datetime import date, timedelta
 import numpy as np
+import pandas as pd
 from dash import dcc, html, Input, Output, State, callback_context, no_update, exceptions
 import dash_bootstrap_components as dbc
-from dash_bootstrap_components.themes import PULSE
-
 from config import project_directory
 from valfapp.functions.functions_prd import return_ind_fig
 import plotly.express as px
 from valfapp.app import cache, oee, app, prdconf
 import dash_table
 from dash.exceptions import PreventUpdate
-import redis
 from valfapp.pages.date_class import update_date, update_date_output
 
 # Define constants and initial data
-MAX_OUTPUT = 50
+MAX_OUTPUT = 25
 costcenters = ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]
-start_day = (date.today() - timedelta(days=1)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
-    else (date.today() - timedelta(days=2)).isoformat()
-end_day = (date.today() - timedelta(days=0)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
-    else (date.today() - timedelta(days=1)).isoformat()
-oeelist = oee((start_day, end_day, "day"))
+# start_day = (date.today() - timedelta(days=1)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
+#     else (date.today() - timedelta(days=2)).isoformat()
+# end_day = (date.today() - timedelta(days=0)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
+#     else (date.today() - timedelta(days=1)).isoformat()
+# oeelist = oee((start_day, end_day, "day"))
 
 
 def generate_output_list(max_output):
@@ -100,14 +98,33 @@ def return_tops_with_visibility(graph_id, visible=True):
 
 # Create the layout for the app
 layout = dbc.Container([
-    dcc.Store(id="list_of_wcs"),
-    dcc.Link(
+    dbc.Row(
+        dcc.Link(
         children='Main Page',
         href='/',
         style={"color": "black", "font-weight": "bold"}
-    ),
+    )),
     dbc.Row(
-        [
+[           dcc.Store(id="list_of_wcs"),
+            dcc.Store(id="max_output"),
+            dcc.Store(id='oeelistw1',
+                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                          1]),
+            dcc.Store(id='oeelistw3',
+                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                          3]),
+            dcc.Store(id='oeelistw4',
+                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                          4]),
+            dcc.Store(id='oeelistw5',
+                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                          5]),
+            dcc.Store(id='oeelistw7',
+                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                          7]),
+            dcc.Store(id='store-costcenter1', storage_type='memory'),
+            dcc.Store(id='store-report-type', data='wc', storage_type='memory'),
+            dbc.Button("Day", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
             dcc.Dropdown(id="costcenter1",
                          className='dropdown-style',
                          options=[{"label": cc, "value": cc} for cc in costcenters],
@@ -116,12 +133,7 @@ layout = dbc.Container([
                          ),
             dcc.DatePickerSingle(id='date-picker1', date=date.today(),className="dash-date-picker",
                                  persistence=True, persistence_type='local',style={"color":"white"}),
-            dcc.Store(id='store-costcenter1', storage_type='local'),
-            dcc.Store(id='store-report-type', data='wc', storage_type='session'),
 
-
-
-            dbc.Button("Day", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
             dbc.Button("Week", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
             dbc.Button("Month", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
             dbc.Button("Year", id="btn-year1", n_clicks=0, color="primary", className='year-button'),
@@ -130,7 +142,7 @@ layout = dbc.Container([
                         id='wc-button', className='wc-button'),
             html.Button(html.Img(src='/assets/pers.png', style={'width': '100%', 'height': '100%'}),
                         id='pers-button', className='pers-button'),
-            dcc.Store(id="work-dates1", storage_type="session",
+            dcc.Store(id="work-dates1", storage_type="memory",
                       data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
                             "workend": date.today().isoformat(),
                             "interval": "day"}),
@@ -147,8 +159,10 @@ layout = dbc.Container([
                     style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
         dcc.Download(id="download-data")], style={"height":120,"margin-top": 10}),
 
-    html.Div(id="toggle_div", children=[
+    dbc.Row(html.Div(id="toggle_div", children=[
         html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
+        html.Hr(),
+        dbc.Button("Hataları Gizle", id="toggle_button", n_clicks=1, className="mr-1"),
         html.Hr(),
         dbc.Row([
             dbc.Col(
@@ -158,7 +172,8 @@ layout = dbc.Container([
             dbc.Col(
                 dash_table.DataTable(
                     id="invalid_data_table",
-                    columns=[{"name": i, "id": i} for i in oeelist[4].columns],
+                    columns= [],
+                    # [{"name": i, "id": i} for i in oeelist[4].columns],
                     style_cell={
                         "minWidth": "100px",
                         "width": "100px",
@@ -170,13 +185,11 @@ layout = dbc.Container([
             ),
         ]),
         html.Hr(),
-    ]),
-    html.Hr(),
-    dbc.Button("Hataları Gizle", id="toggle_button", n_clicks=1, className="mr-1"),
+    ])),
+
     dbc.Row(
-        [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,style={"height":600,"margin-left":115 if i%2 == 0 else 35}) for i in range(MAX_OUTPUT)],
-        justify="start"
-    )
+        [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,style={"height":600,"margin-left":100 if i%2 == 0 else 180}) for i in range(MAX_OUTPUT)],
+className="no-gutters")
 ], fluid=True)
 
 list_of_callbacks = generate_output_list(MAX_OUTPUT)
@@ -197,10 +210,25 @@ def update_dropdown(ts, stored_data):
         raise exceptions.PreventUpdate
     return stored_data
 
+@app.callback(
+    Output('invalid_data_table', 'columns'),
+    Input('oeelistw4', 'data')
+)
+def update_table_columns(oeelistw4):
+    df = pd.read_json(oeelistw4, orient='split')
+    # df = pd.DataFrame(data)  # Convert the stored data back to DataFrame
+    columns = [{"name": i, "id": i} for i in df.columns]
+    return columns
+
 
 @app.callback(
     [Output('work-dates1', 'data'),
-     Output('refresh2', 'children')],
+     Output('refresh2', 'children'),
+     Output(component_id='oeelistw1', component_property='data'),
+     Output(component_id='oeelistw3', component_property='data'),
+     Output(component_id='oeelistw4', component_property='data'),
+     Output(component_id='oeelistw5', component_property='data'),
+     Output(component_id='oeelistw7', component_property='data')],
     [Input('btn-day1', 'n_clicks'),
      Input('date-picker1', 'date'),
      Input('btn-week1', 'n_clicks'),
@@ -208,37 +236,25 @@ def update_dropdown(ts, stored_data):
      Input('btn-year1', 'n_clicks')]
 )
 def update_work_dates(n1, date_picker, n2, n3, n4):
+    stored_date = date_picker
+    # print(f"**{date_picker}**")
+    # print("burasııı")
+    # print(callback_context.triggered)
+    # print(callback_context.triggered[0]['prop_id'])
     if n1 or date_picker or n2 or n3 or n4:
+        # print(f"{date_picker}---{callback_context}")
         data = update_date('1', date_picker, callback_context)
+        print(f"params= {data}")
         if data != {}:
-            global oeelist
-            oeelist = oee(params=(data["workstart"], data["workend"], data["interval"]))
-            a = update_date_output(n1, date_picker, n2, n3, n4, data)
-            return a
+            oeelist = prdconf(params=(data["workstart"], data["workend"], data["interval"]))
+            (oeelist[1],oeelist[3],oeelist[4],oeelist[5],oeelist[7])
+            a = update_date_output( n1, date_picker, n2, n3, n4, data)
+            return (a[0],0) + (oeelist[1],oeelist[3],oeelist[4],oeelist[5],oeelist[7])
         else:
             return no_update
     else:
         return no_update
 
-
-# @app.callback(
-# [Output('eport_type_store', 'data'),
-# Output('refresh2', 'children')],
-# [Input('wc-button', 'n_clicks'),
-# Input('pers-button', 'n_clicks')]
-# )
-# def update_report_type(n1, date_picker, n2, n3, n4):
-#     if n1 or date_picker or n2 or n3 or n4:
-#         data = update_date('1', date_picker, callback_context)
-#         if data != {}:
-#             global oeelist
-#             oeelist = oee(params=(data["workstart"], data["workend"], data["interval"]))
-#             a = update_date_output(n1, date_picker, n2, n3, n4, data)
-#             return a
-#         else:
-#             return no_update
-#     else:
-#         return no_update \
 
 
 @app.callback(
@@ -250,11 +266,12 @@ def update_report_type(n1, n2):
     ctx = callback_context
     # Default case
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    print(button_id)
     if button_id == 'pers-button':
         return 'pers'
     elif button_id == 'wc-button':
         return 'wc'
+    else:
+        return no_update
 
 
 @app.callback(
@@ -316,10 +333,11 @@ def toggle_first_div(n_clicks):
 
 @app.callback(
     Output("pie_chart", "figure"),
-    Input("costcenter1", "value")
+    [Input("costcenter1", "value"),
+    Input(component_id='oeelistw5', component_property='data')]
 )
-def update_pie_chart(costcenter):
-    df = oeelist[5]
+def update_pie_chart(costcenter,oeelist5w):
+    df = pd.read_json(oeelist5w, orient='split')
     df_filtered = df.loc[df["COSTCENTER"] == costcenter]
     labels = ["0 - Geçerli Data", "1 - Tanımlı Süre Yok", "2 - Hatalı Operatör Girişi", "3 - Tanımlı Süre Hatalı"]
     values = [0 if len(df_filtered[df_filtered["BADDATA_FLAG"] == 0]) == 0 else
@@ -339,9 +357,10 @@ def update_pie_chart(costcenter):
 # Callback for the table data based on the selected cost center
 @app.callback(
     Output("invalid_data_table", "data"),
-    Input("costcenter1", "value")
+    [Input("costcenter1", "value"),
+    Input(component_id='oeelistw4', component_property='data')]
 )
-def update_table_data(costcenter):
+def update_table_data(costcenter,oeelist4w):
     """
     Generates table data for rows with FLAG_BADDATA = 1 for the selected cost center.
 
@@ -351,16 +370,21 @@ def update_table_data(costcenter):
     Returns:
         list: A list of dictionaries representing the table data.
     """
-    df_filtered = oeelist[4][oeelist[4]["COSTCENTER"] == costcenter]
+
+    oeelist4w = pd.read_json(oeelist4w, orient='split')
+    df_filtered = oeelist4w[oeelist4w["COSTCENTER"] == costcenter]
     return df_filtered.to_dict("records")
 
 
 @app.callback(
     Output("list_of_wcs", "value"),
-    Input("costcenter1", "value"),
-    Input("store-report-type", "data")
+    Output("max_output", "value"),
+    [Input("costcenter1", "value"),
+    Input("store-report-type", "data"),
+    Input(component_id='oeelistw1', component_property='data'),
+    Input(component_id='oeelistw7', component_property='data')]
 )
-def update_work_center_list(option_slctd, report_type):
+def update_work_center_list(option_slctd, report_type,oeelist1w,oeelist7w):
     """
     Callback to update the list of work centers based
     on the selected cost center.
@@ -371,27 +395,34 @@ def update_work_center_list(option_slctd, report_type):
     Returns:
         list: A list of work centers for the selected cost center.
     """
-
+    oeelist1w = pd.read_json(oeelist1w, orient='split')
+    oeelist7w = pd.read_json(oeelist7w, orient='split')
     list_of_wcs = []
     if report_type == 'wc':
-        for item in oeelist[1].loc[oeelist[1]["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
+        max_output = len(oeelist1w)
+        for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
             list_of_wcs.append(item)
     else:
-        for item in oeelist[7].loc[oeelist[7]["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
+        max_output =len(oeelist7w)
+        for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
             list_of_wcs.append(item)
 
-    return list_of_wcs
+    return list_of_wcs,max_output
 
 
 @app.callback(
     [*list_of_callbacks],
-    Input("list_of_wcs", "value"),
+    [Input("list_of_wcs", "value"),
+    Input("max_output", "value"),
     Input("costcenter1", "value"),
     Input("store-report-type", "data"),
     Input("work-dates1", "data"),
+    Input(component_id='oeelistw1', component_property='data'),
+    Input(component_id='oeelistw3', component_property='data'),
+    Input(component_id='oeelistw7', component_property='data')]
 
 )
-def update_ind_fig(list_of_wcs, option_slctd, report_type, params):
+def update_ind_fig(list_of_wcs,max_output,option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist7w):
     """
     Callback to update individual figures for each work center in the selected cost center.
 
@@ -403,9 +434,13 @@ def update_ind_fig(list_of_wcs, option_slctd, report_type, params):
     Returns:
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
-    df = oeelist[1][oeelist[1]["COSTCENTER"] == option_slctd]
-    df_forpers = oeelist[7][oeelist[7]["COSTCENTER"] == option_slctd]
-    df_wclist = oeelist[3][oeelist[3]["COSTCENTER"] == option_slctd]
+    oeelist1w = pd.read_json(oeelist1w, orient='split')
+    oeelist3w = pd.read_json(oeelist3w, orient='split')
+    oeelist7w = pd.read_json(oeelist7w, orient='split')
+
+    df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
+    df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
+    df_forpers = oeelist7w[oeelist7w["COSTCENTER"] == option_slctd]
 
     list_of_figs = []
     list_of_columns = []
@@ -433,18 +468,15 @@ def update_ind_fig(list_of_wcs, option_slctd, report_type, params):
     for item in range(MAX_OUTPUT):
 
         if item < len(list_of_wcs):
-            print(f"****{report_type}*****")
             if report_type == 'wc':
                 fig = return_ind_fig(df_metrics=df, df_details=df_wclist,
                                      costcenter=option_slctd, order=list_of_wcs[item], colorof='black',width= 450, height=420)
                 df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_wcs[item]),
                 wc_col[col_ind:]]
-
             else:
                 fig = return_ind_fig(df_metrics=df_forpers, df_details=df_wclist, costcenter=option_slctd,
                                      order=list_of_wcs[item], colorof='black', title='DISPLAY',width= 450,height=420)
-                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_wcs[item]),
-                pers_col[col_ind:]]
+                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_wcs[item]),pers_col[col_ind:]]
 
             aggregations = {
                 'MATERIAL': max,  # Sum of 'performance' column
@@ -468,16 +500,15 @@ def update_ind_fig(list_of_wcs, option_slctd, report_type, params):
                      "align-items": "center", "width": 700,
                      "height": 250}
             # df_details.sort_values(by=["SHIFT"], inplace=True)
-
             weights = df_details.loc[df_details.index, "TOTALTIME"]
             weights[weights <= 0] = 1
-
             # Burada vardiya özet satırını oluşturup ekliyoruz.
             # Hatırlayalım col_ind 0 olması günlük rapor olduğuna işaret eder
             summary_row = df_details.groupby(groupby_column).agg(aggregations)
             # summary_row = summary_row[summary_row[groupby_column] > 1]
             summary_row[groupby_column] = summary_row.index
             summary_row[groupby_column] = summary_row[groupby_column].astype(str)
+
             if report_type == 'wc':
                 if col_ind == 0:
                     summary_row[groupby_column] = summary_row[groupby_column] + ' (Özet)'
@@ -514,7 +545,6 @@ def update_ind_fig(list_of_wcs, option_slctd, report_type, params):
             columns = [{"name": i, "id": i} for i in df_details.columns]
             data = df_details.to_dict("records")
         else:
-
             fig = {}
             columns = []
             data = []
@@ -531,12 +561,14 @@ def update_ind_fig(list_of_wcs, option_slctd, report_type, params):
 @app.callback(
     Output("download-data", "data"),
     [Input("download-button", "n_clicks")],
-    [Input("costcenter1", "value")],
+    [Input("costcenter1", "value"),
+     Input(component_id='oeelistw3', component_property='data')],
     prevent_initial_call=True
 )
-def generate_excel(n_clicks, costcenter):
+def generate_excel(n_clicks, costcenter,oeelist3w):
+    oeelist3w = pd.read_json(oeelist3w, orient='split')
     if n_clicks < 1:
         raise PreventUpdate
 
-    dff = oeelist[3][oeelist[3]["COSTCENTER"] == costcenter]
+    dff = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
     return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)

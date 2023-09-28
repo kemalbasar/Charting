@@ -1,30 +1,77 @@
 import datetime
 
+import pandas as pd
 import plotly.graph_objs as go
 import dash
-from dash import dcc, html, Output  # pip install dash (version 2.0.0 or higher)
+from dash import dcc, html, Input, Output, State, exceptions
 import dash_bootstrap_components as dbc
 from paho.mqtt import client as mqtt
 from run.agent import ag
 from valfapp.app import app
 from config import project_directory
 
-costcenters = ["PRESHANE", "CNC", "CNCTORNA", "TASLAMA"]
-workcenters = ["P-12", "P-34", "P-65", "P-66", "P-16", "P-17"]
-workcenters_t = "('P-12', 'P-34', 'P-65', 'P-66', 'P-16', 'P-17')"
+costcenters = ["PRESHANE", "TAMBUR"]
+
 
 with open(project_directory + r"\Charting\queries\mesworkcenter_data.txt", 'r') as file:
     query = file.read()
 
-df = ag.run_query(query + ' ' +  workcenters_t)
+failure_codes = {
+"D104_0 ": "Cont.",
+'D104_1':'Single',
+ 'D104_2':'Inch.',
+ 'D104_3':'Manual',
+ 'D124_0':'No Err.',
+ 'D124_1':'Motor Unstart',
+ 'D124_2':'EMG Stop',
+ 'D124_3':'Lub. Fault',
+ 'D124_4':'MisfeeD 1 Fault',
+ 'D124_5':'Mat. 1 Fault',
+ 'D124_7':'Air Pressure Fault',
+ 'D124_9':'Inverter Fault',
+ 'D124_10':'Cumulate Arrival',
+ 'D124_11':'Cumulate Arrival',
+ 'D124_12':'Manual',
+ 'D124_12':'Reverse',
+ 'D124_14':'EncoDer Disconnect',
+ 'D124_20':'MisfeeD 2 Fault',
+ 'D124_21':'Start Fault',
+ 'D124_27':'Lock Fault',
+ 'D124_28':'Lock Not Relief',
+ 'D124_42':'B.D.C Det.',
+ 'D124_43':'Tonnage Fault',
+ 'D124_44':'MisfeeD 3 Fault',
+ 'D124_45':'MisfeeD 4 Fault',
+ 'D124_47':'Communication Timeout',
+}
 
 broker_address = '172.30.134.22'
 port = 1883
-topic = "DevirHiz"
-topic2 = "ParcaAdet"
-topic3 = "SariIsik"
-topic4 = "YesilIsik"
-topic5 = "KırmızıIsik"
+
+topcis_in = {"/out/OpMode":"/out/OpMode","/out/OpStatus":"/out/OpStatus","/out/OpSpeed":"/out/OpSpeed",
+             "/out/CamAngle":"/out/CamAngle","basıyor":"/out/GreenLight","out/CurrentPiece":"out/CurrentPiece"}
+topics_out = {"dur":"in/TDCStop","hazır":"in/Start"}
+
+topic = topcis_in["/out/OpSpeed"]
+topic2 = topcis_in["out/CurrentPiece"]
+topic3 = topcis_in["/out/OpStatus"]
+topic4 = topcis_in["/out/CamAngle"]
+topic5 = topcis_in["/out/OpMode"]
+
+a = ()
+for w in ["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]:
+    a = a + (w,)
+a = "('" + "','".join(map(str, a)) + "')"
+print(f"{query} {a}")
+
+global dfff
+dfff = ag.run_query(query + ' ' + a)
+# dfff = dfff.to_json(date_format='iso', orient='split')
+dfff.loc[len(dfff.index)] = [0,'P-76', 'TEST',2,300,10000,100000]
+dfff.loc[len(dfff.index)] = [0,'P-77', 'TEST',2,300,10000,100000]
+
+
+
 
 
 client = mqtt.Client()
@@ -35,75 +82,7 @@ except Exception as e:
     print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
 
 
-def generate_callbacks_strings():
-    return [Output(f"{wc}", "figure") for wc in workcenters]
-
-
-devirhizibilgisi = {}
-adetbilgisi = {}
-preshazir = {}
-presbasıyor = {}
-preskapali = {}
-
-for wc in workcenters:
-    adetbilgisi[wc] = int(0)
-    devirhizibilgisi[wc] = 0
-    preshazir[wc] = 0
-    presbasıyor[wc] = 0
-    preskapali[wc] = 0
-
-
-def on_message(client, userdata, msg):
-    for wc in workcenters:
-        if msg.topic == wc + "/" + topic:
-            devirhizibilgisi[wc] = msg.payload.decode()
-        elif msg.topic == wc + "/" + topic2:
-            adetbilgisi[wc] = msg.payload.decode()
-        elif msg.topic == wc + "/" + topic3:
-            preshazir[wc] = msg.payload.decode()
-        elif msg.topic == wc + "/" + topic4:
-            presbasıyor[wc] = msg.payload.decode()
-        elif msg.topic == wc + "/" + topic5:
-            preskapali[wc] = msg.payload.decode()
-
-
-client.on_message = on_message
-
-# Retrieve the message data from MQTT
-for wc in workcenters:
-    client.subscribe([(wc + "/" + topic, 0), (wc + "/" + topic2, 0),
-                      (wc + "/" + topic3, 0), (wc + "/" + topic4, 0), (wc + "/" + topic5, 0)])
-
-client.loop_start()
-
-
-def generate_workcenter_layout():
-    """
-    this method generates the layout of the dashboard, its layout the figures as 3 workcenter for 1 row and 2 columns
-    :return: list of dash rows
-    """
-    layout = []
-    for i in range(0, len(workcenters), 3):
-        layout.append(dbc.Row([
-            dbc.Col(
-                dcc.Graph(id=f"{workcenters[i]}"),
-                width=4,
-                style={'border': '1px solid white', 'padding': 0}
-            ),
-            dbc.Col(
-                dcc.Graph(id=f"{workcenters[i + 1]}"),
-                width=4,
-                style={'border': '1px solid white', 'padding': 0}
-            ),
-            dbc.Col(
-                dcc.Graph(id=f"{workcenters[i + 2]}"),
-                width=4,
-                style={'border': '1px solid white', 'padding': 0}
-            )],
-
-            style={'padding': 0}
-        ))
-    return layout
+callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]]
 
 
 def calculate_current_optimal_qty(optimalqty):
@@ -127,13 +106,17 @@ def calculate_current_optimal_qty(optimalqty):
     return optimalqty * (minute_diff / 420)
 
 
-html.Div(children=[dcc.Graph(id=f"{wc}") for wc in workcenters],
-         style={"height": 800})
+# html.Div(children=[dcc.Graph(id=f"{wc}") for wc in workcenters],
+#          style={"height": 800})
 
 layout = html.Div(children=[
+    dcc.Store(id='nothing'),
     dcc.Store(id="store-bgcolor"),
-    dcc.Store(id="list_of_wcs"),
-    dcc.Interval(id="bgcolor-interval", interval=1000),
+    dcc.Store(id="df_infos_t"),
+    dcc.Store(id="workcenter_list",storage_type='memory',data=["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]),
+    dcc.Store(id="workcenter_list_b", storage_type='memory', data=["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]),
+    dcc.Store(id="workcenter_list_c", storage_type='memory', data=["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]),
+    dcc.Interval(id="bgcolor-interval", interval=5000),
     dbc.Row(dcc.Link(
         children='Main Page',
         href='/',
@@ -141,75 +124,156 @@ layout = html.Div(children=[
 
     )),
     dbc.Row([
+        dbc.Button(id ='emg_stop',className='estop-button'),
         dcc.Dropdown(
             id="costcenter",
             options=[{"label": cc, "value": cc} for cc in costcenters],
             multi=False,
             value="PRESHANE",
+            persistence="true",
+            persistence_type="memory",
             style={"color": "green", "background-color": "DimGray", 'width': 200}
         ),
-        html.Div(children=generate_workcenter_layout(),
-                 style={'width': '100%', 'height': '100%'}),
         dcc.Interval(
             id='interval-component',
             interval=5000,  # Update interval in milliseconds
             n_intervals=0
         ),
+        html.Div(id='main-layout-div-live')
     ]),
     # set margin to zero to omit empty spaces at the right and the left
 ])
 
 
 @app.callback(
-    dash.dependencies.Output("store-bgcolor", "data"),
-    [dash.dependencies.Input("bgcolor-interval", "n_intervals")]
+Output(component_id='workcenter_list', component_property='data'),
+Input(component_id='costcenter', component_property='value'),
 )
-def update_bgcolor(n_intervals):
+def update_lists(costcenter):
+    global callbacks_strings
+    callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]]
+    if costcenter == 'PRESHANE':
+        list = ["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]
+        list_t = "('P-12', 'P-34', 'P-65', 'P-66', 'P-76', 'P-77')"
+    else:
+        list = ["T-33","T-34","T-35","T-36","T-37","T-38"]
+        list_t = "('T-33', 'T-34', 'T-35', 'T-36', 'T-37', 'T-38')"
+
+    global opspeed
+    opspeed = {}
+    global currentpiece
+    currentpiece = {}
+    global opstatus
+    opstatus = {}
+    global camangle
+    camangle = {}
+    global opmode
+    opmode = {}
+
+    for wc in list:
+        currentpiece[wc] = int(0)
+        opspeed[wc] = 0
+        opstatus[wc] = 999
+        camangle[wc] = 0
+        opmode[wc] = 0
+
+    def on_message(client, userdata, msg):
+        for wc in list:
+            if msg.topic == wc + "/" + topic:
+                opspeed[wc] = msg.payload.decode()
+            elif msg.topic == wc + "/" + topic2:
+                currentpiece[wc] = msg.payload.decode()
+            elif msg.topic == wc + "/" + topic3:
+                opstatus[wc] = msg.payload.decode()
+            elif msg.topic == wc + "/" + topic4:
+                camangle[wc] = msg.payload.decode()
+            elif msg.topic == wc + "/" + topic5:
+                opmode[wc] = msg.payload.decode()
+
+    def on_publish(client, userdata, mid):
+        print("Message Published...")
+
+
+    client.on_publish = on_publish
+    client.on_message = on_message
+
+    # Retrieve the message data from MQTT
+    for wc in list:
+        client.subscribe([(wc + "/" + topic, 0), (wc + "/" + topic2, 0),
+                          (wc + "/" + topic3, 0), (wc + "/" + topic4, 0), (wc + "/" + topic5, 0)])
+
+    client.loop_start()
+    return list
+
+
+@app.callback(
+    [Output('main-layout-div-live', 'children'),
+    Output('workcenter_list_b', 'data')],
+    Input('workcenter_list', 'data'))
+def generate_workcenter_layout(workcenters):
+    """
+    this method generates the layout of the dashboard, its layout the figures as 3 workcenter for 1 row and 2 columns
+    :return: list of dash rows
+    """
+
+    layout = []
+    for i in range(0, len(workcenters), 3):
+        layout.append(dbc.Row([
+            dbc.Col(
+                dcc.Graph(id=f"{workcenters[i]}"),
+                width=4,
+                style={'border': '1px solid white', 'padding': 0}
+            ),
+            dbc.Col(
+                dcc.Graph(id=f"{workcenters[i + 1]}"),
+                width=4,
+                style={'border': '1px solid white', 'padding': 0}
+            ),
+            dbc.Col(
+                dcc.Graph(id=f"{workcenters[i + 2]}"),
+                width=4,
+                style={'border': '1px solid white', 'padding': 0}
+            )],
+            style={'padding': 0}
+        ))
+    return [layout,workcenters]
+
+
+@app.callback(callbacks_strings,
+              [Input(component_id='bgcolor-interval', component_property='n_intervals'),
+              Input("workcenter_list_c", "data")
+               ])
+def update_graph(n,workcenter_list):
+
+    workcenters = workcenter_list
+    print(currentpiece)
     bgcolor = {wc: "red" for wc in workcenters}
     for wc in workcenters:
 
-        # print("*****")
-        # print(wc)
-        # print(preshazir[wc])
-        # print(presbasıyor[wc])
-        # print(preskapali[wc])
-        # print("*****")
-
-        if presbasıyor[wc] == 'true' or presbasıyor[wc] == '1':
+        if int(opspeed[wc]) > 0  and int(opmode[wc]) == 0:
             bgcolor[wc] = "ForestGreen"
-        elif preshazir[wc] == 'true' or preshazir[wc] == '1':
-            bgcolor[wc] = "yellow"
-        elif preskapali[wc] == 'true' or preskapali[wc] == '1':
+        elif opstatus[wc] == 0:
+            bgcolor[wc] = "orange"
+        elif opstatus[wc] != 12 or opstatus[wc] != 0:
             bgcolor[wc] = "red"
         else:
             bgcolor[wc] = "grey"
-    return bgcolor
 
-
-@app.callback(generate_callbacks_strings(),
-              [dash.dependencies.Input("interval-component", "n_intervals"),
-               dash.dependencies.Input("store-bgcolor", "data")
-               ])
-def update_graph(n, bgcolor):
-    # print(bgcolor)
     # Process the message data and create the plot
     figs = []
+    global dfff
+    # dfff = pd.read_json(dfff, orient='666')
     for workcenter in workcenters:
-        # while adetbilgisi[workcenter] is None:
-        #     continue
-        x_data = int(df.loc[df["WORKCENTER"] == workcenter, "PARTITION"]) * int(adetbilgisi[workcenter])
-        #        print(adetbilgisi)
-        ndevirhizi = int(df.loc[df["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
-        y_data = calculate_current_optimal_qty(int(df.loc[df["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"]))
+        x_data = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "PARTITION"]) * int(currentpiece[workcenter])
+        ndevirhizi = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
+        y_data = calculate_current_optimal_qty(int(dfff.loc[dfff["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"]))
         bar_color = "ForestGreen" if x_data > y_data else "red"
-        # print(presbasıyor)
-        # print(bgcolor)
-        material = df.loc[df["WORKCENTER"] == workcenter, "MATERIAL"].tolist()[0]
+        material = dfff.loc[dfff["WORKCENTER"] == workcenter, "MATERIAL"].tolist()[0]
 
         if bgcolor[workcenter] == 'grey':
-             atext = "MAKİNA VERİSİ YOKTUR"
+            atext = "MAKİNA VERİSİ YOKTUR"
         else:
-            atext = f"- Devir Hızları: {ndevirhizi}\{devirhizibilgisi[workcenter] if bgcolor[workcenter] == 'ForestGreen' else 0} -"
+            atext = f"- Devir Hızları: {ndevirhizi}\{opspeed[workcenter] if bgcolor[workcenter] == 'ForestGreen' else 0} -"
 
         fig = go.Figure(go.Indicator(
             mode="gauge+number+delta",
@@ -219,7 +283,7 @@ def update_graph(n, bgcolor):
             delta={"reference": y_data, "valueformat": ".0f",
                    "increasing": {"color": "lime"}, "decreasing": {"color": "brown"}, "font": {"size": 40}},
             gauge={
-                "axis": {"range": [None, int(df.loc[df["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"])],
+                "axis": {"range": [None, int(dfff.loc[dfff["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"])],
                          "tickcolor": "white",
                          "tickfont": {"color": "white", "size": 10}
                          },
@@ -278,4 +342,8 @@ def update_graph(n, bgcolor):
     return figs
 
 
+@app.callback(Output('nothing','value'),
+              Input('emg_stop','n_clicks'))
+def emergency_stop(n):
+    client.publish("P-76/in/EMGStop", 1, qos=0)
 

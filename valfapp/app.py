@@ -1,6 +1,7 @@
 ### Import Packages ###
 import logging
 import pandas as pd
+from dash import ClientsideFunction, Output, Input
 from flask_caching import Cache
 import dash
 import dash_bootstrap_components as dbc
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 app = dash.Dash(
     __name__,
     meta_tags=[{'name': 'viewport','content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
+    external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"],
     external_stylesheets=[dbc.themes.PULSE],
     suppress_callback_exceptions=True)
 
@@ -32,12 +34,12 @@ cache = Cache(app.server, config={
 })
 
 
+
 TIMEOUT = 12000
 
 
 @cache.memoize(timeout=TIMEOUT)
 def prdconf(params = None):
-    print(params)
     paramswith = params[0:2]
     prd_conf = ag.run_query(query = r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
     planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
@@ -108,11 +110,8 @@ def prdconf(params = None):
 
 @cache.memoize(timeout=TIMEOUT)
 def oee(params = None):
-
     oee, metrics, gann_data, df_metrics_forwc, \
         df_baddatas,df_baddata_rates,onemonth_prdqty,df_metrics_forpers = prdconf(params)
-    if oee == None:
-        return  (None,None,None,None,None,None,None,None)
     oee = {k: pd.read_json(v, orient='split') for k, v in oee.items()}
     metrics = pd.read_json(metrics, orient='split')
     gann_data = pd.read_json(gann_data, orient='split')
@@ -125,6 +124,10 @@ def oee(params = None):
     cache.set('oee_cached_data', result)
     return result
 
-
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="make_draggable"),
+    Output("drag_container", "data-drag"),
+    [Input("drag_container", "id"),Input("drag_container2", "id")],
+)
 if __name__ == "__main__":
     app.run(debug=True)
