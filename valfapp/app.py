@@ -1,4 +1,5 @@
 ### Import Packages ###
+import json
 import logging
 import pandas as pd
 from dash import ClientsideFunction, Output, Input
@@ -11,16 +12,14 @@ from config import project_directory
 
 logger = logging.getLogger(__name__)
 
-
 ### Dash instance ###
+
 app = dash.Dash(
     __name__,
     meta_tags=[{'name': 'viewport','content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
     external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"],
     external_stylesheets=[dbc.themes.PULSE],
-    suppress_callback_exceptions=True,
-    meta_tags=[{'name': 'viewport',
-                            'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}])
+    suppress_callback_exceptions=True)
 
 app.css.append_css({
     "external_url": (
@@ -34,7 +33,6 @@ cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
     'CACHE_DIR': 'cache-directory'
 })
-
 
 
 TIMEOUT = 12000
@@ -97,8 +95,9 @@ def prdconf(params = None):
     df_baddata_rates = prd_conf[prd_conf["CONFTYPE"] == "Uretim"].groupby(["COSTCENTER", "BADDATA_FLAG"]).agg({"BADDATA_FLAG": "count"})
     df_baddata_rates = df_baddata_rates.rename(columns={'BADDATA_FLAG': 'SUMS'})
     df_baddata_rates.reset_index(inplace=True)
-
-    return [{item: details[item].to_json(date_format='iso', orient='split')
+    cache_key = json.dumps(params)
+    
+    result = [{item: details[item].to_json(date_format='iso', orient='split')
              for item in details.keys()},
             df_metrics.to_json(date_format='iso', orient='split'),
             gann_data.to_json(date_format='iso', orient='split'),
@@ -108,6 +107,10 @@ def prdconf(params = None):
             onemonth_prdqty.to_json(date_format='iso', orient='split'),
             df_metrics_forpers.to_json(date_format='iso', orient='split')
             ]
+
+    cache.set(cache_key, result)
+    return result
+
 
 
 @cache.memoize(timeout=TIMEOUT)

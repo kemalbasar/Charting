@@ -5,7 +5,7 @@ from run.agent import ag
 
 cur_week = (dt.datetime.now()).strftime('%Y-%U').zfill(6)
 total_value_with_separator = format(
-    ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0], ",")
+    int(ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0]), ",")
 
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
@@ -258,11 +258,15 @@ layout_12_loginpage = dbc.Container([
                      ),
                  ], className="justify-content-center align-items-center", style={"margin": 0}),
                 dcc.Link(
-                children='dragtester',
-                href='/dragtester',
+                children='Energy Consumption',
+                href='/energy',
             )
 
              ]),
+            dcc.Link(
+                children='dragtester',
+                href='/dragtester',
+            )
 
 ], fluid=True, style={"height": "100vh", "position": "relative"})
 

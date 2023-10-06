@@ -12,54 +12,54 @@ from config import project_directory
 
 costcenters = ["PRESHANE", "TAMBUR"]
 
-
 with open(project_directory + r"\Charting\queries\mesworkcenter_data.txt", 'r') as file:
     query = file.read()
 
 failure_codes = {
-"D104_0 ": "Cont.",
-'D104_1':'Single',
- 'D104_2':'Inch.',
- 'D104_3':'Manual',
- 'D124_0':'No Err.',
- 'D124_1':'Motor Unstart',
- 'D124_2':'EMG Stop',
- 'D124_3':'Lub. Fault',
- 'D124_4':'MisfeeD 1 Fault',
- 'D124_5':'Mat. 1 Fault',
- 'D124_7':'Air Pressure Fault',
- 'D124_9':'Inverter Fault',
- 'D124_10':'Cumulate Arrival',
- 'D124_11':'Cumulate Arrival',
- 'D124_12':'Manual',
- 'D124_12':'Reverse',
- 'D124_14':'EncoDer Disconnect',
- 'D124_20':'MisfeeD 2 Fault',
- 'D124_21':'Start Fault',
- 'D124_27':'Lock Fault',
- 'D124_28':'Lock Not Relief',
- 'D124_42':'B.D.C Det.',
- 'D124_43':'Tonnage Fault',
- 'D124_44':'MisfeeD 3 Fault',
- 'D124_45':'MisfeeD 4 Fault',
- 'D124_47':'Communication Timeout',
+    "D104_0 ": "Cont.",
+    'D104_1': 'Single',
+    'D104_2': 'Inch.',
+    'D104_3': 'Manual',
+    'D124_0': 'No Err.',
+    'D124_1': 'Motor Unstart',
+    'D124_2': 'EMG Stop',
+    'D124_3': 'Lub. Fault',
+    'D124_4': 'MisfeeD 1 Fault',
+    'D124_5': 'Mat. 1 Fault',
+    'D124_7': 'Air Pressure Fault',
+    'D124_9': 'Inverter Fault',
+    'D124_10': 'Cumulate Arrival',
+    'D124_11': 'Cumulate Arrival',
+    'D124_12': 'Manual',
+    'D124_12': 'Reverse',
+    'D124_14': 'EncoDer Disconnect',
+    'D124_20': 'MisfeeD 2 Fault',
+    'D124_21': 'Start Fault',
+    'D124_27': 'Lock Fault',
+    'D124_28': 'Lock Not Relief',
+    'D124_42': 'B.D.C Det.',
+    'D124_43': 'Tonnage Fault',
+    'D124_44': 'MisfeeD 3 Fault',
+    'D124_45': 'MisfeeD 4 Fault',
+    'D124_47': 'Communication Timeout',
 }
 
 broker_address = '172.30.134.22'
 port = 1883
 
-topcis_in = {"/out/OpMode":"/out/OpMode","/out/OpStatus":"/out/OpStatus","/out/OpSpeed":"/out/OpSpeed",
-             "/out/CamAngle":"/out/CamAngle","basıyor":"/out/GreenLight","out/CurrentPiece":"out/CurrentPiece"}
-topics_out = {"dur":"in/TDCStop","hazır":"in/Start"}
+topcis_in = {"out/OpMode": "out/OpMode", "out/OpStatus": "out/OpStatus", "out/OpSpeed": "out/OpSpeed",
+             "out/CamAngle": "out/CamAngle", "out/GreenLight": "out/GreenLight", "out/CurrentPiece": "out/CurrentPiece"}
+topics_out = {"dur": "in/TDCStop", "hazır": "in/Start"}
 
-topic = topcis_in["/out/OpSpeed"]
+topic = topcis_in["out/OpSpeed"]
 topic2 = topcis_in["out/CurrentPiece"]
-topic3 = topcis_in["/out/OpStatus"]
-topic4 = topcis_in["/out/CamAngle"]
-topic5 = topcis_in["/out/OpMode"]
+topic3 = topcis_in["out/OpStatus"]
+topic4 = topcis_in["out/CamAngle"]
+topic5 = topcis_in["out/OpMode"]
+topic6 = topcis_in["out/GreenLight"]
 
 a = ()
-for w in ["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]:
+for w in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]:
     a = a + (w,)
 a = "('" + "','".join(map(str, a)) + "')"
 print(f"{query} {a}")
@@ -67,12 +67,8 @@ print(f"{query} {a}")
 global dfff
 dfff = ag.run_query(query + ' ' + a)
 # dfff = dfff.to_json(date_format='iso', orient='split')
-dfff.loc[len(dfff.index)] = [0,'P-76', 'TEST',2,300,10000,100000]
 dfff.loc[len(dfff.index)] = [0,'P-77', 'TEST',2,300,10000,100000]
-
-
-
-
+dfff.loc[len(dfff.index)] = [0,'P-75', 'TEST',2,300,10000,100000]
 
 client = mqtt.Client()
 
@@ -82,7 +78,7 @@ except Exception as e:
     print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
 
 
-callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]]
+callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]]
 
 
 def calculate_current_optimal_qty(optimalqty):
@@ -113,25 +109,22 @@ layout = html.Div(children=[
     dcc.Store(id='nothing'),
     dcc.Store(id="store-bgcolor"),
     dcc.Store(id="df_infos_t"),
-    dcc.Store(id="workcenter_list",storage_type='memory',data=["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]),
-    dcc.Store(id="workcenter_list_b", storage_type='memory', data=["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]),
-    dcc.Store(id="workcenter_list_c", storage_type='memory', data=["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]),
+    dcc.Store(id="workcenter_list",storage_type='memory',data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
+    dcc.Store(id="workcenter_list_b", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
+    dcc.Store(id="workcenter_list_c", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
     dcc.Interval(id="bgcolor-interval", interval=5000),
     dbc.Row(dcc.Link(
         children='Main Page',
         href='/',
-        style={"height":40,"color": "black", "font-weight": "bold"}
+        style={"height": 40, "color": "black", "font-weight": "bold"}
 
     )),
     dbc.Row([
-        dbc.Button(id ='emg_stop',className='estop-button'),
+        dbc.Button(id='emg_stop', className='estop-button'),
         dcc.Dropdown(
             id="costcenter",
             options=[{"label": cc, "value": cc} for cc in costcenters],
-            multi=False,
             value="PRESHANE",
-            persistence="true",
-            persistence_type="memory",
             style={"color": "green", "background-color": "DimGray", 'width': 200}
         ),
         dcc.Interval(
@@ -146,17 +139,17 @@ layout = html.Div(children=[
 
 
 @app.callback(
-Output(component_id='workcenter_list', component_property='data'),
-Input(component_id='costcenter', component_property='value'),
+    Output(component_id='workcenter_list', component_property='data'),
+    Input(component_id='costcenter', component_property='value'),
 )
 def update_lists(costcenter):
     global callbacks_strings
-    callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]]
+    callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]]
     if costcenter == 'PRESHANE':
-        list = ["P-12", "P-34", "P-65", "P-66", "P-76", "P-77"]
-        list_t = "('P-12', 'P-34', 'P-65', 'P-66', 'P-76', 'P-77')"
+        list = ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]
+        list_t = "('P-64', 'P-73', 'P-74', 'P-75', 'P-76', 'P-77')"
     else:
-        list = ["T-33","T-34","T-35","T-36","T-37","T-38"]
+        list = ["T-33", "T-34", "T-35", "T-36", "T-37", "T-38"]
         list_t = "('T-33', 'T-34', 'T-35', 'T-36', 'T-37', 'T-38')"
 
     global opspeed
@@ -169,6 +162,8 @@ def update_lists(costcenter):
     camangle = {}
     global opmode
     opmode = {}
+    global greenlight
+    greenlight = {}
 
     for wc in list:
         currentpiece[wc] = int(0)
@@ -176,6 +171,7 @@ def update_lists(costcenter):
         opstatus[wc] = 999
         camangle[wc] = 0
         opmode[wc] = 0
+        greenlight[wc] = 0
 
     def on_message(client, userdata, msg):
         for wc in list:
@@ -189,10 +185,11 @@ def update_lists(costcenter):
                 camangle[wc] = msg.payload.decode()
             elif msg.topic == wc + "/" + topic5:
                 opmode[wc] = msg.payload.decode()
+            elif msg.topic == wc + "/" + topic6:
+                greenlight[wc] = msg.payload.decode()
 
     def on_publish(client, userdata, mid):
         print("Message Published...")
-
 
     client.on_publish = on_publish
     client.on_message = on_message
@@ -200,7 +197,8 @@ def update_lists(costcenter):
     # Retrieve the message data from MQTT
     for wc in list:
         client.subscribe([(wc + "/" + topic, 0), (wc + "/" + topic2, 0),
-                          (wc + "/" + topic3, 0), (wc + "/" + topic4, 0), (wc + "/" + topic5, 0)])
+                          (wc + "/" + topic3, 0), (wc + "/" + topic4, 0), (wc + "/" + topic5, 0),
+                          (wc + "/" + topic6, 0)])
 
     client.loop_start()
     return list
@@ -208,7 +206,7 @@ def update_lists(costcenter):
 
 @app.callback(
     [Output('main-layout-div-live', 'children'),
-    Output('workcenter_list_b', 'data')],
+     Output('workcenter_list_b', 'data')],
     Input('workcenter_list', 'data'))
 def generate_workcenter_layout(workcenters):
     """
@@ -236,21 +234,20 @@ def generate_workcenter_layout(workcenters):
             )],
             style={'padding': 0}
         ))
-    return [layout,workcenters]
+    return [layout, workcenters]
 
 
 @app.callback(callbacks_strings,
               [Input(component_id='bgcolor-interval', component_property='n_intervals'),
-              Input("workcenter_list_c", "data")
+               Input("workcenter_list_c", "data")
                ])
-def update_graph(n,workcenter_list):
-
+def update_graph(n, workcenter_list):
     workcenters = workcenter_list
-    print(currentpiece)
     bgcolor = {wc: "red" for wc in workcenters}
+    print(currentpiece)
     for wc in workcenters:
 
-        if int(opspeed[wc]) > 0  and int(opmode[wc]) == 0:
+        if greenlight[wc] == '1':
             bgcolor[wc] = "ForestGreen"
         elif opstatus[wc] == 0:
             bgcolor[wc] = "orange"
@@ -342,8 +339,8 @@ def update_graph(n,workcenter_list):
     return figs
 
 
-@app.callback(Output('nothing','value'),
-              Input('emg_stop','n_clicks'))
+@app.callback(Output('nothing', 'value'),
+              Input('emg_stop', 'n_clicks'))
 def emergency_stop(n):
-    client.publish("P-76/in/EMGStop", 1, qos=0)
+    client.publish("P-76/in/EMGStop", 0, qos=0)
 

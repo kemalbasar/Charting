@@ -170,7 +170,8 @@ class Agent:
 
 
     def editandrun_query(self,textfile=project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon.sql",
-                         texttofind=["aaaa-bb-cc", "xxxx-yy-zz"],texttoput=[str(dt.date(2022, 1, 1)),str(dt.date(2022, 1, 2))],return_string=1):
+                         texttofind=["aaaa-bb-cc", "xxxx-yy-zz"],texttoput=[str(dt.date(2022, 1, 1)),str(dt.date(2022, 1, 2))],
+                         return_string=1):
         """This is a Python method called find_and_replace that takes in 3 parameters:
 
             - textfile (str): the file path of the text file that needs to be modified.
