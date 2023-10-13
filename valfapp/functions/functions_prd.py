@@ -90,7 +90,6 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     df_metrics["IDEALCYCLETIME"] = df_metrics["IDEALCYCLETIME"].astype(float)
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"].astype(float)
 
-
     # buraya machine ile çarpılmış halini otomatik getireceğiz.
 
     df_metrics["NANTIME"] = df_metrics["PLANNEDTIME"] - df_metrics["TOTALTIME"]
@@ -307,8 +306,6 @@ def get_daily_qty(df=prd_conf, costcenter='CNC', type="TOPLAM", ppm=False):
 
 
 def scatter_plot(df=prd_conf, report_day="2022-07-26"):
-
-
     df = df.loc[df["CONFTYPE"] != 'Uretim',
                 ["WORKSTART", "WORKCENTER", "FAILURETIME", 'SETUPTIME',"STEXT", "CONFTYPE"]]
     df["FAILURETIME"] = df.apply(lambda row: apply_nat_replacer(row["FAILURETIME"]), axis=1)
