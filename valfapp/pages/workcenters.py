@@ -445,7 +445,6 @@ def update_ind_fig(option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist
     def weighted_average(x):
         # Use the updated weights
         return np.average(x, weights=weights.loc[x.index])
-
     wm = lambda x: weighted_average(x)
 
     # If time interval 'day' then there will be shift and material columns in details table otherwise there wont.
@@ -494,6 +493,7 @@ def update_ind_fig(option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist
             style = {"display": "flex", "justify-content": "space-between",
                      "align-items": "center", "width": 700,
                      "height": 250}
+
             # df_details.sort_values(by=["SHIFT"], inplace=True)
             weights = df_details.loc[df_details.index, "TOTALTIME"]
             weights[weights <= 0] = 1
