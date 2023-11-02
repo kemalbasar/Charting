@@ -1,16 +1,7 @@
 # Import required libraries and modules
-from datetime import date
-
-import pandas as pd
 from dash import dcc, html, Input, Output, State
-import dash_bootstrap_components as dbc
-from valfapp.functions.functions_prd import return_indicatorgraph
-import plotly.express as px
 from valfapp.app import cache, oee, app
 import dash_table
-from config import project_directory
-from run.agent import ag
-# Define constants and initial data
 import requests
 import json
 from config import reengen_company,reengen_password,reengen_username,valftoreeg
