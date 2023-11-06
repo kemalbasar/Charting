@@ -121,7 +121,6 @@ def prdconf(params = None):
             df_metrics_forpers.to_json(date_format='iso', orient='split')
             ]
 
-    cache.set(cache_key, result)
     return result
 
 

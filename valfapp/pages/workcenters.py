@@ -134,13 +134,13 @@ layout = dbc.Container([
                       data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
                             "workend": date.today().isoformat(),
                             "interval": "day"}),
-        html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
-                    style={"position": "absolute", "right": 175, "top": "3", "width": "150px", "height": "35px"}),
-        html.Div(id="toggle_div", children=[
-        html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
-        html.Hr(),
-        html.Hr(),
-        html.Div([
+            html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+                        style={"position": "absolute", "right": 175, "top": "3", "width": "150px", "height": "35px"}),
+            html.Div(id="toggle_div", children=[
+            html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
+            html.Hr(),
+            html.Hr(),
+            html.Div([
             dbc.Col(
                 dcc.Graph(id="pie_chart", figure={}),
                 width={"size": 4}
@@ -153,14 +153,13 @@ layout = dbc.Container([
                     style_cell={
                         "minWidth": "100px",
                         "width": "100px",
-                        "maxWidth": "400px",
+                        "maxWidth": "100px",
                         "textAlign": "center",
                     },
                 ),
                 width={"size": 8}
             ),
         ]),
-        html.Hr(),
     ]),
         html.Div(id='refresh', style={'display': 'none'}),
         html.Div(id='refresh2', style={'display': 'none'}),
@@ -170,7 +169,7 @@ layout = dbc.Container([
         dcc.Location(id='location2', refresh=True),
         html.Button("Download Data", id="download-button", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
                     style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
-        dcc.Download(id="download-data")], style={"height":120,"margin-top": 10}),
+        dcc.Download(id="download-data")],),
 
     dbc.Row(id='flam',children =
         [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,style={"height":600,"margin-left":100 if i%2 == 0 else 180}) for i in range(MAX_OUTPUT)],
@@ -234,10 +233,8 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
             oeelist = prdconf(params=(data["workstart"], data["workend"], data["interval"]))
             (oeelist[1],oeelist[3],oeelist[4],oeelist[5],oeelist[7])
             a = update_date_output( n1, date_picker, n2, n3, n4, data)
-            print(a)
             return (a[0],0) + (oeelist[1],oeelist[3],oeelist[4],oeelist[5],oeelist[7])
         else:
-            print(f"{work_dates_bk} yeni param")
             return (work_dates_bk,0,no_update,no_update,no_update,no_update,no_update)
     else:
         return (work_dates_bk,0,no_update,no_update,no_update,no_update,no_update)
@@ -280,6 +277,8 @@ def page_refresh2(n2):
 )
 def clear_cache(n_clicks,key):
     if n_clicks > 0:
+        a = cache.get(json.dumps({'workstart': '2023-09-06', 'workend': '2023-09-07', 'interval': 'day'}))
+        print(a)
         # Specify the directory where the cached files are stored
         # cache_directory = project_directory + r'\Charting\valfapp\cache-directory'
         #
@@ -291,10 +290,9 @@ def clear_cache(n_clicks,key):
         print(cache_key)
         x = cache.get(cache_key)
         print(x)
-        cache.delete(key)
+        cache.delete_memoized(prdconf,(key["workstart"], key["workend"], key["interval"]))
 
         # Perform any other necessary operations after clearing the cache
-
         return no_update  # Change the 'refresh' div when the button is clicked
     else:
         return no_update  # Don't change the 'refresh' div if the button hasn't been clicked
@@ -321,7 +319,7 @@ def toggle_first_div(n_clicks):
     if n_clicks and n_clicks % 2 == 1:
         return {"display": "none"}, { "marginTop": "0px"}
     else:
-        return {},{ "marginTop": "1000px"}
+        return {},{ "marginTop": "100px"}
 
 
 @app.callback(
@@ -347,56 +345,6 @@ def update_pie_chart(costcenter,oeelist5w):
     return fig
 
 
-# # Callback for the table data based on the selected cost center
-# @app.callback(
-#
-#     Input(component_id='oeelistw4', component_property='data')]
-# )
-# def update_table_data(costcenter,oeelist4w):
-#     """
-#     Generates table data for rows with FLAG_BADDATA = 1 for the selected cost center.
-#
-#     Args:
-#         costcenter (str): The selected cost center.
-#
-#     Returns:
-#         list: A list of dictionaries representing the table data.
-#     """
-#
-#     oeelist4w = pd.read_json(oeelist4w, orient='split')
-#     df_filtered = oeelist4w[oeelist4w["COSTCENTER"] == costcenter]
-#     print(df_filtered)
-#     print("4825251")
-#     return df_filtered.to_dict("records")
-
-#
-# @app.callback(
-#     Output("list_of_wcs", "value"),
-#     Output("max_output", "value"),
-#     [Input("costcenter1", "value"),
-#     Input("store-report-type", "data"),
-#     Input(component_id='oeelistw1', component_property='data'),
-#     Input(component_id='oeelistw7', component_property='data')]
-# )
-# def update_work_center_list(option_slctd, report_type,oeelist1w,oeelist7w):
-#     """
-#     Callback to update the list of work centers based
-#     on the selected cost center.
-#
-#     Args:
-#         option_slctd (str): The selected cost center.
-#
-#     Returns:
-#         list: A list of work centers for the selected cost center.
-#     """
-#     oeelist1w = pd.read_json(oeelist1w, orient='split')
-#     oeelist7w = pd.read_json(oeelist7w, orient='split')
-#
-#
-#
-#     return list_of_wcs,max_output
-
-
 @app.callback(
     [*list_of_callbacks],
     [Input("costcenter1", "value"),
@@ -419,6 +367,10 @@ def update_ind_fig(option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist
     Returns:
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
+
+    print("*****")
+    print(oeelist1w)
+    print("*****")
     oeelist1w = pd.read_json(oeelist1w, orient='split')
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist7w = pd.read_json(oeelist7w, orient='split')
