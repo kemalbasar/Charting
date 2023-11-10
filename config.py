@@ -1,9 +1,9 @@
 import pandas as pd
 
-server = '172.30.134.12'
-database = 'VALFSAN604'
-username = 'kemal'
-password = '1212casecase..'
+server = '*****'
+database = '******'
+username = '******'
+password = '*****.'
 
 reengen_username = "takgun@valfsan.com.tr"
 reengen_password = '1234Ta1234'
