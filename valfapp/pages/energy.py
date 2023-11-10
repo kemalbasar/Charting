@@ -7,7 +7,7 @@ from valfapp.app import cache, oee, app
 import dash_table
 import requests
 import json
-from config import reengen_company,reengen_password,reengen_username,valftoreeg
+from config import reengen_company,reengen_password,reengen_username,valftoreeg,project_directory
 from run.agent import ag
 from dateutil.relativedelta import relativedelta
 import pandas as pd
@@ -130,7 +130,7 @@ def set_machine_options(selected_machine_type):
 @cache.memoize()
 def update_table(begin_month,begin_year,final_month,final_year,costcenter,m_point):
     selected_point = m_point
-    with open(f"F:\pycarhm projects\Charting\queries\energy_qandweight.sql", 'r') as file:
+    with open(project_directory + f"\Charting\queries\energy_qandweight.sql", 'r') as file:
         filedata = file.read()
     start_date = datetime(begin_year, begin_month, 1)
     end_date  = datetime(final_year, final_month, 1)
