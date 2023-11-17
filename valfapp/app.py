@@ -32,7 +32,7 @@ app.css.append_css({
 
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': 'cache-directory'
+    'CACHE_DIR': r'F:\pycarhm projects\Charting\valfapp\cache-directory'
 })
 
 

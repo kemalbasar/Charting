@@ -24,7 +24,7 @@ def readquerry(queryx):
 
     queryy = queryx
     if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH'\
-            or queryy[0:4] == 'EXEC':
+            or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT':
         return queryy
     else:
         if os.path.exists(queryy):
@@ -90,6 +90,12 @@ class Agent:
                                 cursor.execute(query, params)
                                 return pd.DataFrame()
                             except pyodbc.Error as e:
+                                if e == "No results.  Previous SQL was not a query.":
+                                    print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
+                                    return pd.DataFrame()
+                                elif 'UNIQUE KEY constraint' in str(e):
+                                    print("unique constraint")
+                                    return
                                 print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
                                 retry_count += 1
                                 time.sleep(1)  # wait for 1 second before trying again
@@ -275,3 +281,4 @@ class Agent:
 
 
 ag = Agent()
+agiot = Agent(database="VALFSAN604T")

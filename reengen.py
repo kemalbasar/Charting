@@ -71,53 +71,52 @@ response = requests.post(url, data=json.dumps(auth_payload), headers=headers)
 # ********************************************# ********************************************# ********************************************
 # ********************************************# ********************************************# ********************************************
 
-s_date = '20231002'
-f_date = '20231005'
-with open(f"F:\pycarhm projects\Charting\queries\mest_test.sql", 'r') as file:
-    filedata = file.read()
-s_date = s_date.replace('-', '', 2)
-f_date = f_date.replace('-', '', 2)
-filedata = filedata.replace("xxxx-yy-zz", s_date)
-filedata = filedata.replace("aaaa-bb-cc", f_date)
-print(filedata)
-df_works = ag.run_query(filedata)
-df_works["CONSUMPTION"] = 0.00
+# s_date = '20231002'
+# f_date = '20231005'
+# with open(f"F:\pycarhm projects\Charting\queries\mest_test.sql", 'r') as file:
+#     filedata = file.read()
+# s_date = s_date.replace('-', '', 2)
+# f_date = f_date.replace('-', '', 2)
+# filedata = filedata.replace("xxxx-yy-zz", s_date)
+# filedata = filedata.replace("aaaa-bb-cc", f_date)
+# print(filedata)
+# df_works = ag.run_query(filedata)
+# df_works["CONSUMPTION"] = 0.00
 
-for i in range(len(df_works)):
-    workcenter = df_works.iloc[i]["WORKCENTER"]
-    code_wc = valftoreeg[workcenter]
-    code_works = df_works.iloc[i]["WORKSTART"].strftime('%Y-%m-%dT%H:%M:%S')
-    code_worke = df_works.iloc[i]["WORKEND"].strftime('%Y-%m-%dT%H:%M:%S')
+# for i in range(len(df_works)):
+#     workcenter = df_works.iloc[i]["WORKCENTER"]
+#     code_wc = valftoreeg[workcenter]
 
-    payload = {
-        "$": "GetData",
-        "properties": {
-            "series": [
-                {
-                    "definition": "activeEnergy",
-                    "variant": "import",
-                    "type": "actual",
-                    "xFunction": "sum",
-                    "unit": "kWh",
-                    "decimalPoints": 3
-                },
-            ],
-            "point": [code_wc],
-            "start": code_works,
-            "end": code_worke,
-            "break": {
-                "type": "point"
+
+payload = {
+    "$": "GetData",
+    "properties": {
+        "series": [
+            {
+                "definition": "activeEnergy",
+                "variant": "import",
+                "type": "actual",
+                "xFunction": "sum",
+                "unit": "kWh",
+                "decimalPoints": 3
             },
-            "resolution": "fifteenmin"
-        }
+        ],
+        "point": ["valfsan_pano2_preshane1"],
+        "start": "2023-09-25T00:00:00",
+        "end": "2023-10-25T00:00:00",
+        "break": {
+            "type": "point"
+        },
+        "resolution": "day"
     }
+}
 
-    # Make the POST request
-    response = requests.post(url, data=json.dumps(payload), headers=headers)
+# Make the POST request
+response = requests.post(url, data=json.dumps(payload), headers=headers)
 
-    # Check if the request was successful
-    if response.status_code == 200:
-        response_data = response.json()
-        print(json.dumps(response_data, indent=4))  # Pretty print the JSON response
-    else:
-        print(f"HTTP Error: {response.status_code}")
+# Check if the request was successful
+if response.status_code == 200:
+    response_data = response.json()
+    print(json.dumps(response_data, indent=4))  # Pretty print the JSON response
+else:
+    print(f"HTTP Error: {response.status_code}")
