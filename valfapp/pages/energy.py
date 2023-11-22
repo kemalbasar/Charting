@@ -1,66 +1,38 @@
 # Import required libraries and modules
-import math
-from datetime import datetime
-
-import plotly.express as px
-import plotly.graph_objs as go
-
-from dash import dcc, html, Input, Output, State, no_update
-from dash.exceptions import PreventUpdate
-from valfapp.app import cache, oee, app
-import requests
-import json
-from config import reengen_company,reengen_password,reengen_username,valftoreeg,project_directory
-from run.agent import ag,agiot
-from dateutil.relativedelta import relativedelta
-import pandas as pd
+from datetime import datetime, date, timedelta
 import dash_bootstrap_components as dbc
 import dash_table
-
-
-
-# # API Endpoint
-# url = "https://api.reengen.com/api/do/"
-#
-#
-# # Authentication payload
-# auth_payload = {
-#     "$": "Authenticate",
-#     "properties": {
-#         "tenant": reengen_company,  # Replace with your tenant name
-#         "user": reengen_username ,      # Replace with your username
-#         "password": reengen_password  # Replace with your password
-#     }
-# }
-#
-# headers = {
-#     'Content-Type': 'application/json'
-# }
-#
-# # Make the POST request for auth
-# response = requests.post(url, data=json.dumps(auth_payload), headers=headers)
-#
-# # Check if the request was successful
-# if response.status_code == 200:
-#     response_data = response.json()
-#     if response_data["succeeded"]:
-#         connection_id = response_data["properties"]["connectionId"]
-#         print(f"Connection ID: {connection_id}")
-#     else:
-#         print(f"Authentication failed: {response_data['message']}")
-# else:
-#     print(f"HTTP Error: {response.status_code}")
-#
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objs as go
+from dash import dcc, html, Input, Output, State
+from dash.exceptions import PreventUpdate
+from dateutil.relativedelta import relativedelta
+from config import valftoreeg, project_directory
+from run.agent import ag
+from valfapp.app import cache, app
 
 query = f"SELECT MPOINT, SUBSTRING(DATE, 1, 8) AS DATE, SUM(OUTPUT) AS TOTAL FROM VLFENERGY WHERE COSTCENTER = 'TRAFO' GROUP BY MPOINT, SUBSTRING(DATE, 1, 8)"
 
+query_pie = f"SELECT COSTCENTER,SUM(OUTPUT) AS CONSUMPTION FROM VLFENERGY WHERE MPOINT NOT LIKE CASE COSTCENTER WHEN 'CNC' THEN '%-%' ELSE '%ASDF%' END " \
+            f"AND MPOINT  LIKE CASE COSTCENTER WHEN 'PRESHANE' THEN '%Pano%' ELSE '%%'  END AND DATE > '20231117' GROUP BY COSTCENTER ORDER BY COSTCENTER"
+
 df = ag.run_query(query)
+
 fig = px.bar(df, x='DATE', y='TOTAL', width=600, height=400)
 fig.update_layout(bargap=0.2)
-# Adjust space between bars (e.g., 0.05 for 5% gap)
+
+
+def return_pie():
+    df_pie = ag.run_query(query_pie)
+    df_pie["COSTCENTER"] = df_pie["COSTCENTER"].apply(lambda x: x.strip())
+    df_pie.iloc[-1] = ("DIGER", df_pie.loc[df_pie["COSTCENTER"] == 'TRAFO', "CONSUMPTION"].sum() - df_pie.loc[
+        df_pie["COSTCENTER"] != 'TRAFO', "CONSUMPTION"].sum())
+    df_pief = df_pie[df_pie["COSTCENTER"] != 'TRAFO']
+    return px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER")
 layout = [
     dbc.Row(html.H1("Valfsan Production Energy Consumption",
-                    style={'text-align': 'center', "textfont": 'Arial Black'})),
+                    style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30, 'backgroundColor': '#f0f0f0'})),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -78,20 +50,23 @@ layout = [
                                 dcc.Dropdown(
                                     id='machine-type-dropdown',
                                     options=[{'label': k, 'value': k} for k in valftoreeg.keys()],
-                                    value=list(valftoreeg.keys())[0]  # Set the default value to the first key
+                                    value=list(valftoreeg.keys())[0],  # Default value
+                                    style={'color': '#212121'}
                                 ),
                                 dcc.Dropdown(
-                                    id='machine-dropdown'
+                                    id='machine-dropdown',
+                                    style={'color': '#212121'}
                                 ),
                                 dcc.DatePickerRange(
                                     id='date-picker',
                                     className="dash-date-picker-multi",
-                                    start_date='2023-10-03',
-                                    end_date='2023-10-05',
-                                    display_format='YYYY-MM'
+                                    start_date=(date.today() - timedelta(weeks=15)).isoformat(),
+                                    end_date=(date.today() + timedelta(weeks=4)).isoformat(),
+                                    display_format='YYYY-MM',
+                                    style={'color': '#212121'}
                                 )
                             ],
-                            style={'display': 'inline-block', 'width': 'auto', 'margin-right': '20px'}
+                            style={'display': 'inline-block', 'width': 'auto', 'marginRight': '20px'}
                         ),
                         # Separate Div for the button
                         html.Div(
@@ -100,49 +75,59 @@ layout = [
                                     'Search',
                                     id='search',
                                     className="dash-empty-button",
-                                    n_clicks=0
+                                    n_clicks=0,
+                                    style={'backgroundColor': '#007bff', 'color': 'white', 'padding': '10px 20px'}
                                 )
                             ],
-                            style={'display': 'inline-block', 'text-align': 'center'}
+                            style={'display': 'inline-block', 'textAlign': 'center'}
                         )
                     ],
 
                 )]),
             dbc.Row([
-                    dash_table.DataTable(
-                        id="data_table",
-                        data = [],
-                        columns= [],
-                        style_cell={
-                            "minWidth": "100px",
-                            "width": "100px",
-                            "maxWidth": "150px",
-                            "textAlign": "center",
-                        },
-                        style_table={
-                            'width': 100,  # Table width to match the parent container
-                            'margin': 'left',  # Center the table within the parent container
-                            'borderCollapse': 'collapse',  # Optional: for collapsing cell borders
-                        },
-                        sort_action='native',
-                        )
+                dash_table.DataTable(
+                    id="data_table",
+                    data=[],
+                    columns=[],
+                    style_cell={
+                        "minWidth": "100px",
+                        "width": "100px",
+                        "maxWidth": "150px",
+                        "textAlign": "center",
+                        "padding": "10px"
+                    },
+                    style_table={
+                        'width': '100%',
+                        'margin': 'auto',
+                        'borderCollapse': 'collapse',
+                    },
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 'odd'},
+                            'backgroundColor': 'rgb(248, 248, 248)'
+                        }
+                    ],
+                    style_header={
+                        'backgroundColor': 'rgb(230, 230, 230)',
+                        'fontWeight': 'bold'
+                    },
+                    sort_action='native',
+                )
 
-            ],style={"margin-top": 50}
-)
-    ]),
-        dbc.Col([dcc.Graph(
-            id='example-graph',
-            figure=fig
-        ),
-            dcc.Graph(id="line_chart_combined") ]
-            , width=4)
+            ], style={"marginTop": 50}
+            )
+        ]),
+        dbc.Col([dcc.Graph(id='example-graph', figure=fig),
+                 dcc.Graph(id="line_chart_combined"),
+                 dcc.Graph(id="pie_chart", figure=return_pie())]
+                , width=4)
     ]),
     dbc.Row([
         dbc.Col(),
 
-
     ])
 ]
+
 
 # Define the callback to update the second dropdown
 @app.callback(
@@ -153,14 +138,13 @@ def set_machine_options(selected_machine_type):
     return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
 
 
-
 @cache.memoize()
-def update_table(begin_month,begin_year,final_month,final_year,costcenter,m_point):
+def update_table(begin_month, begin_year, final_month, final_year, costcenter, m_point):
     selected_point = m_point
     with open(project_directory + f"\Charting\queries\energy_qandweight.sql", 'r') as file:
         filedata = file.read()
     start_date = datetime(begin_year, begin_month, 1)
-    end_date  = datetime(final_year, final_month, 1)
+    end_date = datetime(final_year, final_month, 1)
     code_works = start_date.strftime('%Y-%m-%dT%H:%M:%S')
     code_worke = end_date.strftime('%Y-%m-%dT%H:%M:%S')
 
@@ -172,13 +156,13 @@ def update_table(begin_month,begin_year,final_month,final_year,costcenter,m_poin
     analizorler = []
     if costcenter != 'Bütün':
         analyzer = valftoreeg[costcenter]
-        analizorler.append((m_point,costcenter))
+        analizorler.append((m_point, costcenter))
     else:
         analyzer = {}
         for costcenter_tmp in valftoreeg:
             analyzer.update(valftoreeg[costcenter_tmp])
             for item in valftoreeg[costcenter_tmp]:
-                analizorler.append((item,costcenter_tmp))
+                analizorler.append((item, costcenter_tmp))
     print(analizorler)
     for m_point in analizorler:
 
@@ -187,7 +171,6 @@ def update_table(begin_month,begin_year,final_month,final_year,costcenter,m_poin
 
         if m_point == 'Bölümler' or m_point == 'Analizörler':
             continue
-
 
         if m_point == "K-13','K-18','K-19','K-20','K-21','K-22','K-23','K-25','K-27','K-28":
             m_point_tmp = '10 Kurutma'
@@ -209,33 +192,42 @@ def update_table(begin_month,begin_year,final_month,final_year,costcenter,m_poin
             m_point_tmp = "13 Pres (Salter 5)"
         elif m_point == "P-14', 'P-26', 'P-64', 'P-67', 'P-68', 'P-75', 'P-63', 'P-65', 'P-73', 'TC-05":
             m_point_tmp = "10 Pres (Salter 4-6)"
+        elif m_point == "P-21','P-60','P-09','P-10','P-15','P-32','P-48','P-58','P-20','P-28','P-57":
+            m_point_tmp = "11 Pres (Pano 3 Diger)"
         else:
             m_point_tmp = m_point
 
-
-        df_works = ag.run_query(f"SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,SCODE,"
+        if m_point_tmp == '11 Pres (Pano 3 Diger)':
+            df_works = ag.run_query(f"WITH ASD AS ( SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,OUTPUT as OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY WHERE MPOINT IN "
+                                    f"('PRES - Pano 1','8 Pres (Salter 2)','13 Pres (Salter 5)','4 Pres (Salter 3)')  )"
+                                    f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, SUM(OUTPUT) AS OUTPUT,DATE from ASD GROUP BY DATE")
+        else:
+            df_works = ag.run_query(f"SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,SCODE,"
                                 f"SUM(OUTPUT) AS OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
-                                f" WHERE MPOINT = '{m_point_tmp}' AND  DATE BETWEEN '{code_works}' AND '{code_worke}'"
+                                f" WHERE MPOINT = '{m_point_tmp}' "
+                                f"AND  DATE >= '{code_works}' AND '{code_worke}' > DATE "
                                 f"GROUP BY LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2),MPOINT,SCODE,COSTCENTER,INTERVAL")
+
         print(df_works)
         print("******")
 
         if len(df_works) == 0:
             continue
 
-        filedata_tmp = filedata.replace("xxxx-yy-zz",str(start_date))
-        filedata_tmp = filedata_tmp.replace("aaaa-bb-cc",str(end_date))
+        filedata_tmp = filedata.replace("xxxx-yy-zz", str(start_date))
+        filedata_tmp = filedata_tmp.replace("aaaa-bb-cc", str(end_date))
         try:
-            filedata_tmp = filedata_tmp.replace("XXMATERIALYY","'"+m_point+"'")
+            filedata_tmp = filedata_tmp.replace("XXMATERIALYY", "'" + m_point + "'")
         except (TypeError) as e:
-            filedata_tmp = filedata_tmp.replace("XXMATERIALYY","x")
+            filedata_tmp = filedata_tmp.replace("XXMATERIALYY", "x")
 
-        #manüpüle ettiğimiz sorguyu çalıştırıyoruz ve yeni bir sütun ekliyoruz.
+        # manüpüle ettiğimiz sorguyu çalıştırıyoruz ve yeni bir sütun ekliyoruz.
         df_prddata = ag.run_query(filedata_tmp)
+
         df_prddata["MPOINT"] = m_point_tmp
 
         if len(df_prddata):
-            df_works = df_works.merge(df_prddata, on=['MPOINT','DATE'], how='left').fillna(0)
+            df_works = df_works.merge(df_prddata, on=['MPOINT', 'DATE'], how='left').fillna(0)
             print(f"{df_works}")
             print(f"***********")
 
@@ -243,18 +235,17 @@ def update_table(begin_month,begin_year,final_month,final_year,costcenter,m_poin
             df_prddata["MPOINT"] = m_point
             df_prddata["QUANTITY"] = 0
             df_prddata["TOTALWEIGHT"] = 0
-            df_prddata["kwhkg"] = 0.00
-
+            df_prddata["kwhton"] = 0.00
 
         df_final = pd.concat([df_works, df_final]).drop_duplicates().reset_index(drop=True)
-    df_final["kwhkg"]=df_final["kwhkg"].astype(float)
-    df_final["TOTALWEIGHT"]=df_final["TOTALWEIGHT"].astype(float)
-    df_final["OUTPUT"]=df_final["OUTPUT"].astype(float)
+    df_final["kwhton"] = df_final["kwhton"].astype(float)
+    df_final["TOTALWEIGHT"] = df_final["TOTALWEIGHT"].astype(float)
+    df_final["OUTPUT"] = df_final["OUTPUT"].astype(float)
     print(df_final.dtypes)
-    df_final["kwhkg"] = df_final.apply(lambda x: x["OUTPUT"] / x["TOTALWEIGHT"] if x["TOTALWEIGHT"] > 0 else 0,axis=1)
-    df_final["kwhqty"] = df_final.apply(lambda x: x["OUTPUT"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0,axis=1)
-    df_final["kwhkg"] = df_final["kwhkg"]*1000
-    df_final["kwhkg"] = df_final["kwhkg"].apply(lambda x: f"{x:.1f}")
+    df_final["kwhton"] = df_final.apply(lambda x: x["OUTPUT"] / x["TOTALWEIGHT"] if x["TOTALWEIGHT"] > 0 else 0, axis=1)
+    df_final["kwhqty"] = df_final.apply(lambda x: x["OUTPUT"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0, axis=1)
+    df_final["kwhton"] = df_final["kwhton"] * 1000
+    df_final["kwhton"] = df_final["kwhton"].apply(lambda x: f"{x:.1f}")
     df_final["kwhqty"] = df_final["kwhqty"].apply(lambda x: f"{x:.2f}")
     df_final['DATE'] = df_final['DATE'].apply(lambda x: datetime.strptime(x, '%Y-%m'))
 
@@ -265,14 +256,12 @@ def update_table(begin_month,begin_year,final_month,final_year,costcenter,m_poin
     #     mask = ((df_final['COSTCENTER'] == 'CNC') | (df_final['COSTCENTER'] == 'PRESHANE')) & (
     #         ~df_final['ANALYZER'].str.contains('pano', na=False))
     #     df_final.loc[mask, ['CONSUMPTION', 'QUANTITY']] = 0
-    #     df_final = df_final.groupby(["COSTCENTER","DATE"]).agg({"TOTALWEIGHT": "sum","kwhkg": "mean","CONSUMPTION": "sum","QUANTITY":"sum",})
+    #     df_final = df_final.groupby(["COSTCENTER","DATE"]).agg({"TOTALWEIGHT": "sum","kwhton": "mean","CONSUMPTION": "sum","QUANTITY":"sum",})
     #     df_final.reset_index(inplace=True)
 
-    df_final.sort_values(by="kwhkg", ascending=False, inplace=True)
+    df_final.sort_values(by=["DATE", "kwhton"], ascending=False, inplace=True)
     print(df_final)
     return df_final.to_json(date_format='iso', orient='split')
-
-
 
 
 @app.callback(
@@ -282,23 +271,22 @@ def update_table(begin_month,begin_year,final_month,final_year,costcenter,m_poin
      State('date-picker', 'end_date'),
      State('machine-type-dropdown', 'value'),
      State('machine-dropdown', 'value'),
-     Input('search','n_clicks')]
+     Input('search', 'n_clicks')]
 )
-def cache_to_result(s_date,f_date,costcenter,m_point,button):
+def cache_to_result(s_date, f_date, costcenter, m_point, button):
     if button <= 0:
         raise PreventUpdate
     f_date = datetime.strptime(f_date, "%Y-%m-%d")
     f_date = str(f_date + relativedelta(months=+1))
     final_month = int(f_date[5:7])
     begin_month = int(s_date[5:7])
-    final_year = int(s_date[0:4])
+    final_year = int(f_date[0:4])
     begin_year = int(s_date[0:4])
-    df_final = update_table(begin_month,begin_year,
-                            final_month , final_year,costcenter,m_point)
+    df_final = update_table(begin_month, begin_year,
+                            final_month, final_year, costcenter, m_point)
     df_final = pd.read_json(df_final, orient='split')
     columns = [{"name": i, "id": i} for i in df_final.columns]
-    return df_final.to_dict("records"),columns
-
+    return df_final.to_dict("records"), columns
 
 
 @app.callback(
@@ -312,12 +300,16 @@ def line_graph_update(data):
     df.sort_values(by="DATE", ascending=False, inplace=True)
     fig_combined = go.Figure()
 
-    # Add trace for kwhkg
+    # Add trace for kwhton
 
-    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["kwhkg"], mode='lines+markers', name='kWh/kg'))
+    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["kwhton"], mode='lines+markers', name='kWh/ton'))
 
     # Add trace for kwhqty
-    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["kwhqty"], mode='lines+markers', name='kWh/Quantity'))
+    fig_combined.add_trace(
+        go.Scatter(x=df["DATE"], y=df["kwhqty"] * 1000, mode='lines+markers', name='kWh*1000/Quantity'))
+
+    # Add trace for kwhqty
+    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["OUTPUT"], mode='lines+markers', name='Consumption'))
 
     # Update layout
     fig_combined.update_layout(
