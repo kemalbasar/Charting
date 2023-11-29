@@ -540,6 +540,6 @@ def return_indicatorgraph(status='white',fullname='',
         font = dict(
         size=55
         )
-    ),"paper_bgcolor": status, "width": 500, "height": 550})
+    ),"paper_bgcolor": status, "width": 415, "height": 550})
 
     return fig

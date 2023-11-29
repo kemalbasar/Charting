@@ -3,7 +3,7 @@ from valfapp.app import workcenters, app, prdconf, return_piechart
 import dash_table
 import json
 import pandas as pd
-from dash import dcc, html, Input, Output, State
+from dash import dcc, html, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import return_indicatorgraph
 from valfapp.app import app
@@ -35,11 +35,10 @@ fig, data, columns, styles = workcenters("CNCTORNA", "pers", params_dic, oeelist
 fig = [i for i in fig if i != {}]
 maxof_slide = len(fig)
 
-layout = dbc.Container([
-    dbc.Row([
+layout =dbc.Row([
         # First Column
         dbc.Col([
-            html.Div(id="wc-output-container"),
+            html.Div(id="wc-output-container",className= "row g-0"),
             # Other components for this column
         ], width=8),
 
@@ -47,7 +46,7 @@ layout = dbc.Container([
         dbc.Col([
             dbc.Row([
                 dcc.Graph(figure=return_piechart("CNCTORNA", oeelist0w))
-            ]),
+            ],className="g-0"),
             dbc.Row([
                 html.Button("Play", id="play", style={'width': '90px'}),
                 dcc.Slider(
@@ -58,14 +57,7 @@ layout = dbc.Container([
                     id='wc-slider'
                 ),
                 html.Div(
-                    id='slider-output-container',
-                    style={
-                        'display': 'flex',
-                        'flexDirection': 'column',
-                        'alignItems': 'center',
-                        'justifyContent': 'center',
-                        'height': '70vh'
-                    }
+                    id='slider-output-container',className= "row g-0"
                 ),
                 dcc.Interval(id="animate", interval=10000, disabled=True),
                 dcc.Store(id="list_of_stationss"),
@@ -76,8 +68,7 @@ layout = dbc.Container([
                 ),
             ]),
         ], width=4),
-    ])
-], fluid=True)
+    ],className="g-0")
 
 
 @app.callback(
@@ -86,6 +77,8 @@ layout = dbc.Container([
     State("animate", "disabled"),
 )
 def toggle(n, playing):
+    print("****888*****")
+    print(n)
     if n:
         return not playing
     return playing
@@ -94,6 +87,7 @@ def toggle(n, playing):
 @app.callback(
     Output('slider-output-container', 'children'),
     Output("wc-slider", "value"),
+    Output("livedata", "data"),
     Input("animate", "n_intervals"),
     Input("wc-slider", "value"),
     prevent_initial_call=True,
@@ -105,25 +99,44 @@ def update_output(n, selected_value):
 
     if selected_value + 1 > len(list_of_figs):
         selected_value = -1
-
-    return html.Div(
-        children=[
-            dcc.Graph(figure=list_of_figs[selected_value], style={'margin-left': 120}),
-            dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
-                                 style_cell={
-                                     "minWidth": "80px",
-                                     "width": "80px",
-                                     "maxWidth": "100px",
-                                     "textAlign": "center",
-                                 },
-                                 style_table={
-                                     "height": '150px',
-                                     "width": '700px',  # Fixed pixel width
-                                     "overflowY": 'auto',
-                                 }
-                                 )
-        ]
-    ), selected_value + 1
+        return html.Div(
+            children=[
+                dcc.Graph(figure=list_of_figs[selected_value], style={'margin-left': 120}),
+                dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
+                                     style_cell={
+                                         "minWidth": "80px",
+                                         "width": "80px",
+                                         "maxWidth": "100px",
+                                         "textAlign": "center",
+                                     },
+                                     style_table={
+                                         "height": '150px',
+                                         "width": '700px',  # Fixed pixel width
+                                         "overflowY": 'auto',
+                                     }
+                                     )
+            ]
+        ), selected_value + 1,ag.run_query(project_directory + r"\Charting\queries\liveprd.sql").to_json(date_format='iso',
+                                                                                    orient='split')
+    else:
+        return html.Div(
+            children=[
+                dcc.Graph(figure=list_of_figs[selected_value]),
+                dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
+                                     style_cell={
+                                         "minWidth": "80px",
+                                         "width": "80px",
+                                         "maxWidth": "100px",
+                                         "textAlign": "center",
+                                     },
+                                     style_table={
+                                         "height": '150px',
+                                         "width": '700px',  # Fixed pixel width
+                                         "overflowY": 'auto',
+                                     }
+                                     )
+            ]
+        ), selected_value + 1,no_update
 
 
 # Import required libraries and modules
@@ -198,11 +211,11 @@ def update_ind_fig(n, selected_value, livedata):
                 dbc.Row([
                     dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])),width=4),
                     dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1])),width=4)
-                ]),
+                ],className="g-0"),
                 dbc.Row([
                     dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2])),width=4),
                     dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3])),width=4),
-                ])
+                ],className="g-0")
             ]))
         else:
             if x == 0:
@@ -213,12 +226,11 @@ def update_ind_fig(n, selected_value, livedata):
                     dbc.Row([
                         dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])),width=4),
                         dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1] if x > 1 else {})),width=4)
-                    ]),
+                    ],className="g-0"),
                     dbc.Row([
                         dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2] if x > 2 else {})),width=4),
                         dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3] if x > 3 else {})),width=4),
-                    ],
-)
+                    ],className="g-0")
                 ]))
         counter = counter + 1
     print("****")
