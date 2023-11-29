@@ -504,7 +504,7 @@ def return_indicatorgraph(status='white',fullname='',
 
     annotation = {
 
-        'x': 0.15,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': fullname,
         # 'showarrow': True,
@@ -513,12 +513,12 @@ def return_indicatorgraph(status='white',fullname='',
     }
     annotation1 = {
 
-        'x': 0.99,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.99,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'x': 0.50,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 0.1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': material,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 24, 'color': 'black'}
+        'font': {'size': 40, 'color': 'black'}
     }
     annotation2 = {
 

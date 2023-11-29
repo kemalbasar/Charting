@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage
-from valfapp.pages import livecnc, livepres, energy, cnctotv
+from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv
 from flask import request,g
 
 ### Page container ###
@@ -128,6 +128,8 @@ def display_page(pathname,login_status_data):
             return energy.layout
         elif pathname == '/cnctotv':
             return cnctotv.layout
+        elif pathname == '/taslamatv':
+            return taslamatv.layout
         else:
             return '404'
     else:
@@ -151,7 +153,8 @@ app.validation_layout = html.Div(
         livecnc.layout,
         dragtester.layout,
         energy.layout,
-        cnctotv.layout
+        cnctotv.layout,
+        taslamatv.layout,
         # ittools.layout
     ]
 )
