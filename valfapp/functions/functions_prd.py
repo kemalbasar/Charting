@@ -170,9 +170,9 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
                                                                })
     df_metrics.reset_index(inplace=True)
 
-    print("asdasdasd")
+    print("*****")
     print(df_metrics)
-    print("asdasdasd")
+    print("*****")
 
 
     try:
@@ -214,7 +214,6 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
             continue
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
                  df_piechart.loc[costcenter, "SETUPTIME"] + df_piechart.loc[costcenter, "NANTIME"]
-        print(f"sum of = {sum_of}")
         temp_dic = {
             'RATES': [f(1 - df_piechart.loc[costcenter, "PERFORMANCE"]) * g(df_piechart.loc[costcenter, "RUNTIME"]),
                       g(df_piechart.loc[costcenter, "TOTFAILURETIME"]),
@@ -248,7 +247,6 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         #        df_piechart_final["OPR"]["SESSIONTIME2"] = str(int(df_piechart_final["OPR"]["SESSIONTIME2"])) + '%'
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
-    print(details)
     return details, df_metrics, df_metrics_forwc, df_metrics_forpers
 
 
@@ -332,10 +330,6 @@ def scatter_plot(df=prd_conf, report_day="2022-07-26"):
     df_percs['PERCENTAGE'] = df_percs['FAILURETIME'].apply(lambda x: int((x / total_quantity) * 100))
     df = df.merge(df_percs.drop(axis=1, columns="FAILURETIME"), on='STEXT', how='left')
     df['PERCENTAGE'] = df['PERCENTAGE'].astype(str)
-
-    print("*********************")
-    print(df)
-
     df["STEXT"] = df["STEXT"] + ' ' + df["PERCENTAGE"] + '%'
     df_legend = df.groupby(["STEXT"]).agg({"FAILURETIME":sum})
     df_legend.reset_index(inplace=True)
@@ -509,8 +503,7 @@ def return_indicatorgraph(status='white',fullname='',
     ))
 
     annotation = {
-        "height": 600,
-        "width": 2000,
+
         'x': 0.15,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': fullname,
@@ -519,8 +512,7 @@ def return_indicatorgraph(status='white',fullname='',
         'font': {'size': 24, 'color': 'black'}
     }
     annotation1 = {
-        "height": 600,
-        "width": 2000,
+
         'x': 0.99,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 0.99,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': material,
@@ -529,8 +521,7 @@ def return_indicatorgraph(status='white',fullname='',
         'font': {'size': 24, 'color': 'black'}
     }
     annotation2 = {
-        "height": 600,
-        "width": 2000,
+
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 0.75,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
 
@@ -549,6 +540,6 @@ def return_indicatorgraph(status='white',fullname='',
         font = dict(
         size=55
         )
-    ),"paper_bgcolor": status, "width": 607, "height": 850})
+    ),"paper_bgcolor": status, "width": 500, "height": 550})
 
     return fig

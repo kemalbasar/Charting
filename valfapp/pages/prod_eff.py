@@ -9,7 +9,7 @@ import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
     generate_for_sparkline, working_machinesf, return_ind_fig
 from run.agent import ag
-from valfapp.app import app, prdconf
+from valfapp.app import app, prdconf, return_piechart
 from valfapp.pages.date_class import update_date, update_date_output
 
 summary_color = 'black'
@@ -55,7 +55,7 @@ layout_27 = dbc.Container([
 
     )),
     dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                     date=date.today(),
+                                     date=date.today() + timedelta(days=-1),
                                      persistence=True,
                                      persistence_type='memory'
                                      ),
@@ -69,8 +69,8 @@ layout_27 = dbc.Container([
         dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
         dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
         dcc.Store(id="work-dates", storage_type="memory",
-                  data={"workstart" : (date.today() - timedelta(days=1)).isoformat(),
-                         "workend" :  date.today().isoformat(),
+                  data={"workstart" : (date.today() - timedelta(days=2)).isoformat(),
+                         "workend" :  (date.today() - timedelta(days=1)).isoformat(),
                          "interval" : "day"}),
         dcc.Location(id='location3', refresh=True),
         html.Div(id='output', children=''),
@@ -166,7 +166,7 @@ layout_12 = dbc.Container([
 
     )),
     dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                         date = date.today(),
+                                         date = date.today()-timedelta(1),
                                          persistence = True,
                                          persistence_type = 'memory'
                                   ),
@@ -442,38 +442,9 @@ def return_summary_data(option_slctd,dates,oeelist6):
      Input(component_id='oeelist0', component_property='data')]
 )
 def update_graph_sunburst(option_slctd,oeelist0):
-    oeelist0 = {k: pd.read_json(v, orient='split') for k, v in oeelist0.items()}
-    df = oeelist0[option_slctd]
-
-    if int(df["OEE"][0][0:2]) > 38:
-        fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
-                          color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn,
-                          color_continuous_midpoint=50)
-    else:
-        fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
-                          color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn_r,
-                          color_continuous_midpoint=50)
-
-    fig.update_traces(hovertemplate='<b>Actual Rate is %{value} </b>')
-    fig.update_layout(showlegend=False, paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
-                       title_x=0.5, title_xanchor="center",
-                      title_font_size=18,
-                      annotations=[
-                          dict(
-                              text="OEE - Kullanılabilirlik - Performans",
-                              showarrow=False,
-                              xref='paper', yref='paper',
-                              x=0.5, y=1.02,
-                              xanchor='center', yanchor='bottom',
-                              font=dict(size=18, color=summary_color),
-                              bgcolor='darkolivegreen',  # The desired background color for the title
-                              borderpad=4  # This adjusts the padding, adjust this value to your liking
-                          )]
-                      )
-
-    # fig.show(renderer='browser')
-
-    return [fig]
+    print(" here here ")
+    print(return_piechart(option_slctd,oeelist0))
+    return [return_piechart(option_slctd,oeelist0)]
 
 
 @app.callback(

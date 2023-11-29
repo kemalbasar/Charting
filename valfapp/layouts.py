@@ -267,6 +267,10 @@ layout_12_loginpage = dbc.Container([
                 dcc.Link(
                 children='Energy Consumption',
                 href='/energy',
+            ),
+                 dcc.Link(
+                children='CNC Torna Tv',
+                href='/cnctotv',
             )
 
              ]),

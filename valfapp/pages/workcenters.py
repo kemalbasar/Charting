@@ -8,9 +8,8 @@ import pandas as pd
 from dash import dcc, html, Input, Output, State, callback_context, no_update, exceptions
 import dash_bootstrap_components as dbc
 from config import project_directory
-from valfapp.functions.functions_prd import return_ind_fig
 import plotly.express as px
-from valfapp.app import cache, oee, app, prdconf
+from valfapp.app import cache, oee, app, prdconf,workcenters
 import dash_table
 from dash.exceptions import PreventUpdate
 from valfapp.pages.date_class import update_date, update_date_output
@@ -226,7 +225,6 @@ def update_table_columns(oeelistw4,costcenter):
 def update_work_dates(n1, date_picker, n2, n3, n4):
     stored_date = date_picker
     if n1 or date_picker or n2 or n3 or n4:
-        print(f"{callback_context.triggered}asdasdas")
         data = update_date('1', date_picker, callback_context)
         print(f"params= {data}")
         if data != {}:
@@ -278,18 +276,8 @@ def page_refresh2(n2):
 def clear_cache(n_clicks,key):
     if n_clicks > 0:
         a = cache.get(json.dumps({'workstart': '2023-09-06', 'workend': '2023-09-07', 'interval': 'day'}))
-        print(a)
-        # Specify the directory where the cached files are stored
-        # cache_directory = project_directory + r'\Charting\valfapp\cache-directory'
-        #
-        # # Clear the cache directory by removing all files
-        # shutil.rmtree(cache_directory)
-        # os.makedirs(cache_directory)
-        print(f"---{key}---")
         cache_key = json.dumps(key)
-        print(cache_key)
         x = cache.get(cache_key)
-        print(x)
         cache.delete_memoized(prdconf,(key["workstart"], key["workend"], key["interval"]))
 
         # Perform any other necessary operations after clearing the cache
@@ -368,141 +356,18 @@ def update_ind_fig(option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
 
-    print("*****")
-    print(oeelist1w)
-    print("*****")
-    oeelist1w = pd.read_json(oeelist1w, orient='split')
-    oeelist3w = pd.read_json(oeelist3w, orient='split')
-    oeelist7w = pd.read_json(oeelist7w, orient='split')
 
-    list_of_wcs = []
-    if report_type == 'wc':
-        max_output = len(oeelist1w)
-        for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
-            list_of_wcs.append(item)
-    else:
-        max_output = len(oeelist7w)
-        for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
-            list_of_wcs.append(item)
-
-    df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
-    df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
-    df_forpers = oeelist7w[oeelist7w["COSTCENTER"] == option_slctd]
-
-    list_of_figs = []
-    list_of_columns = []
-    list_of_data = []
-    list_of_styles = []
-
-    def weighted_average(x):
-        # Use the updated weights
-        return np.average(x, weights=weights.loc[x.index])
-    wm = lambda x: weighted_average(x)
-
-    # If time interval 'day' then there will be shift and material columns in details table otherwise there wont.
-    # i used list indices to manupulate column list of details table
-    if params["interval"] == 'day':
-        col_ind = 0
-        groupby_column = "SHIFT"
-    else:
-        col_ind = 2
-        groupby_column = "DISPLAY"
-
-    wc_col = ["SHIFT", "MATERIAL", "QTY", "DISPLAY", "AVAILABILITY", "PERFORMANCE", "QUALITY", "OEE", "TOTALTIME"]
-    pers_col = ["SHIFT", "MATERIAL", "QTY", "DISPLAY", "AVAILABILITY", "PERFORMANCE", "QUALITY", "OEE", "TOTALTIME"]
-
-    for item in range(MAX_OUTPUT):
-
-        if item < len(list_of_wcs):
-            if report_type == 'wc':
-                fig = return_ind_fig(df_metrics=df, df_details=df_wclist,
-                                     costcenter=option_slctd, order=list_of_wcs[item], colorof='black',width= 450, height=420)
-                df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_wcs[item]),
-                wc_col[col_ind:]]
-            else:
-                fig = return_ind_fig(df_metrics=df_forpers, df_details=df_wclist, costcenter=option_slctd,
-                                     order=list_of_wcs[item], colorof='black', title='DISPLAY',width= 450,height=420)
-                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_wcs[item]),pers_col[col_ind:]]
-
-            aggregations = {
-                'MATERIAL': max,  # Sum of 'performance' column
-                'QTY': "sum",  # Mean of 'availability' column
-                'AVAILABILITY': wm,
-                'PERFORMANCE': wm,
-                'QUALITY': wm,
-                'OEE': wm,
-                'SHIFT': 'count'
-            }
-
-            if col_ind == 2:
-                del aggregations['MATERIAL']
-                del aggregations['SHIFT']
-
-            if len(df_details) == 0:
-                continue
-            columns = [{"name": i, "id": i} for i in df_details.columns]
-            data = df_details.to_dict("records")
-            style = {"display": "flex", "justify-content": "space-between",
-                     "align-items": "center", "width": 700,
-                     "height": 250}
-
-            # df_details.sort_values(by=["SHIFT"], inplace=True)
-            weights = df_details.loc[df_details.index, "TOTALTIME"]
-            weights[weights <= 0] = 1
-            # Burada vardiya özet satırını oluşturup ekliyoruz.
-            # Hatırlayalım col_ind 0 olması günlük rapor olduğuna işaret eder
-            summary_row = df_details.groupby(groupby_column).agg(aggregations)
-            # summary_row = summary_row[summary_row[groupby_column] > 1]
-            summary_row[groupby_column] = summary_row.index
-            summary_row[groupby_column] = summary_row[groupby_column].astype(str)
-
-            if report_type == 'wc':
-                if col_ind == 0:
-                    summary_row[groupby_column] = summary_row[groupby_column] + ' (Özet)'
-                    df_details = df_details.append(summary_row)
-                else:
-                    df_details.drop(columns="TOTALTIME", inplace=True)
-                    summary_row.reset_index(inplace=True, drop=True)
-                    df_details = summary_row
-            else:
-                if col_ind == 0:
-                    df_details.drop(columns=["DISPLAY"], inplace=True)
-                    summary_row["SHIFT"] = summary_row["SHIFT"] + ' (Özet)'
-                    summary_row["MATERIAL"] = ''
-                    df_details = df_details.append(summary_row)
-                else:
-                    df_details.drop(columns=["TOTALTIME", "DISPLAY"], inplace=True)
-                    summary_row.drop(columns=["DISPLAY"], inplace=True)
-                    summary_row.reset_index(inplace=True, drop=True)
-                    df_details = summary_row
-
-            # Verileri yüzde formuna getiriyoruz
-            df_details["AVAILABILITY"] = (df_details["AVAILABILITY"] * 100).round()
-            df_details["AVAILABILITY"] = df_details["AVAILABILITY"].astype(str) + '%'
-            df_details["QUALITY"] = (df_details["QUALITY"] * 100).round()
-            df_details["QUALITY"] = df_details["QUALITY"].astype(str) + '%'
-            df_details["OEE"] = (df_details["OEE"] * 100).round()
-            df_details["OEE"] = df_details["OEE"].astype(str) + '%'
-            df_details["PERFORMANCE"] = (df_details["PERFORMANCE"] * 100).round()
-            df_details["PERFORMANCE"] = df_details["PERFORMANCE"].astype(str) + '%'
-            style = {}
-            if col_ind == 0:
-                df_details["SHIFT"] = df_details["SHIFT"].astype(str)
-                df_details.sort_values(by='SHIFT', inplace=True)
-            columns = [{"name": i, "id": i} for i in df_details.columns]
-            data = df_details.to_dict("records")
-        else:
-            fig = {}
-            columns = []
-            data = []
-            style = {"display": "none"}
-
-        list_of_figs.append(fig)
-        list_of_data.append(data)
-        list_of_columns.append(columns)
-        list_of_styles.append(style)
-
+    list_of_figs,list_of_data,list_of_columns,list_of_styles = workcenters(option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist7w)
     return tuple(list_of_figs + list_of_data + list_of_columns + list_of_styles)
+
+
+
+
+
+
+
+
+
 
 
 @app.callback(
