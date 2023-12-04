@@ -80,16 +80,24 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
 
     df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT","WORKDAY"]).apply(custom_agg)
     df_prdcount = df.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY","count"))
-    df_prdcount.reset_index(inplace=True)
+    if len(df_metrics) > 1:
+        df_prdcount.reset_index(inplace=True)
+        df_metrics.reset_index(inplace=True)
 
-    df_metrics.reset_index(inplace=True)
     # df_metrics_backup = df_metrics.copy()
     # df_metrics = df_metrics_backup
     df_metrics["IDEALCYCLETIME"] = df_metrics["IDEALCYCLETIME"].astype(float)
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"].astype(float)
-
-    df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
-    df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    print("********")
+    print(df_metrics)
+    print("********")
+    if len(nontimes) > 0:
+        df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    print("********")
+    print(df_prdcount)
+    print("********")
+    if len(df_prdcount) > 0:
+        df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
     df_metrics["OMTIME"] = df_metrics["OMTIME"].fillna(0)
     df_metrics["OMTIME"] = df_metrics["OMTIME"] / df_metrics["QTY_y"]
 

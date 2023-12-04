@@ -39,7 +39,7 @@ app.css.append_css({
 
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': r'F:\pycarhm projects\Charting\valfapp\cache-directory'
+    'CACHE_DIR': r'C:\Users\kereviz\Python Project\Charting\valfapp\cache-directory'
 })
 
 TIMEOUT = 12000

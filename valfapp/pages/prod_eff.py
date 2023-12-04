@@ -11,10 +11,12 @@ from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
 from run.agent import ag
 from valfapp.app import app, prdconf, return_piechart
 from valfapp.pages.date_class import update_date, update_date_output
+from config import kb
 
 summary_color = 'black'
 
 wc_usage = ag.run_query("SELECT STAND FROM IASROU009 WHERE STAND != '*'")
+
 
 
 def apply_nat_replacer(x):
@@ -55,7 +57,7 @@ layout_27 = dbc.Container([
 
     )),
     dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                     date=date.today() + timedelta(days=-1),
+                                     date=date.today() + timedelta(days=-kb),
                                      persistence=True,
                                      persistence_type='memory'
                                      ),
@@ -69,7 +71,7 @@ layout_27 = dbc.Container([
         dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
         dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
         dcc.Store(id="work-dates", storage_type="memory",
-                  data={"workstart" : (date.today() - timedelta(days=2)).isoformat(),
+                  data={"workstart" : (date.today() - timedelta(days=kb)).isoformat(),
                          "workend" :  (date.today() - timedelta(days=1)).isoformat(),
                          "interval" : "day"}),
         dcc.Location(id='location3', refresh=True),
@@ -280,10 +282,10 @@ layout_12 = dbc.Container([
 
 #Main Layout
 layout = html.Div([
-    dcc.Store(id='oeelist0',data=prdconf(((date.today() - timedelta(days=1)).isoformat(),date.today().isoformat(),"day"))[0]),
-    dcc.Store(id='oeelist1',data=prdconf(((date.today() - timedelta(days=1)).isoformat(),date.today().isoformat(),"day"))[1]),
-    dcc.Store(id='oeelist2',data=prdconf(((date.today() - timedelta(days=1)).isoformat(),date.today().isoformat(),"day"))[2]),
-    dcc.Store(id='oeelist6',data=prdconf(((date.today() - timedelta(days=1)).isoformat(),date.today().isoformat(),"day"))[6]),
+    dcc.Store(id='oeelist0',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[0]),
+    dcc.Store(id='oeelist1',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[1]),
+    dcc.Store(id='oeelist2',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[2]),
+    dcc.Store(id='oeelist6',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[6]),
     dcc.Store(id='device-info-store'),
     html.Div(id='main-layout-div')
 ])

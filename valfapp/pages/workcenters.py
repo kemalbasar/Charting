@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from dash import dcc, html, Input, Output, State, callback_context, no_update, exceptions
 import dash_bootstrap_components as dbc
-from config import project_directory
+from config import project_directory,kb
 import plotly.express as px
 from valfapp.app import cache, oee, app, prdconf,workcenters
 import dash_table
@@ -93,19 +93,19 @@ layout = dbc.Container([
 [           dcc.Store(id="list_of_wcs"),
             dcc.Store(id="max_output"),
             dcc.Store(id='oeelistw1',
-                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                      data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                           1]),
             dcc.Store(id='oeelistw3',
-                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                      data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                           3]),
             dcc.Store(id='oeelistw4',
-                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                      data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                           4]),
             dcc.Store(id='oeelistw5',
-                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                      data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                           5]),
             dcc.Store(id='oeelistw7',
-                      data=prdconf(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))[
+                      data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                           7]),
             dcc.Store(id='store-costcenter1', storage_type='memory'),
             dcc.Store(id='store-report-type', data='wc', storage_type='memory'),

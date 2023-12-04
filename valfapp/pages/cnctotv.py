@@ -7,18 +7,11 @@ from dash import dcc, html, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import return_indicatorgraph
 from valfapp.app import app
-from config import project_directory
+from config import project_directory,kb
 from run.agent import ag
 
 costcenters = ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]
-today = datetime.today()
 
-if today.weekday() == 6:
-    kb = 2
-elif today.weekday() == 0:
-    kb = 3
-else:
-    kb = 1
 
 params_dic = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
               "workend": date.today().isoformat(),
