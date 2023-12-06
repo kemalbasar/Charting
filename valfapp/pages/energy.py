@@ -30,7 +30,9 @@ def return_pie():
         df_pie["COSTCENTER"] != 'TRAFO', "CONSUMPTION"].sum())
     df_pief = df_pie[df_pie["COSTCENTER"] != 'TRAFO']
     return px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER")
-layout = [
+
+
+layout = [dcc.Store(id='generated_data'),dcc.Download(id="download-energy"),
     dbc.Row(html.H1("Valfsan Production Energy Consumption",
                     style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30, 'backgroundColor': '#f0f0f0'})),
     dbc.Row([
@@ -74,6 +76,13 @@ layout = [
                                 html.Button(
                                     'Search',
                                     id='search',
+                                    className="dash-empty-button",
+                                    n_clicks=0,
+                                    style={'backgroundColor': '#007bff', 'color': 'white', 'padding': '10px 20px'}
+                                ),
+                                html.Button(
+                                    'Download',
+                                    id='download',
                                     className="dash-empty-button",
                                     n_clicks=0,
                                     style={'backgroundColor': '#007bff', 'color': 'white', 'padding': '10px 20px'}
@@ -311,12 +320,14 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
 
     df_final_sum.loc[len(df_final_sum.index)]  = ('0000-00-00T00:00:00+00:00',"ALL","ALL",df_final["TOTALNETWEIGHT(ton)"].sum(),
                           df_final["OUTPUT(KWH)"].sum(),0.000,df_final["QUANTITY"].sum(),0.000)
-    df_final_sum["kwhPERton"] = df_final.apply(
-        lambda x: x["OUTPUT(KWH)"] / x["TOTALNETWEIGHT(ton)"] if x["TOTALNETWEIGHT(ton)"] > 0 else 0, axis=1)
+    df_final_sum["kwhPERton"] = df_final_sum["OUTPUT(KWH)"] / df_final_sum["TOTALNETWEIGHT(ton)"]
     df_final_sum["kwhPERqty"] = df_final_sum.apply(lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0,
                                            axis=1)
     df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"].apply(lambda x: f"{x:.3f}")
     df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.3f}")
+
+    df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].apply(lambda x: f"{x:.3f}")
+
     print("******")
     print(df_final_sum)
     print("******")
@@ -344,6 +355,7 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
     Output("data_table", "columns"),
     Output("data_table_sum", "data"),
     Output("data_table_sum", "columns"),
+    Output('generated_data', 'data'),
     [State('date-picker', 'start_date'),
      State('date-picker', 'end_date'),
      State('machine-type-dropdown', 'value'),
@@ -365,7 +377,10 @@ def cache_to_result(s_date, f_date, costcenter, m_point, button):
     df_final_sum=  pd.read_json(df_final_sum, orient='split')
     columns = [{"name": i, "id": i} for i in df_final.columns]
     columns2 = [{"name": i, "id": i} for i in df_final_sum.columns]
-    return df_final.to_dict("records"), columns,df_final_sum.to_dict("records"),columns2
+    excel_data =pd.concat([df_final,df_final_sum]).to_json(date_format='iso', orient='split')
+    return df_final.to_dict("records"), columns\
+        ,df_final_sum.to_dict("records"),columns2,\
+        excel_data
 
 
 @app.callback(
@@ -399,3 +414,16 @@ def line_graph_update(data):
     )
 
     return fig_combined
+
+@app.callback(
+    Output("download-energy", "data"),
+    Input("download", "n_clicks"),
+    State(component_id='generated_data', component_property='data'),
+    prevent_initial_call=True
+)
+def generate_excel(n_clicks,generated_data):
+    generated_data = pd.read_json(generated_data, orient='split')
+    if n_clicks < 1:
+        raise PreventUpdate
+
+    return dcc.send_data_frame(generated_data.to_excel, "energydata.xlsx", index=False)
