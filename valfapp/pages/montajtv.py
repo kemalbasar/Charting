@@ -29,7 +29,7 @@ oeelist3w = prdconf(params_list)[3]
 oeelist7w = prdconf(params_list)[7]
 oeelist0w = prdconf(params_list)[0]
 
-fig, data, columns, styles = workcenters("TASLAMA", "pers", params_dic, oeelist1w, oeelist3w, oeelist7w)
+fig, data, columns, styles = workcenters("MONTAJ", "pers", params_dic, oeelist1w, oeelist3w, oeelist7w)
 # alt satırı app.workcennter metoduna taşımak gerek
 fig = [i for i in fig if i != {}]
 maxof_slide = len(fig)
@@ -37,14 +37,14 @@ maxof_slide = len(fig)
 layout =dbc.Row([
         # First Column
         dbc.Col([
-            html.Div(id="wc-output-container_taslama",className= "row g-0"),
+            html.Div(id="wc-output-container_montaj",className= "row g-0"),
             # Other components for this column
         ], width=8),
 
         # Second Column
         dbc.Col([
             dbc.Row([
-                dcc.Graph(id= 'pie_taslama',figure=return_piechart("TASLAMA", oeelist0w))
+                dcc.Graph(figure=return_piechart("MONTAJ", oeelist0w))
             ],className="g-0"),
             dbc.Row([
                 html.Button("Play", id="play", style={'width': '90px'}),
@@ -53,15 +53,15 @@ layout =dbc.Row([
                     max=len(fig),
                     step=1,
                     value=0,
-                    id='wc-slider_taslama'
+                    id='wc-slider_montaj'
                 ),
                 html.Div(
-                    id='slider-output-container_taslama',className= "row g-0"
+                    id='slider-output-container_montaj',className= "row g-0"
                 ),
-                dcc.Interval(id="animate_taslama", interval=10000, disabled=True),
+                dcc.Interval(id="animate_montaj", interval=10000, disabled=True),
                 dcc.Store(id="list_of_stationss"),
                 dcc.Store(
-                    id="livedata_taslama",
+                    id="livedata_montaj",
                     data=ag.run_query(project_directory + r"\Charting\queries\liveprd.sql").to_json(date_format='iso',
                                                                                     orient='split')
                 ),
@@ -71,9 +71,9 @@ layout =dbc.Row([
 
 
 @app.callback(
-    Output("animate_taslama", "disabled"),
+    Output("animate_montaj", "disabled"),
     Input("play", "n_clicks"),
-    State("animate_taslama", "disabled"),
+    State("animate_montaj", "disabled"),
 )
 def toggle(n, playing):
     print("****888*****")
@@ -84,16 +84,15 @@ def toggle(n, playing):
 
 
 @app.callback(
-    Output('slider-output-container_taslama', 'children'),
-    Output("wc-slider_taslama", "value"),
-    Output("livedata_taslama", "data"),
-    Output('pie_taslama', 'figure'),
-    Input("animate_taslama", "n_intervals"),
-    Input("wc-slider_taslama", "value"),
+    Output('slider-output-container_montaj', 'children'),
+    Output("wc-slider_montaj", "value"),
+    Output("livedata_montaj", "data"),
+    Input("animate_montaj", "n_intervals"),
+    Input("wc-slider_montaj", "value"),
     prevent_initial_call=True,
 )
 def update_output(n, selected_value):
-    list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters("TASLAMA", "pers", params_dic, oeelist1w,
+    list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters("MONTAJ", "pers", params_dic, oeelist1w,
                                                                               oeelist3w, oeelist7w)
     list_of_figs = [i for i in list_of_figs if i != {}]
 
@@ -116,9 +115,8 @@ def update_output(n, selected_value):
                                      }
                                      )
             ]
-        ), selected_value + 1,ag.run_query(project_directory
-       + r"\Charting\queries\liveprd.sql").to_json(date_format='iso',orient='split'),
-
+        ), selected_value + 1,ag.run_query(project_directory + r"\Charting\queries\liveprd.sql").to_json(date_format='iso',
+                                                                                    orient='split')
     else:
         return html.Div(
             children=[
@@ -137,7 +135,7 @@ def update_output(n, selected_value):
                                      }
                                      )
             ]
-        ), selected_value + 1,no_update,no_update
+        ), selected_value + 1,no_update
 
 
 # Import required libraries and modules
@@ -166,12 +164,12 @@ def update_output(n, selected_value):
 
 
 @app.callback(
-    Output('wc-output-container_taslama', 'children'),
-    Input("animate_taslama", "n_intervals"),
-    Input("wc-slider_taslama", "value"),
-    State("livedata_taslama", 'data')
+    Output('wc-output-container_montaj', 'children'),
+    Input("animate_montaj", "n_intervals"),
+    Input("wc-slider_montaj", "value"),
+    State("livedata_montaj", 'data')
 )
-def update_ind_fig(n, selected_value, livedata_taslama):
+def update_ind_fig(n, selected_value, livedata_montaj):
     """
     Callback to update individual figures for each work center in the selected cost center.
 
@@ -181,12 +179,12 @@ def update_ind_fig(n, selected_value, livedata_taslama):
     Returns:
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
-    df = pd.read_json(livedata_taslama, orient='split')
-    df = df[df["COSTCENTER"] == "TASLAMA"].reset_index(drop=True)
+    df = pd.read_json(livedata_montaj, orient='split')
+    df = df[df["COSTCENTER"] == "MONTAJ"].reset_index(drop=True)
 
     list_of_figs = []
     list_of_stationss = []
-    for item in df.loc[df["COSTCENTER"] == "TASLAMA"]["WORKCENTER"].unique():
+    for item in df.loc[df["COSTCENTER"] == "MONTAJ"]["WORKCENTER"].unique():
         list_of_stationss.append(item)
     for index, row in df.iterrows():
         if index < len(list_of_stationss):

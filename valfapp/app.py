@@ -10,9 +10,9 @@ import dash
 import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import calculate_oeemetrics, apply_nat_replacer, get_gann_data, return_ind_fig
 from run.agent import ag
+from config import project_directory
 import plotly.express as px  # (version 4.7.0 or higher)
 
-from config import project_directory
 
 MAX_OUTPUT = 25
 summary_color = 'black'
@@ -39,7 +39,7 @@ app.css.append_css({
 
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': r'C:\Users\kereviz\Python Project\Charting\valfapp\cache-directory'
+    'CACHE_DIR': project_directory + r'\Charting\valfapp\cache-directory'
 })
 
 TIMEOUT = 12000

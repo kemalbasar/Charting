@@ -112,6 +112,34 @@ layout = [
                         'fontWeight': 'bold'
                     },
                     sort_action='native',
+                ),
+                dash_table.DataTable(
+                    id="data_table_sum",
+                    data=[],
+                    columns=[],
+                    style_cell={
+                        "minWidth": "100px",
+                        "width": "100px",
+                        "maxWidth": "150px",
+                        "textAlign": "center",
+                        "padding": "10px"
+                    },
+                    style_table={
+                        'width': '100%',
+                        'margin': 'auto',
+                        'borderCollapse': 'collapse',
+                    },
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 'odd'},
+                            'backgroundColor': 'rgb(248, 248, 248)'
+                        }
+                    ],
+                    style_header={
+                        'backgroundColor': 'rgb(230, 230, 230)',
+                        'fontWeight': 'bold'
+                    },
+                    sort_action='native',
                 )
 
             ], style={"marginTop": 50}
@@ -138,7 +166,7 @@ def set_machine_options(selected_machine_type):
     return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
 
 
-@cache.memoize()
+# @cache.memoize()
 def update_table(begin_month, begin_year, final_month, final_year, costcenter, m_point):
     selected_point = m_point
     with open(project_directory + f"\Charting\queries\energy_qandweight.sql", 'r') as file:
@@ -223,6 +251,7 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
 
         # manüpüle ettiğimiz sorguyu çalıştırıyoruz ve yeni bir sütun ekliyoruz.
         df_prddata = ag.run_query(filedata_tmp)
+        df_prddata.rename(columns={"TOTALNETWEIGHT": "TOTALNETWEIGHT(ton)"},inplace=True)
 
         df_prddata["MPOINT"] = m_point_tmp
 
@@ -234,19 +263,25 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
         else:
             df_prddata["MPOINT"] = m_point
             df_prddata["QUANTITY"] = 0
-            df_prddata["TOTALWEIGHT"] = 0
-            df_prddata["kwhton"] = 0.00
+            df_prddata["TOTALNETWEIGHT(ton)"] = 0.000
+            df_prddata["kwhPERton"] = 0.000
 
         df_final = pd.concat([df_works, df_final]).drop_duplicates().reset_index(drop=True)
-    df_final["kwhton"] = df_final["kwhton"].astype(float)
-    df_final["TOTALWEIGHT"] = df_final["TOTALWEIGHT"].astype(float)
-    df_final["OUTPUT"] = df_final["OUTPUT"].astype(float)
+
+    print("******")
+    print(df_final)
+    print("******")
+
+    df_final.rename(columns={"OUTPUT": "OUTPUT(KWH)"},inplace=True)
+    df_final["kwhPERton"] = df_final["kwhPERton"].astype(float)
+    df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].astype(float)
+    df_final["OUTPUT(KWH)"] = df_final["OUTPUT(KWH)"].astype(float)
     print(df_final.dtypes)
-    df_final["kwhton"] = df_final.apply(lambda x: x["OUTPUT"] / x["TOTALWEIGHT"] if x["TOTALWEIGHT"] > 0 else 0, axis=1)
-    df_final["kwhqty"] = df_final.apply(lambda x: x["OUTPUT"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0, axis=1)
-    df_final["kwhton"] = df_final["kwhton"] * 1000
-    df_final["kwhton"] = df_final["kwhton"].apply(lambda x: f"{x:.1f}")
-    df_final["kwhqty"] = df_final["kwhqty"].apply(lambda x: f"{x:.2f}")
+    df_final["kwhPERton"] = df_final.apply(lambda x: x["OUTPUT(KWH)"] / x["TOTALNETWEIGHT(ton)"] if x["TOTALNETWEIGHT(ton)"] > 0 else 0, axis=1)
+    df_final["kwhPERqty"] = df_final.apply(lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0, axis=1)
+    df_final["kwhPERton"] = df_final["kwhPERton"]
+    df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.3f}")
+    df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.3f}")
     df_final['DATE'] = df_final['DATE'].apply(lambda x: datetime.strptime(x, '%Y-%m'))
 
     print(df_final['DATE'].dtypes)
@@ -256,17 +291,59 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
     #     mask = ((df_final['COSTCENTER'] == 'CNC') | (df_final['COSTCENTER'] == 'PRESHANE')) & (
     #         ~df_final['ANALYZER'].str.contains('pano', na=False))
     #     df_final.loc[mask, ['CONSUMPTION', 'QUANTITY']] = 0
-    #     df_final = df_final.groupby(["COSTCENTER","DATE"]).agg({"TOTALWEIGHT": "sum","kwhton": "mean","CONSUMPTION": "sum","QUANTITY":"sum",})
+    #     df_final = df_final.groupby(["COSTCENTER","DATE"]).agg({"TOTALNETWEIGHT(ton)": "sum","kwhPERton": "mean","CONSUMPTION": "sum","QUANTITY":"sum",})
     #     df_final.reset_index(inplace=True)
 
-    df_final.sort_values(by=["DATE", "kwhton"], ascending=False, inplace=True)
+    df_final.sort_values(by=["DATE", "kwhPERton"], ascending=False, inplace=True)
+    df_final = df_final[["DATE","COSTCENTER", "MPOINT","TOTALNETWEIGHT(ton)", "OUTPUT(KWH)", "kwhPERton","QUANTITY","kwhPERqty"]]
+    df_final_sum = df_final.loc[(df_final["OUTPUT(KWH)"]) > 0 & (df_final["QUANTITY"] > 0)]
+
+    print("******")
     print(df_final)
-    return df_final.to_json(date_format='iso', orient='split')
+    print("******")
+    print("******")
+    print(df_final_sum)
+    print("******")
+
+    # df_final_sum = df_final_sum.groupby(["DATE"]).agg({"OUTPUT(KWH)": "sum", "TOTALNETWEIGHT(ton)": "sum"
+    #                                  ,"QUANTITY": "sum"})
+    df_final_sum = df_final_sum.iloc[0:0]
+
+    df_final_sum.loc[len(df_final_sum.index)]  = ('0000-00-00T00:00:00+00:00',"ALL","ALL",df_final["TOTALNETWEIGHT(ton)"].sum(),
+                          df_final["OUTPUT(KWH)"].sum(),0.000,df_final["QUANTITY"].sum(),0.000)
+    df_final_sum["kwhPERton"] = df_final.apply(
+        lambda x: x["OUTPUT(KWH)"] / x["TOTALNETWEIGHT(ton)"] if x["TOTALNETWEIGHT(ton)"] > 0 else 0, axis=1)
+    df_final_sum["kwhPERqty"] = df_final_sum.apply(lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0,
+                                           axis=1)
+    df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"].apply(lambda x: f"{x:.3f}")
+    df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.3f}")
+    print("******")
+    print(df_final_sum)
+    print("******")
+
+    # if df_final_sum is None:
+    #     df_final_sum = pd.DataFrame(columns=["DATE", "OUTPUT(KWH)", "TOTALNETWEIGHT(ton)", "QUANTITY"])
+    # else:
+    #     df_final_sum["kwhPERton"] = 0.000
+    #     df_final_sum["kwhPERqty"] = 0.000
+    #     df_final_sum["kwhPERton"] = df_final_sum.apply(lambda x: x["OUTPUT(KWH)"] / x["TOTALNETWEIGHT(ton)"] if x["TOTALNETWEIGHT(ton)"] > 0 else 0, axis=1)
+    #     df_final_sum["kwhPERqty"] = df_final_sum.apply(lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0, axis=1)
+    #     df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"] * 1000
+    #     df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"].apply(lambda x: f"{x:.1f}")
+    #     df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.2f}")
+    print(df_final)
+
+    return df_final.to_json(date_format='iso', orient='split'),\
+        df_final_sum.to_json(date_format='iso', orient='split')
+
+
 
 
 @app.callback(
     Output("data_table", "data"),
     Output("data_table", "columns"),
+    Output("data_table_sum", "data"),
+    Output("data_table_sum", "columns"),
     [State('date-picker', 'start_date'),
      State('date-picker', 'end_date'),
      State('machine-type-dropdown', 'value'),
@@ -282,11 +359,13 @@ def cache_to_result(s_date, f_date, costcenter, m_point, button):
     begin_month = int(s_date[5:7])
     final_year = int(f_date[0:4])
     begin_year = int(s_date[0:4])
-    df_final = update_table(begin_month, begin_year,
+    df_final,df_final_sum = update_table(begin_month, begin_year,
                             final_month, final_year, costcenter, m_point)
     df_final = pd.read_json(df_final, orient='split')
+    df_final_sum=  pd.read_json(df_final_sum, orient='split')
     columns = [{"name": i, "id": i} for i in df_final.columns]
-    return df_final.to_dict("records"), columns
+    columns2 = [{"name": i, "id": i} for i in df_final_sum.columns]
+    return df_final.to_dict("records"), columns,df_final_sum.to_dict("records"),columns2
 
 
 @app.callback(
@@ -300,16 +379,16 @@ def line_graph_update(data):
     df.sort_values(by="DATE", ascending=False, inplace=True)
     fig_combined = go.Figure()
 
-    # Add trace for kwhton
+    # Add trace for kwhPERton
 
-    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["kwhton"], mode='lines+markers', name='kWh/ton'))
+    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["kwhPERton"], mode='lines+markers', name='kWh/ton'))
 
-    # Add trace for kwhqty
+    # Add trace for kwhPERqty
     fig_combined.add_trace(
-        go.Scatter(x=df["DATE"], y=df["kwhqty"] * 1000, mode='lines+markers', name='kWh*1000/Quantity'))
+        go.Scatter(x=df["DATE"], y=df["kwhPERqty"] * 1000, mode='lines+markers', name='kWh*1000/Quantity'))
 
-    # Add trace for kwhqty
-    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["OUTPUT"], mode='lines+markers', name='Consumption'))
+    # Add trace for kwhPERqty
+    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["OUTPUT(KWH)"], mode='lines+markers', name='Consumption'))
 
     # Update layout
     fig_combined.update_layout(
