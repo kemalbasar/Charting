@@ -98,6 +98,7 @@ layout = [dcc.Store(id='generated_data'),dcc.Download(id="download-energy"),
                     id="data_table",
                     data=[],
                     columns=[],
+                    filter_action='native',
                     style_cell={
                         "minWidth": "100px",
                         "width": "100px",
