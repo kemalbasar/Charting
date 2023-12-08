@@ -249,6 +249,8 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
         print(df_works)
         print("******")
 
+        if df_works is None:
+            continue
         if len(df_works) == 0:
             continue
 
@@ -271,52 +273,47 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
             print(f"***********")
 
         else:
-            df_prddata["MPOINT"] = m_point
-            df_prddata["QUANTITY"] = 0
-            df_prddata["TOTALNETWEIGHT(ton)"] = 0.000
-            df_prddata["kwhPERton"] = 0.000
+            df_works["MPOINT"] = m_point
+            df_wcs = ag.run_query(f"SELECT WORKCENTER FROM IASWORKCENT"
+                         f" WHERE  WORKCENTER IN ('{m_point}')")
+            print("burdabu")
+            print(df_wcs)
+            print("burdabu")
+
+            if len(df_wcs):
+                df_works["QUANTITY"] = 0
+                df_works["TOTALNETWEIGHT(ton)"] = 0.000
+                df_works["kwhPERton"] = 0.000
+            else:
+                df_works["QUANTITY"] = None
+                df_works["TOTALNETWEIGHT(ton)"] = None
+                df_works["kwhPERton"] = None
 
         df_final = pd.concat([df_works, df_final]).drop_duplicates().reset_index(drop=True)
-
-    print("******")
-    print(df_final)
-    print("******")
 
     df_final.rename(columns={"OUTPUT": "OUTPUT(KWH)"},inplace=True)
     df_final["kwhPERton"] = df_final["kwhPERton"].astype(float)
     df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].astype(float)
+    df_final["OUTPUT(KWH)"] = df_final["OUTPUT(KWH)"].apply(lambda x: round(x, 3))
+
     df_final["OUTPUT(KWH)"] = df_final["OUTPUT(KWH)"].astype(float)
     print(df_final.dtypes)
     df_final["kwhPERton"] = df_final.apply(lambda x: x["OUTPUT(KWH)"] / x["TOTALNETWEIGHT(ton)"] if x["TOTALNETWEIGHT(ton)"] > 0 else 0, axis=1)
-    df_final["kwhPERqty"] = df_final.apply(lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0, axis=1)
-    df_final["kwhPERton"] = df_final["kwhPERton"]
-    df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.3f}")
-    df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.3f}")
+    df_final["kwhPERqty"] = df_final.apply(lambda x: x["OUTPUT(KWH)"] /
+                                                     x["QUANTITY"] if x["QUANTITY"] else 0, axis=1)
+    df_final["kwhPERton"] =   df_final.apply(lambda x: x["kwhPERton"] if x["QUANTITY"] else None, axis=1)
+    df_final["kwhPERqty"] =  df_final.apply(lambda x: x["kwhPERqty"] if x["QUANTITY"]  else None, axis=1)
+
     df_final['DATE'] = df_final['DATE'].apply(lambda x: datetime.strptime(x, '%Y-%m'))
 
     print(df_final['DATE'].dtypes)
 
-    # print(selected_point)
-    # if selected_point == 'Bölümler':
-    #     mask = ((df_final['COSTCENTER'] == 'CNC') | (df_final['COSTCENTER'] == 'PRESHANE')) & (
-    #         ~df_final['ANALYZER'].str.contains('pano', na=False))
-    #     df_final.loc[mask, ['CONSUMPTION', 'QUANTITY']] = 0
-    #     df_final = df_final.groupby(["COSTCENTER","DATE"]).agg({"TOTALNETWEIGHT(ton)": "sum","kwhPERton": "mean","CONSUMPTION": "sum","QUANTITY":"sum",})
-    #     df_final.reset_index(inplace=True)
 
     df_final.sort_values(by=["DATE", "kwhPERton"], ascending=False, inplace=True)
     df_final = df_final[["DATE","COSTCENTER", "MPOINT","TOTALNETWEIGHT(ton)", "OUTPUT(KWH)", "kwhPERton","QUANTITY","kwhPERqty"]]
-    df_final_sum = df_final.loc[(df_final["OUTPUT(KWH)"]) > 0 & (df_final["QUANTITY"] > 0)]
 
-    print("******")
-    print(df_final)
-    print("******")
-    print("******")
-    print(df_final_sum)
-    print("******")
+    df_final_sum = df_final.loc[(df_final["OUTPUT(KWH)"] > 0.00) & (df_final["QUANTITY"] > 0)]
 
-    # df_final_sum = df_final_sum.groupby(["DATE"]).agg({"OUTPUT(KWH)": "sum", "TOTALNETWEIGHT(ton)": "sum"
-    #                                  ,"QUANTITY": "sum"})
     df_final_sum = df_final_sum.iloc[0:0]
 
     df_final_sum.loc[len(df_final_sum.index)]  = ('0000-00-00T00:00:00+00:00',"ALL","ALL",df_final["TOTALNETWEIGHT(ton)"].sum(),
@@ -324,25 +321,16 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
     df_final_sum["kwhPERton"] = df_final_sum["OUTPUT(KWH)"] / df_final_sum["TOTALNETWEIGHT(ton)"]
     df_final_sum["kwhPERqty"] = df_final_sum.apply(lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0,
                                            axis=1)
-    df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"].apply(lambda x: f"{x:.3f}")
-    df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.3f}")
+    df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"].apply(lambda x: f"{x:.3f}" if x is not None else x)
+    df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.3f}" if x is not None else x)
 
     df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].apply(lambda x: f"{x:.3f}")
+    df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.3f}" if x is not None else x)
+    df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.3f}" if x is not None else x)
 
-    print("******")
-    print(df_final_sum)
-    print("******")
+    df_final.rename(columns={"COSTCENTER": "Prod.Process"},inplace=True)
+    df_final.rename(columns={"MPOINT ": "MPoint.Analyser"},inplace=True)
 
-    # if df_final_sum is None:
-    #     df_final_sum = pd.DataFrame(columns=["DATE", "OUTPUT(KWH)", "TOTALNETWEIGHT(ton)", "QUANTITY"])
-    # else:
-    #     df_final_sum["kwhPERton"] = 0.000
-    #     df_final_sum["kwhPERqty"] = 0.000
-    #     df_final_sum["kwhPERton"] = df_final_sum.apply(lambda x: x["OUTPUT(KWH)"] / x["TOTALNETWEIGHT(ton)"] if x["TOTALNETWEIGHT(ton)"] > 0 else 0, axis=1)
-    #     df_final_sum["kwhPERqty"] = df_final_sum.apply(lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0, axis=1)
-    #     df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"] * 1000
-    #     df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"].apply(lambda x: f"{x:.1f}")
-    #     df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.2f}")
     print(df_final)
 
     return df_final.to_json(date_format='iso', orient='split'),\
