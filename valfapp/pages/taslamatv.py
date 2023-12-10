@@ -140,31 +140,6 @@ def update_output(n, selected_value):
         ), selected_value + 1,no_update,no_update
 
 
-# Import required libraries and modules
-
-# Define constants and initial data
-
-
-# Create the layout for the app
-# layout = dbc.Container([
-#
-#     dcc.Link(
-#         children='Main Page',
-#         href='/',
-#         style={"color": "black", "font-weight": "bold"}
-#
-#     ),
-#     # dcc.Dropdown(id="costcenter",
-#     #              options=[{"label": cc, "value": cc} for cc in costcenters],
-#     #              multi=False,
-#     #              value="CNC",
-#     #              style={"color": "green", "background-color": "DimGray", 'width': 200}
-#     #              ),
-#
-#
-# ], fluid=True)
-
-
 @app.callback(
     Output('wc-output-container_taslama', 'children'),
     Input("animate_taslama", "n_intervals"),
