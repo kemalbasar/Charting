@@ -14,59 +14,8 @@ from run.agent import ag
 len_fig = int(len(ag.run_query(project_directory + r"\Charting\queries\yuzeyislemtvsorgu.sql"))/8) +1
 
 
-layout =[dcc.Link(
-        children='Main Page',
-        href='/',
-        style={"height":40,"color": "black", "font-weight": "bold"}
 
-    ),
-        dcc.Store(id="list_of_stationss"),
-        dcc.Store(id="livedata_yislem",data=ag.run_query(project_directory +
-             r"\Charting\queries\yuzeyislemtvsorgu.sql").to_json(date_format='iso',orient='split')),
-        dcc.Interval(id="animate_yislem", interval=10000, disabled=True),
-         dbc.Col([
-            dbc.Row([html.Div(id="wc-output-container_yislem",className= "g-0"),]),
-            dbc.Row([
-                html.Button("Play", id="play", style={'width': '90px'}),
-                dcc.Slider(
-                    min=0,
-                    max=len_fig,
-                    step=1,
-                    value=-1,
-                    id='wc-slider_yislem'
-                ),
-                dcc.Interval(id="animate_yislem", interval=10000, disabled=True)
-            ],className= "g-0"),
-
-
-        ], width=12),
-    ]
-
-
-
-@app.callback(
-    Output("animate_yislem", "disabled"),
-    Input("play", "n_clicks"),
-    State("animate_yislem", "disabled"),
-)
-def toggle(n, playing):
-    print("****888*****")
-    print(n)
-    if n:
-        return not playing
-    return playing
-
-
-
-@app.callback(
-    Output('wc-output-container_yislem', 'children'),
-    Output("wc-slider_yislem", "value"),
-    Output("livedata_yislem", 'data'),
-    Input("animate_yislem", "n_intervals"),
-    State("wc-slider_yislem", "value"),
-    State("livedata_yislem", 'data')
-)
-def update_ind_fig(n, selected_value, livedata_yislem):
+def update_ind_fig():
     """
     Callback to update individual figures for each work center in the selected cost center.
 
@@ -76,8 +25,7 @@ def update_ind_fig(n, selected_value, livedata_yislem):
     Returns:
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
-    df = pd.read_json(livedata_yislem, orient='split')
-    # df = df[df["COSTCENTER"] == "YUZEYISLEM"].reset_index(drop=True)
+    df = ag.run_query(project_directory + r"\Charting\queries\yuzeyislemtvsorgu.sql")
 
     list_of_figs = []
     list_of_stationss = []
@@ -93,6 +41,7 @@ def update_ind_fig(n, selected_value, livedata_yislem):
         else:
             fig = {}
             style = {"display": "none"}
+
 
     lengthof = len(list_of_figs)
     x = lengthof % 8
@@ -137,10 +86,72 @@ def update_ind_fig(n, selected_value, livedata_yislem):
                     ],className="g-0")
                 ]))
         counter = counter + 1
+    return listofdivs
 
-    selected_value = selected_value%len(listofdivs)
-    if selected_value == 0:
-        return listofdivs[selected_value],selected_value + 1,ag.run_query(project_directory +
-             r"\Charting\queries\yuzeyislemtvsorgu.sql").to_json(date_format='iso',orient='split')
+layout =[dcc.Link(
+        children='Main Page',
+        href='/',
+        style={"height":40,"color": "black", "font-weight": "bold"}
+
+    ),
+        dcc.Store(id="list_of_stationss"),
+        dcc.Store(id="wc-output-container_yislem_tmp",data=update_ind_fig()),
+        dcc.Store(id="update_flag"),
+        dcc.Store(id="livedata_yislem",data=ag.run_query(project_directory +
+             r"\Charting\queries\yuzeyislemtvsorgu.sql").to_json(date_format='iso',orient='split')),
+        dcc.Interval(id="animate_yislem", interval=10000),
+         dbc.Col([
+            dbc.Row([html.Div(id="wc-output-container_yislem_real",className= "g-0"),]),
+            dbc.Row([
+                html.Button("Play", id="play", style={'width': '90px'}),
+                dcc.Slider(
+                    min=0,
+                    max=len_fig,
+                    step=1,
+                    value=-1,
+                    id='wc-slider_yislem'
+                ),
+            ],className= "g-0"),
+
+
+        ], width=12),
+    ]
+
+
+# @app.callback(
+#     Output("animate_yislem", "disabled"),
+#     Input("play", "n_clicks"),
+#     State("animate_yislem", "disabled"),
+# )
+# def toggle(n, playing):
+#
+#     print("****888*****")
+#     print(playing)
+#     if n:
+#         return not playing
+#     return playing
+
+
+# Input("wc-slider_yislem", "value"),
+# Output("wc-slider_yislem", "value"),
+
+@app.callback(
+Output("wc-output-container_yislem_real", "children"),
+Output("wc-slider_yislem", "value"),
+Output('wc-output-container_yislem_tmp', 'data'),
+Output("animate_yislem", "disabled"),
+Input('animate_yislem', 'n_intervals'),
+Input("wc-slider_yislem", "value"),
+State('wc-output-container_yislem_tmp', 'data'),
+)
+def show_div(n,k,listofdivs):
+    print("burda")
+    print(len(listofdivs))
+    print("burda")
+    print(k)
+    print("burda")
+
+    if k >= len(listofdivs):
+        return listofdivs[k-1],0,update_ind_fig(),False
     else:
-        return listofdivs[selected_value], selected_value + 1, no_update
+        return listofdivs[k-1],k+1,no_update,False

@@ -91,14 +91,10 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     # df_metrics = df_metrics_backup
     df_metrics["IDEALCYCLETIME"] = df_metrics["IDEALCYCLETIME"].astype(float)
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"].astype(float)
-    print("********")
-    print(df_metrics)
-    print("********")
+
     if len(nontimes) > 0:
         df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
-    print("********")
-    print(df_prdcount)
-    print("********")
+
     if len(df_prdcount) > 0:
         df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
     df_metrics["OMTIME"] = df_metrics["OMTIME"].fillna(0)
@@ -182,9 +178,6 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
                                                                        })
     df_metrics.reset_index(inplace=True)
 
-    print("*****")
-    print(df_metrics)
-    print("*****")
 
     try:
         df_piechart = df_metrics.groupby("COSTCENTER").agg({"RUNTIME": "sum",
@@ -557,13 +550,24 @@ def return_indicatorgraph(status='white', fullname='',
 
 def return_DELTAgraph(status='white', fullname='',
                       workcenter='', material='', durus='', target=0):
+
+    if durus is None:
+        mtext = ''
+        durus = 0
+    elif durus == 0:
+        mtext = 'Hazır'
+    elif durus < 0:
+        mtext = f"{str(abs(durus))} DAKİKA GECİKTİ"
+    else:
+        mtext =  f"{str(durus)} DAKİKA SONRA HAZIR"
+
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge",
-        value= (target-durus) if durus > 0 else 0,
-        gauge={'bar': {'color': "white"},
-            'shape': "bullet"},
-        delta={"reference": target},
+        value= (target-durus) if durus > 0 else target,
+        gauge={'bar': {'color': "white",'thickness': 0.75},
+            'shape': "bullet",
+           'axis': {'range': [None, target]}},
         number={'suffix': None},
         domain={'x': [0.2, 0.8], 'y': [0.4, 0.6]},  # Adjust the domain to control the gauge size
 
@@ -576,7 +580,7 @@ def return_DELTAgraph(status='white', fullname='',
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
-        'text': fullname,
+        'text': str(fullname),
         # 'showarrow': True,
         # 'arrowhead': 3,
         'font': {'size': 24, 'color': 'black'}
@@ -594,8 +598,7 @@ def return_DELTAgraph(status='white', fullname='',
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 0.75,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
-
-        'text': f"{str(abs(durus))} DAKİKA GECİKTİ" if durus < 0 else f"{str(durus)} DAKİKA SONRA HAZIR",
+        'text': mtext,
         # 'showarrow': True,
         # 'arrowhead': 3,
         'font': {'size': 25, 'color': 'black'}
