@@ -5,7 +5,7 @@ import json
 import pandas as pd
 from dash import dcc, html, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
-from valfapp.functions.functions_prd import return_indicatorgraph
+from valfapp.functions.functions_prd import return_indicatorgraph, return_DELTAgraph
 from valfapp.app import app
 from config import project_directory
 from run.agent import ag
@@ -32,7 +32,7 @@ layout =[dcc.Link(
                     min=0,
                     max=len_fig,
                     step=1,
-                    value=0,
+                    value=-1,
                     id='wc-slider_yislem'
                 ),
                 dcc.Interval(id="animate_yislem", interval=10000, disabled=True)
@@ -61,8 +61,9 @@ def toggle(n, playing):
 @app.callback(
     Output('wc-output-container_yislem', 'children'),
     Output("wc-slider_yislem", "value"),
+    Output("livedata_yislem", 'data'),
     Input("animate_yislem", "n_intervals"),
-    Input("wc-slider_yislem", "value"),
+    State("wc-slider_yislem", "value"),
     State("livedata_yislem", 'data')
 )
 def update_ind_fig(n, selected_value, livedata_yislem):
@@ -84,8 +85,8 @@ def update_ind_fig(n, selected_value, livedata_yislem):
         list_of_stationss.append(item)
     for index, row in df.iterrows():
         if index < len(list_of_stationss):
-            fig = return_indicatorgraph(row["STATUSR"], row["FULLNAME"], row["WORKCENTER"], row["DRAWNUM"],
-                                        row["STEXT"], 0)
+            fig = return_DELTAgraph(row["STATUSR"], row["FULLNAME"], row["WORKCENTER"], row["DRAWNUM"],
+                                        row["STEXT"], row["TARGET"])
 
             list_of_figs.append(fig)
 
@@ -136,9 +137,10 @@ def update_ind_fig(n, selected_value, livedata_yislem):
                     ],className="g-0")
                 ]))
         counter = counter + 1
-    print("****")
-    print(len(listofdivs))
+
     selected_value = selected_value%len(listofdivs)
-    print(selected_value)
-    print("******")
-    return listofdivs[selected_value],selected_value + 1
+    if selected_value == 0:
+        return listofdivs[selected_value],selected_value + 1,ag.run_query(project_directory +
+             r"\Charting\queries\yuzeyislemtvsorgu.sql").to_json(date_format='iso',orient='split')
+    else:
+        return listofdivs[selected_value], selected_value + 1, no_update

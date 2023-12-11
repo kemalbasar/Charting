@@ -12,7 +12,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', 500)
 
 
-def weighted_average(x,df_metrics):
+def weighted_average(x, df_metrics):
     weights = df_metrics.loc[x.index, "PLANNEDTIME"]
     if np.sum(weights) == 0:
         # Handle the case when the sum of the weights is zero
@@ -20,6 +20,7 @@ def weighted_average(x,df_metrics):
         return np.mean(x)  # Returning mean as an example
     else:
         return np.average(x, weights=weights)
+
 
 def apply_nat_replacer(x):
     x = str(x)
@@ -41,23 +42,25 @@ planned_hours = ''
 working_machines = ''
 onemonth_prdqty = ''
 
+
 ########### ########### ########### ###################### ########### ########### ########### ###########
 ########### ########### ########### ########### SQL QUERIES END ######## ########### ########### ##########
 ########### ########### ########### ########### ########### ########### ########### ########### ##########
 
 
-def working_machinesf(working_machines = working_machines, costcenter='CNC'):
+def working_machinesf(working_machines=working_machines, costcenter='CNC'):
     return working_machines.loc[working_machines["COSTCENTER"] == costcenter, "COUNTOFWC"].tolist()
 
 
-def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shiftandmat=0,nontimes=pd.DataFrame()):
+def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shiftandmat=0, nontimes=pd.DataFrame()):
+    df = df.loc[
+        df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS", "CONFTYPE",
+                                       "QTY", "SCRAPQTY", "REWORKQTY",
+                                       "WORKCENTER", "RUNTIME", "TOTALTIME", "DISPLAY",
+                                       "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME", "STEXT", "SCRAPTEXT",
+                                       "WORKDAY"]]
 
-    df = df.loc[df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS","CONFTYPE",
-                                               "QTY", "SCRAPQTY", "REWORKQTY",
-                                               "WORKCENTER", "RUNTIME", "TOTALTIME","DISPLAY",
-                                               "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME","STEXT","SCRAPTEXT","WORKDAY"]]
-
-    df.drop_duplicates(inplace=True,subset=['CONFIRMATION', 'CONFIRMPOS'])
+    df.drop_duplicates(inplace=True, subset=['CONFIRMATION', 'CONFIRMPOS'])
     df.reset_index(drop=True, inplace=True)
     df["SCRAPTEXT"] = df["SCRAPTEXT"].astype(str)
     df["DISPLAY"] = df["DISPLAY"].astype(str)
@@ -78,8 +81,8 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         }
         return pd.Series(agg_dict)
 
-    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT","WORKDAY"]).apply(custom_agg)
-    df_prdcount = df.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY","count"))
+    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT", "WORKDAY"]).apply(custom_agg)
+    df_prdcount = df.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY", "count"))
     if len(df_metrics) > 1:
         df_prdcount.reset_index(inplace=True)
         df_metrics.reset_index(inplace=True)
@@ -92,20 +95,21 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     print(df_metrics)
     print("********")
     if len(nontimes) > 0:
-        df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+        df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
     print("********")
     print(df_prdcount)
     print("********")
     if len(df_prdcount) > 0:
-        df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+        df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
     df_metrics["OMTIME"] = df_metrics["OMTIME"].fillna(0)
     df_metrics["OMTIME"] = df_metrics["OMTIME"] / df_metrics["QTY_y"]
 
-    df_shifttotal = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(TOTAL_SHIFT_TIME=("TOTALTIME", "sum"))
+    df_shifttotal = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(
+        TOTAL_SHIFT_TIME=("TOTALTIME", "sum"))
     df_shifttotal.reset_index(inplace=True)
-    df_metrics = df_metrics.merge(df_shifttotal, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
-    df_metrics["NANTIME"] = (510 - df_metrics["TOTAL_SHIFT_TIME"] - df_metrics["OMTIME"]) * df_metrics["TOTALTIME"] /df_metrics["TOTAL_SHIFT_TIME"]
-
+    df_metrics = df_metrics.merge(df_shifttotal, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    df_metrics["NANTIME"] = (510 - df_metrics["TOTAL_SHIFT_TIME"] - df_metrics["OMTIME"]) * df_metrics["TOTALTIME"] / \
+                            df_metrics["TOTAL_SHIFT_TIME"]
 
     # There will be counter for broken data.
     df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0
@@ -163,25 +167,24 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     # df_metrics_forpers.to_excel(r"F:\pycarhm projects\Charting\valfapp\assets\bu.xlsx")
 
     df_metrics = df_metrics.groupby(["WORKCENTER", "COSTCENTER"]).agg({"QTY": "sum",
-                                                                "SCRAPQTY": "sum",
-                                                                "REWORKQTY": "sum",
-                                                                "RUNTIME": "sum",
-                                                                "TOTALTIME": "sum",
-                                                                "TOTFAILURETIME": "sum",
-                                                                "IDEALCYCLETIME": "sum",
-                                                                "SETUPTIME": "sum",
-                                                                "NANTIME": "sum",
-                                                                "PLANNEDTIME": "sum",
-                                                                "PERFORMANCE": wm,
-                                                                "AVAILABILITY": wm,
-                                                                "OEE": wm
-                                                               })
+                                                                       "SCRAPQTY": "sum",
+                                                                       "REWORKQTY": "sum",
+                                                                       "RUNTIME": "sum",
+                                                                       "TOTALTIME": "sum",
+                                                                       "TOTFAILURETIME": "sum",
+                                                                       "IDEALCYCLETIME": "sum",
+                                                                       "SETUPTIME": "sum",
+                                                                       "NANTIME": "sum",
+                                                                       "PLANNEDTIME": "sum",
+                                                                       "PERFORMANCE": wm,
+                                                                       "AVAILABILITY": wm,
+                                                                       "OEE": wm
+                                                                       })
     df_metrics.reset_index(inplace=True)
 
     print("*****")
     print(df_metrics)
     print("*****")
-
 
     try:
         df_piechart = df_metrics.groupby("COSTCENTER").agg({"RUNTIME": "sum",
@@ -201,8 +204,8 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
                "TASLAMA": None,
                "CNCTORNA": None,
                "MONTAJ": None,
-               "PRESHANE1" : None,
-               "PRESHANE2" : None,}
+               "PRESHANE1": None,
+               "PRESHANE2": None, }
 
     f = lambda a: round(((abs(a) + a) / 2), 3)
     g = lambda a: 1 if sum_of == 0 else int((a * 100) / sum_of)
@@ -213,11 +216,12 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         'MACHINE': ["PRD", "DOWN", "SETUP", "NAN", "PRD"],
         'OPR': ["FAIL", None, None, None, "SUCCES"]
     }
-    for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ","PRESHANE1","PRESHANE2"]:
+    for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ", "PRESHANE1", "PRESHANE2"]:
         try:
             len(df_piechart.loc[costcenter])
         except KeyError as e:
-            details[costcenter] =  pd.DataFrame(temp_dic,index=['SESSIONTIME', 'PLANSIZDURUS', 'SETUP', 'NaN', "SESSIONTIME2"])
+            details[costcenter] = pd.DataFrame(temp_dic,
+                                               index=['SESSIONTIME', 'PLANSIZDURUS', 'SETUP', 'NaN', "SESSIONTIME2"])
             print(f"KeyError: {e}")
             continue
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
@@ -298,7 +302,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
 #     return df_final
 
 
-def generate_for_sparkline(data='',proses='CNC', type='TOPLAM', ppm=False):
+def generate_for_sparkline(data='', proses='CNC', type='TOPLAM', ppm=False):
     if type == 'HURDA':
         data["HURDA"] = data["HURDA"].astype(int)
     if not ppm:
@@ -318,19 +322,20 @@ def get_daily_qty(df=prd_conf, costcenter='CNC', type="TOPLAM", ppm=False):
     if not ppm:
         return str(df[type].iloc[-1])
     else:
-        return int(1000000*int(df["HURDA"].iloc[-1]) / int(df["TOPLAM"].iloc[-1]))
+        return int(1000000 * int(df["HURDA"].iloc[-1]) / int(df["TOPLAM"].iloc[-1]))
 
 
 def scatter_plot(df=prd_conf, report_day="2022-07-26"):
     df = df.loc[df["CONFTYPE"] != 'Uretim',
-                ["WORKSTART", "WORKCENTER", "FAILURETIME", 'SETUPTIME',"STEXT", "CONFTYPE"]]
+    ["WORKSTART", "WORKCENTER", "FAILURETIME", 'SETUPTIME', "STEXT", "CONFTYPE"]]
     df["FAILURETIME"] = df.apply(lambda row: apply_nat_replacer(row["FAILURETIME"]), axis=1)
-    df["FAILURETIME"] = [df["FAILURETIME"][row] if df["FAILURETIME"][row] != "nan" else df["SETUPTIME"][row] for row in df.index]
+    df["FAILURETIME"] = [df["FAILURETIME"][row] if df["FAILURETIME"][row] != "nan" else df["SETUPTIME"][row] for row in
+                         df.index]
 
     df.reset_index(inplace=True, drop=True)
     df.sort_values(by="WORKCENTER", inplace=True)
-    df["STEXT"] = [df["CONFTYPE"][row] if df["CONFTYPE"][row] == 'Kurulum'\
-        else df["STEXT"][row] for row in df.index]
+    df["STEXT"] = [df["CONFTYPE"][row] if df["CONFTYPE"][row] == 'Kurulum' \
+                       else df["STEXT"][row] for row in df.index]
 
     df["FAILURETIME"] = df["FAILURETIME"].astype(float)
     total_quantity = df['FAILURETIME'].sum()
@@ -339,16 +344,16 @@ def scatter_plot(df=prd_conf, report_day="2022-07-26"):
     df = df.merge(df_percs.drop(axis=1, columns="FAILURETIME"), on='STEXT', how='left')
     df['PERCENTAGE'] = df['PERCENTAGE'].astype(str)
     df["STEXT"] = df["STEXT"] + ' ' + df["PERCENTAGE"] + '%'
-    df_legend = df.groupby(["STEXT"]).agg({"FAILURETIME":sum})
+    df_legend = df.groupby(["STEXT"]).agg({"FAILURETIME": sum})
     df_legend.reset_index(inplace=True)
     df_legend = df_legend.sort_values(by="FAILURETIME", ascending=False)
     category_order = list(df_legend["STEXT"])
-    return df,category_order
+    return df, category_order
 
 
 def get_gann_data(df=prd_conf):
     cols = ['MATERIAL', 'COSTCENTER', 'QTY', 'BREAKDOWN', 'PERSONELNUM', 'WORKCENTER', 'BREAKDOWNSTART', 'BREAKDOWNEND',
-            'STEXT', 'CONFTYPE','FAILURETIME','RUNTIME',"SCRAPQTY","SETUPTIME"]
+            'STEXT', 'CONFTYPE', 'FAILURETIME', 'RUNTIME', "SCRAPQTY", "SETUPTIME"]
     df_helper = df.copy()
     df_helper.drop(["BREAKDOWNSTART", "BREAKDOWNEND"], axis=1, inplace=True)
     df_helper = df_helper.rename(columns={"WORKSTART": "BREAKDOWNSTART",
@@ -382,8 +387,8 @@ def get_gann_data(df=prd_conf):
 #     df["NET_WORKING_TIME1"] = [get_work_hour(df["WORKCENTER"][row], df["WORKSTART"][row], df["WORKEND"][row]) for row in
 #                                range(df.shape[0])]
 
-def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC', order=0,
-                   colorof='green',coloroftext='black',title= 'WORKCENTER',height=320,width=350):
+def return_ind_fig(df_metrics=None, df_details=pd.DataFrame(), costcenter='CNC', order=0,
+                   colorof='green', coloroftext='black', title='WORKCENTER', height=320, width=350):
     text = ''
     if df_metrics is None:
         return None
@@ -411,8 +416,6 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
     else:
         finalnum = 'PERFORMANCE'
 
-
-
     if colorof == 'green':
         colorof2 = coloroftext
     else:
@@ -420,11 +423,10 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
 
     title_txt = final_card[title].values[0]
 
-
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge+number",
-        value=final_card[finalnum].values[0] * 100 ,
+        value=final_card[finalnum].values[0] * 100,
         title={
             "text": f"<span style='font-size:1.5em;'>{title_txt}</span><br><br><br><br><br><br><span style='font-size:5em;color:gray'>"}
         ,
@@ -455,8 +457,8 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
     annotation = {
         "height": 600,
         "width": 1200,
-        'x':0.55,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y':-0.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'x': 0.55,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': -0.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': text,
         # 'showarrow': True,
         # 'arrowhead': 3,
@@ -475,12 +477,12 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
 
     return fig
 
-#this metod takes manufacturing companies workcenter data,status refers to the status of the workcenter and it definess backgroundcolor,
-#text refers to the text to be displayed on the indicator graph.
-#workcenter refers to the workcenter of the manufacturing company, it will be on header
-def return_indicatorgraph(status='white',fullname='',
-                          workcenter='',material='',durus='',target=0):
 
+# this metod takes manufacturing companies workcenter data,status refers to the status of the workcenter and it definess backgroundcolor,
+# text refers to the text to be displayed on the indicator graph.
+# workcenter refers to the workcenter of the manufacturing company, it will be on header
+def return_indicatorgraph(status='white', fullname='',
+                          workcenter='', material='', durus='', target=0):
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge+number",
@@ -504,7 +506,7 @@ def return_indicatorgraph(status='white',fullname='',
                 'value': 80
             }
         },
-        number={'suffix': None }
+        number={'suffix': None}
 
         #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
         #        domain={'x': [0, 1], 'y': [0, 1]}
@@ -540,14 +542,74 @@ def return_indicatorgraph(status='white',fullname='',
     }
 
     fig.update_layout({
-        "annotations": [annotation,annotation1,annotation2],
-        "title" : dict(
-        text=workcenter,
-        x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
-        y=0.81,
-        font = dict(
-        size=55
-        )
-    ),"paper_bgcolor": status, "width": 585, "height": 550})
+        "annotations": [annotation, annotation1, annotation2],
+        "title": dict(
+            text=workcenter,
+            x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
+            y=0.81,
+            font=dict(
+                size=55
+            )
+        ), "paper_bgcolor": status, "width": 585, "height": 550})
+
+    return fig
+
+
+def return_DELTAgraph(status='white', fullname='',
+                      workcenter='', material='', durus='', target=0):
+    fig = go.Figure()
+    fig.add_trace(go.Indicator(
+        mode="gauge",
+        value= (target-durus) if durus > 0 else 0,
+        gauge={'bar': {'color': "white"},
+            'shape': "bullet"},
+        delta={"reference": target},
+        number={'suffix': None},
+        domain={'x': [0.2, 0.8], 'y': [0.4, 0.6]},  # Adjust the domain to control the gauge size
+
+
+        #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
+        #        domain={'x': [0, 1], 'y': [0, 1]}
+    ))
+
+    annotation = {
+
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'text': fullname,
+        # 'showarrow': True,
+        # 'arrowhead': 3,
+        'font': {'size': 24, 'color': 'black'}
+    }
+    annotation1 = {
+
+        'x': 0.50,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 0.1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'text': material,
+        # 'showarrow': True,
+        # 'arrowhead': 3,
+        'font': {'size': 40, 'color': 'black'}
+    }
+    annotation2 = {
+
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 0.75,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+
+        'text': f"{str(abs(durus))} DAKİKA GECİKTİ" if durus < 0 else f"{str(durus)} DAKİKA SONRA HAZIR",
+        # 'showarrow': True,
+        # 'arrowhead': 3,
+        'font': {'size': 25, 'color': 'black'}
+    }
+
+    fig.update_layout({
+        "annotations": [annotation, annotation1, annotation2],
+        "title": dict(
+            text=workcenter,
+            x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
+            y=0.81,
+            font=dict(
+                size=55
+            )
+        ), "paper_bgcolor": status, "width": 585, "height": 550})
 
     return fig
