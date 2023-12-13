@@ -286,7 +286,10 @@ def return_piechart(option_slctd,oeelist0):
     df = oeelist0[option_slctd]
     print(df)
     df["OEE"] = df["OEE"] * 100
-    df["OEE"] = df["OEE"].astype(int)
+    try:
+        df["OEE"] = df["OEE"].astype(int)
+    except pd.errors.IntCastingNaNError:
+        df["OEE"] = 0
     if int(df["OEE"][0]*100) > 38:
         print("if doğru ( app.py satır 283 ) ")
         fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,

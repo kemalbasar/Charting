@@ -32,7 +32,13 @@ def return_pie():
     return px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER")
 
 
-layout = [dcc.Store(id='generated_data'),dcc.Download(id="download-energy"),
+layout = [
+    # dbc.Button("Day", id="btn-day_en", n_clicks=0, color="primary", className='day-button'),
+    # dbc.Button("Week", id="btn-week1_en", n_clicks=0, color="primary", className='week-button'),
+    # dbc.Button("Month", id="btn-month1_en", n_clicks=0, color="primary", className='month-button'),
+    # dbc.Button("Year", id="btn-year1_en", n_clicks=0, color="primary", className='year-button'),
+
+    dcc.Store(id='generated_data'),dcc.Download(id="download-energy"),
     dbc.Row(html.H1("Valfsan Production Energy Consumption",
                     style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30, 'backgroundColor': '#f0f0f0'})),
     dbc.Row([
@@ -49,22 +55,29 @@ layout = [dcc.Store(id='generated_data'),dcc.Download(id="download-energy"),
                         # Div for dropdowns and date pickers
                         html.Div(
                             [
-                                dcc.Dropdown(
+                                dbc.Row([dcc.Dropdown(
                                     id='machine-type-dropdown',
                                     options=[{'label': k, 'value': k} for k in valftoreeg.keys()],
                                     value=list(valftoreeg.keys())[0],  # Default value
-                                    style={'color': '#212121'}
+                                    style={'color': '#212121',"width":150}
                                 ),
+                                    dcc.Dropdown(
+                                        id='machine-dropdown',
+                                        style={'color': '#212121',"width":220},
+                                        value = 'Analizörler'
+                                )]),
                                 dcc.Dropdown(
-                                    id='machine-dropdown',
-                                    style={'color': '#212121'}
+                                    id='date-dropdown',
+                                    options= ['day','month'],
+                                    style={'color': '#212121',"width":150},
+                                    value = 'month'
                                 ),
                                 dcc.DatePickerRange(
                                     id='date-picker',
                                     className="dash-date-picker-multi",
                                     start_date=(date.today() - timedelta(weeks=15)).isoformat(),
                                     end_date=(date.today() + timedelta(weeks=4)).isoformat(),
-                                    display_format='YYYY-MM',
+                                    display_format='YYYY-MM-DD',
                                     style={'color': '#212121'}
                                 )
                             ],
@@ -177,18 +190,30 @@ def set_machine_options(selected_machine_type):
 
 
 # @cache.memoize()
-def update_table(begin_month, begin_year, final_month, final_year, costcenter, m_point):
-    selected_point = m_point
-    with open(project_directory + f"\Charting\queries\energy_qandweight.sql", 'r') as file:
-        filedata = file.read()
-    start_date = datetime(begin_year, begin_month, 1)
-    end_date = datetime(final_year, final_month, 1)
-    code_works = start_date.strftime('%Y-%m-%dT%H:%M:%S')
-    code_worke = end_date.strftime('%Y-%m-%dT%H:%M:%S')
+def update_table(s_date, f_date, costcenter, m_point,date_interval):
+    if date_interval == 'day':
+        with open(project_directory + f"\Charting\queries\energy_qandweight_daily.sql", 'r') as file:
+            filedata = file.read()
+    else:
 
-    difference = relativedelta(end_date, start_date)
+        with open(project_directory + f"\Charting\queries\energy_qandweight.sql", 'r') as file:
+            filedata = file.read()
+        # f_date = datetime.strptime(f_date, "%Y-%m-%d")
+        # f_date = str(f_date + relativedelta(months=+1))
+        # final_month = int(f_date[5:7])
+        # begin_month = int(s_date[5:7])
+        # final_year = int(f_date[0:4])
+        # begin_year = int(s_date[0:4])
+        # start_date = datetime(begin_year, begin_month, 1)
+        # end_date = datetime(final_year, final_month, 1)
+    f_date = datetime.strptime(f_date, "%Y-%m-%d")
+    s_date = datetime.strptime(s_date, "%Y-%m-%d")
+    code_works = s_date.strftime('%Y-%m-%dT%H:%M:%S')
+    code_worke = f_date.strftime('%Y-%m-%dT%H:%M:%S')
+    start_date = s_date.strftime('%Y-%m-%d')
+    end_date = f_date.strftime('%Y-%m-%d')
+
     # Extract the number of months and years in the difference
-    month_difference = difference.months + difference.years * 12
 
     df_final = pd.DataFrame()
     analizorler = []
@@ -201,7 +226,6 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
             analyzer.update(valftoreeg[costcenter_tmp])
             for item in valftoreeg[costcenter_tmp]:
                 analizorler.append((item, costcenter_tmp))
-    print(analizorler)
     for m_point in analizorler:
 
         costcenter_tmp = m_point[1]
@@ -209,13 +233,10 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
 
         if m_point == 'Bölümler' or m_point == 'Analizörler':
             continue
-
         if m_point == "K-13','K-18','K-19','K-20','K-21','K-22','K-23','K-25','K-27','K-28":
             m_point_tmp = '10 Kurutma'
         elif m_point == "T-19','T-20','T-21','T-22','T-23','T-24','T-25','T-26','T-27','T-34','T-37','T-43','T-44','T-45":
             m_point_tmp = '10 Tambur'
-        elif m_point == "CNCTO-01','CNCTO-02','CNCTO-04','CNCTO-05','CNCTO-06','CNC-TO-07','CNCTO-08','CNCTO-09','CNCTO-10','CNCTO-11','CNCTO-12','CNCTO-13','CNCTO-14','CNC-TO-15','CNCTO-16','CNC-07','CNC-08','CNC-26','CNC-28":
-            m_point_tmp = "19 CNC (Pano 1)"
         elif m_point == "CNCTO-01','CNCTO-02','CNCTO-04','CNCTO-05','CNCTO-06','CNCTO-07','CNCTO-08','CNCTO-09','CNCTO-10','CNCTO-11','CNCTO-12','CNCTO-13','CNCTO-14','CNCTO-15','CNCTO-16','CNC-07','CNC-08','CNC-26','CNC-28":
             m_point_tmp = "19 CNC (Pano 1)"
         elif m_point == "CNC-04', 'CNC-11', 'CNC-13', 'CNC-14', 'CNC-15', 'CNC-16', 'CNC-17', 'CNC-18', 'CNC-19', 'CNC-20', 'CNC-21', 'CNC-22', 'CNC-23', 'CNC-29', 'Z-01":
@@ -232,22 +253,39 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
             m_point_tmp = "10 Pres (Salter 4-6)"
         elif m_point == "P-21','P-60','P-09','P-10','P-15','P-32','P-48','P-58','P-20','P-28','P-57":
             m_point_tmp = "11 Pres (Pano 3 Diger)"
+        elif m_point == "S-03','V-01','V-02":
+            m_point_tmp = "S-03,V-01,V-02"
+        elif m_point == "OTEC-03','OTEC-04":
+            m_point_tmp = "OTEC-03,OTEC-04"
         else:
             m_point_tmp = m_point
 
-        if m_point_tmp == '11 Pres (Pano 3 Diger)':
-            df_works = ag.run_query(f"WITH ASD AS ( SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,OUTPUT as OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY WHERE MPOINT IN "
-                                    f"('PRES - Pano 1','8 Pres (Salter 2)','13 Pres (Salter 5)','4 Pres (Salter 3)')  )"
-                                    f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, SUM(OUTPUT) AS OUTPUT,DATE from ASD GROUP BY DATE")
+        if date_interval == 'day':
+            if m_point_tmp == '11 Pres (Pano 3 Diger)':
+                df_works = ag.run_query(f"WITH ASD AS ( SELECT CAST(DATE AS DATETIME) AS DATE,"
+                                        f"SUM(OUTPUT) as OUTPUT,"
+                                        f"COSTCENTER,INTERVAL FROM VLFENERGY WHERE MPOINT IN "
+                                        f"('PRES - Pano 1','8 Pres (Salter 2)','13 Pres (Salter 5)','4 Pres (Salter 3)') "
+                                        f"GROUP BY CAST(DATE AS DATETIME),COSTCENTER,INTERVAL )"
+                                        f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, OUTPUT,DATE,COSTCENTER from ASD ")
+            else:
+                df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
+                                    f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+                                    f" WHERE MPOINT = '{m_point_tmp}' "
+                                    f"AND  DATE >= '{code_works}' AND '{code_worke}' > DATE ")
         else:
-            df_works = ag.run_query(f"SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,SCODE,"
-                                f"SUM(OUTPUT) AS OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
-                                f" WHERE MPOINT = '{m_point_tmp}' "
-                                f"AND  DATE >= '{code_works}' AND '{code_worke}' > DATE "
-                                f"GROUP BY LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2),MPOINT,SCODE,COSTCENTER,INTERVAL")
+            if m_point_tmp == '11 Pres (Pano 3 Diger)':
+                df_works = ag.run_query(f"WITH ASD AS ( SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,OUTPUT as OUTPUT,"
+                                        f"COSTCENTER,INTERVAL FROM VLFENERGY WHERE MPOINT IN "
+                                        f"('PRES - Pano 1','8 Pres (Salter 2)','13 Pres (Salter 5)','4 Pres (Salter 3)')  )"
+                                        f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, SUM(OUTPUT) AS OUTPUT,DATE,COSTCENTER FROM ASD GROUP BY DATE,COSTCENTER")
+            else:
+                df_works = ag.run_query(f"SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,SCODE,"
+                                    f"SUM(OUTPUT) AS OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+                                    f" WHERE MPOINT = '{m_point_tmp}' "
+                                    f"AND  DATE >= '{code_works}' AND '{code_worke}' > DATE "
+                                    f"GROUP BY LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2),MPOINT,SCODE,COSTCENTER,INTERVAL")
 
-        print(df_works)
-        print("******")
 
         if df_works is None:
             continue
@@ -261,24 +299,25 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
         except (TypeError) as e:
             filedata_tmp = filedata_tmp.replace("XXMATERIALYY", "x")
 
+
         # manüpüle ettiğimiz sorguyu çalıştırıyoruz ve yeni bir sütun ekliyoruz.
         df_prddata = ag.run_query(filedata_tmp)
-        df_prddata.rename(columns={"TOTALNETWEIGHT": "TOTALNETWEIGHT(ton)"},inplace=True)
 
+
+        df_prddata.rename(columns={"TOTALNETWEIGHT": "TOTALNETWEIGHT(ton)"},inplace=True)
         df_prddata["MPOINT"] = m_point_tmp
 
         if len(df_prddata):
+            print(df_works["DATE"].dtype)
+            print(df_prddata["DATE"].dtype)
+            df_prddata["DATE"] = pd.to_datetime(df_prddata["DATE"])
+            df_works["DATE"] = pd.to_datetime(df_works["DATE"])
             df_works = df_works.merge(df_prddata, on=['MPOINT', 'DATE'], how='left').fillna(0)
-            print(f"{df_works}")
-            print(f"***********")
 
         else:
-            df_works["MPOINT"] = m_point
+            df_works["MPOINT"] = m_point_tmp
             df_wcs = ag.run_query(f"SELECT WORKCENTER FROM IASWORKCENT"
                          f" WHERE  WORKCENTER IN ('{m_point}')")
-            print("burdabu")
-            print(df_wcs)
-            print("burdabu")
 
             if len(df_wcs):
                 df_works["QUANTITY"] = 0
@@ -297,16 +336,14 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
     df_final["OUTPUT(KWH)"] = df_final["OUTPUT(KWH)"].apply(lambda x: round(x, 3))
 
     df_final["OUTPUT(KWH)"] = df_final["OUTPUT(KWH)"].astype(float)
-    print(df_final.dtypes)
     df_final["kwhPERton"] = df_final.apply(lambda x: x["OUTPUT(KWH)"] / x["TOTALNETWEIGHT(ton)"] if x["TOTALNETWEIGHT(ton)"] > 0 else 0, axis=1)
     df_final["kwhPERqty"] = df_final.apply(lambda x: x["OUTPUT(KWH)"] /
                                                      x["QUANTITY"] if x["QUANTITY"] else 0, axis=1)
     df_final["kwhPERton"] =   df_final.apply(lambda x: x["kwhPERton"] if x["QUANTITY"] else None, axis=1)
     df_final["kwhPERqty"] =  df_final.apply(lambda x: x["kwhPERqty"] if x["QUANTITY"]  else None, axis=1)
 
-    df_final['DATE'] = df_final['DATE'].apply(lambda x: datetime.strptime(x, '%Y-%m'))
-
-    print(df_final['DATE'].dtypes)
+    # if date_interval == 'month':
+    #     df_final['DATE'] = df_final['DATE'].apply(lambda x: datetime.strptime(x, '%Y-%m'))
 
 
     df_final.sort_values(by=["DATE", "kwhPERton"], ascending=False, inplace=True)
@@ -331,8 +368,6 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
     df_final.rename(columns={"COSTCENTER": "Prod.Process"},inplace=True)
     df_final.rename(columns={"MPOINT ": "MPoint.Analyser"},inplace=True)
 
-    print(df_final)
-
     return df_final.to_json(date_format='iso', orient='split'),\
         df_final_sum.to_json(date_format='iso', orient='split')
 
@@ -349,19 +384,14 @@ def update_table(begin_month, begin_year, final_month, final_year, costcenter, m
      State('date-picker', 'end_date'),
      State('machine-type-dropdown', 'value'),
      State('machine-dropdown', 'value'),
+     State('date-dropdown', 'value'),
      Input('search', 'n_clicks')]
 )
-def cache_to_result(s_date, f_date, costcenter, m_point, button):
+def cache_to_result(s_date, f_date, costcenter, m_point,date_interval, button):
     if button <= 0:
         raise PreventUpdate
-    f_date = datetime.strptime(f_date, "%Y-%m-%d")
-    f_date = str(f_date + relativedelta(months=+1))
-    final_month = int(f_date[5:7])
-    begin_month = int(s_date[5:7])
-    final_year = int(f_date[0:4])
-    begin_year = int(s_date[0:4])
-    df_final,df_final_sum = update_table(begin_month, begin_year,
-                            final_month, final_year, costcenter, m_point)
+
+    df_final,df_final_sum = update_table(s_date, f_date, costcenter, m_point,date_interval)
     df_final = pd.read_json(df_final, orient='split')
     df_final_sum=  pd.read_json(df_final_sum, orient='split')
     columns = [{"name": i, "id": i} for i in df_final.columns]
