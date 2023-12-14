@@ -280,8 +280,8 @@
 }
 
 .dash-empty-button {
-    width: 85px;    /* width of the square button */
-    height: 30px;   /* height of the square button */
+    width: 100px;    /* width of the square button */
+    height: 40px;   /* height of the square button */
     background-color: #593096;  /* button color */
     border: none;  /* no border */
     color: white;  /* text (icon) color */

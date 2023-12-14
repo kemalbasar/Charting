@@ -557,9 +557,9 @@ def return_DELTAgraph(status='white', fullname='',
     elif durus == 0:
         mtext = 'Hazır'
     elif durus < 0:
-        mtext = f"{str(abs(durus))} DAKİKA GECİKTİ"
+        mtext = f"{str(abs(durus))} DK GECİKTİ"
     else:
-        mtext =  f"{str(durus)} DAKİKA SONRA HAZIR"
+        mtext =  f"{str(durus)} DK SONRA HAZIR"
 
     fig = go.Figure()
     fig.add_trace(go.Indicator(
@@ -576,32 +576,34 @@ def return_DELTAgraph(status='white', fullname='',
         #        domain={'x': [0, 1], 'y': [0, 1]}
     ))
 
+    colorof = 'white' if durus < 0 else 'black'
+
     annotation = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': 0.2,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': str(fullname),
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 32, 'color': 'black'}
+        'font': {'size': 45, 'color': colorof}
     }
     annotation1 = {
 
         'x': 0.50,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': 0.05,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': material,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 44, 'color': 'black'}
+        'font': {'size': 36, 'color': colorof}
     }
     annotation2 = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.75,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': 0.65,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': mtext,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 30, 'color': 'black'}
+        'font': {'size': 50, 'color': colorof}
     }
 
     fig.update_layout({
@@ -609,9 +611,10 @@ def return_DELTAgraph(status='white', fullname='',
         "title": dict(
             text=workcenter,
             x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
-            y=0.81,
+            y=0.85,
             font=dict(
-                size=70
+                size=85,
+                color=colorof
             )
         ), "paper_bgcolor": status, "width": 585, "height": 630})
 

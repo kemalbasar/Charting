@@ -45,68 +45,74 @@ layout = [
     dbc.Row([
         dbc.Col([
             dbc.Row([
-                dcc.Link(
-                    children='Main Page',
-                    href='/',
-                    style={"color": "black", "font-weight": "bold"}
-                ),
-                html.Br(),
-                html.Div(
-                    [
-                        # Div for dropdowns and date pickers
-                        html.Div(
-                            [
-                                dbc.Row([dcc.Dropdown(
-                                    id='machine-type-dropdown',
-                                    options=[{'label': k, 'value': k} for k in valftoreeg.keys()],
-                                    value=list(valftoreeg.keys())[0],  # Default value
-                                    style={'color': 'yellow', "width": 150}
-                                ),
+                dbc.Col([
+                    dcc.Link(
+                        children='Main Page',
+                        href='/',
+                        style={"color": "black", "font-weight": "bold"}
+                    ),
+                    html.Br(),
+                    html.Br(),
+                    html.Div(
+                        [
+                            # Div for dropdowns and date pickers
+                            html.Div(
+                                [
+                                    dbc.Row([dcc.Dropdown(
+                                        id='machine-type-dropdown',
+                                        options=[{'label': k, 'value': k} for k in valftoreeg.keys()],
+                                        value=list(valftoreeg.keys())[0],  # Default value
+                                        style={'color': 'yellow', "width": 150}
+                                    ),
+                                        html.Br(),
+                                        dcc.Dropdown(
+                                            id='machine-dropdown',
+                                            style={'color': 'yellow', "width": 220},
+                                            value='Analizörler'
+                                        )]),
                                     dcc.Dropdown(
-                                        id='machine-dropdown',
-                                        style={'color': 'yellow', "width": 220},
-                                        value='Analizörler'
-                                    )]),
-                                dcc.Dropdown(
-                                    id='date-dropdown',
-                                    options=['day', 'month'],
-                                    style={'color': 'yellow', 'font':{'color':'white'},"width": 150},
-                                    value='month'
-                                ),
-                                dcc.DatePickerRange(
-                                    id='date-picker',
-                                    className="dash-date-picker-multi",
-                                    start_date=(date.today() - timedelta(weeks=1)).isoformat(),
-                                    end_date=(date.today()).isoformat(),
-                                    display_format='YYYY-MM-DD',
-                                    style={'color': '#212121'}
-                                )
-                            ],
-                            style={'display': 'inline-block', 'width': 'auto', 'marginRight': '20px'}
-                        ),
-                        # Separate Div for the button
-                        html.Div(
-                            [
-                                html.Button(
-                                    'Search',
-                                    id='search',
-                                    className="dash-empty-button",
-                                    n_clicks=0,
-                                    style={'backgroundColor': '#007bff', 'color': 'white', 'padding': '10px 20px'}
-                                ),
-                                html.Button(
-                                    'Download',
-                                    id='download',
-                                    className="dash-empty-button",
-                                    n_clicks=0,
-                                    style={'backgroundColor': '#007bff', 'color': 'white', 'padding': '10px 20px'}
-                                )
-                            ],
-                            style={'display': 'inline-block', 'textAlign': 'center'}
-                        )
-                    ],
+                                        id='date-dropdown',
+                                        options=['day', 'month'],
+                                        style={'color': 'yellow', 'font':{'color':'white'},"width": 150},
+                                        value='month'
+                                    ),
+                                    html.Br(),
+                                    dcc.DatePickerRange(
+                                        id='date-picker',
+                                        className="dash-date-picker-multi",
+                                        start_date=(date.today() - timedelta(weeks=1)).isoformat(),
+                                        end_date=(date.today()).isoformat(),
+                                        display_format='YYYY-MM-DD',
+                                        style={'color': '#212121'}
+                                    )
+                                ],
+                                style={'display': 'inline-block', 'width': 'auto', 'marginRight': '20px'}
+                            ),
+                            # Separate Div for the button
+                            html.Div(
+                                [
+                                    html.Button(
+                                        'Search',
+                                        id='search',
+                                        className="dash-empty-button",
+                                        n_clicks=0,
+                                    ),
+                                    html.Button(
+                                        'Download',
+                                        id='download',
+                                        className="dash-empty-button",
+                                        n_clicks=0,
+                                    )
+                                ],
+                                style={'display': 'inline-block', 'textAlign': 'center'}
+                            )
+                        ],
 
-                )]),
+                    )],width=3),
+                dbc.Col([
+                    dcc.Graph(id="pie_chart", figure=return_pie())],width=4),
+                dbc.Col([dcc.Graph(id='example-graph', figure=fig)],width=2)
+        ]),
             dbc.Row([
                 dash_table.DataTable(
                     id="data_table",
@@ -169,10 +175,9 @@ layout = [
             ], style={"marginTop": 50}
             )
         ]),
-        dbc.Col([dcc.Graph(id='example-graph', figure=fig),
-                 dcc.Graph(id="line_chart_combined"),
-                 dcc.Graph(id="pie_chart", figure=return_pie())]
-                , width=4)
+        dbc.Col([
+            html.Div(id="wc-output-container_energy"), ]
+            , width=4)
     ]),
     dbc.Row([
         dbc.Col(),
@@ -231,7 +236,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         analizorler.append((m_point, costcenter))
     else:
         analyzer = {}
-        if costcenter == 'Bölümler':
+        if m_point == 'Bölümler':
             print("***here***")
 
             my_keys = ["KURUTMA","YUZEY ISLEM","PRESHANE","CNC"]
@@ -422,9 +427,10 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
             df_final["kwhPERqty"] = df_final.apply(
                 lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0,
                 axis=1)
-            df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.5f}" if x is not None else x)
-            df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.5f}" if x is not None else x)
+            df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.3f}" if x is not None else x)
+            df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.3f}" if x is not None else x)
             df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].apply(lambda x: f"{x:.3f}")
+            df_final["MPOINT"] = df_final["COSTCENTER"]
             df_final_sum = pd.DataFrame()
 
     else:
@@ -435,6 +441,8 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         df_final_sum.loc[len(df_final_sum.index)] = (
         '0000-00-00T00:00:00+00:00', "ALL", "ALL", df_final["TOTALNETWEIGHT(ton)"].sum(),
         df_final["OUTPUT(KWH)"].sum(), 0.000, df_final["QUANTITY"].sum(), 0.000)
+        df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.3f}" if x is not None else x)
+        df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.3f}" if x is not None else x)
         df_final_sum["kwhPERton"] = df_final_sum["OUTPUT(KWH)"] / df_final_sum["TOTALNETWEIGHT(ton)"]
         df_final_sum["kwhPERqty"] = df_final_sum.apply(
             lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0,
@@ -480,35 +488,56 @@ def cache_to_result(s_date, f_date, costcenter, m_point, date_interval, button):
 
 
 @app.callback(
-    Output("line_chart_combined", "figure"),
+    Output("wc-output-container_energy", "children"),
     [Input("data_table", "data")]
 )
 def line_graph_update(data):
     # Convert the input data to a DataFrame
     df = pd.DataFrame(data)
     df.sort_values(by="DATE", ascending=False, inplace=True)
-    fig_combined = go.Figure()
+    fig_combined_perton = go.Figure()
+    fig_combined_perqty = go.Figure()
+    fig_combined_cons = go.Figure()
 
     # Add trace for kwhPERton
+    traces_perton = []
+    traces_perqty = []
+    traces_cons = []
 
-    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["kwhPERton"], mode='lines+markers', name='kWh/ton'))
+    for m_point in df["MPOINT"].unique():
+        print(m_point)
+        df_tmp = df.loc[df["MPOINT"] == m_point]
 
-    # Add trace for kwhPERqty
-    fig_combined.add_trace(
-        go.Scatter(x=df["DATE"], y=df["kwhPERqty"] * 1000, mode='lines+markers', name='kWh*1000/Quantity'))
+        fig_combined_perton.add_trace(go.Scatter(x=df_tmp["DATE"], y=df_tmp["kwhPERton"], mode='lines+markers', name=m_point))
 
-    # Add trace for kwhPERqty
-    fig_combined.add_trace(go.Scatter(x=df["DATE"], y=df["OUTPUT(KWH)"], mode='lines+markers', name='Consumption'))
+        # Add trace for kwhPERqty
+        fig_combined_perqty.add_trace(
+            go.Scatter(x=df_tmp["DATE"], y=df_tmp["kwhPERqty"] * 1000, mode='lines+markers', name=m_point))
 
-    # Update layout
-    fig_combined.update_layout(
+        # Add trace for kwhPERqty
+        fig_combined_cons.add_trace(go.Scatter(x=df_tmp["DATE"], y=df_tmp["OUTPUT(KWH)"], mode='lines+markers', name=m_point))
+
+        # Update layout
+    fig_combined_perton.update_layout(
+        title='Energy Consumption Per Ton',
+        xaxis_title='Date',
+        yaxis_title='Consumption Per Ton',
+        legend_title="Metrics"
+    )
+    fig_combined_perqty.update_layout(
+        title='Energy Consumption Per Quantity',
+        xaxis_title='Date',
+        yaxis_title='Consumption Per Quantıy',
+        legend_title="Metrics"
+    )
+    fig_combined_cons.update_layout(
         title='Energy Consumption Comparison',
         xaxis_title='Date',
         yaxis_title='Energy Consumption',
         legend_title="Metrics"
     )
 
-    return fig_combined
+    return html.Div(children=[dcc.Graph(figure=fig_combined_perton),dcc.Graph(figure=fig_combined_perqty),dcc.Graph(figure=fig_combined_cons)])
 
 
 @app.callback(
