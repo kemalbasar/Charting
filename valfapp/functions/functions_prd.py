@@ -583,7 +583,7 @@ def return_DELTAgraph(status='white', fullname='',
         'text': str(fullname),
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 24, 'color': 'black'}
+        'font': {'size': 32, 'color': 'black'}
     }
     annotation1 = {
 
@@ -592,7 +592,7 @@ def return_DELTAgraph(status='white', fullname='',
         'text': material,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 40, 'color': 'black'}
+        'font': {'size': 44, 'color': 'black'}
     }
     annotation2 = {
 
@@ -601,7 +601,7 @@ def return_DELTAgraph(status='white', fullname='',
         'text': mtext,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 25, 'color': 'black'}
+        'font': {'size': 30, 'color': 'black'}
     }
 
     fig.update_layout({
@@ -611,8 +611,8 @@ def return_DELTAgraph(status='white', fullname='',
             x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
             y=0.81,
             font=dict(
-                size=55
+                size=70
             )
-        ), "paper_bgcolor": status, "width": 585, "height": 550})
+        ), "paper_bgcolor": status, "width": 585, "height": 630})
 
     return fig

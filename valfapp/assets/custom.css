@@ -1,4 +1,19 @@
 
+/* dropdown menu options */
+.VirtualizedSelectOption {
+    background-color: #593096;
+    color: white;
+ }
+
+
+/* dropdown menu hover effect */
+.VirtualizedSelectFocusedOption {
+    background-color: rgba(141, 123, 169, 0.81);
+    opacity: .7;
+}
+
+
+
 
 .dropdown-style {
     color: white; /* Set font color to white */
@@ -11,23 +26,32 @@
     padding: 0; /* No padding */
 }
 
-/* Styles for the selected value in the dropdown */
-.Select-value {
-    color: white; /* Set font color to white */
+.Select-control {
+    background-color: rgb(25, 25, 25) !important;
+    color:white;
+  }
+
+.Select-menu-outer {
+    background-color: rgb(25, 25, 25);
+    color: white;
 }
 
-/* Additional styles for options in the dropdown */
-.dropdown-style .Select-option {
-    color: white; /* Set font color to white */
+.Select-value-label {
+    color: white !important;
 }
 
-/* Styles for the input field */
-.dropdown-style .Select-input {
-    color: white; /* Set font color to white */
-}
+
+/*.Select.has-value.is-clearable.is-searchable.Select--single:focus-visible {*/
+/*    outline-color: pink;*/
+/*}*/
+/*.is-focused:not(.is-open)>.Select-control {*/
+/*    border-color: hotpink;*/
+/*    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 0 3px rgba(0,126,255,.1)*/
+/*}*/
+
 .Select-placeholder,
 .Select--single > .Select-control .Select-value {
-    color: white;
+    color: yellow;
     background-color: #593096;
 }
 
