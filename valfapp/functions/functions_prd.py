@@ -626,6 +626,6 @@ def return_DELTAgraph(status='white', fullname='',
                 size=100,
                 color=colorof
             )
-        ), "paper_bgcolor": status, "width": 475, "height": 630})
+        ), "paper_bgcolor": status, "width": 475, "height": 520})
 
     return fig
