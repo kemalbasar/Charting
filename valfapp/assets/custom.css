@@ -1,4 +1,9 @@
+.slider {
+    width: 50%;
+    height: 50%;
+  }
 
+#Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
 /* dropdown menu options */
 .VirtualizedSelectOption {
     background-color: #593096;
@@ -11,9 +16,6 @@
     background-color: rgba(141, 123, 169, 0.81);
     opacity: .7;
 }
-
-
-
 
 .dropdown-style {
     color: white; /* Set font color to white */
@@ -41,20 +43,13 @@
 }
 
 
-/*.Select.has-value.is-clearable.is-searchable.Select--single:focus-visible {*/
-/*    outline-color: pink;*/
-/*}*/
-/*.is-focused:not(.is-open)>.Select-control {*/
-/*    border-color: hotpink;*/
-/*    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 0 3px rgba(0,126,255,.1)*/
-/*}*/
-
 .Select-placeholder,
 .Select--single > .Select-control .Select-value {
     color: yellow;
     background-color: #593096;
 }
 
+#Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
 
 
 .estop-button {

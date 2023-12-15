@@ -557,9 +557,9 @@ def return_DELTAgraph(status='white', fullname='',
     elif durus == 0:
         mtext = 'Hazır'
     elif durus < 0:
-        mtext = f"{str(abs(durus))} DK GECİKTİ"
+        mtext = f"DK GECİKTİ"
     else:
-        mtext =  f"{str(durus)} DK SONRA HAZIR"
+        mtext =  f"DK SONRA"
 
     fig = go.Figure()
     fig.add_trace(go.Indicator(
@@ -582,7 +582,7 @@ def return_DELTAgraph(status='white', fullname='',
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 0.2,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
-        'text': str(fullname),
+        'text': str(fullname)[-8:],
         # 'showarrow': True,
         # 'arrowhead': 3,
         'font': {'size': 45, 'color': colorof}
@@ -600,22 +600,32 @@ def return_DELTAgraph(status='white', fullname='',
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 0.65,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
-        'text': mtext,
+        'text': f"{str(durus)}",
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 50, 'color': colorof}
+        'font': {'size': 100,'color': colorof}
     }
 
+    annotation3 = {
+
+        'x': 0.99,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 0.65,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'text': "Dk.",
+        # 'showarrow': True,
+        # 'arrowhead': 3,
+        'font': {'size': 40, 'color': colorof}}
+
+
     fig.update_layout({
-        "annotations": [annotation, annotation1, annotation2],
+        "annotations": [annotation, annotation1, annotation2,annotation3],
         "title": dict(
             text=workcenter,
             x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
             y=0.85,
             font=dict(
-                size=85,
+                size=100,
                 color=colorof
             )
-        ), "paper_bgcolor": status, "width": 585, "height": 630})
+        ), "paper_bgcolor": status, "width": 475, "height": 630})
 
     return fig

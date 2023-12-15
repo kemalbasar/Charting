@@ -103,13 +103,14 @@ layout =[dcc.Link(
          dbc.Col([
             dbc.Row([html.Div(id="wc-output-container_yislem_real",className= "g-0"),]),
             dbc.Row([
-                html.Button("Play", id="play", style={'width': '90px'}),
+                html.Button("Play", id="play", style={'width': '50px'}),
                 dcc.Slider(
                     min=0,
                     max=len_fig,
                     step=1,
                     value=-1,
-                    id='wc-slider_yislem'
+                    id='wc-slider_yislem',
+                    className = 'slider'
                 ),
             ],className= "g-0"),
 
