@@ -239,7 +239,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         if m_point == 'Bölümler':
             print("***here***")
 
-            my_keys = ["KURUTMA","YUZEY ISLEM","PRESHANE","CNC"]
+            my_keys = ["KURUTMA","YUZEY ISLEM","PRESHANE","CNC","ISIL ISLEM"]
             for costcenter_tmp in {key: valftoreeg[key] for key in my_keys}:
                 analyzer.update(valftoreeg[costcenter_tmp])
                 for item in valftoreeg[costcenter_tmp]:
@@ -377,8 +377,9 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
     if gruplamami == 1:
 
         df_final["COSTCENTER"] = df_final.apply(lambda x :  x["COSTCENTER"].replace(" ", ""),axis=1)
-
-        df_final = df_final.loc[((df_final["COSTCENTER"].isin(['TASLAMA', 'ISILISLEM', 'KURUTMA'])) |
+        print("*****")
+        print(df_final)
+        df_final = df_final.loc[((df_final["COSTCENTER"].isin(['TASLAMA', 'ISILISLEM', 'YUZEYISLEM','KURUTMA'])) |
                                  (df_final["MPOINT"].isin(["5 CNC ve 4 Taslama (Pano 3)", "15 CNC (Pano 2)",
                                                            "19 CNC (Pano 1)", 'PRES - Pano 3', 'PRES - Pano 2',
                                                            'PRES - Pano 1'])))]
@@ -400,10 +401,6 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
 
             df_presuradet["DATE"] = pd.to_datetime(df_presuradet["DATE"])
 
-            print("*****")
-            print(df_final.loc[df_final["COSTCENTER"] == 'PRESHANE', ["OUTPUT(KWH)", "QUANTITY"]])
-            print("*****")
-            print(df_presuradet[["TOTALNETWEIGHT","QUANTITY"]])
 
             # Convert "QUANTITY" column in df_final to int64 with error handling
             # Convert "TOTALNETWEIGHT" column in df_presuradet to float64 with error handling
@@ -413,8 +410,6 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
             df_presuradet["TOTALNETWEIGHT(ton)"] = df_presuradet["TOTALNETWEIGHT(ton)"].astype("float")
             df_presuradet["TOTALNETWEIGHT(ton)"] = df_presuradet["TOTALNETWEIGHT(ton)"].astype("float")
 
-            print(df_presuradet.dtypes)
-            print(df_final.dtypes)
 
             df_final.loc[df_final["COSTCENTER"] == 'PRESHANE',"TOTALNETWEIGHT(ton)"] = list(df_presuradet["TOTALNETWEIGHT(ton)"])
             df_final.loc[df_final["COSTCENTER"] == 'PRESHANE',"QUANTITY"] = list(df_presuradet["QUANTITY"])
@@ -428,7 +423,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                 lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0,
                 axis=1)
             df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.3f}" if x is not None else x)
-            df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.3f}" if x is not None else x)
+            df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.5f}" if x is not None else x)
             df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].apply(lambda x: f"{x:.3f}")
             df_final["MPOINT"] = df_final["COSTCENTER"]
             df_final_sum = pd.DataFrame()
@@ -442,13 +437,13 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         '0000-00-00T00:00:00+00:00', "ALL", "ALL", df_final["TOTALNETWEIGHT(ton)"].sum(),
         df_final["OUTPUT(KWH)"].sum(), 0.000, df_final["QUANTITY"].sum(), 0.000)
         df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.3f}" if x is not None else x)
-        df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.3f}" if x is not None else x)
+        df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.5f}" if x is not None else x)
         df_final_sum["kwhPERton"] = df_final_sum["OUTPUT(KWH)"] / df_final_sum["TOTALNETWEIGHT(ton)"]
         df_final_sum["kwhPERqty"] = df_final_sum.apply(
             lambda x: x["OUTPUT(KWH)"] / x["QUANTITY"] if x["QUANTITY"] > 0 else 0,
             axis=1)
         df_final_sum["kwhPERton"] = df_final_sum["kwhPERton"].apply(lambda x: f"{x:.3f}" if x is not None else x)
-        df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.3f}" if x is not None else x)
+        df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.5f}" if x is not None else x)
         df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].apply(lambda x: f"{x:.3f}")
 
 
