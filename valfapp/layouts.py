@@ -181,7 +181,8 @@ layout_12_loginpage = dbc.Container([
     ], className="justify-content-center"),
 
     # This div will contain our 4 boxes
-    html.Div(style={"position": "absolute", "top": "50%", "left": "50%", "transform": "translate(-50%, -50%)"},
+    html.Div(style={"position": "absolute", "top": "50%", "left": "50%",
+                    "transform": "translate(-50%, -50%)"},
              children=[
                  dbc.Row([
                      dbc.Col(

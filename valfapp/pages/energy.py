@@ -83,7 +83,8 @@ layout = [
                                         start_date=(date.today() - timedelta(weeks=1)).isoformat(),
                                         end_date=(date.today()).isoformat(),
                                         display_format='YYYY-MM-DD',
-                                        style={'color': '#212121'}
+                                        style={'color': '#212121'},
+                                        persistence=True, persistence_type='session'
                                     )
                                 ],
                                 style={'display': 'inline-block', 'width': 'auto', 'marginRight': '20px'}
@@ -192,7 +193,13 @@ layout = [
     Input('machine-type-dropdown', 'value')
 )
 def set_machine_options(selected_machine_type):
-    return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
+    if selected_machine_type not in ["KURUTMA","YUZEY ISLEM","PRESHANE","CNC","ISIL ISLEM"]:
+        return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
+    else:
+        list_of_mpoints = [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
+        list_of_mpoints.append({"label":"Hepsi","value":"Hepsi"})
+        print(list_of_mpoints)
+        return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
 
 
 # @cache.memoize()
@@ -232,23 +239,26 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
     df_final = pd.DataFrame()
     analizorler = []
     if costcenter != 'Bütün':
-        analyzer = valftoreeg[costcenter]
         analizorler.append((m_point, costcenter))
     else:
         analyzer = {}
         if m_point == 'Bölümler':
-            print("***here***")
 
             my_keys = ["KURUTMA","YUZEY ISLEM","PRESHANE","CNC","ISIL ISLEM"]
             for costcenter_tmp in {key: valftoreeg[key] for key in my_keys}:
                 analyzer.update(valftoreeg[costcenter_tmp])
-                for item in valftoreeg[costcenter_tmp]:
-                    analizorler.append((item, costcenter_tmp))
+                for m_point in valftoreeg[costcenter_tmp]:
+                    analizorler.append((m_point, costcenter_tmp))
+        elif m_point == 'Hepsi':
+            for costcenter_tmp in valftoreeg[costcenter]:
+                analyzer.update(valftoreeg[costcenter_tmp])
+                for m_point in valftoreeg[costcenter_tmp]:
+                    analizorler.append((m_point, costcenter_tmp))
         else:
             for costcenter_tmp in valftoreeg:
                 analyzer.update(valftoreeg[costcenter_tmp])
-                for item in valftoreeg[costcenter_tmp]:
-                    analizorler.append((item, costcenter_tmp))
+                for m_point in valftoreeg[costcenter_tmp]:
+                    analizorler.append((m_point, costcenter_tmp))
 
     for m_point in analizorler:
 
@@ -285,38 +295,62 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         else:
             m_point_tmp = m_point
 
+        print(f"mpointtmp={m_point_tmp}")
+
+        #ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
+        #ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
+        #ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
 
         if date_interval == 'day':
+
             if m_point_tmp == '11 Pres (Pano 3 Diger)':
                 df_works = ag.run_query(f"WITH ASD AS ( SELECT CAST(DATE AS DATETIME) AS DATE,"
                                         f"SUM(OUTPUT) as OUTPUT,"
                                         f"COSTCENTER,INTERVAL FROM VLFENERGY WHERE MPOINT IN "
                                         f"('PRES - Pano 1','8 Pres (Salter 2)','13 Pres (Salter 5)','4 Pres (Salter 3)') "
+                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE "
                                         f"GROUP BY CAST(DATE AS DATETIME),COSTCENTER,INTERVAL )"
                                         f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, OUTPUT,DATE,COSTCENTER from ASD ")
+            elif m_point_tmp == 'Hepsi':
+                df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
+                                       f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+                                       f" WHERE COSTCENTER = '{costcenter_tmp}' "
+                                       f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
             else:
                 df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
                                         f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
                                         f" WHERE MPOINT = '{m_point_tmp}' "
-                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' > DATE ")
+                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
         else:
+
             if m_point_tmp == '11 Pres (Pano 3 Diger)':
                 df_works = ag.run_query(
                     f"WITH ASD AS ( SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,OUTPUT as OUTPUT,"
                     f"COSTCENTER,INTERVAL FROM VLFENERGY WHERE MPOINT IN "
                     f"('PRES - Pano 1','8 Pres (Salter 2)','13 Pres (Salter 5)','4 Pres (Salter 3)')  )"
+                    f" AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE "
                     f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, SUM(OUTPUT) AS OUTPUT,DATE,COSTCENTER FROM ASD GROUP BY DATE,COSTCENTER")
+            elif m_point_tmp == 'Hepsi':
+                df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
+                                       f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+                                       f" WHERE COSTCENTER = '{costcenter_tmp}' "
+                                       f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
             else:
                 df_works = ag.run_query(f"SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,SCODE,"
                                         f"SUM(OUTPUT) AS OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
                                         f" WHERE MPOINT = '{m_point_tmp}' "
-                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' > DATE "
+                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE "
                                         f"GROUP BY LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2),MPOINT,SCODE,COSTCENTER,INTERVAL")
 
         if df_works is None:
             continue
         if len(df_works) == 0:
             continue
+
+        # URETIM DATALARINI ICIN SORGUNUN YAZILI OLDU TXT DOSYASINA GİDİYORUZ
+        # URETIM DATALARINI ICIN SORGUNUN YAZILI OLDU TXT DOSYASINA GİDİYORUZ
+        # URETIM DATALARINI ICIN SORGUNUN YAZILI OLDU TXT DOSYASINA GİDİYORUZ
+
 
         filedata_tmp = filedata.replace("xxxx-yy-zz", str(start_date))
         filedata_tmp = filedata_tmp.replace("aaaa-bb-cc", str(end_date))
@@ -354,12 +388,13 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
 
         df_final = pd.concat([df_works, df_final]).drop_duplicates().reset_index(drop=True)
 
+    # df_final[['DATE','MPOINT','OUTPUT']].to_excel(r"F:\pycarhm projects\Charting\outputs(xlsx)\ısıldatas.xlsx")
+
     df_final.rename(columns={"OUTPUT": "OUTPUT(KWH)"}, inplace=True)
     df_final["kwhPERton"] = df_final["kwhPERton"].astype(float)
     df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].astype(float)
-    df_final["OUTPUT(KWH)"] = df_final["OUTPUT(KWH)"].apply(lambda x: round(x, 3))
-
     df_final["OUTPUT(KWH)"] = df_final["OUTPUT(KWH)"].astype(float)
+
     df_final["kwhPERton"] = df_final.apply(
         lambda x: x["OUTPUT(KWH)"] / x["TOTALNETWEIGHT(ton)"] if x["TOTALNETWEIGHT(ton)"] > 0 else 0, axis=1)
     df_final["kwhPERqty"] = df_final.apply(lambda x: x["OUTPUT(KWH)"] /
@@ -446,7 +481,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         df_final_sum["kwhPERqty"] = df_final_sum["kwhPERqty"].apply(lambda x: f"{x:.5f}" if x is not None else x)
         df_final["TOTALNETWEIGHT(ton)"] = df_final["TOTALNETWEIGHT(ton)"].apply(lambda x: f"{x:.3f}")
 
-
+    df_final["OUTPUT(KWH)"] = df_final["OUTPUT(KWH)"].apply(lambda x: '{:.2f}'.format(x))
     df_final.rename(columns={"COSTCENTER": "Prod.Process"}, inplace=True)
     df_final.rename(columns={"MPOINT ": "MPoint.Analyser"}, inplace=True)
 
