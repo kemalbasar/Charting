@@ -21,10 +21,8 @@ def dynamic_layout(list_of_figs=[], col_num=5,row_num=3):
     newlengthof = lengthof - x
     numofforths = newlengthof / total_chart
     counter = 0
-    print(f'here is total chart{total_chart}')
     listofdivs = []
     for i in range(0, len(list_of_figs), total_chart):
-        print(f"**{i}**")
         if counter < numofforths:
             listofdivs.append(html.Div(	[	dbc.Row(
 				[ dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + k + col_num*l ])],style={'border': '2px solid black'}),width=widthof)
@@ -45,10 +43,6 @@ def dynamic_layout(list_of_figs=[], col_num=5,row_num=3):
 
                         # Calculate the index for the figure
                         fig_index = i + k +  l*col_num
-                        print("herasdasdasdasfdsdafsdfe")
-
-                        print(fig_index)
-                        print("herasdasdasdasfdsdafsdfe")
 
                         if fig_index%total_chart < x:
                             column = dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[fig_index])],
@@ -75,10 +69,6 @@ def dynamic_layout(list_of_figs=[], col_num=5,row_num=3):
 
 
         counter = counter + 1
-
-    print("*************")
-    print(listofdivs)
-    print("*************")
 
     return listofdivs
 

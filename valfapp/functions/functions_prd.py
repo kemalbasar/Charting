@@ -583,7 +583,6 @@ def indicator_for_yislem(status='white', fullname='',
 
     colorof = 'white' if durus < 0 else 'black'
 
-    dk_position = 0.85 if len(str(durus)) == 1 else 0.97 if len(str(durus)) == 2 else 1.2
 
     annotation = {
 
@@ -615,7 +614,7 @@ def indicator_for_yislem(status='white', fullname='',
 
     annotation3 = {
 
-        'x': dk_position,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'x': 0.1,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 0.65,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': "Dk.",
         # 'showarrow': True,
