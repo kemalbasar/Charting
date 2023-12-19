@@ -241,7 +241,7 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
     [Input('pers-button', 'n_clicks'),
      Input('wc-button', 'n_clicks')]
 )
-def update_report_type():
+def update_report_type(n1,n2):
     ctx = callback_context
     # Default case
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]

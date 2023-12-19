@@ -66,15 +66,10 @@ def prdconf(params=None):
     non_times = non_times.groupby(["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT"]).agg({"FAILURETIME": "sum"})
     non_times.reset_index(inplace=True)
     non_times.columns = ["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT", "OMTIME"]
-    print("prd_conf")
-    print(prd_conf)
-    print("prd_conf")
+
     summary_helper = prd_conf[prd_conf["CONFTYPE"] == 'Uretim'].groupby(["WORKCENTER", "SHIFT", "MATERIAL"]) \
         .agg({"IDEALCYCLETIME": "sum", "RUNTIME": "sum"})
 
-    print("summary_helper")
-    print(summary_helper)
-    print("summary_helper")
 
     summary_helper.reset_index(inplace=True)
     summary_helper["RATER"] = summary_helper["IDEALCYCLETIME"] / summary_helper["RUNTIME"]
@@ -82,12 +77,15 @@ def prdconf(params=None):
                                       range(len(summary_helper))]
     summary_helper = summary_helper[["WORKCENTER", "SHIFT", "MATERIAL", "BADDATA_FLAG"]]
     prd_conf = pd.merge(prd_conf, summary_helper, on=['MATERIAL', 'SHIFT', 'WORKCENTER'], how='left')
-    prd_conf["BADDATA_FLAG"] = [1 if prd_conf["MACHINE"][row] == 0
-                                else 2 if ((prd_conf["TOTALTIME"][row] != 0) &
-                                           (prd_conf["TOTALTIME"][row] <= 3) &
-                                           (prd_conf["QTY"][row] > 3))
-    else 3 if prd_conf["BADDATA_FLAG"][row] == 3 else 0 for row in range(len(prd_conf))]
-
+    prd_conf["BADDATA_FLAG"] = [
+        0 if "PRES" in prd_conf["COSTCENTER"][row] else
+        (1 if prd_conf["MACHINE"][row] == 0 else
+         2 if ((prd_conf["TOTALTIME"][row] != 0) and (prd_conf["TOTALTIME"][row] <= 3) and prd_conf["QTY"][row] > 3)
+         else 3 if prd_conf["BADDATA_FLAG"][row] == 3
+         else 0)
+        for row in range(len(prd_conf))
+    ]
+    prd_conf[["WORKCENTER","BADDATA_FLAG"]].to_excel(r"F:\pycarhm projects\Charting\outputs(xlsx)\bu3.xlsx")
     details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
         df=prd_conf[prd_conf["BADDATA_FLAG"] == 0], nontimes=non_times)
     for item in details:
@@ -145,7 +143,7 @@ def oee(params=None):
 
 
 @cache.memoize(timeout=TIMEOUT)
-def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist7w):
+def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist7w,come_from_tvlayout=0):
     oeelist1w = pd.read_json(oeelist1w, orient='split')
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist7w = pd.read_json(oeelist7w, orient='split')
@@ -261,10 +259,13 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
             df_details["OEE"] = df_details["OEE"].astype(str) + '%'
             df_details["PERFORMANCE"] = (df_details["PERFORMANCE"] * 100).round()
             df_details["PERFORMANCE"] = df_details["PERFORMANCE"].astype(str) + '%'
+            if come_from_tvlayout == 1:
+                df_details = df_details[["MATERIAL","QTY","AVAILABILITY","QUALITY"]]
+            else:
+                if col_ind == 0:
+                    df_details["SHIFT"] = df_details["SHIFT"].astype(str)
+                    df_details.sort_values(by='SHIFT', inplace=True)
             style = {}
-            if col_ind == 0:
-                df_details["SHIFT"] = df_details["SHIFT"].astype(str)
-                df_details.sort_values(by='SHIFT', inplace=True)
             columns = [{"name": i, "id": i} for i in df_details.columns]
             data = df_details.to_dict("records")
         else:

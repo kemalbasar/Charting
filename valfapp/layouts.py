@@ -440,7 +440,7 @@ def sliding_indicator_container(livedata, selected_value, costcenter):
     for index, row in df.iterrows():
         if index < len(list_of_stationss):
             fig = indicator_for_tvs(row["STATUSR"], row["FULLNAME"], row["WORKCENTER"], row["DRAWNUM"],
-                                    row["STEXT"], 0)
+                                    row["STEXT"], 0,size={"width": 310, "height": 500},rate=3/4)
 
             list_of_figs.append(fig)
 
@@ -449,26 +449,30 @@ def sliding_indicator_container(livedata, selected_value, costcenter):
             style = {"display": "none"}
 
     lengthof = len(list_of_figs)
-    x = lengthof % 4
+    x = lengthof % 6
     newlengthof = lengthof - x
-    numofforths = newlengthof / 4
+    numofforths = newlengthof / 6
     counter = 0
 
     listofdivs = []
-    for i in range(0, len(list_of_figs), 4):
+    for i in range(0, len(list_of_figs), 6):
         if counter != numofforths:
             listofdivs.append(html.Div([
                 dbc.Row([
                     dbc.Col(dcc.Graph(figure=list_of_figs[i]), style={
-                        'border': '2px solid red'}, width=4),
+                        'border': '2px solid red'}, width=3),
                     dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 1])], style={
-                        'border': '2px solid red'}), width=4)
+                        'border': '2px solid red'}), width=3),
+                    dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 2])], style={
+                        'border': '2px solid red'}), width=3)
                 ], className="g-0"),
                 dbc.Row([
-                    dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 2])], style={
-                        'border': '2px solid red'}), width=4),
                     dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 3])], style={
-                        'border': '2px solid red'}), width=4),
+                        'border': '2px solid red'}), width=3),
+                    dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 4])], style={
+                        'border': '2px solid red'}), width=3),
+                    dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 5])], style={
+                        'border': '2px solid red'}), width=3),
                 ], className="g-0")
             ]))
         else:
@@ -478,12 +482,14 @@ def sliding_indicator_container(livedata, selected_value, costcenter):
                 print("here")
                 listofdivs.append(html.Div([
                     dbc.Row([
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])), width=4),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1] if x > 1 else {})), width=4)
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])), width=3),
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1] if x > 1 else {})), width=3),
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2] if x > 1 else {})), width=3)
                     ], className="g-0"),
                     dbc.Row([
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2] if x > 2 else {})), width=4),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3] if x > 3 else {})), width=4),
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3] if x > 2 else {})), width=3),
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 4] if x > 3 else {})), width=3),
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 5] if x > 3 else {})), width=3)
                     ], className="g-0")
                 ]))
         counter = counter + 1
@@ -516,7 +522,7 @@ def layout_for_tvs(costcenter='MONTAJ'):
                 dbc.Col([
                     html.Div(id="wc-output-container_montaj", className= "row g-0"),
                     # Other components for this column
-                ], width=7),
+                ], width=8),
 
                 # Second Column
                 dbc.Col([
@@ -535,8 +541,8 @@ def layout_for_tvs(costcenter='MONTAJ'):
                         ),
                         html.Div(
                             id='slider-output-container_montaj',style={'width':500, 'display': 'inline-block'}),
-                        dcc.Interval(id="animate_montaj", interval=10000, disabled=True),
-                        dcc.Interval(id="15min_update", interval=110000, disabled=True),
+                        dcc.Interval(id="animate_montaj", interval=10000, disabled=False),
+                        dcc.Interval(id="15min_update", interval=110000, disabled=False),
                         dcc.Store(id="list_of_stationss"),
                         dcc.Store(
                             id="livedata_montaj",
@@ -545,5 +551,5 @@ def layout_for_tvs(costcenter='MONTAJ'):
                                 orient='split')
                         ),
                     ],className="g-0"),
-                ], width=5),
+                ], width=3),
         ],className="g-0")]
