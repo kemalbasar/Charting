@@ -58,7 +58,7 @@ def dynamic_layout(list_of_figs=[], col_num=5,row_num=3):
 
                         # Create the column with the Graph and its style
                             column = dbc.Col(html.Div(children=[dcc.Graph(figure={"data": [],  # No data since it's an empty figure
-                            "layout":{ "width": 1450/col_num, "height": 1000/row_num}})],
+                            "layout":{ "width": 1450/col_num, "height": 850/row_num}})],
                                                       style={'border': '2px solid black'}),
                                              width=widthof)
 
