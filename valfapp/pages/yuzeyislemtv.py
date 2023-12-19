@@ -160,7 +160,7 @@ layout = [dcc.Link(
                html.Button("Proceed",n_clicks=0, id="proceed_but", style={'width': '50px'})
         ], className="g-0"),
 
-    ], width=12),
+    ], width=12,style= {"margin-left":100}),
 ]
 
 
