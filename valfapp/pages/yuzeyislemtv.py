@@ -102,7 +102,7 @@ def update_ind_fig(col_num,row_num):
     for index, row in df.iterrows():
         if index < len(list_of_stationss):
             fig = indicator_for_yislem(row["STATUSR"], row["FULLNAME"], row["WORKCENTER"], row["DRAWNUM"],
-                                       row["STEXT"], row["TARGET"],{"width": 1500/col_num if  col_num <= 4 else 1250/col_num, "height": 1000/row_num},8/(row_num*col_num))
+                                       row["STEXT"], row["TARGET"],{"width": 1500/col_num if  col_num <= 4 else 1250/col_num, "height": 850/row_num},8/(row_num*col_num))
 
             list_of_figs.append(fig)
 

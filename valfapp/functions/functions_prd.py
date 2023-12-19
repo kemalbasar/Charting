@@ -588,7 +588,7 @@ def indicator_for_yislem(status='white', fullname='',
     annotation = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': -0.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': str(fullname)[-8:],
         # 'showarrow': True,
         # 'arrowhead': 3,
@@ -597,7 +597,7 @@ def indicator_for_yislem(status='white', fullname='',
     annotation1 = {
 
         'x': 0.50,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.12,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': -0.02,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': material,
         # 'showarrow': True,
         # 'arrowhead': 3,
