@@ -8,7 +8,7 @@ from dash import ClientsideFunction, Output, Input
 from flask_caching import Cache
 import dash
 import dash_bootstrap_components as dbc
-from valfapp.functions.functions_prd import calculate_oeemetrics, apply_nat_replacer, get_gann_data, return_ind_fig
+from valfapp.functions.functions_prd import calculate_oeemetrics, apply_nat_replacer, get_gann_data, indicator_with_color
 from run.agent import ag
 from config import project_directory
 import plotly.express as px  # (version 4.7.0 or higher)
@@ -191,14 +191,13 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
         if item < len(list_of_wcs):
             if report_type == 'wc':
-                fig = return_ind_fig(df_metrics=df, df_details=df_wclist,
-                                     costcenter=option_slctd, order=list_of_wcs[item], colorof='black', width=450,
-                                     height=420)
+                fig = indicator_with_color(df_metrics=df, order=list_of_wcs[item], colorof='black', height=420,
+                                           width=450)
                 df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_wcs[item]),
                 wc_col[col_ind:]]
             else:
-                fig = return_ind_fig(df_metrics=df_forpers, df_details=df_wclist, costcenter=option_slctd,
-                                     order=list_of_wcs[item], colorof='black', title='DISPLAY', width=450, height=420)
+                fig = indicator_with_color(df_metrics=df_forpers, order=list_of_wcs[item], colorof='black',
+                                           title='DISPLAY', height=420, width=450)
                 df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_wcs[item]), pers_col[col_ind:]]
 
             aggregations = {
@@ -280,7 +279,7 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
         list_of_styles.append(style)
     return list_of_figs,list_of_data,list_of_columns ,list_of_styles
 
-@cache.memoize(timeout=TIMEOUT)
+# @cache.memoize(timeout=TIMEOUT)
 def return_piechart(option_slctd,oeelist0):
     oeelist0 = {k: pd.read_json(v, orient='split') for k, v in oeelist0.items()}
     df = oeelist0[option_slctd]
@@ -303,7 +302,9 @@ def return_piechart(option_slctd,oeelist0):
 
     fig.update_traces(hovertemplate='<b>Actual Rate is %{value} </b>',
                       textfont=dict(size=[15,15,15,15,15,60,60]))
-    fig.update_layout(showlegend=False, paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
+    fig.update_layout(showlegend=False,
+                      paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
+                      # width= 10, height= 10,
                       title_x=0.5, title_xanchor="center",
                       title_font_size=40,
                       annotations=[
@@ -311,11 +312,10 @@ def return_piechart(option_slctd,oeelist0):
                               text="OEE - Kullanılabilirlik - Performans",
                               showarrow=False,
                               xref='paper', yref='paper',
-                              x=0.5, y=1.02,
+                              x=0.5, y=1,
                               xanchor='center', yanchor='bottom',
                               font=dict(size=18, color=summary_color),
                               bgcolor='darkolivegreen',  # The desired background color for the title
-                              borderpad=4  # This adjusts the padding, adjust this value to your liking
                           )]
                       )
     return fig

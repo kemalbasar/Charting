@@ -178,7 +178,6 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
                                                                        })
     df_metrics.reset_index(inplace=True)
 
-
     try:
         df_piechart = df_metrics.groupby("COSTCENTER").agg({"RUNTIME": "sum",
                                                             "TOTFAILURETIME": "sum",
@@ -380,8 +379,25 @@ def get_gann_data(df=prd_conf):
 #     df["NET_WORKING_TIME1"] = [get_work_hour(df["WORKCENTER"][row], df["WORKSTART"][row], df["WORKEND"][row]) for row in
 #                                range(df.shape[0])]
 
-def return_ind_fig(df_metrics=None, df_details=pd.DataFrame(), costcenter='CNC', order=0,
-                   colorof='green', coloroftext='black', title='WORKCENTER', height=320, width=350):
+def indicator_with_color(df_metrics=None, order=0,
+                         colorof='green', coloroftext='black', title='WORKCENTER', height=320, width=350):
+    '''
+
+    Parameters
+    ----------
+    df_metrics: data source
+    order: row number of data
+    colorof: color of guage bar
+    coloroftext
+    title : column name to search in current row for title text.
+    height: size measure of chart
+    width: size measure of chart
+
+    Returns
+    -------
+    Indicator Chart
+    '''
+
     text = ''
     if df_metrics is None:
         return None
@@ -393,16 +409,6 @@ def return_ind_fig(df_metrics=None, df_details=pd.DataFrame(), costcenter='CNC',
 
     else:
         final_card = df_metrics.loc[df_metrics[title] == order]
-    # text = f"{final_card['WORKCENTER']} worked {int(final_card['AVAILABILITY'] * 100)}% of planned time." \
-    #        f"Operater <br> processed {int(final_card['QTY'] - (final_card['QTY'] * final_card['RUNTIME']) / final_card['IDEALCYCLETIME'])} " \
-    #        f"more material then avarge <br> with only {final_card['SCRAPQTY']} scrap"
-
-    # if len(df_details) != 0:
-    #     df_ann = df_details.loc[df_details["WORKCENTER"] == order,["SHIFT","DISPLAY","SCRAPQTY","SCRAPTEXT"]]
-    #     df_ann.drop_duplicates(inplace=True, subset=['SHIFT', 'DISPLAY'], keep='first')
-    #     text = ''
-    #     for index, row in df_ann.iterrows():
-    #         text += f"{row['SHIFT']}.Var:{row['DISPLAY']} <br>"
 
     if title == 'WORKCENTER':
         finalnum = 'OEE'
@@ -441,10 +447,10 @@ def return_ind_fig(df_metrics=None, df_details=pd.DataFrame(), costcenter='CNC',
                 'value': 80
             }
         },
-        number={'suffix': '%'}
+        number={'suffix': '%'},
 
-        #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
-        #        domain={'x': [0, 1], 'y': [0, 1]}
+        delta={'reference': 400, 'relative': True, "font": {"size": 40}},
+        domain={'x': [0, 1], 'y': [0, 1]}
     ))
 
     annotation = {
@@ -460,12 +466,6 @@ def return_ind_fig(df_metrics=None, df_details=pd.DataFrame(), costcenter='CNC',
 
     fig.update_layout({
         "annotations": [annotation],
-        # title={
-        # # 'text': text,
-        # # 'y': 1,
-        # # 'x': 0.5,
-        # # 'font': {'size': 17}
-        # },
         "paper_bgcolor": "rgba(0,0,0,0)", "width": width, "height": height})
 
     return fig
@@ -474,8 +474,8 @@ def return_ind_fig(df_metrics=None, df_details=pd.DataFrame(), costcenter='CNC',
 # this metod takes manufacturing companies workcenter data,status refers to the status of the workcenter and it definess backgroundcolor,
 # text refers to the text to be displayed on the indicator graph.
 # workcenter refers to the workcenter of the manufacturing company, it will be on header
-def return_indicatorgraph(status='white', fullname='',
-                          workcenter='', material='', durus='', target=0):
+def indicator_for_tvs(status='white', fullname='',
+                      workcenter='', material='', durus='', target=0, size={"width": 465, "height": 500},rate=1):
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge+number",
@@ -499,39 +499,41 @@ def return_indicatorgraph(status='white', fullname='',
                 'value': 80
             }
         },
-        number={'suffix': None}
+        number={'suffix': None},
+        domain={'x': [0, 1], 'y': [0.25, 0.55]}
 
         #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
         #        domain={'x': [0, 1], 'y': [0, 1]}
     ))
+    # fig.update_traces(row)
 
     annotation = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': 1.1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': fullname,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 24, 'color': 'black'}
+        'font': {'size': 30*rate, 'color': 'black'}
     }
     annotation1 = {
 
-        'x': 0.50,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
-        'text': material,
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 0,
+        'text': material[0:len(material) if len(material) <= 11 else 11] if material is not None else '',
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 40, 'color': 'black'}
+        'font': {'size': 45*rate, 'color': 'black'}
     }
     annotation2 = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.75,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': 0.6,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
 
         'text': '(' + str(durus) + ')',
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 20, 'color': 'black'}
+        'font': {'size':1 if durus is None else (30 if len(durus) > 20 else 40*rate), 'color': 'white'}
     }
 
     fig.update_layout({
@@ -541,16 +543,18 @@ def return_indicatorgraph(status='white', fullname='',
             x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
             y=0.81,
             font=dict(
-                size=55
+                size=80*rate,
+                color='black'
             )
-        ), "paper_bgcolor": status, "width": 585, "height": 550})
+        ),
+        "paper_bgcolor": status,
+        "width": size["width"], "height": size["height"]})
 
     return fig
 
 
-def return_DELTAgraph(status='white', fullname='',
-                      workcenter='', material='', durus='', target=0):
-
+def indicator_for_yislem(status='white', fullname='',
+                         workcenter='', material='', durus='', target=0, size={"width": 475, "height": 500},rate=1):
     if durus is None:
         mtext = ''
         durus = 0
@@ -559,18 +563,19 @@ def return_DELTAgraph(status='white', fullname='',
     elif durus < 0:
         mtext = f"DK GECİKTİ"
     else:
-        mtext =  f"DK SONRA"
+        mtext = f"DK SONRA"
 
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge",
-        value= (target-durus) if durus > 0 else target,
-        gauge={'bar': {'color': "white",'thickness': 0.75},
-            'shape': "bullet",
-           'axis': {'range': [None, target]}},
+        value=(target - durus) if durus > 0 else target,
+        gauge={'bar': {'color': "white", 'thickness': 0.75},
+               'shape': "bullet",
+               'axis': {'range': [None, target],
+                        'showticklabels': False},
+               },
         number={'suffix': None},
         domain={'x': [0.2, 0.8], 'y': [0.4, 0.6]},  # Adjust the domain to control the gauge size
-
 
         #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
         #        domain={'x': [0, 1], 'y': [0, 1]}
@@ -578,23 +583,25 @@ def return_DELTAgraph(status='white', fullname='',
 
     colorof = 'white' if durus < 0 else 'black'
 
+    dk_position = 0.85 if len(str(durus)) == 1 else 0.97 if len(str(durus)) == 2 else 1.2
+
     annotation = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.2,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': 0,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': str(fullname)[-8:],
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 45, 'color': colorof}
+        'font': {'size': 45*rate, 'color': colorof}
     }
     annotation1 = {
 
         'x': 0.50,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.05,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': 0.12,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': material,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 36, 'color': colorof}
+        'font': {'size': 36*rate, 'color': colorof}
     }
     annotation2 = {
 
@@ -603,29 +610,40 @@ def return_DELTAgraph(status='white', fullname='',
         'text': f"{str(durus)}",
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 100,'color': colorof}
+        'font': {'size': 100*rate, 'color': colorof}
     }
 
     annotation3 = {
 
-        'x': 0.99,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'x': dk_position,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
         'y': 0.65,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': "Dk.",
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 40, 'color': colorof}}
-
+        'font': {'size': 40*rate, 'color': colorof}}
 
     fig.update_layout({
-        "annotations": [annotation, annotation1, annotation2,annotation3],
+        "annotations": [annotation, annotation1, annotation2, annotation3],
         "title": dict(
             text=workcenter,
             x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
             y=0.85,
             font=dict(
-                size=100,
+                size=85 * rate if 'OTEC' in workcenter else 100 * rate,
                 color=colorof
             )
-        ), "paper_bgcolor": status, "width": 475, "height": 520})
+        ),
+        "xaxis": {
+        'tickmode': 'array',
+        'tickvals': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        'ticktext': ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'],
+        'tickangle': 45,
+        'tickfont': {'size': 12, 'color': 'blue'}
+    },
+        "paper_bgcolor": status,
+        "width": size["width"],
+        "height": size["height"],
+
+    })
 
     return fig

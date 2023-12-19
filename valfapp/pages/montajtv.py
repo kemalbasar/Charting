@@ -1,14 +1,17 @@
-from datetime import date, timedelta, datetime
-from valfapp.app import workcenters, app, prdconf, return_piechart
-import dash_table
 import json
+from datetime import date, timedelta, datetime
+
 import pandas as pd
+
+from valfapp.app import workcenters, app, prdconf, return_piechart
+from valfapp.layouts import layout_for_tvs
+import dash_table
 from dash import dcc, html, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
-from valfapp.functions.functions_prd import return_indicatorgraph
-from valfapp.app import app
 from config import project_directory
 from run.agent import ag
+from valfapp.layouts import sliding_indicator_container
+from valfapp.app import cache
 
 today = datetime.today()
 
@@ -19,57 +22,9 @@ elif today.weekday() == 0:
 else:
     kb = 1
 
-params_dic = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
-              "workend": date.today().isoformat(),
-              "interval": "day"}
 params_list = [(date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"]
 
-oeelist1w = prdconf(params_list)[1]
-oeelist3w = prdconf(params_list)[3]
-oeelist7w = prdconf(params_list)[7]
-oeelist0w = prdconf(params_list)[0]
-
-fig, data, columns, styles = workcenters("MONTAJ", "pers", params_dic, oeelist1w, oeelist3w, oeelist7w)
-# alt satırı app.workcennter metoduna taşımak gerek
-fig = [i for i in fig if i != {}]
-maxof_slide = len(fig)
-
-layout =dbc.Row([
-        # First Column
-        dbc.Col([
-            html.Div(id="wc-output-container_montaj",className= "row g-0"),
-            # Other components for this column
-        ], width=8),
-
-        # Second Column
-        dbc.Col([
-            dbc.Row([
-                dcc.Graph(figure=return_piechart("MONTAJ", oeelist0w))
-            ],className="g-0"),
-            dbc.Row([
-                html.Button("Play", id="play", style={'width': '90px'}),
-                dcc.Slider(
-                    min=0,
-                    max=len(fig),
-                    step=1,
-                    value=0,
-                    id='wc-slider_montaj'
-                ),
-                html.Div(
-                    id='slider-output-container_montaj',className= "row g-0"
-                ),
-                dcc.Interval(id="animate_montaj", interval=10000, disabled=True),
-                dcc.Store(id="list_of_stationss"),
-                dcc.Store(
-                    id="livedata_montaj",
-                    data=ag.run_query(project_directory + r"\Charting\queries\liveprd.sql").to_json(date_format='iso',
-                                                                                    orient='split')
-                ),
-            ]),
-        ], width=4),
-    ],className="g-0")
-
-
+layout = layout_for_tvs(costcenter='MONTAJ')
 @app.callback(
     Output("animate_montaj", "disabled"),
     Input("play", "n_clicks"),
@@ -87,14 +42,32 @@ def toggle(n, playing):
     Output('slider-output-container_montaj', 'children'),
     Output("wc-slider_montaj", "value"),
     Output("livedata_montaj", "data"),
+    Output("wc-slider_montaj", "max"),
     Input("animate_montaj", "n_intervals"),
     Input("wc-slider_montaj", "value"),
+    State(component_id='oeelist1w_tv', component_property='data'),
+    State(component_id='oeelist3w_tv', component_property='data'),
+    State(component_id='oeelist7w_tv', component_property='data'),
     prevent_initial_call=True,
 )
-def update_output(n, selected_value):
+def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
+    params_dic = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
+                  "workend": date.today().isoformat(),
+                  "interval": "day"}
+
+    # print(f"awdasdasdas{oeelist1w}")
+    # print(type(oeelist1w))
+    # print("awdasdasdas")
+    # oeelist1w = json.dumps(oeelist1w)
+
+    print("asdadasdasda")
+    print(oeelist1w)
+    print("asdadasdasda")
+
     list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters("MONTAJ", "pers", params_dic, oeelist1w,
                                                                               oeelist3w, oeelist7w)
     list_of_figs = [i for i in list_of_figs if i != {}]
+    max_of_slider = len(list_of_figs)
 
     if selected_value + 1 > len(list_of_figs):
         selected_value = -1
@@ -115,8 +88,8 @@ def update_output(n, selected_value):
                                      }
                                      )
             ]
-        ), selected_value + 1,ag.run_query(project_directory + r"\Charting\queries\liveprd.sql").to_json(date_format='iso',
-                                                                                    orient='split')
+        ), selected_value + 1, ag.run_query(project_directory + r"\Charting\queries\liveprd.sql") \
+            .to_json(date_format='iso', orient='split'), max_of_slider
     else:
         return html.Div(
             children=[
@@ -135,32 +108,7 @@ def update_output(n, selected_value):
                                      }
                                      )
             ]
-        ), selected_value + 1,no_update
-
-
-# Import required libraries and modules
-
-# Define constants and initial data
-
-
-# Create the layout for the app
-# layout = dbc.Container([
-#
-#     dcc.Link(
-#         children='Main Page',
-#         href='/',
-#         style={"color": "black", "font-weight": "bold"}
-#
-#     ),
-#     # dcc.Dropdown(id="costcenter",
-#     #              options=[{"label": cc, "value": cc} for cc in costcenters],
-#     #              multi=False,
-#     #              value="CNC",
-#     #              style={"color": "green", "background-color": "DimGray", 'width': 200}
-#     #              ),
-#
-#
-# ], fluid=True)
+        ), selected_value + 1, no_update, max_of_slider
 
 
 @app.callback(
@@ -179,62 +127,39 @@ def update_ind_fig(n, selected_value, livedata_montaj):
     Returns:
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
-    df = pd.read_json(livedata_montaj, orient='split')
-    df = df[df["COSTCENTER"] == "MONTAJ"].reset_index(drop=True)
 
-    list_of_figs = []
-    list_of_stationss = []
-    for item in df.loc[df["COSTCENTER"] == "MONTAJ"]["WORKCENTER"].unique():
-        list_of_stationss.append(item)
-    for index, row in df.iterrows():
-        if index < len(list_of_stationss):
-            fig = return_indicatorgraph(row["STATUSR"], row["FULLNAME"], row["WORKCENTER"], row["DRAWNUM"],
-                                        row["STEXT"], 0)
+    return sliding_indicator_container(livedata=livedata_montaj,
+                                       selected_value=selected_value, costcenter='MONTAJ')
 
-            list_of_figs.append(fig)
 
-        else:
-            fig = {}
-            style = {"display": "none"}
+@app.callback(
+    Output("oeelist1w_tv", "data"),
+    Output('oeelist3w_tv', 'data'),
+    Output('oeelist7w_tv', 'data'),
+    Output('oeelist0w_tv', 'data'),
+    Input("15min_update", "n_intervals"))
+def refresh_data(n):
+    params_dic = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
+                  "workend": date.today().isoformat(),
+                  "interval": "day"}
+    # a = cache.get(json.dumps({'workstart': '2023-09-06', 'workend': '2023-09-07', 'interval': 'day'}))
+    # cache_key = json.dumps(params_dic)
+    # x = cache.get(params_dic)
+    cache.delete_memoized(prdconf, (params_dic["workstart"], params_dic["workend"], params_dic["interval"]))
+    oeelist1w = prdconf(params_list)[1]
+    oeelist3w = prdconf(params_list)[3]
+    oeelist7w = prdconf(params_list)[7]
+    oeelist0w = prdconf(params_list)[0]
+    return  oeelist1w,oeelist3w,oeelist7w,oeelist0w
+    #
+    # fig, data, columns, styles = workcenters("MONTAJ", "pers", params_dic, oeelist1w, oeelist3w, oeelist7w)
+    # alt satırı app.workcennter metoduna taşımak gerek
 
-    lengthof = len(list_of_figs)
-    x = lengthof % 4
-    newlengthof = lengthof - x
-    numofforths = newlengthof / 4
-    counter = 0
 
-    listofdivs = []
-    for i in range(0, len(list_of_figs), 4):
-        if counter != numofforths:
-            listofdivs.append(html.Div([
-                dbc.Row([
-                    dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])),width=4),
-                    dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1])),width=4)
-                ],className="g-0"),
-                dbc.Row([
-                    dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2])),width=4),
-                    dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3])),width=4),
-                ],className="g-0")
-            ]))
-        else:
-            if x == 0:
-                continue
-            else:
-                print("here")
-                listofdivs.append(html.Div([
-                    dbc.Row([
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])),width=4),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1] if x > 1 else {})),width=4)
-                    ],className="g-0"),
-                    dbc.Row([
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2] if x > 2 else {})),width=4),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3] if x > 3 else {})),width=4),
-                    ],className="g-0")
-                ]))
-        counter = counter + 1
-    print("****")
-    print(len(listofdivs))
-    selected_value = selected_value%len(listofdivs)
-    print(selected_value)
-    print("******")
-    return listofdivs[selected_value]
+@app.callback(
+    Output('pie_of_yesterday_montaj', 'figure'),
+    Input("oeelist0w_tv", "data"),
+    Input("play", "n_clicks"))
+def update_piechart(oeelist0w,n):
+    print(oeelist0w)
+    return return_piechart("MONTAJ", oeelist0w)

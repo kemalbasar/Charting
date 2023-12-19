@@ -7,7 +7,7 @@ from dash import dcc, html, Input, Output, State, callback_context, \
     no_update, exceptions  # pip install dash (version 2.0.0 or higher)
 import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
-    generate_for_sparkline, working_machinesf, return_ind_fig
+    generate_for_sparkline, working_machinesf, indicator_with_color
 from run.agent import ag
 from valfapp.app import app, prdconf, return_piechart
 from valfapp.pages.date_class import update_date, update_date_output
@@ -586,15 +586,12 @@ def update_spark_line(option_slctd, dates,oeelist6):
 def update_ind_fig(option_slctd, oeelist1):
     df = pd.read_json(oeelist1, orient='split')
     df = df[df["COSTCENTER"] == option_slctd]
-    fig_up1 = return_ind_fig(df_metrics=
-                             df, costcenter=option_slctd)
-    fig_up2 = return_ind_fig(df_metrics=
-                             df, costcenter=option_slctd, order=1)
-    fig_up3 = return_ind_fig(df_metrics=
-                             df, costcenter=option_slctd, order=2)
-    fig_down1 = return_ind_fig(df_metrics=df, costcenter=option_slctd, order=-1, colorof='red')
-    fig_down2 = return_ind_fig(df_metrics=df, costcenter=option_slctd, order=-2, colorof='red')
-    fig_down3 = return_ind_fig(df_metrics=df, costcenter=option_slctd, order=-3, colorof='red')
+    fig_up1 = indicator_with_color(df_metrics=df)
+    fig_up2 = indicator_with_color(df_metrics=df, order=1)
+    fig_up3 = indicator_with_color(df_metrics=df, order=2)
+    fig_down1 = indicator_with_color(df_metrics=df, order=-1, colorof='red')
+    fig_down2 = indicator_with_color(df_metrics=df, order=-2, colorof='red')
+    fig_down3 = indicator_with_color(df_metrics=df, order=-3, colorof='red')
     return [fig_up1, fig_up2, fig_up3, fig_down1, fig_down2, fig_down3]
 
 

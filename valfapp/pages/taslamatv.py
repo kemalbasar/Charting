@@ -5,10 +5,11 @@ import json
 import pandas as pd
 from dash import dcc, html, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
-from valfapp.functions.functions_prd import return_indicatorgraph
+from valfapp.functions.functions_prd import indicator_for_tvs
 from valfapp.app import app
 from config import project_directory
 from run.agent import ag
+from valfapp.layouts import sliding_indicator_container
 
 today = datetime.today()
 
@@ -156,62 +157,7 @@ def update_ind_fig(n, selected_value, livedata_taslama):
     Returns:
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
-    df = pd.read_json(livedata_taslama, orient='split')
-    df = df[df["COSTCENTER"] == "TASLAMA"].reset_index(drop=True)
 
-    list_of_figs = []
-    list_of_stationss = []
-    for item in df.loc[df["COSTCENTER"] == "TASLAMA"]["WORKCENTER"].unique():
-        list_of_stationss.append(item)
-    for index, row in df.iterrows():
-        if index < len(list_of_stationss):
-            fig = return_indicatorgraph(row["STATUSR"], row["FULLNAME"], row["WORKCENTER"], row["DRAWNUM"],
-                                        row["STEXT"], 0)
+    return sliding_indicator_container(livedata = livedata_taslama,selected_value= selected_value,costcenter= 'TASALAMA')
 
-            list_of_figs.append(fig)
 
-        else:
-            fig = {}
-            style = {"display": "none"}
-
-    lengthof = len(list_of_figs)
-    x = lengthof % 4
-    newlengthof = lengthof - x
-    numofforths = newlengthof / 4
-    counter = 0
-
-    listofdivs = []
-    for i in range(0, len(list_of_figs), 4):
-        if counter != numofforths:
-            listofdivs.append(html.Div([
-                dbc.Row([
-                    dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])),width=4),
-                    dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1])),width=4)
-                ],className="g-0"),
-                dbc.Row([
-                    dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2])),width=4),
-                    dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3])),width=4),
-                ],className="g-0")
-            ]))
-        else:
-            if x == 0:
-                continue
-            else:
-                print("here")
-                listofdivs.append(html.Div([
-                    dbc.Row([
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])),width=4),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1] if x > 1 else {})),width=4)
-                    ],className="g-0"),
-                    dbc.Row([
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2] if x > 2 else {})),width=4),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3] if x > 3 else {})),width=4),
-                    ],className="g-0")
-                ]))
-        counter = counter + 1
-    print("****")
-    print(len(listofdivs))
-    selected_value = selected_value%len(listofdivs)
-    print(selected_value)
-    print("******")
-    return listofdivs[selected_value]
