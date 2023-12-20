@@ -87,7 +87,7 @@ layout_27 = dbc.Container([
                  ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='memory',data={'default_key': 'CNC'}),
+    dcc.Store(id='store-costcenter', storage_type='memory',data='CNC'),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -198,7 +198,7 @@ layout_12 = dbc.Container([
                  ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='memory',data={'default_key': 'CNC'}),
+    dcc.Store(id='store-costcenter', storage_type='memory',data='CNC'),
     dbc.Row([
         dbc.Col([
             dbc.Row(html.Div([dcc.Graph(id='sunburst')],
