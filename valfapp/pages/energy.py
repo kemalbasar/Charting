@@ -73,7 +73,7 @@ layout = [
                                     dcc.Dropdown(
                                         id='date-dropdown',
                                         options=['day', 'month'],
-                                        style={'color': 'yellow', 'font':{'color':'white'},"width": 150},
+                                        style={'color': 'yellow', 'font': {'color': 'white'}, "width": 150},
                                         value='month'
                                     ),
                                     html.Br(),
@@ -109,11 +109,11 @@ layout = [
                             )
                         ],
 
-                    )],width=3),
+                    )], width=3),
                 dbc.Col([
-                    dcc.Graph(id="pie_chart", figure=return_pie())],width=4),
-                dbc.Col([dcc.Graph(id='example-graph', figure=fig)],width=2)
-        ]),
+                    dcc.Graph(id="pie_chart", figure=return_pie())], width=4),
+                dbc.Col([dcc.Graph(id='example-graph', figure=fig)], width=2)
+            ]),
             dbc.Row([
                 dash_table.DataTable(
                     id="data_table",
@@ -193,24 +193,21 @@ layout = [
     Input('machine-type-dropdown', 'value')
 )
 def set_machine_options(selected_machine_type):
-    if selected_machine_type not in ["KURUTMA","YUZEY ISLEM","PRESHANE","CNC","ISIL ISLEM"]:
+    if selected_machine_type not in ["KURUTMA", "YUZEY ISLEM", "PRESHANE", "CNC", "ISIL ISLEM"]:
         return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
     else:
         list_of_mpoints = [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
-        list_of_mpoints.append({"label":"Hepsi","value":"Hepsi"})
+        list_of_mpoints.append({"label": "Hepsi", "value": "Hepsi"})
         print(list_of_mpoints)
         return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
 
 
 # @cache.memoize()
 def update_table(s_date, f_date, costcenter, m_point, date_interval):
-
     if m_point == 'Bölümler':
         gruplamami = 1
     else:
         gruplamami = 0
-
-
 
     if date_interval == 'day':
         with open(project_directory + f"\Charting\queries\energy_qandweight_daily.sql", 'r') as file:
@@ -244,7 +241,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         analyzer = {}
         if m_point == 'Bölümler':
 
-            my_keys = ["KURUTMA","YUZEY ISLEM","PRESHANE","CNC","ISIL ISLEM"]
+            my_keys = ["KURUTMA", "YUZEY ISLEM", "PRESHANE", "CNC", "ISIL ISLEM", "TASLAMA", "DOGRULTMA", "YIKAMA"]
             for costcenter_tmp in {key: valftoreeg[key] for key in my_keys}:
                 analyzer.update(valftoreeg[costcenter_tmp])
                 for m_point in valftoreeg[costcenter_tmp]:
@@ -297,9 +294,9 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
 
         print(f"mpointtmp={m_point_tmp}")
 
-        #ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
-        #ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
-        #ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
+        # ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
+        # ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
+        # ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
 
         if date_interval == 'day':
 
@@ -313,9 +310,9 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                                         f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, OUTPUT,DATE,COSTCENTER from ASD ")
             elif m_point_tmp == 'Hepsi':
                 df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
-                                       f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
-                                       f" WHERE COSTCENTER = '{costcenter_tmp}' "
-                                       f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
+                                        f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+                                        f" WHERE COSTCENTER = '{costcenter_tmp}' "
+                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
             else:
                 df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
                                         f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
@@ -332,9 +329,9 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                     f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, SUM(OUTPUT) AS OUTPUT,DATE,COSTCENTER FROM ASD GROUP BY DATE,COSTCENTER")
             elif m_point_tmp == 'Hepsi':
                 df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
-                                       f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
-                                       f" WHERE COSTCENTER = '{costcenter_tmp}' "
-                                       f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
+                                        f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+                                        f" WHERE COSTCENTER = '{costcenter_tmp}' "
+                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
             else:
                 df_works = ag.run_query(f"SELECT LEFT(DATE, 4) + '-' + SUBSTRING(DATE, 6, 2)  AS DATE,MPOINT,SCODE,"
                                         f"SUM(OUTPUT) AS OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
@@ -350,7 +347,6 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         # URETIM DATALARINI ICIN SORGUNUN YAZILI OLDU TXT DOSYASINA GİDİYORUZ
         # URETIM DATALARINI ICIN SORGUNUN YAZILI OLDU TXT DOSYASINA GİDİYORUZ
         # URETIM DATALARINI ICIN SORGUNUN YAZILI OLDU TXT DOSYASINA GİDİYORUZ
-
 
         filedata_tmp = filedata.replace("xxxx-yy-zz", str(start_date))
         filedata_tmp = filedata_tmp.replace("aaaa-bb-cc", str(end_date))
@@ -368,7 +364,6 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         df_prddata["DATE"] = pd.to_datetime(df_prddata["DATE"])
         df_works["DATE"] = pd.to_datetime(df_works["DATE"])
         if len(df_prddata):
-
 
             df_works = df_works.merge(df_prddata, on=['MPOINT', 'DATE'], how='left').fillna(0)
 
@@ -411,23 +406,24 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
 
     if gruplamami == 1:
 
-        df_final["COSTCENTER"] = df_final.apply(lambda x :  x["COSTCENTER"].replace(" ", ""),axis=1)
+        df_final["COSTCENTER"] = df_final.apply(lambda x: x["COSTCENTER"].replace(" ", ""), axis=1)
         print("*****")
         print(df_final)
-        df_final = df_final.loc[((df_final["COSTCENTER"].isin(['TASLAMA', 'ISILISLEM', 'YUZEYISLEM','KURUTMA'])) |
-                                 (df_final["MPOINT"].isin(["5 CNC ve 4 Taslama (Pano 3)", "15 CNC (Pano 2)",
-                                                           "19 CNC (Pano 1)", 'PRES - Pano 3', 'PRES - Pano 2',
-                                                           'PRES - Pano 1'])))]
+        df_final = df_final.loc[
+            ((df_final["COSTCENTER"].isin(['TASLAMA', 'DOGRULTMA', 'YIKAMA', 'ISILISLEM', 'YUZEYISLEM', 'KURUTMA'])) |
+             (df_final["MPOINT"].isin(["5 CNC ve 4 Taslama (Pano 3)", "15 CNC (Pano 2)",
+                                       "19 CNC (Pano 1)", 'PRES - Pano 3', 'PRES - Pano 2',
+                                       'PRES - Pano 1'])))]
 
         if date_interval == 'month':
             print("*****")
             print(df_final)
             df_final = df_final.groupby(["COSTCENTER", "DATE"]).agg({"TOTALNETWEIGHT(ton)": "sum",
-                                                           "OUTPUT(KWH)": "sum",
-                                                           "QUANTITY": "sum"})
+                                                                     "OUTPUT(KWH)": "sum",
+                                                                     "QUANTITY": "sum"})
             df_final.reset_index(inplace=True)
 
-            #GETTING ALL PRESS PRODUCTION DATA WITH SUM
+            # GETTING ALL PRESS PRODUCTION DATA WITH SUM
             with open(project_directory + f"\Charting\queries\energy_pres_monthly.sql", 'r') as file:
                 filedata_pres = file.read()
             filedata_pres_tmp = filedata_pres.replace("xxxx-yy-zz", str(start_date))
@@ -435,7 +431,6 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
             df_presuradet = ag.run_query(filedata_pres_tmp)
 
             df_presuradet["DATE"] = pd.to_datetime(df_presuradet["DATE"])
-
 
             # Convert "QUANTITY" column in df_final to int64 with error handling
             # Convert "TOTALNETWEIGHT" column in df_presuradet to float64 with error handling
@@ -445,9 +440,9 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
             df_presuradet["TOTALNETWEIGHT(ton)"] = df_presuradet["TOTALNETWEIGHT(ton)"].astype("float")
             df_presuradet["TOTALNETWEIGHT(ton)"] = df_presuradet["TOTALNETWEIGHT(ton)"].astype("float")
 
-
-            df_final.loc[df_final["COSTCENTER"] == 'PRESHANE',"TOTALNETWEIGHT(ton)"] = list(df_presuradet["TOTALNETWEIGHT(ton)"])
-            df_final.loc[df_final["COSTCENTER"] == 'PRESHANE',"QUANTITY"] = list(df_presuradet["QUANTITY"])
+            df_final.loc[df_final["COSTCENTER"] == 'PRESHANE', "TOTALNETWEIGHT(ton)"] = list(
+                df_presuradet["TOTALNETWEIGHT(ton)"])
+            df_final.loc[df_final["COSTCENTER"] == 'PRESHANE', "QUANTITY"] = list(df_presuradet["QUANTITY"])
 
             df_final["MPOINT"] = 0.000
             df_final["kwhPERton"] = 0.000
@@ -469,8 +464,8 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         df_final_sum = df_final_sum.iloc[0:0]
 
         df_final_sum.loc[len(df_final_sum.index)] = (
-        '0000-00-00T00:00:00+00:00', "ALL", "ALL", df_final["TOTALNETWEIGHT(ton)"].sum(),
-        df_final["OUTPUT(KWH)"].sum(), 0.000, df_final["QUANTITY"].sum(), 0.000)
+            '0000-00-00T00:00:00+00:00', "ALL", "ALL", df_final["TOTALNETWEIGHT(ton)"].sum(),
+            df_final["OUTPUT(KWH)"].sum(), 0.000, df_final["QUANTITY"].sum(), 0.000)
         df_final["kwhPERton"] = df_final["kwhPERton"].apply(lambda x: f"{x:.3f}" if x is not None else x)
         df_final["kwhPERqty"] = df_final["kwhPERqty"].apply(lambda x: f"{x:.5f}" if x is not None else x)
         df_final_sum["kwhPERton"] = df_final_sum["OUTPUT(KWH)"] / df_final_sum["TOTALNETWEIGHT(ton)"]
@@ -538,14 +533,16 @@ def line_graph_update(data):
         print(m_point)
         df_tmp = df.loc[df["MPOINT"] == m_point]
 
-        fig_combined_perton.add_trace(go.Scatter(x=df_tmp["DATE"], y=df_tmp["kwhPERton"], mode='lines+markers', name=m_point))
+        fig_combined_perton.add_trace(
+            go.Scatter(x=df_tmp["DATE"], y=df_tmp["kwhPERton"], mode='lines+markers', name=m_point))
 
         # Add trace for kwhPERqty
         fig_combined_perqty.add_trace(
             go.Scatter(x=df_tmp["DATE"], y=df_tmp["kwhPERqty"] * 1000, mode='lines+markers', name=m_point))
 
         # Add trace for kwhPERqty
-        fig_combined_cons.add_trace(go.Scatter(x=df_tmp["DATE"], y=df_tmp["OUTPUT(KWH)"], mode='lines+markers', name=m_point))
+        fig_combined_cons.add_trace(
+            go.Scatter(x=df_tmp["DATE"], y=df_tmp["OUTPUT(KWH)"], mode='lines+markers', name=m_point))
 
         # Update layout
     fig_combined_perton.update_layout(
@@ -567,7 +564,8 @@ def line_graph_update(data):
         legend_title="Metrics"
     )
 
-    return html.Div(children=[dcc.Graph(figure=fig_combined_perton),dcc.Graph(figure=fig_combined_perqty),dcc.Graph(figure=fig_combined_cons)])
+    return html.Div(children=[dcc.Graph(figure=fig_combined_perton), dcc.Graph(figure=fig_combined_perqty),
+                              dcc.Graph(figure=fig_combined_cons)])
 
 
 @app.callback(

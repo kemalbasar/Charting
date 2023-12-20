@@ -79,7 +79,7 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                                      },
                                      style_table={
                                          "height": '150px',
-                                         "width": '700px',  # Fixed pixel width
+                                         "width": '300px',  # Fixed pixel width
                                          "overflowY": 'auto',
                                      }
                                      )
@@ -99,7 +99,7 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                                      },
                                      style_table={
                                          "height": '150px',
-                                         "width": '5100px',  # Fixed pixel width
+                                         "width": '4    00px',  # Fixed pixel width
                                          "overflowY": 'auto',
                                      }
                                      )

@@ -85,7 +85,6 @@ def prdconf(params=None):
          else 0)
         for row in range(len(prd_conf))
     ]
-    prd_conf[["WORKCENTER","BADDATA_FLAG"]].to_excel(r"F:\pycarhm projects\Charting\outputs(xlsx)\bu3.xlsx")
     details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
         df=prd_conf[prd_conf["BADDATA_FLAG"] == 0], nontimes=non_times)
     for item in details:
@@ -142,7 +141,7 @@ def oee(params=None):
     return result
 
 
-@cache.memoize(timeout=TIMEOUT)
+# @cache.memoize(timeout=TIMEOUT)
 def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist7w,come_from_tvlayout=0):
     oeelist1w = pd.read_json(oeelist1w, orient='split')
     oeelist3w = pd.read_json(oeelist3w, orient='split')
