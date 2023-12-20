@@ -45,9 +45,9 @@ def toggle(n, playing):
     Output("wc-slider_montaj", "max"),
     Input("animate_montaj", "n_intervals"),
     Input("wc-slider_montaj", "value"),
-    State(component_id='oeelist1w_tv', component_property='data'),
-    State(component_id='oeelist3w_tv', component_property='data'),
-    State(component_id='oeelist7w_tv', component_property='data'),
+    State(component_id='oeelist1w_tv_montaj', component_property='data'),
+    State(component_id='oeelist3w_tv_montaj', component_property='data'),
+    State(component_id='oeelist7w_tv_montaj', component_property='data'),
     prevent_initial_call=True,
 )
 def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
@@ -129,10 +129,10 @@ def update_ind_fig(n, selected_value, livedata_montaj):
 
 
 @app.callback(
-    Output("oeelist1w_tv", "data"),
-    Output('oeelist3w_tv', 'data'),
-    Output('oeelist7w_tv', 'data'),
-    Output('oeelist0w_tv', 'data'),
+    Output("oeelist1w_tv_montaj", "data"),
+    Output('oeelist3w_tv_montaj', 'data'),
+    Output('oeelist7w_tv_montaj', 'data'),
+    Output('oeelist0w_tv_montaj', 'data'),
     Input("15min_update", "n_intervals"))
 def refresh_data(n):
     params_dic = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
@@ -154,7 +154,7 @@ def refresh_data(n):
 
 @app.callback(
     Output('pie_of_yesterday_montaj', 'figure'),
-    Input("oeelist0w_tv", "data"),
+    Input("oeelist0w_tv_montaj", "data"),
     Input("play", "n_clicks"))
 def update_piechart(oeelist0w,n):
     print(oeelist0w)

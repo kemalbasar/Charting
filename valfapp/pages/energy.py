@@ -12,14 +12,19 @@ from config import valftoreeg, project_directory
 from run.agent import ag
 from valfapp.app import cache, app
 
-query = f"SELECT MPOINT, SUBSTRING(DATE, 1, 8) AS DATE, SUM(OUTPUT) AS TOTAL FROM VLFENERGY WHERE COSTCENTER = 'TRAFO' GROUP BY MPOINT, SUBSTRING(DATE, 1, 8)"
+query =  f"SELECT MPOINT, SUM(OUTPUT) AS TOTAL,SUBSTRING(DATE, 1, 7)  as DATE "\
+    f"FROM VLFENERGY "\
+    f"WHERE COSTCENTER = 'TRAFO' "\
+    f"AND CAST(SUBSTRING(DATE, 1, 10) AS DATE) >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0) "\
+    f"GROUP BY MPOINT, SUBSTRING(DATE, 1, 7) "
+
 
 query_pie = f"SELECT COSTCENTER,SUM(OUTPUT) AS CONSUMPTION FROM VLFENERGY WHERE MPOINT NOT LIKE CASE COSTCENTER WHEN 'CNC' THEN '%-%' ELSE '%ASDF%' END " \
             f"AND MPOINT  LIKE CASE COSTCENTER WHEN 'PRESHANE' THEN '%Pano%' ELSE '%%'  END AND DATE > '20231117' GROUP BY COSTCENTER ORDER BY COSTCENTER"
 
 df = ag.run_query(query)
 
-fig = px.bar(df, x='DATE', y='TOTAL', width=600, height=400)
+fig = px.bar(df, x='DATE', y='TOTAL', width=500, height=400)
 fig.update_layout(bargap=0.2)
 
 
@@ -109,10 +114,10 @@ layout = [
                             )
                         ],
 
-                    )], width=3),
+                    )], width=2),
                 dbc.Col([
-                    dcc.Graph(id="pie_chart", figure=return_pie())], width=4),
-                dbc.Col([dcc.Graph(id='example-graph', figure=fig)], width=2)
+                    dcc.Graph(id="pie_chart", figure=return_pie())], width=5),
+                dbc.Col([dcc.Graph(id='example-graph', figure=fig)], width=1)
             ]),
             dbc.Row([
                 dash_table.DataTable(

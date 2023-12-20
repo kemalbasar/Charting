@@ -101,7 +101,7 @@ payload = {
                 "decimalPoints": 3
             },
         ],
-        "point": ["valfsan_taslama_dd_02"],
+        "point": ["valfsan_yuzeyislem_2"],
         "start": "2023-11-01T00:00:00",
         "end": "2023-11-30T00:00:00",
         "break": {

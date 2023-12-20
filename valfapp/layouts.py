@@ -484,12 +484,12 @@ def sliding_indicator_container(livedata, selected_value, costcenter):
                     dbc.Row([
                         dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i])), width=3),
                         dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 1] if x > 1 else {})), width=3),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2] if x > 1 else {})), width=3)
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 2] if x > 2 else {})), width=3)
                     ], className="g-0"),
                     dbc.Row([
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3] if x > 2 else {})), width=3),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 4] if x > 3 else {})), width=3),
-                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 5] if x > 3 else {})), width=3)
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 3] if x > 3 else {})), width=3),
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 4] if x > 4 else {})), width=3),
+                        dbc.Col(html.Div(dcc.Graph(figure=list_of_figs[i + 5] if x > 5 else {})), width=3)
                     ], className="g-0")
                 ]))
         counter = counter + 1
@@ -502,25 +502,25 @@ def sliding_indicator_container(livedata, selected_value, costcenter):
 def layout_for_tvs(costcenter='MONTAJ'):
     print(f"pie_of_yesterday_{costcenter.lower()}")
     return [
-        dcc.Store(id='oeelist1w_tv',
+        dcc.Store(id=f'oeelist1w_tv_{costcenter.lower()}',
                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),
                                 date.today().isoformat(), "day"))[1]),
-        dcc.Store(id='oeelist3w_tv',
+        dcc.Store(id=f'oeelist3w_tv_{costcenter.lower()}',
                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),
                                 date.today().isoformat(), "day"))[
                       3]),
-        dcc.Store(id='oeelist0w_tv',
+        dcc.Store(id=f'oeelist0w_tv_{costcenter.lower()}',
                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),
                                 date.today().isoformat(), "day"))[
                       0]),
-        dcc.Store(id='oeelist7w_tv',
+        dcc.Store(id=f'oeelist7w_tv_{costcenter.lower()}',
                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),
                                 date.today().isoformat(), "day"))[
                       7]),
             # First Column
             dbc.Row([
                 dbc.Col([
-                    html.Div(id="wc-output-container_montaj", className= "row g-0"),
+                    html.Div(id=f"wc-output-container_{costcenter.lower()}", className= "row g-0"),
                     # Other components for this column
                 ], width=8),
 
@@ -540,12 +540,12 @@ def layout_for_tvs(costcenter='MONTAJ'):
                             className = 'slider'
                         ),
                         html.Div(
-                            id='slider-output-container_montaj',style={'width':500, 'display': 'inline-block'}),
-                        dcc.Interval(id="animate_montaj", interval=10000, disabled=False),
+                            id=f'slider-output-container_{costcenter.lower()}',style={'width':500, 'display': 'inline-block'}),
+                        dcc.Interval(id=f"animate_{costcenter.lower()}", interval=10000, disabled=False),
                         dcc.Interval(id="15min_update", interval=110000, disabled=False),
                         dcc.Store(id="list_of_stationss"),
                         dcc.Store(
-                            id="livedata_montaj",
+                            id=f"livedata_{costcenter.lower()}",
                             data=ag.run_query(project_directory + r"\Charting\queries\liveprd.sql").to_json(
                                 date_format='iso',
                                 orient='split')
