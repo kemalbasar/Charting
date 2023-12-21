@@ -475,7 +475,9 @@ def indicator_with_color(df_metrics=None, order=0,
 # text refers to the text to be displayed on the indicator graph.
 # workcenter refers to the workcenter of the manufacturing company, it will be on header
 def indicator_for_tvs(status='white', fullname='',
-                      workcenter='', material='', durus='', target=0, size={"width": 465, "height": 500},rate=1):
+                      workcenter='', material='', durus='', target=0, size=None, rate=1):
+    if size is None:
+        size = {"width": 465, "height": 500}
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge+number",
@@ -514,7 +516,7 @@ def indicator_for_tvs(status='white', fullname='',
         'text': fullname,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 30*rate, 'color': 'black'}
+        'font': {'size': 30 * rate, 'color': 'black'}
     }
     annotation1 = {
 
@@ -523,7 +525,7 @@ def indicator_for_tvs(status='white', fullname='',
         'text': material[0:len(material) if len(material) <= 11 else 11] if material is not None else '',
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 45*rate, 'color': 'black'}
+        'font': {'size': 45 * rate, 'color': 'black'}
     }
     annotation2 = {
 
@@ -533,7 +535,7 @@ def indicator_for_tvs(status='white', fullname='',
         'text': '(' + str(durus) + ')',
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size':1 if durus is None else (30 if len(durus) > 20 else 40*rate), 'color': 'white'}
+        'font': {'size': 1 if durus is None else (30 if len(durus) > 20 else 40 * rate), 'color': 'white'}
     }
 
     fig.update_layout({
@@ -543,7 +545,7 @@ def indicator_for_tvs(status='white', fullname='',
             x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
             y=0.81,
             font=dict(
-                size=80*rate,
+                size=80 * rate,
                 color='black'
             )
         ),
@@ -554,7 +556,7 @@ def indicator_for_tvs(status='white', fullname='',
 
 
 def indicator_for_yislem(status='white', fullname='',
-                         workcenter='', material='', durus='', target=0, size={"width": 475, "height": 500},rate=1):
+                         workcenter='', material='', durus='', target=0, size={"width": 475, "height": 500}, rate=1):
     if durus is None:
         mtext = ''
         durus = 0
@@ -575,7 +577,7 @@ def indicator_for_yislem(status='white', fullname='',
                         'showticklabels': False},
                },
         number={'suffix': None},
-        domain={'x': [0.2, 0.8], 'y': [0.4, 0.6]},  # Adjust the domain to control the gauge size
+        domain={'x': [0.2, 0.8], 'y': [0.3, 0.6]},  # Adjust the domain to control the gauge size
 
         #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
         #        domain={'x': [0, 1], 'y': [0, 1]}
@@ -583,44 +585,44 @@ def indicator_for_yislem(status='white', fullname='',
 
     colorof = 'white' if durus < 0 else 'black'
 
-
+    date_pos =-1.8 if rate == 8 / 20 else -0.3
+    mat_pos = -1.13if rate == 8 / 20 else -0.02
     annotation = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': -0.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': date_pos,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': str(fullname)[-8:],
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 45*rate, 'color': colorof}
+        'font': {'size': 45 * rate, 'color': colorof}
     }
     annotation1 = {
 
         'x': 0.50,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': -0.02,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': mat_pos,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': material,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 36*rate, 'color': colorof}
+        'font': {'size': 45 * rate, 'color': colorof}
     }
     annotation2 = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.65,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'y': 2.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': f"{str(durus)}",
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 100*rate, 'color': colorof}
+        'font': {'size': 100 * rate, 'color': colorof}
     }
 
     annotation3 = {
 
-        'x': 0.1,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.65,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'x': -0.4,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 1.7,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': "Dk.",
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 40*rate, 'color': colorof}}
-
+        'font': {'size': 40 * rate, 'color': colorof}}
     fig.update_layout({
         "annotations": [annotation, annotation1, annotation2, annotation3],
         "title": dict(
@@ -632,17 +634,19 @@ def indicator_for_yislem(status='white', fullname='',
                 color=colorof
             )
         ),
-        "xaxis": {
-        'tickmode': 'array',
-        'tickvals': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-        'ticktext': ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'],
-        'tickangle': 45,
-        'tickfont': {'size': 12, 'color': 'blue'}
-    },
+        # "xaxis": {
+        #     'tickmode': 'array',
+        #     'tickvals': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        #     'ticktext': ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'],
+        #     'tickangle': 45,
+        #     'tickfont': {'size': 12, 'color': 'blue'}
+        # },
         "paper_bgcolor": status,
         "width": size["width"],
         "height": size["height"],
 
     })
+    fig.update_annotations(showarrow=False)
+
 
     return fig

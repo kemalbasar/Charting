@@ -307,6 +307,10 @@ layout_12_loginpage = dbc.Container([
     dcc.Link(
         children='Yüzey İşlem Tv',
         href='/yislemtv',
+    ),
+    dcc.Link(
+        children='Kamera Ayıklama Sonuçlar',
+        href='/camayik',
     )
 
 ], fluid=True, style={"height": "100vh", "position": "relative"})

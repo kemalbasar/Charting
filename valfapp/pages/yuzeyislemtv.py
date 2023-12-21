@@ -13,7 +13,7 @@ from run.agent import ag
 len_fig = int(len(ag.run_query(project_directory + r"\Charting\queries\yuzeyislemtvsorgu.sql")) / 8) + 1
 
 
-def dynamic_layout(list_of_figs=[], col_num=5,row_num=3):
+def dynamic_layout(list_of_figs=[], col_num=5,row_num=4):
     total_chart = col_num*row_num
     widthof = int(12/col_num)
     lengthof = len(list_of_figs)
@@ -91,6 +91,7 @@ def update_ind_fig(col_num,row_num):
         list_of_stationss.append(item)
     for index, row in df.iterrows():
         if index < len(list_of_stationss):
+
             fig = indicator_for_yislem(row["STATUSR"], row["FULLNAME"], row["WORKCENTER"], row["DRAWNUM"],
                                        row["STEXT"], row["TARGET"],{"width": 1500/col_num if  col_num <= 4 else 1250/col_num, "height": 850/row_num},8/(row_num*col_num))
 
@@ -116,7 +117,7 @@ layout = [dcc.Link(
     dcc.Store(id="livedata_yislem", data=ag.run_query(project_directory +
                                                       r"\Charting\queries\yuzeyislemtvsorgu.sql").to_json(
         date_format='iso', orient='split')),
-    dcc.Store(id="wc-output-container_yislem_tmp",data=update_ind_fig(5,3)),
+    dcc.Store(id="wc-output-container_yislem_tmp",data=update_ind_fig(5,4)),
     dcc.Interval(id="animate_yislem", interval=10000),
     dbc.Col([
         dbc.Row([html.Div(id="wc-output-container_yislem_real", className="g-0"), ]),
@@ -132,7 +133,7 @@ layout = [dcc.Link(
             ), dcc.Input(
                     id="inp_row",
                     placeholder="row",
-                    value=3,
+                    value=4,
                     type = 'number',
                     style={"width": "180px"},
                     persistence=True,  # Enable persistence
