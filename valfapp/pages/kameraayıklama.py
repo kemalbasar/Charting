@@ -8,7 +8,7 @@ from run.agent import agiot as ag
 
 
 
-data = ag.run_query(r"SELECT * FROM VLFAYIKLAMA where MakinaNo = 'KMR-1' AND Malzeme = '1001850800' AND ÖlçümTipi = '[İç Çap]'")
+data = ag.run_query(r"SELECT * FROM VLFAYIKLAMA where MakinaNo = 'KMR-1' AND Malzeme = '1001850800' AND ÖlçümTipi = 'İç Çap'")
 data['MinimumDeğer'] = data['MinimumDeğer'].astype(float)
 data['MaksimumDeğer'] = data['MaksimumDeğer'].astype(float)
 data['Miktar'] = data['Miktar'].astype(int)
