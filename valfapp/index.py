@@ -93,6 +93,11 @@ def login(n_clicks, username, password):
         return {'logged_in': True}
     return {'logged_in': False}
 
+
+
+
+#### Yeni bir sayfa açtığımız zaman buraya eklem
+####yapıyoruz
 ### Update Page Container ###
 @app.callback(
     Output(

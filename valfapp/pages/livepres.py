@@ -67,8 +67,8 @@ print(f"{query} {a}")
 global dfff
 dfff = ag.run_query(query + ' ' + a)
 # dfff = dfff.to_json(date_format='iso', orient='split')
-dfff.loc[len(dfff.index)] = [0,'P-77', 'TEST',2,300,10000,100000]
-dfff.loc[len(dfff.index)] = [0,'P-75', 'TEST',2,300,10000,100000]
+dfff.loc[len(dfff.index)] = [0, 'P-77', 'TEST', 2, 300, 10000, 100000]
+dfff.loc[len(dfff.index)] = [0, 'P-75', 'TEST', 2, 300, 10000, 100000]
 
 client = mqtt.Client()
 
@@ -76,7 +76,6 @@ try:
     client.connect(broker_address, 1883, 60)
 except Exception as e:
     print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
-
 
 callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]]
 
@@ -109,7 +108,7 @@ layout = html.Div(children=[
     dcc.Store(id='nothing'),
     dcc.Store(id="store-bgcolor"),
     dcc.Store(id="df_infos_t"),
-    dcc.Store(id="workcenter_list",storage_type='memory',data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
+    dcc.Store(id="workcenter_list", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
     dcc.Store(id="workcenter_list_b", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
     dcc.Store(id="workcenter_list_c", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
     dcc.Interval(id="bgcolor-interval", interval=5000),
@@ -343,4 +342,3 @@ def update_graph(n, workcenter_list):
               Input('emg_stop', 'n_clicks'))
 def emergency_stop(n):
     client.publish("P-76/in/EMGStop", 0, qos=0)
-
