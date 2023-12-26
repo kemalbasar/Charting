@@ -1,10 +1,9 @@
 import time
 from config import server, username, password, database, database_iot, directory, project_directory
 from matplotlib import colors
-from config import directory
-import plotly.express as px
 import matplotlib.pyplot as plt
 import pyodbc
+
 
 import seaborn as sns
 import pandas as pd
@@ -275,4 +274,8 @@ class Agent:
 
 
 ag = Agent()
+
+
 agiot = Agent(database=database_iot)
+
+

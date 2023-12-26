@@ -61,10 +61,6 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
     list_of_figs = [i for i in list_of_figs if i != {}]
     max_of_slider = len(list_of_figs)
 
-    print("asdadasdasda")
-    print(list_of_data)
-    print("asdadasdasda")
-
     if selected_value + 1 > len(list_of_figs):
         selected_value = -1
         return html.Div(

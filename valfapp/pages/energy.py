@@ -12,12 +12,11 @@ from config import valftoreeg, project_directory
 from run.agent import ag
 from valfapp.app import cache, app
 
-query =  f"SELECT MPOINT, SUM(OUTPUT) AS TOTAL,SUBSTRING(DATE, 1, 7)  as DATE "\
-    f"FROM VLFENERGY "\
-    f"WHERE COSTCENTER = 'TRAFO' "\
-    f"AND CAST(SUBSTRING(DATE, 1, 10) AS DATE) >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0) "\
-    f"GROUP BY MPOINT, SUBSTRING(DATE, 1, 7) "
-
+query = f"SELECT MPOINT, SUM(OUTPUT) AS TOTAL,SUBSTRING(DATE, 1, 7)  as DATE " \
+        f"FROM VLFENERGY " \
+        f"WHERE COSTCENTER = 'TRAFO' " \
+        f"AND CAST(SUBSTRING(DATE, 1, 10) AS DATE) >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0) " \
+        f"GROUP BY MPOINT, SUBSTRING(DATE, 1, 7) "
 
 query_pie = f"SELECT COSTCENTER,SUM(OUTPUT) AS CONSUMPTION FROM VLFENERGY WHERE MPOINT NOT LIKE CASE COSTCENTER WHEN 'CNC' THEN '%-%' ELSE '%ASDF%' END " \
             f"AND MPOINT  LIKE CASE COSTCENTER WHEN 'PRESHANE' THEN '%Pano%' ELSE '%%'  END AND DATE > '20231117' GROUP BY COSTCENTER ORDER BY COSTCENTER"
@@ -272,7 +271,8 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
             continue
         if m_point == "K-13','K-18','K-19','K-20','K-21','K-22','K-23','K-25','K-27','K-28":
             m_point_tmp = '10 Kurutma'
-        elif m_point == "T-19','T-20','T-21','T-22','T-23','T-24','T-25','T-26','T-27','T-34','T-37','T-43','T-44','T-45":
+        elif m_point == "T-19','T-20','T-21','T-22','T-23','T-24','T-25','T-26','T-27','T-34','T-37','T-43','T-44'," \
+                        "'T-45":
             m_point_tmp = '10 Tambur'
         elif m_point == "CNCTO-01','CNCTO-02','CNCTO-04','CNCTO-05','CNCTO-06','CNCTO-07','CNCTO-08','CNCTO-09','CNCTO-10','CNCTO-11','CNCTO-12','CNCTO-13','CNCTO-14','CNCTO-15','CNCTO-16','CNC-07','CNC-08','CNC-26','CNC-28":
             m_point_tmp = "19 CNC (Pano 1)"

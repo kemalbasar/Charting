@@ -18,7 +18,7 @@
 }
 
 .dropdown-style {
-    color: white; /* Set font color to white */
+    /*color: white; !* Set font color to white *!*/
     width: 150px;
     background-color: #593096; /* Purple background color */
     text-align: center;
@@ -44,11 +44,11 @@
 /*}*/
 
 
-.Select-placeholder,
-.Select--single > .Select-control .Select-value {
-    color: #593096;
-    background-color: #593096;
-}
+/*.Select-placeholder,*/
+/*.Select--single > .Select-control .Select-value {*/
+/*    color: #593096;*/
+/*    background-color: #593096;*/
+/*}*/
 
 #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
 
