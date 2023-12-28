@@ -200,11 +200,11 @@ def set_machine_options(selected_machine_type):
     if selected_machine_type not in ["KURUTMA", "YUZEY ISLEM", "PRESHANE", "CNC", "ISIL ISLEM"]:
         return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
     else:
+        print("herehere")
         list_of_mpoints = [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
         list_of_mpoints.append({"label": "Hepsi", "value": "Hepsi"})
         print(list_of_mpoints)
-        return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
-
+        return list_of_mpoints
 
 # @cache.memoize()
 def update_table(s_date, f_date, costcenter, m_point, date_interval):
@@ -240,7 +240,12 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
     df_final = pd.DataFrame()
     analizorler = []
     if costcenter != 'Bütün':
-        analizorler.append((m_point, costcenter))
+        if m_point =='Hepsi':
+            for m_point in valftoreeg[costcenter]:
+                print(f"qsdsadasd{m_point}")
+                analizorler.append((m_point, costcenter))
+        else:
+            analizorler.append((m_point, costcenter))
     else:
         analyzer = {}
         if m_point == 'Bölümler':
@@ -250,11 +255,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                 analyzer.update(valftoreeg[costcenter_tmp])
                 for m_point in valftoreeg[costcenter_tmp]:
                     analizorler.append((m_point, costcenter_tmp))
-        elif m_point == 'Hepsi':
-            for costcenter_tmp in valftoreeg[costcenter]:
-                analyzer.update(valftoreeg[costcenter_tmp])
-                for m_point in valftoreeg[costcenter_tmp]:
-                    analizorler.append((m_point, costcenter_tmp))
+
         else:
             for costcenter_tmp in valftoreeg:
                 analyzer.update(valftoreeg[costcenter_tmp])
@@ -313,11 +314,11 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                                         f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE "
                                         f"GROUP BY CAST(DATE AS DATETIME),COSTCENTER,INTERVAL )"
                                         f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, OUTPUT,DATE,COSTCENTER from ASD ")
-            elif m_point_tmp == 'Hepsi':
-                df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
-                                        f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
-                                        f" WHERE COSTCENTER = '{costcenter_tmp}' "
-                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
+            # elif m_point_tmp == 'Hepsi':
+            #     df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
+            #                             f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+            #                             f" WHERE COSTCENTER = '{costcenter_tmp}' "
+            #                             f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
             else:
                 df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
                                         f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"

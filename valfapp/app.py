@@ -1,5 +1,5 @@
 ### Import Packages ###
-import json
+import os
 import logging
 import numpy as np
 import pandas as pd
@@ -10,8 +10,9 @@ import dash
 import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import calculate_oeemetrics, apply_nat_replacer, get_gann_data, indicator_with_color
 from run.agent import ag
-from config import project_directory
+from config import project_directory, kb
 import plotly.express as px  # (version 4.7.0 or higher)
+from datetime import date, timedelta, datetime
 
 
 MAX_OUTPUT = 25
@@ -42,13 +43,22 @@ cache = Cache(app.server, config={
     'CACHE_DIR': project_directory + r'\Charting\valfapp\cache-directory'
 })
 
-TIMEOUT = 12000
+TIMEOUT = 1200000
 
+#
+# data=[date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=1)).isoformat(),"day"]
+# params = ['2023-12-25','2023-12-25','day']
 
 @cache.memoize(timeout=TIMEOUT)
 def prdconf(params=None):
     paramswith = params[0:2]
     prd_conf = ag.run_query(query=r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
+    columns_to_check = ['BREAKDOWNSTART', 'BREAKDOWNEND', 'BREAKDOWN', 'FAILURECODE', 'WORKCENTER']
+    prd_conf = prd_conf.drop_duplicates(subset=columns_to_check, keep='first')
+    if os.path.isfile(r"F:\pycarhm projects\Charting\outputs(xlsx)\bul.xlsx"):
+        os.remove(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
+
+    prd_conf.to_excel(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
     onemonth_prdqty = ag.run_query(query=r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?",
                                    params=params)
     if len(prd_conf) == 0:
