@@ -23,8 +23,9 @@ query_pie = f"SELECT COSTCENTER,SUM(OUTPUT) AS CONSUMPTION FROM VLFENERGY WHERE 
 
 df = ag.run_query(query)
 
-fig = px.bar(df, x='DATE', y='TOTAL', width=500, height=400)
+fig = px.bar(df, y='DATE', x='TOTAL', width=425, height=425, orientation='h',color_continuous_midpoint="darkorange")
 fig.update_layout(bargap=0.2)
+colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
 
 
 def return_pie():
@@ -33,7 +34,20 @@ def return_pie():
     df_pie.iloc[-1] = ("DIGER", df_pie.loc[df_pie["COSTCENTER"] == 'TRAFO', "CONSUMPTION"].sum() - df_pie.loc[
         df_pie["COSTCENTER"] != 'TRAFO', "CONSUMPTION"].sum())
     df_pief = df_pie[df_pie["COSTCENTER"] != 'TRAFO']
-    return px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER")
+    fig = px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER")
+    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=10,
+                      marker=dict(colors=colors, line=dict(color='white', width=1)))
+    fig.update_layout(
+        width=475,  # Set the desired width
+        height=475,
+        uniformtext_minsize=9, uniformtext_mode='hide',
+        legend=dict(
+            font=dict(
+                size=7  # You can adjust the size to your preference
+            )
+        )
+    )
+    return fig
 
 
 layout = [
@@ -66,18 +80,18 @@ layout = [
                                         id='machine-type-dropdown',
                                         options=[{'label': k, 'value': k} for k in valftoreeg.keys()],
                                         value=list(valftoreeg.keys())[0],  # Default value
-                                        style={'color': 'yellow', "width": 150}
+                                        style={"width": 150}
                                     ),
                                         html.Br(),
                                         dcc.Dropdown(
                                             id='machine-dropdown',
-                                            style={'color': 'yellow', "width": 220},
+                                            style={"width": 220},
                                             value='Analizörler'
                                         )]),
                                     dcc.Dropdown(
                                         id='date-dropdown',
                                         options=['day', 'month'],
-                                        style={'color': 'yellow', 'font': {'color': 'white'}, "width": 150},
+                                        style={"width": 150},
                                         value='month'
                                     ),
                                     html.Br(),
@@ -197,7 +211,7 @@ layout = [
     Input('machine-type-dropdown', 'value')
 )
 def set_machine_options(selected_machine_type):
-    if selected_machine_type not in ["KURUTMA", "YUZEY ISLEM", "PRESHANE", "CNC", "ISIL ISLEM"]:
+    if selected_machine_type in ["Bütün", "HAVALANDIRMA - FAN"]:
         return [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
     else:
         print("herehere")
@@ -205,6 +219,7 @@ def set_machine_options(selected_machine_type):
         list_of_mpoints.append({"label": "Hepsi", "value": "Hepsi"})
         print(list_of_mpoints)
         return list_of_mpoints
+
 
 # @cache.memoize()
 def update_table(s_date, f_date, costcenter, m_point, date_interval):
@@ -240,7 +255,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
     df_final = pd.DataFrame()
     analizorler = []
     if costcenter != 'Bütün':
-        if m_point =='Hepsi':
+        if m_point == 'Hepsi':
             for m_point in valftoreeg[costcenter]:
                 print(f"qsdsadasd{m_point}")
                 analizorler.append((m_point, costcenter))

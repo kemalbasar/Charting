@@ -4,9 +4,9 @@ from datetime import date, timedelta
 import pandas as pd
 from dash import dcc, html, Input, Output, State, callback_context, no_update, exceptions
 import dash_bootstrap_components as dbc
-from config import  kb
+from config import kb
 import plotly.express as px
-from valfapp.app import cache,  app, prdconf, workcenters
+from valfapp.app import cache, app, prdconf, workcenters
 import dash_table
 from dash.exceptions import PreventUpdate
 from valfapp.pages.date_class import update_date, update_date_output
@@ -91,6 +91,9 @@ layout = dbc.Container([
          dcc.Store(id='oeelistw1',
                    data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                        1]),
+         dcc.Store(id='oeelistw2',
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                       2]),
          dcc.Store(id='oeelistw3',
                    data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                        3]),
@@ -166,9 +169,9 @@ layout = dbc.Container([
                      style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
          dcc.Download(id="download-data")], ),
 
-    dbc.Row(id='flam', children=
-    [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,
-             style={"height": 600, "margin-left": 100 if i % 2 == 0 else 180}) for i in range(MAX_OUTPUT)],
+    dbc.Row(id='flam', children=[dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,
+                                         style={"height": 600, "margin-left": 100 if i % 2 == 0 else 180}) for i in
+                                 range(MAX_OUTPUT)],
             )
 ], fluid=True)
 
@@ -210,6 +213,7 @@ def update_table_columns(oeelistw4, costcenter):
     [Output('work-dates1', 'data'),
      Output('refresh2', 'children'),
      Output(component_id='oeelistw1', component_property='data'),
+     Output(component_id='oeelistw2', component_property='data'),
      Output(component_id='oeelistw3', component_property='data'),
      Output(component_id='oeelistw4', component_property='data'),
      Output(component_id='oeelistw5', component_property='data'),
@@ -227,13 +231,12 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
         print(f"params= {data}")
         if data != {}:
             oeelist = prdconf(params=(data["workstart"], data["workend"], data["interval"]))
-            (oeelist[1], oeelist[3], oeelist[4], oeelist[5], oeelist[7])
             a = update_date_output(n1, date_picker, n2, n3, n4, data)
-            return (a[0], 0) + (oeelist[1], oeelist[3], oeelist[4], oeelist[5], oeelist[7])
+            return (a[0], 0) + (oeelist[1], oeelist[2], oeelist[3], oeelist[4], oeelist[5], oeelist[7])
         else:
-            return (work_dates_bk, 0, no_update, no_update, no_update, no_update, no_update)
+            return (work_dates_bk, 0, no_update, no_update, no_update, no_update, no_update, no_update)
     else:
-        return (work_dates_bk, 0, no_update, no_update, no_update, no_update, no_update)
+        return (work_dates_bk, 0, no_update, no_update, no_update, no_update, no_update, no_update)
 
 
 @app.callback(
@@ -241,7 +244,7 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
     [Input('pers-button', 'n_clicks'),
      Input('wc-button', 'n_clicks')]
 )
-def update_report_type(n1,n2):
+def update_report_type(n1, n2):
     ctx = callback_context
     # Default case
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -354,6 +357,10 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 
     Parameters
     ----------
+    oeelist7w
+    oeelist3w
+    params
+    report_type
     option_slctd
     oeelist1w
     """
@@ -367,13 +374,25 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
     Output("download-data", "data"),
     [Input("download-button", "n_clicks")],
     [Input("costcenter1", "value"),
-     Input(component_id='oeelistw3', component_property='data')],
+     Input(component_id='oeelistw2', component_property='data'),
+     Input(component_id='oeelistw3', component_property='data'),
+     ],
     prevent_initial_call=True
 )
-def generate_excel(n_clicks, costcenter, oeelist3w):
+def generate_excel(n_clicks, costcenter, oeelist2w, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
+    oeelist2w = pd.read_json(oeelist2w, orient='split')
+    backup_df = oeelist3w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
+        "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
+        "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
+
+    backup_df.reset_index(inplace=True)
     if n_clicks < 1:
         raise PreventUpdate
+    writer = pd.ExcelWriter('new_excel_file.xlsx', engine="xlsxwriter")
+    for df in [oeelist2w, oeelist3w]:
+        df.to_excel(writer, sheet_name=df)
+    writer.save()
 
-    dff = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
-    return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)
+    return dcc.send_file('new_excel_file.xlsx')
+
