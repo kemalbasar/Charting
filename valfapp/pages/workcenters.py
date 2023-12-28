@@ -133,7 +133,7 @@ layout = dbc.Container([
                          "workend": date.today().isoformat(),
                          "interval": "day"}),
          html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
-                     style={"position": "absolute", "right": 175, "top": "3", "width": "150px", "height": "35px"}),
+                     style={"position": "absolute", "right": 200, "top": "3", "width": "150px", "height": "35px"}),
          html.Div(id="toggle_div", children=[
              html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
              html.Hr(),
@@ -165,9 +165,12 @@ layout = dbc.Container([
          # Include this line in your app layout
          dcc.Location(id='location', refresh=True),
          dcc.Location(id='location2', refresh=True),
-         html.Button("Download Data", id="download-button", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
-                     style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
-         dcc.Download(id="download-data")], ),
+         html.Button("Oee Data", id="download-button", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+                     style={"position": "absolute", "right": "0", "top": "-1", "width": "100px", "height": "35px"}),
+         html.Button("Details Data", id="download-button2", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+                     style={"position": "absolute", "right": 100, "top": "-1", "width": "100px", "height": "35px"}),
+         dcc.Download(id="download-data"),
+         dcc.Download(id="download-data2")], ),
 
     dbc.Row(id='flam', children=[dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,
                                          style={"height": 600, "margin-left": 100 if i % 2 == 0 else 180}) for i in
@@ -372,27 +375,46 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 
 @app.callback(
     Output("download-data", "data"),
-    [Input("download-button", "n_clicks")],
-    [Input("costcenter1", "value"),
-     Input(component_id='oeelistw2', component_property='data'),
-     Input(component_id='oeelistw3', component_property='data'),
-     ],
+    Input("download-button", "n_clicks"),
+    State("costcenter1", "value"),
+    Input(component_id='oeelistw3', component_property='data'),
     prevent_initial_call=True
 )
-def generate_excel(n_clicks, costcenter, oeelist2w, oeelist3w):
+def generate_excel(n_clicks, costcenter, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
-    oeelist2w = pd.read_json(oeelist2w, orient='split')
+    oeelist3w = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
+    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME', 'TOTALTIME',
+     'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OMTIME', 'QTY_y', 'TOTAL_SHIFT_TIME',
+     'NANTIME', 'PLANNEDTIME']
+    columns2 = ['WORKCENTER', 'COSTCENTER', 'SHIFT', 'WORKDAY',"AVAILABILITY","PERFORMANCE","QUALITY","OEE"]
     backup_df = oeelist3w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
-        "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
+        "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME",
         "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
 
     backup_df.reset_index(inplace=True)
-    if n_clicks < 1:
-        raise PreventUpdate
-    writer = pd.ExcelWriter('new_excel_file.xlsx', engine="xlsxwriter")
-    for df in [oeelist2w, oeelist3w]:
-        df.to_excel(writer, sheet_name=df)
-    writer.save()
+    backup_df["AVAILABILITY"] = backup_df["RUNTIME"] / backup_df["PLANNEDTIME"]
+    backup_df["PERFORMANCE"] = backup_df["IDEALCYCLETIME"] / backup_df["RUNTIME"]
+    backup_df["QUALITY"] = (backup_df["QTY"] - backup_df["SCRAPQTY"]) / backup_df["QTY"]
+    backup_df["OEE"] = backup_df["AVAILABILITY"]*backup_df["QUALITY"]*backup_df["PERFORMANCE"]
+    dff = oeelist3w[columns].merge(backup_df[columns2], on=["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"], how='left')
 
-    return dcc.send_file('new_excel_file.xlsx')
+    return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)
 
+@app.callback(
+    Output("download-data2", "data"),
+    Input("download-button2", "n_clicks"),
+    State("costcenter1", "value"),
+    Input(component_id='oeelistw2', component_property='data'),
+    prevent_initial_call=True
+)
+def generate_excel(n_clicks, costcenter, oeelist2w):
+    oeelist2w = pd.read_json(oeelist2w, orient='split')
+    # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
+    #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
+    #     "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
+
+    # backup_df.reset_index(inplace=True)
+
+    dff2 = oeelist2w[oeelist2w["COSTCENTER"] == costcenter]
+
+    return dcc.send_data_frame(dff2.to_excel, "mydata.xlsx", index=False)
