@@ -24,7 +24,7 @@ def readquerry(queryx):
 
     queryy = queryx
     if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH'\
-            or queryy[0:4] == 'EXEC':
+            or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT':
         return queryy
     else:
         if os.path.exists(queryy):
@@ -90,6 +90,12 @@ class Agent:
                                 cursor.execute(query, params)
                                 return pd.DataFrame()
                             except pyodbc.Error as e:
+                                if e == "No results.  Previous SQL was not a query.":
+                                    print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
+                                    return pd.DataFrame()
+                                elif 'UNIQUE KEY constraint' in str(e):
+                                    print("unique constraint")
+                                    return
                                 print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
                                 retry_count += 1
                                 time.sleep(1)  # wait for 1 second before trying again
@@ -170,7 +176,8 @@ class Agent:
 
 
     def editandrun_query(self,textfile=project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon.sql",
-                         texttofind=["aaaa-bb-cc", "xxxx-yy-zz"],texttoput=[str(dt.date(2022, 1, 1)),str(dt.date(2022, 1, 2))],return_string=1):
+                         texttofind=["aaaa-bb-cc", "xxxx-yy-zz"],texttoput=[str(dt.date(2022, 1, 1)),str(dt.date(2022, 1, 2))],
+                         return_string=1):
         """This is a Python method called find_and_replace that takes in 3 parameters:
 
             - textfile (str): the file path of the text file that needs to be modified.
@@ -274,3 +281,4 @@ class Agent:
 
 
 ag = Agent()
+agiot = Agent(database="VALFSAN604T")

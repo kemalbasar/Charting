@@ -1,6 +1,8 @@
 ### Import Packages ###
+import json
 import logging
 import pandas as pd
+from pandas.errors import IntCastingNaNError
 from dash import ClientsideFunction, Output, Input
 from flask_caching import Cache
 import dash
@@ -11,8 +13,8 @@ from config import project_directory
 
 logger = logging.getLogger(__name__)
 
-
 ### Dash instance ###
+
 app = dash.Dash(
     __name__,
     meta_tags=[{'name': 'viewport','content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
@@ -30,9 +32,8 @@ app.css.append_css({
 
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': 'cache-directory'
+    'CACHE_DIR': r'F:\pycarhm projects\Charting\valfapp\cache-directory'
 })
-
 
 
 TIMEOUT = 12000
@@ -42,26 +43,23 @@ TIMEOUT = 12000
 def prdconf(params = None):
     paramswith = params[0:2]
     prd_conf = ag.run_query(query = r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
-    planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
+    # planned_hoursx = pd.read_excel(project_directory + r"\Charting\valfapp\assets\GunlukPlanlar.xlsx", sheet_name='adetler')
     onemonth_prdqty = ag.run_query(query = r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?", params=params)
     if len(prd_conf) == 0:
         return [None,None,None,None,None,None,None,None]
-    # prd_conf["DISPLAY"] = [prd_conf["DISPLAY"][row][0]  for row in prd_conf.index]
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
-    prd_conf = pd.merge(prd_conf, planned_hoursx, how='left',
-                        on=['WORKCENTER', "SHIFT", "MATERIAL"])
-    prd_conf["LABOUR"] = prd_conf.apply(lambda row: apply_nat_replacer(row["LABOUR"]), axis=1)
-
-    prd_conf["ADET"] = [0 if not prd_conf["ADET"][row] > 0 else prd_conf["ADET"][row] for row in prd_conf.index]
     prd_conf["IDEALCYCLETIME"] = prd_conf["IDEALCYCLETIME"].astype("float")
-    prd_conf["LABOUR"] =  [99 if prd_conf["LABOUR"][row] == 'nan' else prd_conf["LABOUR"][row] for row in prd_conf.index]
-    prd_conf["LABOUR"] = pd.to_numeric(prd_conf["LABOUR"], errors='coerce')
-    prd_conf["IDEALCYCLETIME"] = [prd_conf["IDEALCYCLETIME"][row] if prd_conf["LABOUR"][row] == 99 else prd_conf["IDEALCYCLETIME"][row] * (
-                prd_conf["SELLAB"][row] / prd_conf["LABOUR"][row]) for row in prd_conf.index]
-    # prd_conf.to_excel(project_directory + r"\Charting\valfapp\assets\prd_conf.xlsx")
-    prd_conf["PLANNEDTIME"] = [prd_conf["ADET"][row] * prd_conf["IDEALCYCLETIME"][row] \
-                               / prd_conf["QTY"][row] if prd_conf["ADET"][row] != 0 else
-                               prd_conf["TOTALTIME"][row] for row in prd_conf.index]
+    prd_conf["WORKDAY"] = prd_conf["WORKSTART"].dt.date
+
+    non_times = prd_conf.loc[
+        ((prd_conf["FAILURECODE"] == 'U033') & (prd_conf["BREAKDOWN"] == 10)
+         | (prd_conf["FAILURECODE"] == 'M031') ), ["COSTCENTER","CONFIRMATION", "CONFIRMPOS","FAILURETIME", "WORKDAY", "WORKCENTER",
+                                                                                "SHIFT", "BREAKDOWN"]]
+
+    non_times = non_times.groupby(["COSTCENTER","WORKCENTER", "WORKDAY", "SHIFT"]).agg({"FAILURETIME": "sum"})
+    non_times.reset_index(inplace=True)
+    non_times.columns = ["COSTCENTER","WORKCENTER","WORKDAY","SHIFT","OMTIME"]
+
     summary_helper = prd_conf[prd_conf["CONFTYPE"] == 'Uretim'].groupby(["WORKCENTER", "SHIFT", "MATERIAL"])\
         .agg({"IDEALCYCLETIME": "sum","RUNTIME": "sum"})
     summary_helper.reset_index(inplace=True)
@@ -73,17 +71,15 @@ def prdconf(params = None):
         else 2 if ((prd_conf["TOTALTIME"][row] != 0) &
                    (prd_conf["TOTALTIME"][row] <= 3) &
                    (prd_conf["QTY"][row] > 3))
-        else 3 if prd_conf["BADDATA_FLAG"][row] == 3
-        else 0 for row in range(len(prd_conf))]
+        else 3 if prd_conf["BADDATA_FLAG"][row] == 3 else 0 for row in range(len(prd_conf))]
 
-
-    details, df_metrics, df_metrics_forwc, df_metrics_forpers= calculate_oeemetrics(df=prd_conf[prd_conf["BADDATA_FLAG"]==0])
+    details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(df=prd_conf[prd_conf["BADDATA_FLAG"]==0],nontimes=non_times)
     for item in details:
         try:
             details[item]["OEE"] = (100 * details[item]["OEE"])
             details[item]["OEE"] = details[item]["OEE"].astype(int)
             details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
-        except TypeError as e:
+        except (TypeError, IntCastingNaNError)  as e:
             print(f"Error: {e}")
             continue
     gann_data = get_gann_data(df=prd_conf)
@@ -95,8 +91,10 @@ def prdconf(params = None):
     df_baddata_rates = prd_conf[prd_conf["CONFTYPE"] == "Uretim"].groupby(["COSTCENTER", "BADDATA_FLAG"]).agg({"BADDATA_FLAG": "count"})
     df_baddata_rates = df_baddata_rates.rename(columns={'BADDATA_FLAG': 'SUMS'})
     df_baddata_rates.reset_index(inplace=True)
-
-    return [{item: details[item].to_json(date_format='iso', orient='split')
+    # cache_key = json.dumps(params)
+    
+    details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(df=prd_conf[prd_conf["BADDATA_FLAG"]==0],nontimes=non_times)
+    result = [{item: details[item].to_json(date_format='iso', orient='split')
              for item in details.keys()},
             df_metrics.to_json(date_format='iso', orient='split'),
             gann_data.to_json(date_format='iso', orient='split'),
@@ -106,6 +104,9 @@ def prdconf(params = None):
             onemonth_prdqty.to_json(date_format='iso', orient='split'),
             df_metrics_forpers.to_json(date_format='iso', orient='split')
             ]
+
+    return result
+
 
 
 @cache.memoize(timeout=TIMEOUT)

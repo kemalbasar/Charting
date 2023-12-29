@@ -1,4 +1,5 @@
 # Import required libraries and modules
+import json
 import os
 import shutil
 from datetime import date, timedelta
@@ -17,6 +18,13 @@ from valfapp.pages.date_class import update_date, update_date_output
 # Define constants and initial data
 MAX_OUTPUT = 25
 costcenters = ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]
+global work_dates_bk
+work_dates_bk = {"workstart": (date.today() - timedelta(days=1)).isoformat(),
+                    "workend": date.today().isoformat(),
+                        "interval": "day"}
+
+
+
 # start_day = (date.today() - timedelta(days=1)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
 #     else (date.today() - timedelta(days=2)).isoformat()
 # end_day = (date.today() - timedelta(days=0)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
@@ -74,28 +82,6 @@ def return_tops_with_visibility(graph_id, visible=True):
     )
 
 
-
-# def create_pie_chart(df, costcenter):
-#     """
-#     Creates a pie chart showing the rate of rows with FLAG_BADDATA = 1 to FLAG_BADDATA = 0
-#     for the selected cost center.
-#
-#     Args:
-#         df (DataFrame): The input DataFrame containing the FLAG_BADDATA and COSTCENTER columns.
-#         costcenter (str): The selected cost center.
-#
-#     Returns:
-#         plotly.graph_objs.Figure: A Plotly Figure object representing the pie chart.
-#     """
-#     df_filtered = df[df["COSTCENTER"] == costcenter]
-#     flag_counts = df_filtered["FLAG_BADDATA"].value_counts()
-#     labels = ["0 - Valid Data", "1 - Invalid Data"]
-#     values = [flag_counts.get(0, 0), flag_counts.get(1, 0)]
-#
-#     fig = px.pie(names=labels, values=values, title="Data Validity Distribution")
-#     return fig
-
-
 # Create the layout for the app
 layout = dbc.Container([
     dbc.Row(
@@ -142,29 +128,19 @@ layout = dbc.Container([
                         id='wc-button', className='wc-button'),
             html.Button(html.Img(src='/assets/pers.png', style={'width': '100%', 'height': '100%'}),
                         id='pers-button', className='pers-button'),
+            dbc.Button("Hataları Gizle/Göster", id="toggle_button", n_clicks=2, className="toggle-button"),
+
             dcc.Store(id="work-dates1", storage_type="memory",
                       data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
                             "workend": date.today().isoformat(),
                             "interval": "day"}),
-
-        html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
-                    style={"position": "absolute", "right": 175, "top": "-1", "width": "150px", "height": "35px"}),
-        html.Div(id='refresh', style={'display': 'none'}),
-        html.Div(id='refresh2', style={'display': 'none'}),
-        html.Div(id='output-div'),
-        # Include this line in your app layout
-        dcc.Location(id='location', refresh=True),
-        dcc.Location(id='location2', refresh=True),
-        html.Button("Download Data", id="download-button", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
-                    style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
-        dcc.Download(id="download-data")], style={"height":120,"margin-top": 10}),
-
-    dbc.Row(html.Div(id="toggle_div", children=[
-        html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
-        html.Hr(),
-        dbc.Button("Hataları Gizle", id="toggle_button", n_clicks=1, className="mr-1"),
-        html.Hr(),
-        dbc.Row([
+            html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+                        style={"position": "absolute", "right": 175, "top": "3", "width": "150px", "height": "35px"}),
+            html.Div(id="toggle_div", children=[
+            html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
+            html.Hr(),
+            html.Hr(),
+            html.Div([
             dbc.Col(
                 dcc.Graph(id="pie_chart", figure={}),
                 width={"size": 4}
@@ -177,19 +153,27 @@ layout = dbc.Container([
                     style_cell={
                         "minWidth": "100px",
                         "width": "100px",
-                        "maxWidth": "400px",
+                        "maxWidth": "100px",
                         "textAlign": "center",
                     },
                 ),
                 width={"size": 8}
             ),
         ]),
-        html.Hr(),
-    ])),
+    ]),
+        html.Div(id='refresh', style={'display': 'none'}),
+        html.Div(id='refresh2', style={'display': 'none'}),
+        html.Div(id='output-div'),
+        # Include this line in your app layout
+        dcc.Location(id='location', refresh=True),
+        dcc.Location(id='location2', refresh=True),
+        html.Button("Download Data", id="download-button", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+                    style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
+        dcc.Download(id="download-data")],),
 
-    dbc.Row(
+    dbc.Row(id='flam',children =
         [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,style={"height":600,"margin-left":100 if i%2 == 0 else 180}) for i in range(MAX_OUTPUT)],
-className="no-gutters")
+)
 ], fluid=True)
 
 list_of_callbacks = generate_output_list(MAX_OUTPUT)
@@ -212,13 +196,17 @@ def update_dropdown(ts, stored_data):
 
 @app.callback(
     Output('invalid_data_table', 'columns'),
-    Input('oeelistw4', 'data')
+    Output("invalid_data_table", "data"),
+    Input('oeelistw4', 'data'),
+    Input("costcenter1", "value")
 )
-def update_table_columns(oeelistw4):
+def update_table_columns(oeelistw4,costcenter):
+    oeelist4w = pd.read_json(oeelistw4, orient='split')
+    df_filtered = oeelist4w[oeelist4w["COSTCENTER"] == costcenter]
     df = pd.read_json(oeelistw4, orient='split')
     # df = pd.DataFrame(data)  # Convert the stored data back to DataFrame
     columns = [{"name": i, "id": i} for i in df.columns]
-    return columns
+    return columns,df_filtered.to_dict("records")
 
 
 @app.callback(
@@ -237,12 +225,8 @@ def update_table_columns(oeelistw4):
 )
 def update_work_dates(n1, date_picker, n2, n3, n4):
     stored_date = date_picker
-    # print(f"**{date_picker}**")
-    # print("burasııı")
-    # print(callback_context.triggered)
-    # print(callback_context.triggered[0]['prop_id'])
     if n1 or date_picker or n2 or n3 or n4:
-        # print(f"{date_picker}---{callback_context}")
+        print(f"{callback_context.triggered}asdasdas")
         data = update_date('1', date_picker, callback_context)
         print(f"params= {data}")
         if data != {}:
@@ -251,9 +235,9 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
             a = update_date_output( n1, date_picker, n2, n3, n4, data)
             return (a[0],0) + (oeelist[1],oeelist[3],oeelist[4],oeelist[5],oeelist[7])
         else:
-            return no_update
+            return (work_dates_bk,0,no_update,no_update,no_update,no_update,no_update)
     else:
-        return no_update
+        return (work_dates_bk,0,no_update,no_update,no_update,no_update,no_update)
 
 
 
@@ -288,22 +272,28 @@ def page_refresh2(n2):
 # Create a callback for the button
 @app.callback(
     Output('refresh', 'children'),
-    [Input('clear-cache-button', 'n_clicks')]
+    [Input('clear-cache-button', 'n_clicks'),
+     State("work-dates1",'data')]
 )
-def clear_cache(n_clicks):
+def clear_cache(n_clicks,key):
     if n_clicks > 0:
+        a = cache.get(json.dumps({'workstart': '2023-09-06', 'workend': '2023-09-07', 'interval': 'day'}))
+        print(a)
         # Specify the directory where the cached files are stored
-        cache_directory = project_directory + r'\Charting\valfapp\cache-directory'
-
-        # Clear the cache directory by removing all files
-        shutil.rmtree(cache_directory)
-        os.makedirs(cache_directory)
+        # cache_directory = project_directory + r'\Charting\valfapp\cache-directory'
+        #
+        # # Clear the cache directory by removing all files
+        # shutil.rmtree(cache_directory)
+        # os.makedirs(cache_directory)
+        print(f"---{key}---")
+        cache_key = json.dumps(key)
+        print(cache_key)
+        x = cache.get(cache_key)
+        print(x)
+        cache.delete_memoized(prdconf,(key["workstart"], key["workend"], key["interval"]))
 
         # Perform any other necessary operations after clearing the cache
-
-        global oeelist
-        oeelist = oee(((date.today() - timedelta(days=1)).isoformat(), date.today().isoformat(), "day"))
-        return str(n_clicks)  # Change the 'refresh' div when the button is clicked
+        return no_update  # Change the 'refresh' div when the button is clicked
     else:
         return no_update  # Don't change the 'refresh' div if the button hasn't been clicked
 
@@ -322,13 +312,14 @@ def page_refresh(n):
 # Callback for hiding/showing the first div
 @app.callback(
     Output("toggle_div", "style"),
+    Output('flam', 'style'),
     Input("toggle_button", "n_clicks")
 )
 def toggle_first_div(n_clicks):
     if n_clicks and n_clicks % 2 == 1:
-        return {"display": "none"}
+        return {"display": "none"}, { "marginTop": "0px"}
     else:
-        return {}
+        return {},{ "marginTop": "100px"}
 
 
 @app.callback(
@@ -354,67 +345,9 @@ def update_pie_chart(costcenter,oeelist5w):
     return fig
 
 
-# Callback for the table data based on the selected cost center
-@app.callback(
-    Output("invalid_data_table", "data"),
-    [Input("costcenter1", "value"),
-    Input(component_id='oeelistw4', component_property='data')]
-)
-def update_table_data(costcenter,oeelist4w):
-    """
-    Generates table data for rows with FLAG_BADDATA = 1 for the selected cost center.
-
-    Args:
-        costcenter (str): The selected cost center.
-
-    Returns:
-        list: A list of dictionaries representing the table data.
-    """
-
-    oeelist4w = pd.read_json(oeelist4w, orient='split')
-    df_filtered = oeelist4w[oeelist4w["COSTCENTER"] == costcenter]
-    return df_filtered.to_dict("records")
-
-
-@app.callback(
-    Output("list_of_wcs", "value"),
-    Output("max_output", "value"),
-    [Input("costcenter1", "value"),
-    Input("store-report-type", "data"),
-    Input(component_id='oeelistw1', component_property='data'),
-    Input(component_id='oeelistw7', component_property='data')]
-)
-def update_work_center_list(option_slctd, report_type,oeelist1w,oeelist7w):
-    """
-    Callback to update the list of work centers based
-    on the selected cost center.
-
-    Args:
-        option_slctd (str): The selected cost center.
-
-    Returns:
-        list: A list of work centers for the selected cost center.
-    """
-    oeelist1w = pd.read_json(oeelist1w, orient='split')
-    oeelist7w = pd.read_json(oeelist7w, orient='split')
-    list_of_wcs = []
-    if report_type == 'wc':
-        max_output = len(oeelist1w)
-        for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
-            list_of_wcs.append(item)
-    else:
-        max_output =len(oeelist7w)
-        for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
-            list_of_wcs.append(item)
-
-    return list_of_wcs,max_output
-
-
 @app.callback(
     [*list_of_callbacks],
-    [Input("list_of_wcs", "value"),
-    Input("max_output", "value"),
-    Input("costcenter1", "value"),
+    [Input("costcenter1", "value"),
     Input("store-report-type", "data"),
     Input("work-dates1", "data"),
     Input(component_id='oeelistw1', component_property='data'),
@@ -422,7 +355,7 @@ def update_work_center_list(option_slctd, report_type,oeelist1w,oeelist7w):
     Input(component_id='oeelistw7', component_property='data')]
 
 )
-def update_ind_fig(list_of_wcs,max_output,option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist7w):
+def update_ind_fig(option_slctd, report_type, params,oeelist1w,oeelist3w,oeelist7w):
     """
     Callback to update individual figures for each work center in the selected cost center.
 
@@ -434,9 +367,23 @@ def update_ind_fig(list_of_wcs,max_output,option_slctd, report_type, params,oeel
     Returns:
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
+
+    print("*****")
+    print(oeelist1w)
+    print("*****")
     oeelist1w = pd.read_json(oeelist1w, orient='split')
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist7w = pd.read_json(oeelist7w, orient='split')
+
+    list_of_wcs = []
+    if report_type == 'wc':
+        max_output = len(oeelist1w)
+        for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
+            list_of_wcs.append(item)
+    else:
+        max_output = len(oeelist7w)
+        for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
+            list_of_wcs.append(item)
 
     df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
     df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
@@ -450,7 +397,6 @@ def update_ind_fig(list_of_wcs,max_output,option_slctd, report_type, params,oeel
     def weighted_average(x):
         # Use the updated weights
         return np.average(x, weights=weights.loc[x.index])
-
     wm = lambda x: weighted_average(x)
 
     # If time interval 'day' then there will be shift and material columns in details table otherwise there wont.
@@ -499,6 +445,7 @@ def update_ind_fig(list_of_wcs,max_output,option_slctd, report_type, params,oeel
             style = {"display": "flex", "justify-content": "space-between",
                      "align-items": "center", "width": 700,
                      "height": 250}
+
             # df_details.sort_values(by=["SHIFT"], inplace=True)
             weights = df_details.loc[df_details.index, "TOTALTIME"]
             weights[weights <= 0] = 1

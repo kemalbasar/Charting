@@ -1,11 +1,18 @@
 import dash_bootstrap_components as dbc
 import datetime as dt
 from dash import dcc, html
+from dateutil.relativedelta import relativedelta
+
 from run.agent import ag
 
-cur_week = (dt.datetime.now()).strftime('%Y-%U').zfill(6)
-total_value_with_separator = format(
-    ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0], ",")
+cur_week = (dt.datetime.now() + relativedelta(months=-1)).strftime('%Y-%U').zfill(6)
+try:
+    value = int(ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0])
+except TypeError:
+    ag.run_query("EXEC [VLFPROCVALUATIONBASEWEEKS]")
+    value = int(ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0])
+
+total_value_with_separator = format(value, ",")
 
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
@@ -258,11 +265,15 @@ layout_12_loginpage = dbc.Container([
                      ),
                  ], className="justify-content-center align-items-center", style={"margin": 0}),
                 dcc.Link(
-                children='dragtester',
-                href='/dragtester',
+                children='Energy Consumption',
+                href='/energy',
             )
 
              ]),
+            dcc.Link(
+                children='dragtester',
+                href='/dragtester',
+            )
 
 ], fluid=True, style={"height": "100vh", "position": "relative"})
 

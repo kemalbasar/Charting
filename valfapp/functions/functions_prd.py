@@ -1,13 +1,8 @@
 from config import project_directory
-from valfapp.configuration import daily_work_minute
-from canias_web_services import get_work_hour
 import pandas as pd
-import datetime as dt
 import numpy as np
 import warnings
-import plotly.express as px
 import plotly.graph_objs as go
-import flask_caching
 
 warnings.filterwarnings("ignore")
 
@@ -55,11 +50,12 @@ def working_machinesf(working_machines = working_machines, costcenter='CNC'):
     return working_machines.loc[working_machines["COSTCENTER"] == costcenter, "COUNTOFWC"].tolist()
 
 
-def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shiftandmat=0):
-    df = df.loc[df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS",
-                                               "QTY", "SCRAPQTY", "REWORKQTY","ADET","LABOUR",
+def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shiftandmat=0,nontimes=pd.DataFrame()):
+
+    df = df.loc[df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS","CONFTYPE",
+                                               "QTY", "SCRAPQTY", "REWORKQTY",
                                                "WORKCENTER", "RUNTIME", "TOTALTIME","DISPLAY",
-                                               "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME","PLANNEDTIME","STEXT","SCRAPTEXT"]]
+                                               "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME","STEXT","SCRAPTEXT","WORKDAY"]]
 
     df.drop_duplicates(inplace=True,subset=['CONFIRMATION', 'CONFIRMPOS'])
     df.reset_index(drop=True, inplace=True)
@@ -76,13 +72,15 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
             "TOTFAILURETIME": group['TOTFAILURETIME'].sum(),
             "IDEALCYCLETIME": group['IDEALCYCLETIME'].sum(),
             "SETUPTIME": group['SETUPTIME'].sum(),
-            "PLANNEDTIME": group['PLANNEDTIME'].sum() if (group['ADET'] == 0).any() else group['PLANNEDTIME'].max(),
             "DISPLAY": group['DISPLAY'].max(),
             "SCRAPTEXT": group['SCRAPTEXT'].max(),
+
         }
         return pd.Series(agg_dict)
 
-    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT"]).apply(custom_agg)
+    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT","WORKDAY"]).apply(custom_agg)
+    df_prdcount = df.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY","count"))
+    df_prdcount.reset_index(inplace=True)
 
     df_metrics.reset_index(inplace=True)
     # df_metrics_backup = df_metrics.copy()
@@ -90,21 +88,29 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     df_metrics["IDEALCYCLETIME"] = df_metrics["IDEALCYCLETIME"].astype(float)
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"].astype(float)
 
+    df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    df_metrics["OMTIME"] = df_metrics["OMTIME"].fillna(0)
+    df_metrics["OMTIME"] = df_metrics["OMTIME"] / df_metrics["QTY_y"]
 
-    # buraya machine ile çarpılmış halini otomatik getireceğiz.
+    df_shifttotal = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(TOTAL_SHIFT_TIME=("TOTALTIME", "sum"))
+    df_shifttotal.reset_index(inplace=True)
+    df_metrics = df_metrics.merge(df_shifttotal, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    df_metrics["NANTIME"] = (510 - df_metrics["TOTAL_SHIFT_TIME"] - df_metrics["OMTIME"]) * df_metrics["TOTALTIME"] /df_metrics["TOTAL_SHIFT_TIME"]
 
-    df_metrics["NANTIME"] = df_metrics["PLANNEDTIME"] - df_metrics["TOTALTIME"]
+
     # There will be counter for broken data.
     df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0
                              else df_metrics["NANTIME"][row] for row in
                              range(len(df_metrics))]
-    df_metrics = df_metrics[df_metrics["NANTIME"] > -200]
+    df_metrics["PLANNEDTIME"] = df_metrics["TOTALTIME"] + df_metrics["NANTIME"]
+
     df_metrics.reset_index(inplace=True, drop=True)
     df_metrics["PERFORMANCE"] = [
         0 if df_metrics["RUNTIME"][row] <= 0
         else df_metrics["IDEALCYCLETIME"][row] / df_metrics["RUNTIME"][row] for row
         in range(len(df_metrics))]
-    df_metrics["AVAILABILITY"] = df_metrics["RUNTIME"] / df_metrics["TOTALTIME"]
+    df_metrics["AVAILABILITY"] = df_metrics["RUNTIME"] / df_metrics["PLANNEDTIME"]
 
     df_metrics["AVAILABILITY"] = [1 if df_metrics["AVAILABILITY"][row] > 1
                                   else df_metrics["AVAILABILITY"][row] for row in range(len(df_metrics))]
@@ -120,7 +126,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     weights = df_metrics.loc[df_metrics.index, "PLANNEDTIME"]
     weights2 = df_metrics.loc[df_metrics.index, "RUNTIME"]
     weights[weights <= 0] = 1
-
+    df_metrics = df_metrics[df_metrics["TOTALTIME"] > 0]
 
     def weighted_average(x):
         # Use the updated weights
@@ -164,7 +170,9 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
                                                                })
     df_metrics.reset_index(inplace=True)
 
-
+    print("asdasdasd")
+    print(df_metrics)
+    print("asdasdasd")
 
 
     try:
@@ -240,6 +248,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         #        df_piechart_final["OPR"]["SESSIONTIME2"] = str(int(df_piechart_final["OPR"]["SESSIONTIME2"])) + '%'
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
+    print(details)
     return details, df_metrics, df_metrics_forwc, df_metrics_forpers
 
 
@@ -307,8 +316,6 @@ def get_daily_qty(df=prd_conf, costcenter='CNC', type="TOPLAM", ppm=False):
 
 
 def scatter_plot(df=prd_conf, report_day="2022-07-26"):
-
-
     df = df.loc[df["CONFTYPE"] != 'Uretim',
                 ["WORKSTART", "WORKCENTER", "FAILURETIME", 'SETUPTIME',"STEXT", "CONFTYPE"]]
     df["FAILURETIME"] = df.apply(lambda row: apply_nat_replacer(row["FAILURETIME"]), axis=1)
