@@ -1,7 +1,24 @@
+.slider {
+    width: 50%;
+    height: 50%;
+  }
 
+#Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
+/* dropdown menu options */
+.VirtualizedSelectOption {
+    background-color: #593096;
+    color: white;
+ }
+
+
+/* dropdown menu hover effect */
+.VirtualizedSelectFocusedOption {
+    background-color: rgba(141, 123, 169, 0.81);
+    opacity: .7;
+}
 
 .dropdown-style {
-    color: white; /* Set font color to white */
+    /*color: white; !* Set font color to white *!*/
     width: 150px;
     background-color: #593096; /* Purple background color */
     text-align: center;
@@ -11,26 +28,29 @@
     padding: 0; /* No padding */
 }
 
-/* Styles for the selected value in the dropdown */
-.Select-value {
-    color: white; /* Set font color to white */
-}
+/*.Select-control {*/
+/*    background-color: #593096 !important;*/
+/*    color:white;*/
+/*  }*/
 
-/* Additional styles for options in the dropdown */
-.dropdown-style .Select-option {
-    color: white; /* Set font color to white */
-}
-
-/* Styles for the input field */
-.dropdown-style .Select-input {
-    color: white; /* Set font color to white */
-}
-.Select-placeholder,
-.Select--single > .Select-control .Select-value {
+.Select-menu-outer {
+    background-color: #593096 !important;
     color: white;
-    background-color: #593096;
 }
 
+
+
+/*.Select-value-label {*/
+/*    background-color: #593096;*/
+/*    color: white !important;*/
+/*}*/
+
+
+.Select-control .Select-value, .Select-placeholder  {
+    background-color: #593096 !important;
+}
+
+#Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
 
 
 .estop-button {
@@ -256,8 +276,8 @@
 }
 
 .dash-empty-button {
-    width: 85px;    /* width of the square button */
-    height: 30px;   /* height of the square button */
+    width: 100px;    /* width of the square button */
+    height: 40px;   /* height of the square button */
     background-color: #593096;  /* button color */
     border: none;  /* no border */
     color: white;  /* text (icon) color */

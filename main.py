@@ -1,21 +1,23 @@
-from run.agent import ag
-import pandas as pd
-df_ilk = pd.read_excel(r"C:\Users\kbbudak\Desktop\SAYIM.xlsx",sheet_name='ILK')
-df_son = pd.read_excel(r"C:\Users\kbbudak\Desktop\SAYIM.xlsx",sheet_name='SON')
-
-df_ilk = df_ilk.groupby("Malzeme").agg({"Stok Miktarı":"sum"})
-df_son = df_son.groupby("Malzeme").agg({"Stok Miktarı":"sum"})
-
-df_ilk.reset_index(inplace=True)
-df_son.reset_index(inplace=True)
-
-df_ilk["Stok Miktarı"].sum()
-df_son["Stok Miktarı"].sum()
-
-df_final = df_ilk.merge(df_son,how="outer",on= "Malzeme")
-
-df_final["Stok Miktarı_x"] = df_final["Stok Miktarı_x"].fillna(0)
-df_final["Stok Miktarı_y"] = df_final["Stok Miktarı_y"].fillna(0)
-
-
-df_final.to_excel(r"C:\Users\kbbudak\Desktop\SAYIM_final.xlsx")
+# layouyt =[dcc.Dropdown(id="costcenter1",
+#                       className='dropdown-style',
+#                       options=[{"label": cc, "value": cc} for cc in costcenters],
+#                       multi=False,
+#                       value="CNC",
+#                       ),
+# dbc.Graph(id='line_graph')
+#
+# ]
+#
+#
+#
+#
+# df = ag.runquer("select - from ıasprdorder")
+#
+#
+# @app.Callback(
+#     Input("costcenter1",type=dropdown),
+#     Output("line_graph",type=figure)
+# )
+# def costcentertolayout(costcenter):
+#     df = df.loc[df["COSTCENTER"] = costcenter]
+#     return px.line(data = df)

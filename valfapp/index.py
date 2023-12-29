@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage
-from valfapp.pages import livecnc, livepres, energy
+from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv,kameraayıklama
 from flask import request,g
 
 ### Page container ###
@@ -93,6 +93,11 @@ def login(n_clicks, username, password):
         return {'logged_in': True}
     return {'logged_in': False}
 
+
+
+
+#### Yeni bir sayfa açtığımız zaman buraya eklem
+####yapıyoruz
 ### Update Page Container ###
 @app.callback(
     Output(
@@ -126,8 +131,18 @@ def display_page(pathname,login_status_data):
             return dragtester.layout
         elif pathname == '/energy':
             return energy.layout
+        elif pathname == '/cnctotv':
+            return cnctotv.layout
+        elif pathname == '/taslamatv':
+            return taslamatv.layout
+        elif pathname == '/montajtv':
+            return montajtv.layout
+        elif pathname == '/yislemtv':
+            return yuzeyislemtv.layout
+        elif pathname == '/camayik':
+            return kameraayıklama.layout
         else:
-
+            print(f"adsadasd{pathname}")
             return '404'
     else:
         return login_layout
@@ -149,7 +164,12 @@ app.validation_layout = html.Div(
         livepres.layout,
         livecnc.layout,
         dragtester.layout,
-        energy.layout
+        energy.layout,
+        cnctotv.layout,
+        taslamatv.layout,
+        montajtv.layout,
+        yuzeyislemtv.layout,
+        kameraayıklama.layout
         # ittools.layout
     ]
 )

@@ -7,14 +7,16 @@ from dash import dcc, html, Input, Output, State, callback_context, \
     no_update, exceptions  # pip install dash (version 2.0.0 or higher)
 import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
-    generate_for_sparkline, working_machinesf, return_ind_fig
+    generate_for_sparkline, working_machinesf, indicator_with_color
 from run.agent import ag
-from valfapp.app import app, prdconf
+from valfapp.app import app, prdconf, return_piechart
 from valfapp.pages.date_class import update_date, update_date_output
+from config import kb
 
 summary_color = 'black'
 
 wc_usage = ag.run_query("SELECT STAND FROM IASROU009 WHERE STAND != '*'")
+
 
 
 def apply_nat_replacer(x):
@@ -55,7 +57,7 @@ layout_27 = dbc.Container([
 
     )),
     dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                     date=date.today(),
+                                     date=date.today() + timedelta(days=-kb),
                                      persistence=True,
                                      persistence_type='memory'
                                      ),
@@ -69,8 +71,8 @@ layout_27 = dbc.Container([
         dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
         dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
         dcc.Store(id="work-dates", storage_type="memory",
-                  data={"workstart" : (date.today() - timedelta(days=1)).isoformat(),
-                         "workend" :  date.today().isoformat(),
+                  data={"workstart" : (date.today() - timedelta(days=kb)).isoformat(),
+                         "workend" :  (date.today() - timedelta(days=1)).isoformat(),
                          "interval" : "day"}),
         dcc.Location(id='location3', refresh=True),
         html.Div(id='output', children=''),
@@ -85,7 +87,7 @@ layout_27 = dbc.Container([
                  ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='memory',data={'default_key': 'CNC'}),
+    dcc.Store(id='store-costcenter', storage_type='memory',data='CNC'),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -166,7 +168,7 @@ layout_12 = dbc.Container([
 
     )),
     dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                         date = date.today(),
+                                         date = date.today()-timedelta(1),
                                          persistence = True,
                                          persistence_type = 'memory'
                                   ),
@@ -196,7 +198,7 @@ layout_12 = dbc.Container([
                  ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='memory',data={'default_key': 'CNC'}),
+    dcc.Store(id='store-costcenter', storage_type='memory',data='CNC'),
     dbc.Row([
         dbc.Col([
             dbc.Row(html.Div([dcc.Graph(id='sunburst')],
@@ -280,10 +282,10 @@ layout_12 = dbc.Container([
 
 #Main Layout
 layout = html.Div([
-    dcc.Store(id='oeelist0',data=prdconf(((date.today() - timedelta(days=1)).isoformat(),date.today().isoformat(),"day"))[0]),
-    dcc.Store(id='oeelist1',data=prdconf(((date.today() - timedelta(days=1)).isoformat(),date.today().isoformat(),"day"))[1]),
-    dcc.Store(id='oeelist2',data=prdconf(((date.today() - timedelta(days=1)).isoformat(),date.today().isoformat(),"day"))[2]),
-    dcc.Store(id='oeelist6',data=prdconf(((date.today() - timedelta(days=1)).isoformat(),date.today().isoformat(),"day"))[6]),
+    dcc.Store(id='oeelist0',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[0]),
+    dcc.Store(id='oeelist1',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[1]),
+    dcc.Store(id='oeelist2',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[2]),
+    dcc.Store(id='oeelist6',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[6]),
     dcc.Store(id='device-info-store'),
     html.Div(id='main-layout-div')
 ])
@@ -442,38 +444,9 @@ def return_summary_data(option_slctd,dates,oeelist6):
      Input(component_id='oeelist0', component_property='data')]
 )
 def update_graph_sunburst(option_slctd,oeelist0):
-    oeelist0 = {k: pd.read_json(v, orient='split') for k, v in oeelist0.items()}
-    df = oeelist0[option_slctd]
-
-    if int(df["OEE"][0][0:2]) > 38:
-        fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
-                          color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn,
-                          color_continuous_midpoint=50)
-    else:
-        fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
-                          color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn_r,
-                          color_continuous_midpoint=50)
-
-    fig.update_traces(hovertemplate='<b>Actual Rate is %{value} </b>')
-    fig.update_layout(showlegend=False, paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
-                       title_x=0.5, title_xanchor="center",
-                      title_font_size=18,
-                      annotations=[
-                          dict(
-                              text="OEE - Kullanılabilirlik - Performans",
-                              showarrow=False,
-                              xref='paper', yref='paper',
-                              x=0.5, y=1.02,
-                              xanchor='center', yanchor='bottom',
-                              font=dict(size=18, color=summary_color),
-                              bgcolor='darkolivegreen',  # The desired background color for the title
-                              borderpad=4  # This adjusts the padding, adjust this value to your liking
-                          )]
-                      )
-
-    # fig.show(renderer='browser')
-
-    return [fig]
+    print(" here here ")
+    print(return_piechart(option_slctd,oeelist0))
+    return [return_piechart(option_slctd,oeelist0)]
 
 
 @app.callback(
@@ -613,15 +586,12 @@ def update_spark_line(option_slctd, dates,oeelist6):
 def update_ind_fig(option_slctd, oeelist1):
     df = pd.read_json(oeelist1, orient='split')
     df = df[df["COSTCENTER"] == option_slctd]
-    fig_up1 = return_ind_fig(df_metrics=
-                             df, costcenter=option_slctd)
-    fig_up2 = return_ind_fig(df_metrics=
-                             df, costcenter=option_slctd, order=1)
-    fig_up3 = return_ind_fig(df_metrics=
-                             df, costcenter=option_slctd, order=2)
-    fig_down1 = return_ind_fig(df_metrics=df, costcenter=option_slctd, order=-1, colorof='red')
-    fig_down2 = return_ind_fig(df_metrics=df, costcenter=option_slctd, order=-2, colorof='red')
-    fig_down3 = return_ind_fig(df_metrics=df, costcenter=option_slctd, order=-3, colorof='red')
+    fig_up1 = indicator_with_color(df_metrics=df)
+    fig_up2 = indicator_with_color(df_metrics=df, order=1)
+    fig_up3 = indicator_with_color(df_metrics=df, order=2)
+    fig_down1 = indicator_with_color(df_metrics=df, order=-1, colorof='red')
+    fig_down2 = indicator_with_color(df_metrics=df, order=-2, colorof='red')
+    fig_down3 = indicator_with_color(df_metrics=df, order=-3, colorof='red')
     return [fig_up1, fig_up2, fig_up3, fig_down1, fig_down2, fig_down3]
 
 

@@ -1,10 +1,9 @@
 import time
-from config import server,username,password,database,directory,project_directory
+from config import server, username, password, database, database_iot, directory, project_directory
 from matplotlib import colors
-from config import directory
-import plotly.express as px
 import matplotlib.pyplot as plt
 import pyodbc
+
 
 import seaborn as sns
 import pandas as pd
@@ -21,9 +20,8 @@ import plotly.io as pio
 
 
 def readquerry(queryx):
-
     queryy = queryx
-    if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH'\
+    if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH' \
             or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT':
         return queryy
     else:
@@ -37,7 +35,7 @@ def readquerry(queryx):
             raise Exception("Please enter correct directory or write SQL Query directly")
 
 
-def parse_inserter_sql(table,columns,dbcolumns):
+def parse_inserter_sql(table, columns, dbcolumns):
     a = pd.read_excel(r"C:\Users\kbbudak\Desktop\HURDA DURUŞLARI LİSTESİ.xlsx", sheet_name=r'bölüm bazlı hurda listesi')
     b = pd.read_excel(r"C:\Users\kbbudak\Desktop\HURDA DURUŞLARI LİSTESİ.xlsx", sheet_name=r'canias hurda listesi')
     c = a.merge(b, on="STEXT", how='inner')
@@ -54,7 +52,8 @@ class Agent:
         self.database = database
         self.username = username
         self.password = password
-        self.connection = pyodbc.connect(f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}')
+        self.connection = pyodbc.connect(
+            f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}')
 
     # method returns the result of querry as dataframe.
     # dont accept unvalid query
@@ -111,7 +110,7 @@ class Agent:
         if retry_count == max_retries:
             print("Maximum number of retries reached. Could not connect to database.")
 
-    def update_table(self, diro, table_name = '',nullaccept = 0,insert=0):
+    def update_table(self, diro, table_name='', nullaccept=0, insert=0):
         df = pd.read_excel(diro)
         final_output = ''
         if table_name == '':
@@ -159,7 +158,7 @@ class Agent:
 
         return final_output
 
-    def insert_into_db(self,diro,table_name,update=0):
+    def insert_into_db(self, diro, table_name, update=0):
         df = pd.read_excel(diro)
         final_output = ''
         for _, row in df.iterrows():
@@ -169,14 +168,13 @@ class Agent:
                 with self.connection.cursor() as cursor:
                     cursor.execute(insert_query)
             else:
-                final_output = final_output  + insert_query + f"\n" +  ';'
+                final_output = final_output + insert_query + f"\n" + ';'
 
         return final_output
 
-
-
-    def editandrun_query(self,textfile=project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon.sql",
-                         texttofind=["aaaa-bb-cc", "xxxx-yy-zz"],texttoput=[str(dt.date(2022, 1, 1)),str(dt.date(2022, 1, 2))],
+    def editandrun_query(self, textfile=project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon.sql",
+                         texttofind=["aaaa-bb-cc", "xxxx-yy-zz"],
+                         texttoput=[str(dt.date(2022, 1, 1)), str(dt.date(2022, 1, 2))],
                          return_string=1):
         """This is a Python method called find_and_replace that takes in 3 parameters:
 
@@ -193,7 +191,6 @@ class Agent:
             if len(texttofind) != len(texttoput):
                 raise Exception(r"String list lengths must be same!")
 
-
         for i in range(len(texttoput)):
             filedata = filedata.replace(texttofind[i], texttoput[i])
 
@@ -205,10 +202,8 @@ class Agent:
             with self.connection.cursor() as cursor:
                 return cursor.execute(filedata)
 
-
-
-    def replace_and_insertinto(self,path = project_directory + r"\Charting\queries\HİSTORİCALSTOCKS.sql",
-                               rapto=dt.date(2022, 9, 1),torep='xxxx-xx-xx'):
+    def replace_and_insertinto(self, path=project_directory + r"\Charting\queries\HİSTORİCALSTOCKS.sql",
+                               rapto=dt.date(2022, 9, 1), torep='xxxx-xx-xx'):
         with open(path, 'r') as file:
             filedata = file.read()
         for i in range(20):
@@ -216,7 +211,6 @@ class Agent:
             with self.connection.cursor() as cursor:
                 cursor.execute(query)
             rapto += relativedelta(months=-1)
-
 
     def correlation_matrix(self):
 
@@ -279,6 +273,9 @@ class Agent:
     #     fig.show()
 
 
-
 ag = Agent()
-agiot = Agent(database="VALFSAN604T")
+
+
+agiot = Agent(database=database_iot)
+
+

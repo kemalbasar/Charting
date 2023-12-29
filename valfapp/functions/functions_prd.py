@@ -12,7 +12,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', 500)
 
 
-def weighted_average(x,df_metrics):
+def weighted_average(x, df_metrics):
     weights = df_metrics.loc[x.index, "PLANNEDTIME"]
     if np.sum(weights) == 0:
         # Handle the case when the sum of the weights is zero
@@ -20,6 +20,7 @@ def weighted_average(x,df_metrics):
         return np.mean(x)  # Returning mean as an example
     else:
         return np.average(x, weights=weights)
+
 
 def apply_nat_replacer(x):
     x = str(x)
@@ -41,23 +42,25 @@ planned_hours = ''
 working_machines = ''
 onemonth_prdqty = ''
 
+
 ########### ########### ########### ###################### ########### ########### ########### ###########
 ########### ########### ########### ########### SQL QUERIES END ######## ########### ########### ##########
 ########### ########### ########### ########### ########### ########### ########### ########### ##########
 
 
-def working_machinesf(working_machines = working_machines, costcenter='CNC'):
+def working_machinesf(working_machines=working_machines, costcenter='CNC'):
     return working_machines.loc[working_machines["COSTCENTER"] == costcenter, "COUNTOFWC"].tolist()
 
 
-def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shiftandmat=0,nontimes=pd.DataFrame()):
+def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shiftandmat=0, nontimes=pd.DataFrame()):
+    df = df.loc[
+        df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS", "CONFTYPE",
+                                       "QTY", "SCRAPQTY", "REWORKQTY",
+                                       "WORKCENTER", "RUNTIME", "TOTALTIME", "DISPLAY",
+                                       "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME", "STEXT", "SCRAPTEXT",
+                                       "WORKDAY"]]
 
-    df = df.loc[df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS","CONFTYPE",
-                                               "QTY", "SCRAPQTY", "REWORKQTY",
-                                               "WORKCENTER", "RUNTIME", "TOTALTIME","DISPLAY",
-                                               "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME","STEXT","SCRAPTEXT","WORKDAY"]]
-
-    df.drop_duplicates(inplace=True,subset=['CONFIRMATION', 'CONFIRMPOS'])
+    df.drop_duplicates(inplace=True, subset=['CONFIRMATION', 'CONFIRMPOS'])
     df.reset_index(drop=True, inplace=True)
     df["SCRAPTEXT"] = df["SCRAPTEXT"].astype(str)
     df["DISPLAY"] = df["DISPLAY"].astype(str)
@@ -78,26 +81,31 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         }
         return pd.Series(agg_dict)
 
-    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT","WORKDAY"]).apply(custom_agg)
-    df_prdcount = df.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY","count"))
-    df_prdcount.reset_index(inplace=True)
+    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT", "WORKDAY"]).apply(custom_agg)
+    df_prdcount = df.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY", "count"))
+    if len(df_metrics) > 1:
+        df_prdcount.reset_index(inplace=True)
+        df_metrics.reset_index(inplace=True)
 
-    df_metrics.reset_index(inplace=True)
     # df_metrics_backup = df_metrics.copy()
     # df_metrics = df_metrics_backup
     df_metrics["IDEALCYCLETIME"] = df_metrics["IDEALCYCLETIME"].astype(float)
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"].astype(float)
 
-    df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
-    df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    if len(nontimes) > 0:
+        df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+
+    if len(df_prdcount) > 0:
+        df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
     df_metrics["OMTIME"] = df_metrics["OMTIME"].fillna(0)
     df_metrics["OMTIME"] = df_metrics["OMTIME"] / df_metrics["QTY_y"]
 
-    df_shifttotal = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(TOTAL_SHIFT_TIME=("TOTALTIME", "sum"))
+    df_shifttotal = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(
+        TOTAL_SHIFT_TIME=("TOTALTIME", "sum"))
     df_shifttotal.reset_index(inplace=True)
-    df_metrics = df_metrics.merge(df_shifttotal, on=['COSTCENTER','WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
-    df_metrics["NANTIME"] = (510 - df_metrics["TOTAL_SHIFT_TIME"] - df_metrics["OMTIME"]) * df_metrics["TOTALTIME"] /df_metrics["TOTAL_SHIFT_TIME"]
-
+    df_metrics = df_metrics.merge(df_shifttotal, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    df_metrics["NANTIME"] = (510 - df_metrics["TOTAL_SHIFT_TIME"] - df_metrics["OMTIME"]) * df_metrics["TOTALTIME"] / \
+                            df_metrics["TOTAL_SHIFT_TIME"]
 
     # There will be counter for broken data.
     df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0
@@ -155,25 +163,20 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
     # df_metrics_forpers.to_excel(r"F:\pycarhm projects\Charting\valfapp\assets\bu.xlsx")
 
     df_metrics = df_metrics.groupby(["WORKCENTER", "COSTCENTER"]).agg({"QTY": "sum",
-                                                                "SCRAPQTY": "sum",
-                                                                "REWORKQTY": "sum",
-                                                                "RUNTIME": "sum",
-                                                                "TOTALTIME": "sum",
-                                                                "TOTFAILURETIME": "sum",
-                                                                "IDEALCYCLETIME": "sum",
-                                                                "SETUPTIME": "sum",
-                                                                "NANTIME": "sum",
-                                                                "PLANNEDTIME": "sum",
-                                                                "PERFORMANCE": wm,
-                                                                "AVAILABILITY": wm,
-                                                                "OEE": wm
-                                                               })
+                                                                       "SCRAPQTY": "sum",
+                                                                       "REWORKQTY": "sum",
+                                                                       "RUNTIME": "sum",
+                                                                       "TOTALTIME": "sum",
+                                                                       "TOTFAILURETIME": "sum",
+                                                                       "IDEALCYCLETIME": "sum",
+                                                                       "SETUPTIME": "sum",
+                                                                       "NANTIME": "sum",
+                                                                       "PLANNEDTIME": "sum",
+                                                                       "PERFORMANCE": wm,
+                                                                       "AVAILABILITY": wm,
+                                                                       "OEE": wm
+                                                                       })
     df_metrics.reset_index(inplace=True)
-
-    print("asdasdasd")
-    print(df_metrics)
-    print("asdasdasd")
-
 
     try:
         df_piechart = df_metrics.groupby("COSTCENTER").agg({"RUNTIME": "sum",
@@ -193,8 +196,8 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
                "TASLAMA": None,
                "CNCTORNA": None,
                "MONTAJ": None,
-               "PRESHANE1" : None,
-               "PRESHANE2" : None,}
+               "PRESHANE1": None,
+               "PRESHANE2": None, }
 
     f = lambda a: round(((abs(a) + a) / 2), 3)
     g = lambda a: 1 if sum_of == 0 else int((a * 100) / sum_of)
@@ -205,16 +208,16 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         'MACHINE': ["PRD", "DOWN", "SETUP", "NAN", "PRD"],
         'OPR': ["FAIL", None, None, None, "SUCCES"]
     }
-    for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ","PRESHANE1","PRESHANE2"]:
+    for costcenter in ['CNC', "TASLAMA", "CNCTORNA", "MONTAJ", "PRESHANE1", "PRESHANE2"]:
         try:
             len(df_piechart.loc[costcenter])
         except KeyError as e:
-            details[costcenter] =  pd.DataFrame(temp_dic,index=['SESSIONTIME', 'PLANSIZDURUS', 'SETUP', 'NaN', "SESSIONTIME2"])
+            details[costcenter] = pd.DataFrame(temp_dic,
+                                               index=['SESSIONTIME', 'PLANSIZDURUS', 'SETUP', 'NaN', "SESSIONTIME2"])
             print(f"KeyError: {e}")
             continue
         sum_of = df_piechart.loc[costcenter, "RUNTIME"] + df_piechart.loc[costcenter, "TOTFAILURETIME"] + \
                  df_piechart.loc[costcenter, "SETUPTIME"] + df_piechart.loc[costcenter, "NANTIME"]
-        print(f"sum of = {sum_of}")
         temp_dic = {
             'RATES': [f(1 - df_piechart.loc[costcenter, "PERFORMANCE"]) * g(df_piechart.loc[costcenter, "RUNTIME"]),
                       g(df_piechart.loc[costcenter, "TOTFAILURETIME"]),
@@ -248,7 +251,6 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
         #        df_piechart_final["OPR"]["SESSIONTIME2"] = str(int(df_piechart_final["OPR"]["SESSIONTIME2"])) + '%'
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
-    print(details)
     return details, df_metrics, df_metrics_forwc, df_metrics_forpers
 
 
@@ -292,7 +294,7 @@ def calculate_oeemetrics(df=prd_conf, df_x = pd.DataFrame(),piechart_data=1, shi
 #     return df_final
 
 
-def generate_for_sparkline(data='',proses='CNC', type='TOPLAM', ppm=False):
+def generate_for_sparkline(data='', proses='CNC', type='TOPLAM', ppm=False):
     if type == 'HURDA':
         data["HURDA"] = data["HURDA"].astype(int)
     if not ppm:
@@ -312,19 +314,20 @@ def get_daily_qty(df=prd_conf, costcenter='CNC', type="TOPLAM", ppm=False):
     if not ppm:
         return str(df[type].iloc[-1])
     else:
-        return int(1000000*int(df["HURDA"].iloc[-1]) / int(df["TOPLAM"].iloc[-1]))
+        return int(1000000 * int(df["HURDA"].iloc[-1]) / int(df["TOPLAM"].iloc[-1]))
 
 
 def scatter_plot(df=prd_conf, report_day="2022-07-26"):
     df = df.loc[df["CONFTYPE"] != 'Uretim',
-                ["WORKSTART", "WORKCENTER", "FAILURETIME", 'SETUPTIME',"STEXT", "CONFTYPE"]]
+    ["WORKSTART", "WORKCENTER", "FAILURETIME", 'SETUPTIME', "STEXT", "CONFTYPE"]]
     df["FAILURETIME"] = df.apply(lambda row: apply_nat_replacer(row["FAILURETIME"]), axis=1)
-    df["FAILURETIME"] = [df["FAILURETIME"][row] if df["FAILURETIME"][row] != "nan" else df["SETUPTIME"][row] for row in df.index]
+    df["FAILURETIME"] = [df["FAILURETIME"][row] if df["FAILURETIME"][row] != "nan" else df["SETUPTIME"][row] for row in
+                         df.index]
 
     df.reset_index(inplace=True, drop=True)
     df.sort_values(by="WORKCENTER", inplace=True)
-    df["STEXT"] = [df["CONFTYPE"][row] if df["CONFTYPE"][row] == 'Kurulum'\
-        else df["STEXT"][row] for row in df.index]
+    df["STEXT"] = [df["CONFTYPE"][row] if df["CONFTYPE"][row] == 'Kurulum' \
+                       else df["STEXT"][row] for row in df.index]
 
     df["FAILURETIME"] = df["FAILURETIME"].astype(float)
     total_quantity = df['FAILURETIME'].sum()
@@ -332,21 +335,17 @@ def scatter_plot(df=prd_conf, report_day="2022-07-26"):
     df_percs['PERCENTAGE'] = df_percs['FAILURETIME'].apply(lambda x: int((x / total_quantity) * 100))
     df = df.merge(df_percs.drop(axis=1, columns="FAILURETIME"), on='STEXT', how='left')
     df['PERCENTAGE'] = df['PERCENTAGE'].astype(str)
-
-    print("*********************")
-    print(df)
-
     df["STEXT"] = df["STEXT"] + ' ' + df["PERCENTAGE"] + '%'
-    df_legend = df.groupby(["STEXT"]).agg({"FAILURETIME":sum})
+    df_legend = df.groupby(["STEXT"]).agg({"FAILURETIME": sum})
     df_legend.reset_index(inplace=True)
     df_legend = df_legend.sort_values(by="FAILURETIME", ascending=False)
     category_order = list(df_legend["STEXT"])
-    return df,category_order
+    return df, category_order
 
 
 def get_gann_data(df=prd_conf):
     cols = ['MATERIAL', 'COSTCENTER', 'QTY', 'BREAKDOWN', 'PERSONELNUM', 'WORKCENTER', 'BREAKDOWNSTART', 'BREAKDOWNEND',
-            'STEXT', 'CONFTYPE','FAILURETIME','RUNTIME',"SCRAPQTY","SETUPTIME"]
+            'STEXT', 'CONFTYPE', 'FAILURETIME', 'RUNTIME', "SCRAPQTY", "SETUPTIME"]
     df_helper = df.copy()
     df_helper.drop(["BREAKDOWNSTART", "BREAKDOWNEND"], axis=1, inplace=True)
     df_helper = df_helper.rename(columns={"WORKSTART": "BREAKDOWNSTART",
@@ -380,8 +379,25 @@ def get_gann_data(df=prd_conf):
 #     df["NET_WORKING_TIME1"] = [get_work_hour(df["WORKCENTER"][row], df["WORKSTART"][row], df["WORKEND"][row]) for row in
 #                                range(df.shape[0])]
 
-def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC', order=0,
-                   colorof='green',coloroftext='black',title= 'WORKCENTER',height=320,width=350):
+def indicator_with_color(df_metrics=None, order=0,
+                         colorof='green', coloroftext='black', title='WORKCENTER', height=320, width=350):
+    '''
+
+    Parameters
+    ----------
+    df_metrics: data source
+    order: row number of data
+    colorof: color of guage bar
+    coloroftext
+    title : column name to search in current row for title text.
+    height: size measure of chart
+    width: size measure of chart
+
+    Returns
+    -------
+    Indicator Chart
+    '''
+
     text = ''
     if df_metrics is None:
         return None
@@ -393,23 +409,11 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
 
     else:
         final_card = df_metrics.loc[df_metrics[title] == order]
-    # text = f"{final_card['WORKCENTER']} worked {int(final_card['AVAILABILITY'] * 100)}% of planned time." \
-    #        f"Operater <br> processed {int(final_card['QTY'] - (final_card['QTY'] * final_card['RUNTIME']) / final_card['IDEALCYCLETIME'])} " \
-    #        f"more material then avarge <br> with only {final_card['SCRAPQTY']} scrap"
-
-    # if len(df_details) != 0:
-    #     df_ann = df_details.loc[df_details["WORKCENTER"] == order,["SHIFT","DISPLAY","SCRAPQTY","SCRAPTEXT"]]
-    #     df_ann.drop_duplicates(inplace=True, subset=['SHIFT', 'DISPLAY'], keep='first')
-    #     text = ''
-    #     for index, row in df_ann.iterrows():
-    #         text += f"{row['SHIFT']}.Var:{row['DISPLAY']} <br>"
 
     if title == 'WORKCENTER':
         finalnum = 'OEE'
     else:
         finalnum = 'PERFORMANCE'
-
-
 
     if colorof == 'green':
         colorof2 = coloroftext
@@ -418,11 +422,10 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
 
     title_txt = final_card[title].values[0]
 
-
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge+number",
-        value=final_card[finalnum].values[0] * 100 ,
+        value=final_card[finalnum].values[0] * 100,
         title={
             "text": f"<span style='font-size:1.5em;'>{title_txt}</span><br><br><br><br><br><br><span style='font-size:5em;color:gray'>"}
         ,
@@ -444,17 +447,17 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
                 'value': 80
             }
         },
-        number={'suffix': '%'}
+        number={'suffix': '%'},
 
-        #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
-        #        domain={'x': [0, 1], 'y': [0, 1]}
+        delta={'reference': 400, 'relative': True, "font": {"size": 40}},
+        domain={'x': [0, 1], 'y': [0, 1]}
     ))
 
     annotation = {
         "height": 600,
         "width": 1200,
-        'x':0.55,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y':-0.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'x': 0.55,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': -0.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': text,
         # 'showarrow': True,
         # 'arrowhead': 3,
@@ -463,22 +466,18 @@ def return_ind_fig(df_metrics=None,df_details = pd.DataFrame(), costcenter='CNC'
 
     fig.update_layout({
         "annotations": [annotation],
-        # title={
-        # # 'text': text,
-        # # 'y': 1,
-        # # 'x': 0.5,
-        # # 'font': {'size': 17}
-        # },
         "paper_bgcolor": "rgba(0,0,0,0)", "width": width, "height": height})
 
     return fig
 
-#this metod takes manufacturing companies workcenter data,status refers to the status of the workcenter and it definess backgroundcolor,
-#text refers to the text to be displayed on the indicator graph.
-#workcenter refers to the workcenter of the manufacturing company, it will be on header
-def return_indicatorgraph(status='white',fullname='',
-                          workcenter='',material='',durus='',target=0):
 
+# this metod takes manufacturing companies workcenter data,status refers to the status of the workcenter and it definess backgroundcolor,
+# text refers to the text to be displayed on the indicator graph.
+# workcenter refers to the workcenter of the manufacturing company, it will be on header
+def indicator_for_tvs(status='white', fullname='',
+                      workcenter='', material='', durus='', target=0, size=None, rate=1):
+    if size is None:
+        size = {"width": 465, "height": 500}
     fig = go.Figure()
     fig.add_trace(go.Indicator(
         mode="gauge+number",
@@ -502,53 +501,152 @@ def return_indicatorgraph(status='white',fullname='',
                 'value': 80
             }
         },
-        number={'suffix': None }
+        number={'suffix': None},
+        domain={'x': [0, 1], 'y': [0.25, 0.55]}
+
+        #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
+        #        domain={'x': [0, 1], 'y': [0, 1]}
+    ))
+    # fig.update_traces(row)
+
+    annotation = {
+
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 1.1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'text': fullname,
+        # 'showarrow': True,
+        # 'arrowhead': 3,
+        'font': {'size': 30 * rate, 'color': 'black'}
+    }
+    annotation1 = {
+
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 0,
+        'text': material[0:len(material) if len(material) <= 11 else 11] if material is not None else '',
+        # 'showarrow': True,
+        # 'arrowhead': 3,
+        'font': {'size': 45 * rate, 'color': 'black'}
+    }
+    annotation2 = {
+
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 0.6,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+
+        'text': '(' + str(durus) + ')',
+        # 'showarrow': True,
+        # 'arrowhead': 3,
+        'font': {'size': 1 if durus is None else (30 if len(durus) > 20 else 40 * rate), 'color': 'white'}
+    }
+
+    fig.update_layout({
+        "annotations": [annotation, annotation1, annotation2],
+        "title": dict(
+            text=workcenter,
+            x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
+            y=0.81,
+            font=dict(
+                size=80 * rate,
+                color='black'
+            )
+        ),
+        "paper_bgcolor": status,
+        "width": size["width"], "height": size["height"]})
+
+    return fig
+
+
+def indicator_for_yislem(status='white', fullname='',
+                         workcenter='', material='', durus='', target=0, size={"width": 475, "height": 500}, rate=1):
+    if durus is None:
+        mtext = ''
+        durus = 0
+    elif durus == 0:
+        mtext = 'Hazır'
+    elif durus < 0:
+        mtext = f"DK GECİKTİ"
+    else:
+        mtext = f"DK SONRA"
+
+    fig = go.Figure()
+    fig.add_trace(go.Indicator(
+        mode="gauge",
+        value=(target - durus) if durus > 0 else target,
+        gauge={'bar': {'color': "white", 'thickness': 0.75},
+               'shape': "bullet",
+               'axis': {'range': [None, target],
+                        'showticklabels': False},
+               },
+        number={'suffix': None},
+        domain={'x': [0.2, 0.8], 'y': [0.3, 0.6]},  # Adjust the domain to control the gauge size
 
         #       delta={'reference': 400, 'relative': True, "font": {"size": 40}},
         #        domain={'x': [0, 1], 'y': [0, 1]}
     ))
 
+    colorof = 'white' if durus < 0 else 'black'
+
+    date_pos =-1.8 if rate == 8 / 20 else -0.3
+    mat_pos = -1.13if rate == 8 / 20 else -0.02
     annotation = {
-        "height": 600,
-        "width": 2000,
-        'x': 0.15,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 1,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
-        'text': fullname,
+
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': date_pos,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'text': str(fullname)[-8:],
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 24, 'color': 'black'}
+        'font': {'size': 45 * rate, 'color': colorof}
     }
     annotation1 = {
-        "height": 600,
-        "width": 2000,
-        'x': 0.99,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.99,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+
+        'x': 0.50,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': mat_pos,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
         'text': material,
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 24, 'color': 'black'}
+        'font': {'size': 45 * rate, 'color': colorof}
     }
     annotation2 = {
-        "height": 600,
-        "width": 2000,
-        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
-        'y': 0.75,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
 
-        'text': '(' + str(durus) + ')',
+        'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 2.3,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'text': f"{str(durus)}",
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 20, 'color': 'black'}
+        'font': {'size': 100 * rate, 'color': colorof}
     }
 
+    annotation3 = {
+
+        'x': -0.4,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
+        'y': 1.7,  # If we consider the y-axis as 100%, we will place it on the y-axis with how many %
+        'text': "Dk.",
+        # 'showarrow': True,
+        # 'arrowhead': 3,
+        'font': {'size': 40 * rate, 'color': colorof}}
     fig.update_layout({
-        "annotations": [annotation,annotation1,annotation2],
-        "title" : dict(
-        text=workcenter,
-        x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
-        y=0.81,
-        font = dict(
-        size=55
-        )
-    ),"paper_bgcolor": status, "width": 607, "height": 850})
+        "annotations": [annotation, annotation1, annotation2, annotation3],
+        "title": dict(
+            text=workcenter,
+            x=0.5,  # Change the x position (0 = left, 0.5 = center, 1 = right)
+            y=0.85,
+            font=dict(
+                size=85 * rate if 'OTEC' in workcenter else 100 * rate,
+                color=colorof
+            )
+        ),
+        # "xaxis": {
+        #     'tickmode': 'array',
+        #     'tickvals': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        #     'ticktext': ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'],
+        #     'tickangle': 45,
+        #     'tickfont': {'size': 12, 'color': 'blue'}
+        # },
+        "paper_bgcolor": status,
+        "width": size["width"],
+        "height": size["height"],
+
+    })
+    fig.update_annotations(showarrow=False)
+
 
     return fig
