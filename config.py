@@ -1,21 +1,32 @@
 import pandas as pd
+from datetime import datetime
 
-server = '*****'
-database = '******'
-username = '******'
-password = '*****.'
+server = '172.30.134.12'
+database = 'VALFSAN604'
+database_iot = 'VALFAN_IOT_001'
+username = 'Fatih'
+password = '123456fO.'
 
 reengen_username = "takgun@valfsan.com.tr"
 reengen_password = '1234Ta1234'
 reengen_company = 'valfsan'
 
 
-project_directory = r"F:\pycarhm projects"
+project_directory = r"C:\Users\fozturk\Documents\GitHub"
 
 directory = project_directory + r'\Charting\queries'
 dirofquery = project_directory + r'\Charting\queries\query2.txt'
 dirofnewline = project_directory + r'\Charting\queries\dateofstart.txt'
 url_dyn = "http://172.30.134.16:20000/services/btstarter.aspx?tran_code=WSCANIAS&tran_param=VLFPYPORTAL,"
+
+today = datetime.today()
+
+if today.weekday() == 6:
+    kb = 2
+elif today.weekday() == 0:
+    kb = 3
+else:
+    kb = 1
 
 def set_df_size(maxrow, maxcolumn, maxwidth, maxcolwidth):
     pd.set_option('display.max_rows', maxrow)
