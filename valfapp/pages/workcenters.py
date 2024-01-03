@@ -379,7 +379,6 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
     Input("download-button", "n_clicks"),
     State("costcenter1", "value"),
     State(component_id='oeelistw3', component_property='data'),
-    prevent_initial_call=True
 )
 def generate_excel(n_clicks, costcenter, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
@@ -398,7 +397,7 @@ def generate_excel(n_clicks, costcenter, oeelist3w):
     backup_df["QUALITY"] = (backup_df["QTY"] - backup_df["SCRAPQTY"]) / backup_df["QTY"]
     backup_df["OEE"] = backup_df["AVAILABILITY"]*backup_df["QUALITY"]*backup_df["PERFORMANCE"]
     dff = oeelist3w[columns].merge(backup_df[columns2], on=["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"], how='left')
-
+    print("download genel butonun ordayım")
     return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)
 
 @app.callback(
@@ -406,7 +405,6 @@ def generate_excel(n_clicks, costcenter, oeelist3w):
     Input("download-button2", "n_clicks"),
     State("costcenter1", "value"),
     State(component_id='oeelistw2', component_property='data'),
-    prevent_initial_call=True
 )
 def generate_excel(n_clicks, costcenter, oeelist2w):
     oeelist2w = pd.read_json(oeelist2w, orient='split')
@@ -415,7 +413,7 @@ def generate_excel(n_clicks, costcenter, oeelist2w):
     #     "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
 
     # backup_df.reset_index(inplace=True)
-
+    print("download detay butonun ordayım")
     dff2 = oeelist2w[oeelist2w["COSTCENTER"] == costcenter]
 
-    return dcc.send_data_frame(dff2.to_excel, "mydata.xlsx", index=False)
+    return dcc.send_data_frame(dff2.to_excel, "yourdata.xlsx", index=False)
