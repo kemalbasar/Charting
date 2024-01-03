@@ -231,7 +231,6 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
     stored_date = date_picker
     if n1 or date_picker or n2 or n3 or n4:
         data = update_date('1', date_picker, callback_context)
-        print(f"params= {data}")
         if data != {}:
             oeelist = prdconf(params=(data["workstart"], data["workend"], data["interval"]))
             a = update_date_output(n1, date_picker, n2, n3, n4, data)
@@ -278,16 +277,18 @@ def page_refresh2(n2):
 )
 def clear_cache(n_clicks, key):
     if n_clicks > 0:
-        a = cache.get(json.dumps({'workstart': '2023-09-06', 'workend': '2023-09-07', 'interval': 'day'}))
         cache_key = json.dumps(key)
-        x = cache.get(cache_key)
+        print(cache_key)
         cache.delete_memoized(prdconf, (key["workstart"], key["workend"], key["interval"]))
-
+        if not cache.get_memoized(prdconf, (key["workstart"], key["workend"], key["interval"])):
+            print("Cache successfully deleted.")
+            # Perform any other necessary operations after clearing the cache
+        else:
+            print("Cache not deleted.")
         # Perform any other necessary operations after clearing the cache
         return no_update  # Change the 'refresh' div when the button is clicked
     else:
         return no_update  # Don't change the 'refresh' div if the button hasn't been clicked
-
 
 # Add this callback
 @app.callback(
@@ -377,7 +378,7 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
     Output("download-data", "data"),
     Input("download-button", "n_clicks"),
     State("costcenter1", "value"),
-    Input(component_id='oeelistw3', component_property='data'),
+    State(component_id='oeelistw3', component_property='data'),
     prevent_initial_call=True
 )
 def generate_excel(n_clicks, costcenter, oeelist3w):
@@ -404,7 +405,7 @@ def generate_excel(n_clicks, costcenter, oeelist3w):
     Output("download-data2", "data"),
     Input("download-button2", "n_clicks"),
     State("costcenter1", "value"),
-    Input(component_id='oeelistw2', component_property='data'),
+    State(component_id='oeelistw2', component_property='data'),
     prevent_initial_call=True
 )
 def generate_excel(n_clicks, costcenter, oeelist2w):
