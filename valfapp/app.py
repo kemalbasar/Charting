@@ -53,8 +53,7 @@ TIMEOUT = 1200000
 def prdconf(params=None):
     paramswith = params[0:2]
     prd_conf = ag.run_query(query=r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
-    columns_to_check = ['BREAKDOWNSTART', 'BREAKDOWNEND', 'BREAKDOWN', 'FAILURECODE', 'WORKCENTER']
-    prd_conf = prd_conf.drop_duplicates(subset=columns_to_check, keep='first')
+
     if os.path.isfile(r"F:\pycarhm projects\Charting\outputs(xlsx)\bul.xlsx"):
         os.remove(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
 
@@ -67,15 +66,15 @@ def prdconf(params=None):
     prd_conf["IDEALCYCLETIME"] = prd_conf["IDEALCYCLETIME"].astype("float")
     prd_conf["WORKDAY"] = prd_conf["WORKSTART"].dt.date
 
-    non_times = prd_conf.loc[
-        ((prd_conf["FAILURECODE"] == 'U033') & (prd_conf["BREAKDOWN"] == 10)
-         | (prd_conf["FAILURECODE"] == 'M031')), ["COSTCENTER", "CONFIRMATION", "CONFIRMPOS", "FAILURETIME", "WORKDAY",
-                                                  "WORKCENTER",
-                                                  "SHIFT", "BREAKDOWN"]]
 
-    non_times = non_times.groupby(["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT"]).agg({"FAILURETIME": "sum"})
-    non_times.reset_index(inplace=True)
-    non_times.columns = ["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT", "OMTIME"]
+    #Planlanan Süreden Düşülecek  Duruş Süreleri
+    non_times = ag.run_query(query=r"EXEC VLFPRODEMPTYFAILURE @WORKSTART=?, @WORKEND=?", params=paramswith)
+    non_times["WORKDAY"] = non_times["BREAKDOWNSTART"].dt.date
+    # non_times = non_times.groupby(["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT"]).agg({"FAILURETIME": "sum"})
+    # non_times.reset_index(inplace=True)
+    # non_times.columns = ["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT", "OMTIME"]
+    #Planlanan Süreden Düşülecek  Duruş Süreleri
+
 
     summary_helper = prd_conf[prd_conf["CONFTYPE"] == 'Uretim'].groupby(["WORKCENTER", "SHIFT", "MATERIAL"]) \
         .agg({"IDEALCYCLETIME": "sum", "RUNTIME": "sum"})
@@ -93,19 +92,21 @@ def prdconf(params=None):
          2 if ((prd_conf["TOTALTIME"][row] != 0) and (prd_conf["TOTALTIME"][row] <= 3) and prd_conf["QTY"][row] > 3)
          else 3 if prd_conf["BADDATA_FLAG"][row] == 3
          else 0)
-        for row in range(len(prd_conf))
-    ]
-    details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
-        df=prd_conf[prd_conf["BADDATA_FLAG"] == 0], nontimes=non_times)
-    for item in details:
-        try:
-            details[item]["OEE"] = (100 * details[item]["OEE"])
-            details[item]["OEE"] = details[item]["OEE"].astype(int)
-            details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
-        except (TypeError, IntCastingNaNError) as e:
-            print(f"Error: {e}")
-            continue
-    gann_data = get_gann_data(df=prd_conf)
+        for row in range(len(prd_conf))]
+
+    # details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
+    #     df=prd_conf[prd_conf["BADDATA_FLAG"] == 0], nontimes=non_times)
+    #
+    # for item in details:
+    #     try:
+    #         details[item]["OEE"] = (100 * details[item]["OEE"])
+    #         details[item]["OEE"] = details[item]["OEE"].astype(int)
+    #         details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
+    #     except (TypeError, IntCastingNaNError) as e:
+    #         print(f"Error: {e}")
+    #         continue
+
+    gann_data = get_gann_data(df=pd.concat([prd_conf,non_times]))
 
     df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0, ["COSTCENTER", "MATERIAL", "QTY", "CONFIRMATION"
         , "CONFIRMPOS", "WORKSTART", "WORKEND", "BADDATA_FLAG"]]
@@ -184,6 +185,7 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
     # If time interval 'day' then there will be shift and material columns in details table otherwise there wont.
     # i used list indices to manupulate column list of details table
+
     if params["interval"] == 'day':
         col_ind = 0
         groupby_column = "SHIFT"

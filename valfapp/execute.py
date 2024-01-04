@@ -6,7 +6,7 @@ from config import project_directory
 
 
 
-PROF_DIR = f'{project_directory}\Charting\valfapp\profs'
+PROF_DIR = project_directory + r'\Charting\valfapp\profs'
 warnings.filterwarnings("ignore")
 
 server = index.app.server

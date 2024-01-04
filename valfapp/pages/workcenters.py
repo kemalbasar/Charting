@@ -379,12 +379,14 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
     Input("download-button", "n_clicks"),
     State("costcenter1", "value"),
     State(component_id='oeelistw3', component_property='data'),
+    prevent_initial_call=True
+
 )
 def generate_excel(n_clicks, costcenter, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist3w = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
     columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME', 'TOTALTIME',
-     'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OMTIME', 'QTY_y', 'TOTAL_SHIFT_TIME',
+     'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OM_TIME', 'TOTAL_SHIFT_TIME',
      'NANTIME', 'PLANNEDTIME']
     columns2 = ['WORKCENTER', 'COSTCENTER', 'SHIFT', 'WORKDAY',"AVAILABILITY","PERFORMANCE","QUALITY","OEE"]
     backup_df = oeelist3w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
@@ -405,8 +407,9 @@ def generate_excel(n_clicks, costcenter, oeelist3w):
     Input("download-button2", "n_clicks"),
     State("costcenter1", "value"),
     State(component_id='oeelistw2', component_property='data'),
+    prevent_initial_call=True
 )
-def generate_excel(n_clicks, costcenter, oeelist2w):
+def generate_excel2(n_clicks, costcenter, oeelist2w):
     oeelist2w = pd.read_json(oeelist2w, orient='split')
     # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
     #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
