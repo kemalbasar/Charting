@@ -279,8 +279,8 @@ def clear_cache(n_clicks, key):
     if n_clicks > 0:
         cache_key = json.dumps(key)
         print(cache_key)
-        cache.delete_memoized(prdconf, (key["workstart"], key["workend"], key["interval"]))
-        if not cache.get_memoized(prdconf, (key["workstart"], key["workend"], key["interval"])):
+        cache.delete_memoized(prdconf, key["workstart"], key["workend"], key["interval"])
+        if not cache.get(prdconf, (key["workstart"], key["workend"], key["interval"])):
             print("Cache successfully deleted.")
             # Perform any other necessary operations after clearing the cache
         else:

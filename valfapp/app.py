@@ -64,7 +64,17 @@ def prdconf(params=None):
         return [None, None, None, None, None, None, None, None]
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf["IDEALCYCLETIME"] = prd_conf["IDEALCYCLETIME"].astype("float")
-    prd_conf["WORKDAY"] = prd_conf["WORKSTART"].dt.date
+
+
+    # 2 de biten mesai için gün ayarlaması.
+    def adjust_workday(row):
+        if row.hour < 2:  # Checks if the hour is between 00:00 and 01:59
+            return (row - timedelta(days=1)).date()
+        else:
+            return row.date()
+
+    # Apply the function to the 'WORKSTART' column to create/adjust 'WORKDAY' column
+    prd_conf['WORKDAY'] = prd_conf['WORKSTART'].apply(adjust_workday)
 
 
     #Planlanan Süreden Düşülecek  Duruş Süreleri

@@ -82,8 +82,9 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         return pd.Series(agg_dict)
 
     df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT", "WORKDAY"]).apply(custom_agg)
-
+    df_prdcount = df.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY", "count"))
     if len(df_metrics) > 1:
+        df_prdcount.reset_index(inplace=True)
         df_metrics.reset_index(inplace=True)
 
     # df_metrics_backup = df_metrics.copy()
@@ -93,12 +94,10 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
 
 
 
-    #Shift Time Calculations.#Shift Time Calculations.#Shift Time Calculations.
-
-    # if len(nontimes) > 0:
-    #     df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'],
-    #                                   how='left')
-
+    if len(df_prdcount) > 0:
+        df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+    # df_metrics["OMTIME"] = df_metrics["OMTIME"].fillna(0)
+    # df_metrics["OMTIME"] = df_metrics["OMTIME"] / df_metrics["QTY_y"]
 
     df_shifttotal = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(
         TOTAL_SHIFT_TIME=("TOTALTIME", "sum"))
@@ -113,9 +112,9 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df_metrics = df_metrics.merge(nontimes, on=[ 'WORKCENTER', 'WORKDAY', 'SHIFT'],
                                   how='left')
     df_metrics["OM_TIME"] = df_metrics["OM_TIME"].fillna(0)
-    print(df_metrics["OM_TIME"])
     df_metrics["NANTIME"] = (475 - df_metrics["TOTAL_SHIFT_TIME"] - df_metrics["OM_TIME"])
-
+    df_metrics["NANTIME"] = df_metrics["NANTIME"] / df_metrics["QTY_y"]
+    df_metrics.loc[df_metrics['NANTIME'] < 0, 'NANTIME'] = 0
     # df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0
     #                          else df_metrics["NANTIME"][row] for row in
     #                          range(len(df_metrics))]
@@ -155,6 +154,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df_metrics.fillna(0, inplace=True)
     # df_metrics["FLAG_BADDATA"] = [1 if df_metrics["PERFORMANCE"][row]> 1.2 else 0
     #                               for row in df_metrics.index]
+    df_metrics.to_excel(r"F:\pycarhm projects\Charting\outputs(xlsx)\1234.xlsx")
     df_metrics_forwc = df_metrics.copy()
     df_metrics_forpers = df_metrics.groupby(["DISPLAY", "COSTCENTER"]).agg({"QTY": "sum",
                                                                             "SCRAPQTY": "sum",
