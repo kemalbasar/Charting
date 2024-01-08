@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import warnings
 import plotly.graph_objs as go
+from datetime import datetime
 
 warnings.filterwarnings("ignore")
 
@@ -112,7 +113,16 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df_metrics = df_metrics.merge(nontimes, on=[ 'WORKCENTER', 'WORKDAY', 'SHIFT'],
                                   how='left')
     df_metrics["OM_TIME"] = df_metrics["OM_TIME"].fillna(0)
-    df_metrics["NANTIME"] = (475 - df_metrics["TOTAL_SHIFT_TIME"] - df_metrics["OM_TIME"])
+
+    def calculate_nantime(workday, total_shift_time, om_time):
+        # Convert '03-07-2023' to a datetime.date object
+        comparison_date = datetime.strptime('03-07-2023', '%d-%m-%Y').date()
+        return (475 if workday > comparison_date else 400) - total_shift_time - om_time
+
+    # Applying the function to each row in the dataframe
+    df_metrics["NANTIME"] = df_metrics.apply(
+        lambda row: calculate_nantime(row["WORKDAY"], row["TOTAL_SHIFT_TIME"], row["OM_TIME"]), axis=1)
+
     df_metrics["NANTIME"] = df_metrics["NANTIME"] / df_metrics["QTY_y"]
     df_metrics.loc[df_metrics['NANTIME'] < 0, 'NANTIME'] = 0
     # df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0
