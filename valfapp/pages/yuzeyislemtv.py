@@ -118,7 +118,7 @@ layout = [dcc.Link(
                                                       r"\Charting\queries\yuzeyislemtvsorgu.sql").to_json(
         date_format='iso', orient='split')),
     dcc.Store(id="wc-output-container_yislem_tmp",data=update_ind_fig(5,4)),
-    dcc.Interval(id="animate_yislem", interval=10000),
+    dcc.Interval(id="animate_yislem", interval=5000),
     dbc.Col([
         dbc.Row([html.Div(id="wc-output-container_yislem_real", className="g-0"), ]),
         dbc.Row([
