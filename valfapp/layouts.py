@@ -188,131 +188,218 @@ layout_12 = dbc.Container([
 
 layout_12_loginpage = dbc.Container([
     dbc.Row([
-        html.H1("Valfsan Analytics",
-                style={"text-align": "center", 'color': 'LightSteelBlue', 'font-weight': 'bold',
-                       'padding': '20px',
-                       'fontSize': '24px'})
-    ], className="justify-content-center"),
+        dbc.Col(
+            children=[
+                html.Div(
+                    html.Img(src='assets/valfsan_logo2.png', className="valfsan-logo"),
+                )
+            ],
+            width={"size": 12}
+        )
+    ], 
+    className="container-fluid",
+    style={"background-color": "rgba(187, 187, 187, 0.289)"}),
 
-    # This div will contain our 4 boxes
-    html.Div(style={"position": "absolute", "top": "50%", "left": "50%",
-                    "transform": "translate(-50%, -50%)"},
-             children=[
-                 dbc.Row([
-                     dbc.Col(
-                         dcc.Link(
-                             children=[
-                                 html.Div([
-                                     html.Img(src='/assets/tutarlama.link.png',
-                                              style={"width": "280px", "height": "190px"}),
-                                     html.H4("Tutarlama ( Geliştirme Aşamasında )", style={
-                                         'color': 'white',
-                                         'font-weight': 'bold',
-                                         'position': 'absolute',
-                                         'bottom': '0',
-                                         'left': '10%'
-                                     })
-                                 ])
-                             ],
-                             href='/value',
-                         ),
-                         width=6,
-                         style={"position": "relative", "padding": 0, "margin": 0}
-                     ),
-                     dbc.Col(
-                         dcc.Link(
-                             children=[
-                                 html.Div([
-                                     html.Img(src='/assets/report.link.png',
-                                              style={"width": "280px", "height": "190px"}),
-                                     html.H4("M.Merkezi OEE Raporu", style={
-                                         'color': 'white',
-                                         'font-weight': 'bold',
-                                         'position': 'absolute',
-                                         'bottom': '0',
-                                         'right': '10%'
-                                     })
-                                 ])
-                             ],
-                             href='/prod_eff',
-                         ),
-                         width=6,
-                         style={"position": "relative", "padding": 0, "margin": 0}
-                     ),
-                 ], className="justify-content-center align-items-center", style={"margin": 0}),
+    dbc.Row([
+        dbc.Col(
+            html.Div(
+                className="row justify-content-center",
+                children=[
+                    dcc.Link(
+                        html.Div(
+                            className="mt-2 justify-content-center",
+                            style={
+                                'border': '1px solid red',
+                                'width': '300px',
+                                'height': '200px',
+                                'borderRadius': '10px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'background-color': 'lightgray',
+                            },
+                            children=[
+                                html.Div(
+                                    style={
+                                        'font-size': '18px',
+                                        'color': 'White',
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
+                                    },
+                                    children=""
+                                ),
+                                html.Img(
+                                    src='/assets/Tutarlama.png',
+                                )
+                            ],
+                        ),
+                        href='/value', style={"width": "310px"},
+                    )
+                ]
+            ),
+            className="mt-2 col-lg-3 col-md-6 col-sm-12",
+        ),
+        dbc.Col(
+            html.Div(
+                className="row justify-content-center",
+                children=[
+                    dcc.Link(
+                        html.Div(
+                            className="mt-2 justify-content-center",
+                            style={
+                                'border': '1px solid red',
+                                'width': '300px',
+                                'height': '200px',
+                                'borderRadius': '10px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'background-color': 'lightgray',
+                            },
+                            children=[
+                                html.Div(
+                                    style={
+                                        'font-size': '18px',
+                                        'color': 'White',
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
+                                    },
+                                    children=""
+                                ),
+                                html.Img(
+                                    src='/assets/Üretim Raporları.png',
+                                )
+                            ],
+                        ),
+                        href='/uretimrapor', style={"width": "310px"},
+                    )
+                ]
+            ),
+            className="mt-2 col-lg-3 col-md-6 col-sm-12",
+        ),
+        dbc.Col(
+            html.Div(
+                className="row justify-content-center",
+                children=[
+                    dcc.Link(
+                        html.Div(
+                            className="mt-2 justify-content-center",
+                            style={
+                                'border': '1px solid red',
+                                'width': '300px',
+                                'height': '200px',
+                                'borderRadius': '10px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'background-color': 'lightgray',
+                            },
+                            children=[
+                                html.Div(
+                                    style={
+                                        'font-size': '18px',
+                                        'color': 'White',
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
+                                    },
+                                    children=""
+                                ),
+                                html.Img(
+                                    src='/assets/Yislem.png',
+                                )
+                            ],
+                        ),
+                        href='/deneme', style={"width": "310px"},
+                    )
+                ]
+            ),
+            className="mt-2 col-lg-3 col-md-6 col-sm-12",
+        ),
+        dbc.Col(
+            html.Div(
+                className="row justify-content-center",
+                children=[
+                    dcc.Link(
+                        html.Div(
+                            className="mt-2 justify-content-center",
+                            style={
+                                'border': '1px solid red',
+                                'width': '300px',
+                                'height': '200px',
+                                'borderRadius': '10px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'background-color': 'lightgray',
+                                'background-image': '/assets/Taslama.png',
+                            },
+                            children=[
+                                html.Div(
+                                    style={
+                                        'font-size': '18px',
+                                        'color': 'White',
+                                        "border-radius": "20px"
+                                    },
+                                    children=""
+                                ),
+                                html.Img(
+                                    src='/assets/Üretim takip.png',
+                                )
+                            ],
+                        ),
+                        href='/liveprd', style={"width": "310px"},
+                    )
+                ]
+            ),
+            className="mt-2 col-lg-3 col-md-6 col-sm-12",
+        ),
+    ], className="mt-5"),
 
-                 dbc.Row([
-                     dbc.Col(
-                         dcc.Link(
-                             children=[
-                                 html.Div([
-                                     html.Img(src='/assets/wc.link.png', style={"width": "280px", "height": "190px"}),
-                                     html.H4("İş Merkezi Raporu", style={
-                                         'color': 'white',
-                                         'font-weight': 'bold',
-                                         'position': 'absolute',
-                                         'bottom': '0',
-                                         'left': '10%'
-                                     })
-                                 ])
-                             ],
-                             href='/wcreport',
-                         ),
-                         width=6,
-                         style={"position": "relative", "padding": 0, "margin": 0}
-                     ),
-                     dbc.Col(
-                         dcc.Link(
-                             children=[
-                                 html.Div([
-                                     html.Img(src='/assets/live.link.png', style={"width": "280px", "height": "190px"}),
-                                     html.H4("Üretim Canlı Takip", style={
-                                         'color': 'white',
-                                         'font-weight': 'bold',
-                                         'position': 'absolute',
-                                         'bottom': '0',
-                                         'right': '10%'
-                                     })
-                                 ])
-                             ],
-                             href='/liveprd',
-                         ),
-                         width=6,
-                         style={"position": "relative", "padding": 0, "margin": 0}
-                     ),
-                 ], className="justify-content-center align-items-center", style={"margin": 0}),
-                 dcc.Link(
-                     children='Energy Consumption',
-                     href='/energy',
-                 ),
-                 dcc.Link(
-                     children='CNC Torna Tv',
-                     href='/cnctotv',
-                 )
+    dbc.Row(
+        [
+            dbc.Col(
+                html.Div(
+                    className="row justify-content-center",
+                    children=[
+                        dcc.Link(
+                            html.Div(
+                                className="mt-2 justify-content-center",
+                                style={
+                                    # 'border': '1px solid red',
+                                    'width': '300px',
+                                    'height': '200px',
+                                    'borderRadius': '10px',
+                                    'display': 'flex',
+                                    'alignItems': 'center',
+                                    'justifyContent': 'center',
+                                    'background-color': 'lightgray',
+                                },
+                                children=[
+                                    html.Div(
+                                        style={
+                                            'font-size': '18px',
+                                            'color': 'White',
+                                            'position': 'absolute',
+                                            "border-radius": "20px"
+                                        },
+                                        children=""
+                                    ),
+                                    html.Img(
+                                        src='/assets/TV-Monitor.png',
+                                    )
+                                ],
+                            ),
+                            href='/tvmonitor', style={"width": "310px"},
+                        )
+                    ]
+                ),
+                className="mt-2 col-lg-3 col-md-6 col-sm-12",
+            ),
+        ], style={'justify-content': 'center'}, className='mt-5',
+    ),
+], style={"height": "100vh", "position": "relative"}, fluid=True)
 
-             ]),
-    dcc.Link(
-        children='dragtester',
-        href='/dragtester',
-    ),
-    dcc.Link(
-        children='Taslama Tv',
-        href='/taslamatv',
-    ),
-    dcc.Link(
-        children='Montaj Tv',
-        href='/montajtv',
-    ),
-    dcc.Link(
-        children='Yüzey İşlem Tv',
-        href='/yislemtv',
-    ),
-    dcc.Link(
-        children='Kamera Ayıklama Sonuçlar',
-        href='/camayik',
-    )
 
-], fluid=True, style={"height": "100vh", "position": "relative"})
 
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######

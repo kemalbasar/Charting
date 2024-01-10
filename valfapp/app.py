@@ -25,7 +25,7 @@ app = dash.Dash(
     __name__,
     meta_tags=[{'name': 'viewport',
                 'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
-    external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"],
+    external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js","/website/css/uicons-outline-rounded.css","https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"],
     external_stylesheets=[dbc.themes.PULSE],
     suppress_callback_exceptions=True)
 
