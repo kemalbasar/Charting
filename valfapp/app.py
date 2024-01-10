@@ -118,8 +118,8 @@ def prdconf(params=None):
 
     gann_data = get_gann_data(df=pd.concat([prd_conf,non_times]))
 
-    df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0, ["COSTCENTER", "MATERIAL", "QTY", "CONFIRMATION"
-        , "CONFIRMPOS", "WORKSTART", "WORKEND", "BADDATA_FLAG"]]
+    df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0, ["COSTCENTER","WORKCENTER", "MATERIAL", "QTY", "CONFIRMATION"
+        , "CONFIRMPOS", "WORKSTART", "WORKEND","RUNTIME", "IDEALCYCLETIME", "BADDATA_FLAG"]]
     df_baddatas["CONFIRMATION"] = df_baddatas["CONFIRMATION"].astype('str')
     df_baddatas.drop_duplicates(inplace=True)
     df_baddata_rates = prd_conf[prd_conf["CONFTYPE"] == "Uretim"].groupby(["COSTCENTER", "BADDATA_FLAG"]).agg(

@@ -169,8 +169,11 @@ layout = dbc.Container([
                      style={"position": "absolute", "right": "0", "top": "-1", "width": "100px", "height": "35px"}),
          html.Button("Details Data", id="download-button2", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
                      style={"position": "absolute", "right": 100, "top": "-1", "width": "100px", "height": "35px"}),
+         html.Button("Bad Data", id="download-button3", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+                     style={"position": "absolute", "right": 100, "top": 98, "width": "100px", "height": "35px"}),
          dcc.Download(id="download-data"),
-         dcc.Download(id="download-data2")], ),
+         dcc.Download(id="download-data2"),
+         dcc.Download(id="download-data3")], ),
 
     dbc.Row(id='flam', children=[dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,
                                          style={"height": 600, "margin-left": 100 if i % 2 == 0 else 180}) for i in
@@ -420,3 +423,22 @@ def generate_excel2(n_clicks, costcenter, oeelist2w):
     dff2 = oeelist2w[oeelist2w["COSTCENTER"] == costcenter]
 
     return dcc.send_data_frame(dff2.to_excel, "yourdata.xlsx", index=False)
+
+@app.callback(
+    Output("download-data3", "data"),
+    Input("download-button3", "n_clicks"),
+    State("costcenter1", "value"),
+    State(component_id='oeelistw4', component_property='data'),
+    prevent_initial_call=True
+)
+def generate_excel2(n_clicks, costcenter, oeelistw4):
+    oeelistw4 = pd.read_json(oeelistw4, orient='split')
+    # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
+    #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
+    #     "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
+
+    # backup_df.reset_index(inplace=True)
+    print("download HATALI VERİ detay butonun ordayım")
+    dff2 = oeelistw4[oeelistw4["COSTCENTER"] == costcenter]
+
+    return dcc.send_data_frame(dff2.to_excel, "BADdata.xlsx", index=False)

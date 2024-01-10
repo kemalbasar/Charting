@@ -164,7 +164,6 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df_metrics.fillna(0, inplace=True)
     # df_metrics["FLAG_BADDATA"] = [1 if df_metrics["PERFORMANCE"][row]> 1.2 else 0
     #                               for row in df_metrics.index]
-    df_metrics.to_excel(r"F:\pycarhm projects\Charting\outputs(xlsx)\1234.xlsx")
     df_metrics_forwc = df_metrics.copy()
     df_metrics_forpers = df_metrics.groupby(["DISPLAY", "COSTCENTER"]).agg({"QTY": "sum",
                                                                             "SCRAPQTY": "sum",
@@ -272,7 +271,9 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         #        df_piechart_final["OPR"]["SESSIONTIME2"] = str(int(df_piechart_final["OPR"]["SESSIONTIME2"])) + '%'
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
-    return details, df_metrics, df_metrics_forwc, df_metrics_forpers
+    df_metrics = pd.concat([df_metrics, nontimes])
+    print(df_metrics)
+    return details,df_metrics, df_metrics_forwc, df_metrics_forpers
 
 
 # df_oee, df_metrics = calculate_oeemetrics()
