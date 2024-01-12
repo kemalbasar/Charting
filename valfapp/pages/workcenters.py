@@ -385,7 +385,7 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
     prevent_initial_call=True
 
 )
-def generate_excel(n_clicks, costcenter, oeelist3w):
+def generate_excel_oee(n_clicks, costcenter, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist3w = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
     columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME', 'TOTALTIME',
@@ -412,7 +412,7 @@ def generate_excel(n_clicks, costcenter, oeelist3w):
     State(component_id='oeelistw2', component_property='data'),
     prevent_initial_call=True
 )
-def generate_excel2(n_clicks, costcenter, oeelist2w):
+def generate_excel_breakdowns(n_clicks, costcenter, oeelist2w):
     oeelist2w = pd.read_json(oeelist2w, orient='split')
     # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
     #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
@@ -420,7 +420,7 @@ def generate_excel2(n_clicks, costcenter, oeelist2w):
 
     # backup_df.reset_index(inplace=True)
     print("download detay butonun ordayım")
-    dff2 = oeelist2w[oeelist2w["COSTCENTER"] == costcenter]
+    dff2 = oeelist2w.loc[((oeelist2w["COSTCENTER"] == costcenter) & (oeelist2w["CONFTYPE"] != "Uretim"))]
 
     return dcc.send_data_frame(dff2.to_excel, "yourdata.xlsx", index=False)
 
@@ -431,7 +431,7 @@ def generate_excel2(n_clicks, costcenter, oeelist2w):
     State(component_id='oeelistw4', component_property='data'),
     prevent_initial_call=True
 )
-def generate_excel2(n_clicks, costcenter, oeelistw4):
+def generate_excel_baddatas(n_clicks, costcenter, oeelistw4):
     oeelistw4 = pd.read_json(oeelistw4, orient='split')
     # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
     #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
