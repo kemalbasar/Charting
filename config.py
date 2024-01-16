@@ -1,11 +1,6 @@
 import pandas as pd
 from datetime import datetime
 
-server = '172.30.134.12'
-database = 'VALFSAN604'
-database_iot = 'VALFAN_IOT_001'
-username = 'Fatih'
-password = '123456fO.'
 
 reengen_username = "takgun@valfsan.com.tr"
 reengen_password = '1234Ta1234'
