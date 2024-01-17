@@ -203,11 +203,3 @@ def show_div(n,col,row,k, changelayout,listofdivs):
               [Input('interval-component', 'n_intervals')])
 def update_date(n):
       return [html.P(str(datetime.now().strftime("%H:%M:%S")))]
-# @app.callback(
-#     Output("wc-output-container_yislem_real", "children"),
-#     Input("play", "n_clicks"),
-#     State("inp_col", "value"),
-#     State("inp_row", "value"),
-# )
-# def show_div(proceed_but,col,row):
-#     return update_ind_fig(col,row)
