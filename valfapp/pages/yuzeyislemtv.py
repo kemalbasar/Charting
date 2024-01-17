@@ -105,12 +105,19 @@ def update_ind_fig(col_num,row_num):
 
 
 
-layout = [dcc.Link(
-    children='Main Page',
-    href='/',
-    style={"height": 40, "color": "black", "font-weight": "bold"}
-
-),
+layout = [html.Div([
+    dcc.Link(
+        children='Ana Sayfa',
+        href='/',
+        style={"height": 40, "color": "black", "font-weight": "bold"}),
+    html.Div(id='live-update-text',
+             style={"color": "black", "font-weight": "bold",'font-size': '25px','margin-left':1300}),
+    dcc.Interval(
+            id='interval-component',
+            interval=1*1000, # in milliseconds
+            n_intervals=0
+    )
+]),
     dcc.Store(id="list_of_stationss"),
     # dcc.Store(id="wc-output-container_yislem_tmp", data=update_ind_fig(2,4)),
     dcc.Store(id="update_flag"),
@@ -148,7 +155,7 @@ layout = [dcc.Link(
                     persistence=True,  # Enable persistence
                     persistence_type='local'  # Store in local storage
                 ),
-               html.Button("Proceed",n_clicks=0, id="proceed_but", style={'width': '50px'})
+               html.Button("Proceed",n_clicks=0, id="proceed_but", style={'width': '20px'})
         ], className="g-0"),
 
     ], width=12,style= {"margin-left":100}),
@@ -192,6 +199,10 @@ def show_div(n,col,row,k, changelayout,listofdivs):
     else:
         return listofdivs[k], k + 1,listofdivs
 
+@app.callback(Output('live-update-text', 'children'),
+              [Input('interval-component', 'n_intervals')])
+def update_date(n):
+      return [html.P(str(datetime.now().strftime("%H:%M:%S")))]
 # @app.callback(
 #     Output("wc-output-container_yislem_real", "children"),
 #     Input("play", "n_clicks"),

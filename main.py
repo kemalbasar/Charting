@@ -1,23 +1,8 @@
-# layouyt =[dcc.Dropdown(id="costcenter1",
-#                       className='dropdown-style',
-#                       options=[{"label": cc, "value": cc} for cc in costcenters],
-#                       multi=False,
-#                       value="CNC",
-#                       ),
-# dbc.Graph(id='line_graph')
-#
-# ]
-#
-#
-#
-#
-# df = ag.runquer("select - from ıasprdorder")
-#
-#
-# @app.Callback(
-#     Input("costcenter1",type=dropdown),
-#     Output("line_graph",type=figure)
-# )
-# def costcentertolayout(costcenter):
-#     df = df.loc[df["COSTCENTER"] = costcenter]
-#     return px.line(data = df)
+a = [["fig", "fig1", "fig2"], ["data_ic", "data_es", "data_dis"], ["df_ic", "df_es", "df_dis"]]
+c=[]
+for i in range(3):
+    b = []
+    for j in range(3):
+        b.append(a[j][i])
+    c.append(b)
+c
