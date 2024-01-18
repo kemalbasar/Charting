@@ -395,6 +395,44 @@ layout_12_loginpage = dbc.Container([
                 ),
                 className="mt-2 col-lg-3 col-md-6 col-sm-12",
             ),
+            dbc.Col(
+                html.Div(
+                    className="row justify-content-center",
+                    children=[
+                        dcc.Link(
+                            html.Div(
+                                className="mt-2 justify-content-center",
+                                style={
+                                    # 'border': '1px solid red',
+                                    'width': '300px',
+                                    'height': '200px',
+                                    'borderRadius': '10px',
+                                    'display': 'flex',
+                                    'alignItems': 'center',
+                                    'justifyContent': 'center',
+                                    'background-color': 'lightgray',
+                                },
+                                children=[
+                                    html.Div(
+                                        style={
+                                            'font-size': '18px',
+                                            'color': 'White',
+                                            'position': 'absolute',
+                                            "border-radius": "20px"
+                                        },
+                                        children=""
+                                    ),
+                                    html.Img(
+                                        src='/assets/enerji.png',
+                                    )
+                                ],
+                            ),
+                            href='/energy', style={"width": "310px"},
+                        )
+                    ]
+                ),
+                className="mt-2 col-lg-3 col-md-6 col-sm-12",
+            ),
         ], style={'justify-content': 'center'}, className='mt-5',
     ),
 ], style={"height": "100vh", "position": "relative"}, fluid=True)

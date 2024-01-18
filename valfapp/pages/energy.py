@@ -37,158 +37,235 @@ def return_pie():
 
 
 layout = [
+    # Your commented-out buttons
     # dbc.Button("Day", id="btn-day_en", n_clicks=0, color="primary", className='day-button'),
     # dbc.Button("Week", id="btn-week1_en", n_clicks=0, color="primary", className='week-button'),
     # dbc.Button("Month", id="btn-month1_en", n_clicks=0, color="primary", className='month-button'),
     # dbc.Button("Year", id="btn-year1_en", n_clicks=0, color="primary", className='year-button'),
 
+    # Store and Download components
     dcc.Store(id='generated_data'), dcc.Download(id="download-energy"),
-    dbc.Row(html.H1("Valfsan Production Energy Consumption",
-                    style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,
-                           'backgroundColor': '#f0f0f0'})),
-    dbc.Row([
-        dbc.Col([
-            dbc.Row([
-                dbc.Col([
-                    dcc.Link(
-                        children='Main Page',
-                        href='/',
-                        style={"color": "black", "font-weight": "bold"}
-                    ),
-                    html.Br(),
-                    html.Br(),
-                    html.Div(
-                        [
-                            # Div for dropdowns and date pickers
-                            html.Div(
-                                [
-                                    dbc.Row([dcc.Dropdown(
-                                        id='machine-type-dropdown',
-                                        options=[{'label': k, 'value': k} for k in valftoreeg.keys()],
-                                        value=list(valftoreeg.keys())[0],  # Default value
-                                        style={'color': 'yellow', "width": 150}
-                                    ),
-                                        html.Br(),
-                                        dcc.Dropdown(
-                                            id='machine-dropdown',
-                                            style={'color': 'yellow', "width": 220},
-                                            value='Analizörler'
-                                        )]),
-                                    dcc.Dropdown(
-                                        id='date-dropdown',
-                                        options=['day', 'month'],
-                                        style={'color': 'yellow', 'font': {'color': 'white'}, "width": 150},
-                                        value='month'
-                                    ),
-                                    html.Br(),
-                                    dcc.DatePickerRange(
-                                        id='date-picker',
-                                        className="dash-date-picker-multi",
-                                        start_date=(date.today() - timedelta(weeks=1)).isoformat(),
-                                        end_date=(date.today()).isoformat(),
-                                        display_format='YYYY-MM-DD',
-                                        style={'color': '#212121'},
-                                        persistence=True, persistence_type='session'
-                                    )
-                                ],
-                                style={'display': 'inline-block', 'width': 'auto', 'marginRight': '20px'}
-                            ),
-                            # Separate Div for the button
-                            html.Div(
-                                [
-                                    html.Button(
-                                        'Search',
-                                        id='search',
-                                        className="dash-empty-button",
-                                        n_clicks=0,
-                                    ),
-                                    html.Button(
-                                        'Download',
-                                        id='download',
-                                        className="dash-empty-button",
-                                        n_clicks=0,
-                                    )
-                                ],
-                                style={'display': 'inline-block', 'textAlign': 'center'}
-                            )
-                        ],
 
-                    )], width=2),
-                dbc.Col([
-                    dcc.Graph(id="pie_chart", figure=return_pie())], width=5),
-                dbc.Col([dcc.Graph(id='example-graph', figure=fig)], width=1)
+    # Navigation Bar
+    html.Nav(className="main-menu side-bar", children=[
+        dbc.Container([
+            html.Div(className="logo-div resim-container", children=[
+                html.A(className="logo", href="/", children=[
+                    html.Img(src='/assets/valf-logo.gif', className="logo")
+                ])
             ]),
-            dbc.Row([
-                dash_table.DataTable(
-                    id="data_table",
-                    data=[],
-                    columns=[],
-                    filter_action='native',
-                    style_cell={
-                        "minWidth": "100px",
-                        "width": "100px",
-                        "maxWidth": "150px",
-                        "textAlign": "center",
-                        "padding": "10px"
-                    },
-                    style_table={
-                        'width': '100%',
-                        'margin': 'auto',
-                        'borderCollapse': 'collapse',
-                    },
-                    style_data_conditional=[
-                        {
-                            'if': {'row_index': 'odd'},
-                            'backgroundColor': 'rgb(248, 248, 248)'
-                        }
-                    ],
-                    style_header={
-                        'backgroundColor': 'rgb(230, 230, 230)',
-                        'fontWeight': 'bold'
-                    },
-                    sort_action='native',
-                ),
-                dash_table.DataTable(
-                    id="data_table_sum",
-                    data=[],
-                    columns=[],
-                    style_cell={
-                        "minWidth": "100px",
-                        "width": "100px",
-                        "maxWidth": "150px",
-                        "textAlign": "center",
-                        "padding": "10px"
-                    },
-                    style_table={
-                        'width': '100%',
-                        'margin': 'auto',
-                        'borderCollapse': 'collapse',
-                    },
-                    style_data_conditional=[
-                        {
-                            'if': {'row_index': 'odd'},
-                            'backgroundColor': 'rgb(248, 248, 248)'
-                        }
-                    ],
-                    style_header={
-                        'backgroundColor': 'rgb(230, 230, 230)',
-                        'fontWeight': 'bold'
-                    },
-                    sort_action='native',
-                )
-
-            ], style={"marginTop": 50}
-            )
+            html.Div(className="settings"),
+            html.Div(id="style-1", className="scrollbar", children=[
+                html.Ul(children=[
+                    html.Li(children=[
+                        html.A(href="/", children=[
+                            html.Img(src="../assets/home.png", className="nav-icon"),
+                            html.Span(className="nav-text nav-text-2", children="MAIN")
+                        ])
+                    ]),
+                    html.Li(className="darkerlishadow",children=[
+                        html.A(href="/value", children=[
+                            html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
+                            html.Span(className="nav-text", children="Tutarlama")
+                        ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/uretimrapor", children=[
+                            html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Üretim Raporları")
+                        ])
+                    ]),
+                    html.Li(className="darkerli", children=[
+                        html.A(href="/liveprd", children=[
+                            html.Img(src="../assets/uretim-takip-icon.PNG", className="nav-icon"),
+                            html.Span(className="nav-text", children="Üretim Takip")
+                        ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/tvmonitor", children=[
+                            html.Img(src="../assets/tvmonitor-ıcon.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Tv Monitor")
+                        ])
+                    ]),
+                    html.Ul(className="darkerlishadowdown", children=[
+                        html.Li(children=[
+                            html.A(href="/energy", children=[
+                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
+                                html.Span(className="nav-text", children="Energy")
+                            ])
+                        ])
+                    ])
+                ])
+            ])
         ]),
-        dbc.Col([
-            html.Div(id="wc-output-container_energy"), ]
-            , width=4)
     ]),
-    dbc.Row([
-        dbc.Col(),
 
-    ])
+    # Energy Search and Filter Components
+    dbc.Container(
+        children=[
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.Div(
+                            [
+                                dcc.Dropdown(
+                                    id='machine-type-dropdown',
+                                    options=[
+                                        {'label': k, 'value': k}
+                                        for k in valftoreeg.keys()
+                                    ],
+                                    value=list(valftoreeg.keys())[0],
+                                    style={
+                                        'color': 'white',
+                                        'width': 150,
+                                        'marginBottom': '20px',
+                                    },
+                                ),
+                                dcc.Dropdown(
+                                    id='machine-dropdown',
+                                    style={
+                                        'color': 'white',
+                                        'width': 220,
+                                        'marginBottom': '20px',
+                                    },
+                                    value='Analizörler',
+                                ),
+                                dcc.Dropdown(
+                                    id='date-dropdown',
+                                    options=[
+                                        {'label': i, 'value': i}
+                                        for i in ['Day', 'Month']
+                                    ],
+                                    style={
+                                        'color': 'white',
+                                        'font': {'color': '#2149b4'},
+                                        'width': 150,
+                                        'marginBottom': '20px',
+                                    },
+                                    value='month',
+                                ),
+                            ],
+                            style={'width': 'auto',"margin-left":"50px"},
+                        ),
+                        className="col-lg-6 col-md-6 mx-auto",
+                    ),
+                    dbc.Col(
+                        html.Div(
+                            [
+                                dcc.DatePickerRange(
+                                    id='date-picker',
+                                    className="dash-date-picker-multi",
+                                    start_date=(date.today() - timedelta(weeks=1)).isoformat(),
+                                    end_date=(date.today()).isoformat(),
+                                    display_format='YYYY-MM-DD',
+                                    style={'color': '#212121'},
+                                    persistence=True,
+                                    persistence_type='session',
+                                ),
+                                html.Button(
+                                    'Search',
+                                    id='search',
+                                    className="dash-empty-button",
+                                    n_clicks=0,
+                                    style={'marginBottom': '20px'},
+                                ),
+                                html.Button(
+                                    'Download',
+                                    id='download',
+                                    className="dash-empty-button",
+                                    n_clicks=0,
+                                    style={'marginBottom': '20px'},
+                                ),
+                            ],
+                            style={'text-align': 'center'},
+                        ),
+                        className="col-lg-6 col-md-6 mx-auto",
+                    ),
+                ],
+            ),
+        ],
+    ),
+
+   html.Div([
+    dbc.Row([
+        dbc.Col(
+            dcc.Graph(id="pie_chart", figure=return_pie()),
+            className="col-lg-4 col-md-12",
+        ),
+        dbc.Col(
+            html.Div([
+                dcc.Graph(id='example-graph', figure=fig),
+                html.Div(id="wc-output-container_energy", className="col-lg-4"),
+            ]),
+            className="col-lg-4 col-md-12 mt-5",
+        ),
+        dbc.Col(
+            html.Div(id="wc-output-container_energy", className="col-lg-4", style={"width":"400px"}), style={"margin-left":"49px","margin-top":"5px"}
+        ),
+        dbc.Col(
+            
+        ),
+    ]),
+    ],style={"margin-left":"100px"}),
+
+    
+
+    dbc.Row([
+        dash_table.DataTable(
+            id="data_table",
+            data=[],
+            columns=[],
+            filter_action='native',
+            style_cell={
+                "textAlign": "center",
+                "padding": "10px",
+                "color":"black",
+            },
+            style_table={
+                'margin': 'auto',
+                'borderCollapse': 'collapse',
+            },
+            style_data_conditional=[
+                {
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': 'rgb(248, 248, 248)'
+                }
+            ],
+            style_header={
+                'backgroundColor': 'rgb(230, 230, 230)',
+                'fontWeight': 'bold'
+            },
+            sort_action='native',
+        ),
+        dash_table.DataTable(
+            id="data_table_sum",
+            data=[],
+            columns=[],
+            style_cell={
+                "textAlign": "center",
+                "padding": "10px",
+                "color":"black",     
+            },
+            style_table={
+                'margin': 'auto',
+                'borderCollapse': 'collapse',
+                "margin-top": "20px",
+            },
+            style_data_conditional=[
+                {
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': 'rgb(248, 248, 248)'
+                }
+            ],
+            style_header={
+                'backgroundColor': 'rgb(230, 230, 230)',
+                'fontWeight': 'bold'
+            },
+            sort_action='native',
+        )
+    ], style={"marginTop": 50, "margin-left":"50px"}, className="col-md-2"),
 ]
+
 
 
 # Define the callback to update the second dropdown

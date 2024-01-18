@@ -1,6 +1,6 @@
-img {
+/* img {
     border-radius: 10px;
-}
+} */
 
 .valfsan-logo {
     width: 150px;
@@ -14,13 +14,18 @@ img {
 
 /*Enes Sidenavbar CSS*/
 
+
 body {
     margin: 0;
     padding: 0;
     font-family: "Open Sans", arial;
-    background-color: #8a8a8a;
+    background-color: #b2b2b2b2;
     color: #fff;
     font-weight: 300;
+}
+
+.link-hover a:hover {
+    background-color: #8a8a8a
 }
 
 @import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
@@ -59,7 +64,7 @@ body {
 }
 
 .sidebar {
-    /* Sidebar ile ilgili stil tanımları */
+    z-index: 1000;
 }
 
 .resim-container {
@@ -149,7 +154,7 @@ nav.main-menu.expanded {
 
 .main-menu {
     background: #F7F7F7;
-    position: absolute;
+    position: fixed;
     top: 0;
     bottom: 0;
     height: 100%;
@@ -161,7 +166,10 @@ nav.main-menu.expanded {
     -webkit-transform: translateZ(0) scale(1, 1);
     box-shadow: 1px 0 15px rgba(0, 0, 0, 0.07);
     opacity: 1;
+    z-index: 1000;
 }
+
+.div-hover {}
 
 .main-menu>ul {
     margin: 7px 0;
@@ -193,11 +201,13 @@ nav.main-menu.expanded {
 .main-menu .nav-icon {
     position: relative;
     display: table-cell;
-    width: 55px;
-    height: 36px;
+    width: 20px;
+    height: 17px;
     text-align: center;
     vertical-align: middle;
-    font-size: 18px;
+    top: 10px;
+    left: 5px;
+    font-weight: 300;
 }
 
 .main-menu .nav-text {
@@ -206,8 +216,14 @@ nav.main-menu.expanded {
     width: 190px;
     font-family: 'Titillium Web', sans-serif;
     margin-top: 10px;
-    font-size: 17px;
+    margin-right: 10px;
+    font-size: 22px;
+    color: #2149b4;
 
+}
+
+.nav-text-2 {
+    font-weight: 1000 !important;
 }
 
 a:hover,
@@ -291,21 +307,22 @@ nav.main-menu li.active>a,
 
 /* dropdown menu options */
 .VirtualizedSelectOption {
-    background-color: #593096;
+    background-color: #2149b4;
     color: white;
 }
 
 
 /* dropdown menu hover effect */
 .VirtualizedSelectFocusedOption {
-    background-color: rgba(141, 123, 169, 0.81);
+    background-color: #2149b4;
     opacity: .7;
+    color: whitesmoke;
 }
 
 .dropdown-style {
     /*color: white; !* Set font color to white *!*/
     width: 150px;
-    background-color: #593096;
+    background-color: #2149b4;
     /* Purple background color */
     text-align: center;
     display: inline-block;
@@ -318,19 +335,17 @@ nav.main-menu li.active>a,
 }
 
 .Select-control {
-    background-color: #593096 !important;
-    color: white;
+    background-color: #2149b4 !important;
+    color: black;
 }
 
-/*.Select-menu-outer {*/
-/*    background-color: #593096;*/
-/*    color: white;*/
-/*}*/
+.Select-menu-outer {
+    color: black;
+}
 
-/*.Select-value-label {*/
-/*    background-color: #593096;*/
-/*    color: white !important;*/
-/*}*/
+.Select-value-label {
+    color: white !important;
+}
 
 
 /*.Select-placeholder,*/
@@ -344,7 +359,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 100px;
     /* height of the square button */
-    background-color: #593096;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
@@ -368,6 +383,7 @@ nav.main-menu li.active>a,
     left: 300px;
     /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 34px;
+    color: whitesmoke;
 }
 
 .estop-button:hover {
@@ -381,7 +397,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 100px;
     /* height of the square button */
-    background-color: #593096;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
@@ -455,7 +471,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 50px;
     /* height of the square button */
-    background-color: #593096;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
@@ -493,7 +509,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 50px;
     /* height of the square button */
-    background-color: #593096;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
@@ -531,7 +547,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 50px;
     /* height of the square button */
-    background-color: #593096;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
@@ -569,7 +585,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 50px;
     /* height of the square button */
-    background-color: #593096;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
@@ -608,7 +624,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 60px;
     /* height of the square button */
-    background-color: #593096;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
@@ -649,7 +665,7 @@ nav.main-menu li.active>a,
 
 
 .dash-date-picker input {
-    background-color: #593096;
+    background-color: #2149b4;
     color: white;
 }
 
@@ -666,7 +682,7 @@ nav.main-menu li.active>a,
 
 
 .dash-date-picker-multi input {
-    background-color: #593096;
+    background-color: #2149b4;
     color: white;
 }
 
@@ -675,7 +691,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 40px;
     /* height of the square button */
-    background-color: #593096;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
