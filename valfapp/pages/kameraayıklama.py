@@ -428,20 +428,20 @@ def draw_dist_plot(material, data):
 
         data_interval['OKNOTOK'] = np.where(
             (data_interval['MAXIMUM'] > data_interval['MTYPENOM'] * 1.01) | (data_interval['MINIMUM'] < data_interval['MTYPENOM'] * 0.99),
-            'NOTOK',
-            'OK'
+            'RED',
+            'KABUL'
         )
 
         data_interval.sort_values(by="MINIMUM", inplace=True)
 
         # Loop through the data and add traces
+        dtick_value = (data_interval["midpoints"].max() - data_interval["midpoints"].min()) / 20
 
         for i, row in data_interval.iterrows():
             if row["QUANTITY"] > 0:
-                marker_symbol = "circle" if row["OKNOTOK"] == "OK" else "circle-x"
-                row["QUANTITY"] = row["QUANTITY"] * 100 if row["OKNOTOK"] == 'NOTOK' else row["QUANTITY"]
+                marker_symbol = "circle" if row["OKNOTOK"] == "KABUL" else "circle-x"
+                row["QUANTITY"] = row["QUANTITY"] * 100 if row["OKNOTOK"] == 'RED' else row["QUANTITY"]
                 marker_size = scale_size(row["QUANTITY"])
-
                 figure.add_trace(go.Scatter(
                     x=[row["midpoints"]],
                     y=[row["OKNOTOK"]],
@@ -457,11 +457,12 @@ def draw_dist_plot(material, data):
 
         # Update layout and annotations as before
         figure.update_layout(
-            xaxis=dict(title='Midpoints', title_font=dict(size=20, family='Arial')),
-            yaxis=dict(title='Quantity', title_font=dict(size=20, family='Arial')),
+            plot_bgcolor='FloralWhite',
+            xaxis=dict( autorange='reversed',title='Midpoints', title_font=dict(size=20, family='Arial'),dtick=dtick_value),
+            yaxis=dict(title='KABUL-RED', title_font=dict(size=20, family='Arial'),type='category'),
             title=dict(text='İç Çap', y=0.95, font=dict(size=25, family='Arial')),
             legend=dict(x=0, y=1.1, traceorder="normal", orientation="h"),
-            height=500,
+            height=400,
             annotations=[
                 dict(
                     text=f"Gözlem Sayısı : {data_interval['QUANTITY'].sum()}",

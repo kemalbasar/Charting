@@ -6,8 +6,8 @@
 #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
 /* dropdown menu options */
 .VirtualizedSelectOption {
-    background-color: #593096;
-    color: white;
+    background-color: #EFE6B8EF;
+    color: black;
  }
 
 
@@ -18,36 +18,36 @@
 }
 
 .dropdown-style {
-    /*color: white; !* Set font color to white *!*/
+    /*color: black; !* Set font color to black *!*/
     width: 150px;
-    background-color: #593096; /* Purple background color */
+    background-color: #EFE6B8EF; /* Purple background color */
     text-align: center;
     display: inline-block;
     transition-duration: 0.4s; /* Transition effect duration */
-    border-radius: 0; /* Square shape */
+    border-radius: 70; /* Square shape */
     padding: 0; /* No padding */
 }
 
 /*.Select-control {*/
-/*    background-color: #593096 !important;*/
-/*    color:white;*/
+/*    background-color: #EFE6B8EF !important;*/
+/*    color:black;*/
 /*  }*/
 
 .Select-menu-outer {
-    background-color: #593096 !important;
-    color: white;
+    background-color: #EFE6B8EF !important;
+    color: black;
 }
 
 
 
-/*.Select-value-label {*/
-/*    background-color: #593096;*/
-/*    color: white !important;*/
-/*}*/
+.Select-value-label {
+    background-color: #EFE6B8EF;
+    color: black !important;
+}
 
 
 .Select-control .Select-value, .Select-placeholder  {
-    background-color: #593096 !important;
+    background-color: #EFE6B8EF !important;
 }
 
 #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
@@ -56,15 +56,15 @@
 .estop-button {
     width: 100px;    /* width of the square button */
     height: 100px;   /* height of the square button */
-    background-color: #593096;  /* button color */
+    background-color: #EFE6B8EF;  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 48px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;/* no padding */
@@ -74,21 +74,21 @@
 
 .estop-button:hover {
     background-color: #45a049;  /* color when mouse hovers over */
-    color: white;
+    color: black;
 }
 
 .wc-button {
     width: 100px;    /* width of the square button */
     height: 100px;   /* height of the square button */
-    background-color: #593096;  /* button color */
+    background-color: #EFE6B8EF;  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 48px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;/* no padding */
@@ -98,7 +98,7 @@
 
 .wc-button:hover {
     background-color: #45a049;  /* color when mouse hovers over */
-    color: white;
+    color: black;
 }
 
 
@@ -107,13 +107,13 @@
     height: 100px;   /* height of the square button */
     background-color: #FF6347;  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 48px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;
     position: absolute;/* no padding */
@@ -123,20 +123,20 @@
 
 .pers-button:hover {
     background-color: #45a049;  /* color when mouse hovers over */
-    color: white;
+    color: black;
 }
 .day-button {
     width: 50px;    /* width of the square button */
     height: 50px;   /* height of the square button */
-    background-color: #593096 ;  /* button color */
+    background-color: #EFE6B8EF ;  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 16px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
@@ -146,21 +146,21 @@
 
 .day-button:hover {
     background-color: #45a049;  /* color when mouse hovers over */
-    color: white;
+    color: black;
 }
 
 .week-button {
     width: 50px;    /* width of the square button */
     height: 50px;   /* height of the square button */
-    background-color: #593096;  /* button color */
+    background-color: #EFE6B8EF;  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 16px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
@@ -170,21 +170,21 @@
 
 .week-button:hover {
     background-color: #45a049; /* color when mouse hovers over */
-    color: white;
+    color: black;
 }
 
 .month-button {
     width: 50px;    /* width of the square button */
     height: 50px;   /* height of the square button */
-    background-color: #593096;  /* button color */
+    background-color: #EFE6B8EF;  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 16px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
@@ -194,21 +194,21 @@
 
 .month-button:hover {
     background-color: #45a049; /* color when mouse hovers over */
-    color: white;
+    color: black;
 }
 
 .year-button {
     width: 50px;    /* width of the square button */
     height: 50px;   /* height of the square button */
-    background-color: #593096;  /* button color */
+    background-color: #EFE6B8EF;  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 16px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
@@ -218,21 +218,21 @@
 
 .year-button:hover {
     background-color: #45a049; /* color when mouse hovers over */
-    color: white;}
+    color: black;}
 
 
 .toggle-button {
     width: 80px;    /* width of the square button */
     height: 60px;   /* height of the square button */
-    background-color: #593096;  /* button color */
+    background-color: #EFE6B8EF;  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 16px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     position: absolute;  /* position relative to the closest positioned ancestor */
@@ -245,7 +245,7 @@
 .dash-date-picker {
     width: 150px;
     height: 60px;
-    border-radius: 0;
+    border-radius: 70;
     border: none;
     margin-left: 10px;
     display: inline-block;
@@ -254,39 +254,39 @@
 
 
 .dash-date-picker input {
-    background-color: #593096;
-    color: white;
+    background-color: #EFE6B8EF;
+    color: black;
 }
 
 .dash-date-picker-multi{
     width: 300px;
     height: 60px;
-    border-radius: 0;
+    border-radius: 70;
     border: none;
     margin-left: 10px;
     display: inline-block;
-    color:white;
+    color:black;
 
 }
 
 
 .dash-date-picker-multi input {
-    background-color: #593096;
-    color: white;
+    background-color: #EFE6B8EF;
+    color: black;
 }
 
 .dash-empty-button {
     width: 100px;    /* width of the square button */
     height: 40px;   /* height of the square button */
-    background-color: #593096;  /* button color */
+    background-color: rgba(239, 230, 184, 0.94);  /* button color */
     border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    color: black;  /* text (icon) color */
     text-align: center;
     display: inline-block;
     font-size: 16px;  /* icon size */
     transition-duration: 0.4s;  /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
+    border-radius: 70;  /* square shape */
     overflow: hidden;  /* in case of text exceeding button size */
     padding: 0;  /* no padding */
     /*position: absolute;  !* position relative to the closest positioned ancestor *!*/
