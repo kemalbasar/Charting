@@ -1,3 +1,4 @@
+from valfapp.configuration import layout_color
 from config import project_directory
 import pandas as pd
 import numpy as np
@@ -549,7 +550,7 @@ def indicator_for_tvs(status='white', fullname='',
                 color='black'
             )
         ),
-        "paper_bgcolor": status,
+        "paper_bgcolor": layout_color,
         "width": size["width"], "height": size["height"]})
 
     return fig
@@ -641,7 +642,7 @@ def indicator_for_yislem(status='white', fullname='',
         #     'tickangle': 45,
         #     'tickfont': {'size': 12, 'color': 'blue'}
         # },
-        "paper_bgcolor": status,
+        "paper_bgcolor": layout_color,
         "width": size["width"],
         "height": size["height"],
 

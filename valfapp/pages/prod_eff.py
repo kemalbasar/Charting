@@ -6,6 +6,8 @@ import plotly.express as px  # (version 4.7.0 or higher)
 from dash import dcc, html, Input, Output, State, callback_context, \
     no_update, exceptions  # pip install dash (version 2.0.0 or higher)
 import dash_bootstrap_components as dbc
+
+from valfapp.configuration import layout_color
 from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
     generate_for_sparkline, working_machinesf, indicator_with_color
 from run.agent import ag
@@ -473,7 +475,7 @@ def update_graph_bubble(option_slctd,oeelist2,dev_type):
     # figs.update_yaxes(categoryorder="total descending")
     figs.update_layout(xaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
                        yaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
-                       paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='white', font_color=summary_color,
+                       paper_bgcolor=layout_color, plot_bgcolor='white', font_color=summary_color,
                        title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420,
                        )
 
@@ -507,7 +509,7 @@ def update_chart_gann(option_slctd,oeelist2,dev_type):
     #                   marker_colors= px.colors.qualitative.Alphabet)
     figs.update_xaxes(type="date", tickangle=90, fixedrange=True)
     figs.update_yaxes(categoryorder="category ascending")
-    figs.update_layout(barmode='overlay', paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
+    figs.update_layout(barmode='overlay', paper_bgcolor= layout_color, plot_bgcolor='rgba(0, 0, 0, 0)',
                        font_color=summary_color,
                        title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420)
 
@@ -542,7 +544,7 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
                     zeroline=False,
                     showticklabels=False,
                 ),
-                "paper_bgcolor": "rgba(0,0,0,0)",
+                "paper_bgcolor": layout_color,
                 "plot_bgcolor": "rgba(0,0,0,0)",
                 "width": 225,
                 "height": 65
@@ -625,7 +627,7 @@ def create_scatterplot_for_scrapqty(costcenter,dates,dev_type):
     # figs.update_yaxes(categoryorder="total descending")
     fig.update_layout(xaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
                       yaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
-                      paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='white', font_color=summary_color,
+                      paper_bgcolor=layout_color, plot_bgcolor='white', font_color=summary_color,
                       title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420,
                       )
     return [fig]

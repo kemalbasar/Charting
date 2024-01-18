@@ -1,18 +1,18 @@
 import pandas as pd
 from datetime import datetime
 
-server = '*'
-database = '*'
-database_iot = '*'
-username = '*'
-password = '*'
+
+server = '172.30.134.12'
+database = 'VALFSAN604'
+database_iot = 'VALFAN_IOT_001'
+username = 'kemal'
+password = '1212whenwhen..'
+
 reengen_username = "takgun@valfsan.com.tr"
 reengen_password = '1234Ta1234'
 reengen_company = 'valfsan'
 
-
-
-project_directory = r"C:\Users\mstajyer\Desktop"
+project_directory = r"F:\pycarhm projects"
 
 directory = project_directory + r'\Charting\queries'
 dirofquery = project_directory + r'\Charting\queries\query2.txt'

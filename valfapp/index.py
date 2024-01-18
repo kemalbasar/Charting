@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 ### Import Dash Instance and Pages ###
 from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
-from valfapp.layouts import layout_27_loginpage, layout_12_loginpage
+from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
     tvmonitor,uretimrapor,deneme
 from flask import request,g
@@ -47,7 +47,7 @@ login_layout = dbc.Container([
 
 ### Index Page Layout ###
 
-index_layout = layout_12_loginpage
+index_layout = layout_12_loginpage_v2
 
 # Update the before_request method
 @app.server.before_request
