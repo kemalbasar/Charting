@@ -20,7 +20,6 @@ summary_color = 'black'
 wc_usage = ag.run_query("SELECT STAND FROM IASROU009 WHERE STAND != '*'")
 
 
-
 def apply_nat_replacer(x):
     x = str(x)
     if x == 'NaT':
@@ -37,7 +36,6 @@ pd.set_option('display.width', 500)
 pd.set_option('display.max_columns', None)
 
 
-
 def return_tops(graph1="fig_up1", margin_top=0, graph2="fig_up2", graph3="fig_up3"):
     return html.Div(children=[dcc.Graph(id=graph1, figure={}, style={"margin-top": margin_top})])
 
@@ -50,22 +48,23 @@ def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
                                         style={'width': '4vh', 'height': '2vh', "margin-top": 100,
                                                "margin-left": margin_left})])
 
-#Layouts for different devices
+
+# Layouts for different devices
 layout_27 = dbc.Container([
     dbc.Row(dcc.Link(
         children='Main Page',
         href='/',
-        style={"height":40,"color": "black", "font-weight": "bold"}
+        style={"height": 40, "color": "black", "font-weight": "bold"}
 
     )),
     dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                     date=date.today() + timedelta(days=-kb),
-                                     persistence=True,
-                                     persistence_type='memory'
-                                     ),
-        dbc.Col(
-            html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
-    ],style={}),
+                                  date=date.today() + timedelta(days=-kb),
+                                  persistence=True,
+                                  persistence_type='memory'
+                                  ),
+             dbc.Col(
+                 html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
+             ], style={}),
     html.Div(id='refresh3', style={'display': 'none'}),
     dbc.Row([
         dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button'),
@@ -73,23 +72,23 @@ layout_27 = dbc.Container([
         dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
         dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
         dcc.Store(id="work-dates", storage_type="memory",
-                  data={"workstart" : (date.today() - timedelta(days=kb)).isoformat(),
-                         "workend" :  (date.today() - timedelta(days=1)).isoformat(),
-                         "interval" : "day"}),
+                  data={"workstart": (date.today() - timedelta(days=kb)).isoformat(),
+                        "workend": (date.today() - timedelta(days=1)).isoformat(),
+                        "interval": "day"}),
         dcc.Location(id='location3', refresh=True),
         html.Div(id='output', children=''),
         dcc.Dropdown(id="costcenter", className="dropdown-style",
-                      options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
-                                                                     "TASLAMA", "MONTAJ",
-                                                                     "PRESHANE1", "PRESHANE2"]],
-                      multi=False,
-                      value='CNC',
-                      style={}
-                      )
-                 ]
+                     options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
+                                                                    "TASLAMA", "MONTAJ",
+                                                                    "PRESHANE1", "PRESHANE2"]],
+                     multi=False,
+                     value='CNC',
+                     style={}
+                     )
+    ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='memory',data='CNC'),
+    dcc.Store(id='store-costcenter', storage_type='memory', data='CNC'),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -162,21 +161,22 @@ layout_27 = dbc.Container([
     ])
 
 ], fluid=True)
+
 layout_12 = dbc.Container([
     dbc.Row(dcc.Link(
         children='Main Page',
         href='/',
-        style={"height":40,"color": "black", "font-weight": "bold"}
+        style={"height": 40, "color": "black", "font-weight": "bold"}
 
     )),
     dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                         date = date.today()-timedelta(1),
-                                         persistence = True,
-                                         persistence_type = 'memory'
+                                  date=(date.today() - timedelta(days=kb)),
+                                  persistence=True,
+                                  persistence_type='memory'
                                   ),
-        dbc.Col(
-            html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
-    ],style={}),
+             dbc.Col(
+                 html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
+             ], style={}),
     html.Div(id='refresh3', style={'display': 'none'}),
     dbc.Row([
         dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button'),
@@ -184,34 +184,34 @@ layout_12 = dbc.Container([
         dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
         dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
         dcc.Store(id="work-dates", storage_type="memory",
-                  data={"workstart" : (date.today() - timedelta(days=1)).isoformat(),
-                         "workend" :  date.today().isoformat(),
-                         "interval" : "day"}),
+                  data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
+                        "workend": date.today().isoformat(),
+                        "interval": "day"}),
         dcc.Location(id='location3', refresh=True),
         html.Div(id='output', children=''),
         dcc.Dropdown(id="costcenter", className="dropdown-style",
-                      options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
-                                                                     "TASLAMA", "MONTAJ",
-                                                                     "PRESHANE1", "PRESHANE2"]],
-                      multi=False,
-                      value='CNC',
-                      style={}
-                      )
-                 ]
+                     options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
+                                                                    "TASLAMA", "MONTAJ",
+                                                                    "PRESHANE1", "PRESHANE2"]],
+                     multi=False,
+                     value='CNC',
+                     style={}
+                     )
+    ]
     ),
 
-    dcc.Store(id='store-costcenter', storage_type='memory',data='CNC'),
+    dcc.Store(id='store-costcenter', storage_type='memory', data='CNC'),
     dbc.Row([
         dbc.Col([
             dbc.Row(html.Div([dcc.Graph(id='sunburst')],
-                             style={"margin-left":385,
+                             style={"margin-left": 385,
                                     })),
             dbc.Row([
                 dbc.Col([
                     dbc.Row(
                         html.H5("Production Summary",
                                 style={"background-color": "darkolivegreen", "text-align": "center",
-                                       "color": summary_color, "width": 1800,"margin-left":148})
+                                       "color": summary_color, "width": 1800, "margin-left": 148})
                     ),
                     dbc.Row([
                         dbc.Col(id="my-output1",
@@ -228,7 +228,7 @@ layout_12 = dbc.Container([
                             [return_sparks(graph1="fig_ppm", graph2="fig_scrap", margin_left=385)]
                             , width={"size": 1},
                             style={"padding-right": 300})],
-                    style={"margin-left":80}
+                        style={"margin-left": 80}
                     )
                 ], style={}, width={"size": 12})]
             ),
@@ -257,51 +257,49 @@ layout_12 = dbc.Container([
             ])
         ], width={"size": 9}),
         dbc.Row([dbc.Col([html.H5("Best Performances", style={"width": 400, "height": 25, "text-align": "center",
-                                                     "background-color": "darkolivegreen",
-                                                     "color": summary_color}),
-                 html.Div(return_tops(), style={"margin-left":35,"width": 350, "height": 250}),
-                 html.Div(return_tops(graph1="fig_up2"), style={"margin-left":35,"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_up3"), style={"margin-left":35,"width": 250, "height": 250})],
+                                                              "background-color": "darkolivegreen",
+                                                              "color": summary_color}),
+                          html.Div(return_tops(), style={"margin-left": 35, "width": 350, "height": 250}),
+                          html.Div(return_tops(graph1="fig_up2"),
+                                   style={"margin-left": 35, "width": 250, "height": 250}),
+                          html.Div(return_tops(graph1="fig_up3"),
+                                   style={"margin-left": 35, "width": 250, "height": 250})],
                          width=4, style={"border-right": "1px rgb(218, 255, 160) inset",
                                          "border-left": "1px rgb(218, 255, 160) inset",
                                          "border-top": "1px rgb(218, 255, 160) inset"}
                          ),
                  dbc.Col([html.H5("Worst Performances", style={"width": 400, "height": 25, "text-align": "center",
-                                                      "background-color": "red",
-                                                      "color": summary_color}),
-                 html.Div(return_tops(graph1="fig_down1"), style={"margin-left":35,"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_down2"), style={"margin-left":35,"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_down3"), style={"margin-left":35,"width": 250, "height": 250})],
-                         width=4,style= {"border-right": "1px rgb(218, 255, 160) inset",
-                            "border-left": "1px rgb(218, 255, 160) inset",
-                           "border-top": "1px rgb(218, 255, 160) inset",
-                                         "margin-left":80})
+                                                               "background-color": "red",
+                                                               "color": summary_color}),
+                          html.Div(return_tops(graph1="fig_down1"),
+                                   style={"margin-left": 35, "width": 250, "height": 250}),
+                          html.Div(return_tops(graph1="fig_down2"),
+                                   style={"margin-left": 35, "width": 250, "height": 250}),
+                          html.Div(return_tops(graph1="fig_down3"),
+                                   style={"margin-left": 35, "width": 250, "height": 250})],
+                         width=4, style={"border-right": "1px rgb(218, 255, 160) inset",
+                                         "border-left": "1px rgb(218, 255, 160) inset",
+                                         "border-top": "1px rgb(218, 255, 160) inset",
+                                         "margin-left": 80})
 
-                 ], style={"margin-left":120})
+                 ], style={"margin-left": 120})
     ])
 
 ], fluid=True)
 
-#Main Layout
+# Main Layout
 layout = html.Div([
-    dcc.Store(id='oeelist0',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[0]),
-    dcc.Store(id='oeelist1',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[1]),
-    dcc.Store(id='oeelist2',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[2]),
-    dcc.Store(id='oeelist6',data=prdconf(((date.today() - timedelta(days=kb)).isoformat(),date.today().isoformat(),"day"))[6]),
+    dcc.Store(id='oeelist0',
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[0]),
+    dcc.Store(id='oeelist1',
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[1]),
+    dcc.Store(id='oeelist2',
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[2]),
+    dcc.Store(id='oeelist6',
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[6]),
     dcc.Store(id='device-info-store'),
     html.Div(id='main-layout-div')
 ])
-
-# {k: pd.read_json(v, orient='split') for k, v in oee.items()}
-# metrics = pd.read_json(metrics, orient='split')
-# gann_data = pd.read_json(gann_data, orient='split')
-# df_metrics_forwc = pd.read_json(df_metrics_forwc, orient='split')
-# df_baddatas = pd.read_json(df_baddatas, orient='split')
-# df_baddata_rates = pd.read_json(df_baddata_rates, orient='split')
-# onemonth_prdqty = pd.read_json(onemonth_prdqty, orient='split')
-# df_metrics_forpers = pd.read_json(df_metrics_forpers, orient='split')
-# result = (oee, metrics, gann_data, df_metrics_forwc, df_baddatas, df_baddata_rates, onemonth_prdqty, df_metrics_forpers)
-# cache.set('oee_cached_data', result)
 
 
 @app.callback(
@@ -333,10 +331,9 @@ def update_dropdown(ts, stored_data):
     if ts is None:
         # if no data was stored yet, it initializes the dropdown to its default value
         raise exceptions.PreventUpdate
-    return stored_data\
-
-
-
+    return stored_data \
+ \
+ \
 ################################################################################################
 ################################ DATE BUTTONS START  ############################################
 ################################################################################################
@@ -361,9 +358,9 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
         print(f"params= {data}")
         if data != {}:
             oeelist = prdconf(params=(data["workstart"], data["workend"], data["interval"]))
-            (oeelist[0],oeelist[1],oeelist[2],oeelist[6],)
-            a = update_date_output( n1, date_picker, n2, n3, n4, data)
-            return (a[0],0) + (oeelist[0],oeelist[1],oeelist[2],oeelist[6],)
+            (oeelist[0], oeelist[1], oeelist[2], oeelist[6],)
+            a = update_date_output(n1, date_picker, n2, n3, n4, data)
+            return (a[0], 0) + (oeelist[0], oeelist[1], oeelist[2], oeelist[6],)
         else:
             return no_update
     else:
@@ -391,10 +388,10 @@ def page_refresh3(n3):
      Input(component_id='work-dates', component_property='data'),
      Input(component_id='oeelist6', component_property='data')]
 )
-def return_summary_data(option_slctd,dates,oeelist6):
+def return_summary_data(option_slctd, dates, oeelist6):
     oeelist6 = pd.read_json(oeelist6, orient='split')
-    df_working_machines= ag.run_query(query = r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                            , params=(dates["workstart"],dates["workend"]))
+    df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
+                                       , params=(dates["workstart"], dates["workend"]))
     data1 = ["Production Volume", get_daily_qty(df=oeelist6, costcenter=option_slctd)]
     data2 = ["Working Machines", working_machinesf(working_machines=df_working_machines, costcenter=option_slctd)[-1]]
     data3 = ["PPM", get_daily_qty(df=oeelist6, costcenter=option_slctd, ppm=True)]
@@ -445,24 +442,24 @@ def return_summary_data(option_slctd,dates,oeelist6):
     [Input(component_id='costcenter', component_property='value'),
      Input(component_id='oeelist0', component_property='data')]
 )
-def update_graph_sunburst(option_slctd,oeelist0):
+def update_graph_sunburst(option_slctd, oeelist0):
     print(" here here ")
-    print(return_piechart(option_slctd,oeelist0))
-    return [return_piechart(option_slctd,oeelist0)]
+    print(return_piechart(option_slctd, oeelist0))
+    return [return_piechart(option_slctd, oeelist0)]
 
 
 @app.callback(
     [Output(component_id='bubble', component_property='figure')],
     [Input(component_id='costcenter', component_property='value'),
-    Input(component_id='oeelist2', component_property='data'),
+     Input(component_id='oeelist2', component_property='data'),
      Input('device-info-store', 'data')]
 )
-def update_graph_bubble(option_slctd,oeelist2,dev_type):
+def update_graph_bubble(option_slctd, oeelist2, dev_type):
     if dev_type["device_type"] == "Desktop":
         graphwidth = 1100
     else:
         graphwidth = 1100
-    oeelist2 =  pd.read_json(oeelist2, orient='split')
+    oeelist2 = pd.read_json(oeelist2, orient='split')
     df, category_order = scatter_plot(df=oeelist2.loc[oeelist2["COSTCENTER"] == option_slctd])
 
     figs = px.histogram(df, x="WORKCENTER", y="FAILURETIME",
@@ -471,12 +468,17 @@ def update_graph_bubble(option_slctd,oeelist2,dev_type):
                         color_discrete_sequence=px.colors.qualitative.Alphabet,
                         width=1500, height=500, category_orders={"STEXT": category_order})
     # figs.update_traces(textfont=dict(family=['Arial Black']))
-    figs.update_xaxes(type="category", tickangle=90, fixedrange=True,categoryorder='total ascending')
+    figs.update_xaxes(type="category", tickangle=90, fixedrange=True, categoryorder='total ascending')
     # figs.update_yaxes(categoryorder="total descending")
     figs.update_layout(xaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
                        yaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
-                       paper_bgcolor=layout_color, plot_bgcolor='white', font_color=summary_color,
+                       paper_bgcolor=layout_color, plot_bgcolor=layout_color, font_color=summary_color,
                        title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420,
+                       legend=dict(
+                           bgcolor='lightgray',  # Background color of the legend
+                           bordercolor='gray',  # Border color of the legend
+                           borderwidth=1  # Border width of the legend
+                       ),
                        )
 
     return [figs]
@@ -488,7 +490,7 @@ def update_graph_bubble(option_slctd,oeelist2,dev_type):
      Input(component_id='oeelist2', component_property='data'),
      Input('device-info-store', 'data')]
 )
-def update_chart_gann(option_slctd,oeelist2,dev_type):
+def update_chart_gann(option_slctd, oeelist2, dev_type):
     if dev_type["device_type"] == "Desktop":
         graphwidth = 1100
     else:
@@ -509,9 +511,15 @@ def update_chart_gann(option_slctd,oeelist2,dev_type):
     #                   marker_colors= px.colors.qualitative.Alphabet)
     figs.update_xaxes(type="date", tickangle=90, fixedrange=True)
     figs.update_yaxes(categoryorder="category ascending")
-    figs.update_layout(barmode='overlay', paper_bgcolor= layout_color, plot_bgcolor='rgba(0, 0, 0, 0)',
+    figs.update_layout(barmode='overlay', paper_bgcolor=layout_color, plot_bgcolor='rgba(0, 0, 0, 0)',
                        font_color=summary_color,
-                       title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420)
+                       title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420,
+                       )
+    figs.update_layout(legend=dict(
+        bgcolor='lightgray',  # Background color of the legend
+        bordercolor='gray',  # Border color of the legend
+        borderwidth=1  # Border width of the legend
+    ))
 
     return [figs]
 
@@ -562,10 +570,10 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
      Input(component_id='work-dates', component_property='data'),
      Input(component_id='oeelist6', component_property='data')]
 )
-def update_spark_line(option_slctd, dates,oeelist6):
+def update_spark_line(option_slctd, dates, oeelist6):
     onemonth_prdqty = pd.read_json(oeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                 , params=(dates["workstart"], dates["workend"]))
+                                       , params=(dates["workstart"], dates["workend"]))
     fig_prod = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses=option_slctd))
     fig_scrap = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses=option_slctd, type='HURDA'))
     fig_working_machine = get_spark_line(
@@ -603,14 +611,14 @@ def update_ind_fig(option_slctd, oeelist1):
      Input(component_id='work-dates', component_property='data'),
      Input('device-info-store', 'data')]
 )
-def create_scatterplot_for_scrapqty(costcenter,dates,dev_type):
+def create_scatterplot_for_scrapqty(costcenter, dates, dev_type):
     if dev_type["device_type"] == "Desktop":
         graphwidth = 1100
     else:
         graphwidth = 1100
     now = datetime.now()
     df_scrap = ag.run_query(query=r"EXEC VLFPRDSCRAPWITHPARAMS @WORKSTART=?, @WORKEND=?"
-                                       , params=(dates["workstart"], dates["workend"]))
+                            , params=(dates["workstart"], dates["workend"]))
     now = datetime.now()
     df_scrap = df_scrap[df_scrap["COSTCENTER"] == costcenter]
     cat_order_sumscrap = df_scrap.groupby("STEXT")["SCRAP"].sum().sort_values(ascending=False).index
@@ -627,7 +635,12 @@ def create_scatterplot_for_scrapqty(costcenter,dates,dev_type):
     # figs.update_yaxes(categoryorder="total descending")
     fig.update_layout(xaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
                       yaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
-                      paper_bgcolor=layout_color, plot_bgcolor='white', font_color=summary_color,
+                      paper_bgcolor=layout_color, plot_bgcolor=layout_color, font_color=summary_color,
                       title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420,
+                      legend=dict(
+                          bgcolor='lightgray',  # Background color of the legend
+                          bordercolor='gray',  # Border color of the legend
+                          borderwidth=1  # Border width of the legend
+                      )
                       )
     return [fig]

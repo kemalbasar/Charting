@@ -206,7 +206,7 @@ layout = [
                 dbc.Col(
                     html.Div([
                         dcc.Graph(id='example-graph', figure=fig),
-                    ],style={"margin-left":5,"margin-top":49}),
+                    ],style={"margin-left":75,"margin-top":49}),
                     className="",
                 ),
             ]),
@@ -221,9 +221,9 @@ layout = [
                         "textAlign": "center",
                         "padding": "10px",
                         "color":"black",
+                        'max-width': 100
                     },
                     style_table={
-                        'margin': 'auto',
                         'borderCollapse': 'collapse',
                     },
                     style_data_conditional=[
@@ -236,7 +236,7 @@ layout = [
                         'backgroundColor': 'rgb(230, 230, 230)',
                         'fontWeight': 'bold'
                     },
-                    sort_action='native',
+                    sort_action='native'
                 ),
                 dash_table.DataTable(
                     id="data_table_sum",
@@ -246,6 +246,8 @@ layout = [
                         "textAlign": "center",
                         "padding": "10px",
                         "color":"black",
+                        'max-width': 115
+
                     },
                     style_table={
                         'margin': 'auto',
@@ -297,7 +299,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
     else:
         gruplamami = 0
 
-    if date_interval == 'day':
+    if date_interval == 'Day':
         with open(project_directory + f"\Charting\queries\energy_qandweight_daily.sql", 'r') as file:
             filedata = file.read()
     else:
@@ -387,7 +389,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         # ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
         # ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
 
-        if date_interval == 'day':
+        if date_interval == 'Day':
 
             if m_point_tmp == '11 Pres (Pano 3 Diger)':
                 df_works = ag.run_query(f"WITH ASD AS ( SELECT CAST(DATE AS DATETIME) AS DATE,"
@@ -504,7 +506,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                                        "19 CNC (Pano 1)", 'PRES - Pano 3', 'PRES - Pano 2',
                                        'PRES - Pano 1'])))]
 
-        if date_interval == 'month':
+        if date_interval == 'Month':
             print("*****")
             print(df_final)
             df_final = df_final.groupby(["COSTCENTER", "DATE"]).agg({"TOTALNETWEIGHT(ton)": "sum",

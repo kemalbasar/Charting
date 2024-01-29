@@ -98,7 +98,7 @@ body {
     font-family: 'Strait', sans-serif;
 }
 
-/* ScrollBar */
+ ScrollBar
 .scrollbar {
     height: 90%;
     width: 100%;
@@ -106,12 +106,13 @@ body {
     overflow-x: hidden;
 }
 
-.scrollbar:hover {
-    height: 90%;
-    width: 100%;
-    overflow-y: scroll;
-    overflow-x: hidden;
-}
+/*.scrollbar:hover {*/
+/*    height: 90%;*/
+/*    width: 100%;*/
+/*    overflow-y: scroll;*/
+/*    overflow-x: hidden;*/
+/*}*/
+
 
 /* Scrollbar Style */
 #style-1::-webkit-scrollbar-track {
@@ -129,9 +130,9 @@ body {
     background-color: #BFBFBF;
 }
 
-/* Scrollbar End */
+ Scrollbar End
 
-/* .fa-lg {
+ .fa-lg {
     font-size: 1em;
 }
 
@@ -143,7 +144,7 @@ body {
     text-align: center;
     top: 12px;
     font-size: 20px;
-} */
+}
 
 .main-menu:hover,
 nav.main-menu.expanded {
@@ -301,7 +302,7 @@ nav.main-menu li.active>a,
         url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2BTjF6FB5E.woff) format('woff');
 }
 
-/*Enes navbar bitis*/
+Enes navbar bitis
 
 #Dropdown Ayarları #Dropdown Ayarları #Dropdown Ayarları #Dropdown Ayarları
 
@@ -435,7 +436,7 @@ nav.main-menu li.active>a,
     /* width of the square button */
     height: 100px;
     /* height of the square button */
-    background-color: #FF6347;
+    background-color: #2149b4;
     /* button color */
     border: none;
     /* no border */
@@ -716,12 +717,12 @@ nav.main-menu li.active>a,
 
 }
 
-@media only screen and (max-width: 600px) {
-    .dash-graph-container {
-        height: 300px !important;
-        /* Adjust according to your need */
-    }
-}
+/*@media only screen and (max-width: 600px) {*/
+/*    .dash-graph-container {*/
+/*        height: 300px !important;*/
+/*        !* Adjust according to your need *!*/
+/*    }*/
+/*}*/
 
 /*.container-fluid {*/
 /*    padding-left: 0;*/
@@ -732,3 +733,81 @@ nav.main-menu li.active>a,
 /*    padding-left: 0;*/
 /*    padding-right: 0;*/
 /*}*/
+
+/* custom.css */
+.plot-container .legend {
+  background-color: rgba(255, 255, 255, 0.5) !important; /* Your desired color with semi-transparency */
+}
+
+
+
+#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
+#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
+
+/* custom.css */
+
+/* Style for the Dash DataTable overall layout */
+.my-datatable {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+/* Style for each cell in the Dash DataTable */
+.my-datatable .dash-cell {
+    color: black; /* Font color for the cells */
+    background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
+}
+
+/* Style for the header cells in the Dash DataTable */
+.my-datatable .dash-header {
+    font-weight: bold; /* Make header text bold */
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
+    border-bottom: 1px solid black; /* Border for the header cells */
+}
+
+/* Additional style for the header, in case the above doesn't apply */
+.my-datatable th {
+    font-weight: bold; /* Make header text bold */
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
+    border-bottom: 1px solid black; /* Border for the header cells */
+}
+
+/* custom.css */
+
+/* Style for the Dash DataTable overall layout */
+.my-datatable {
+    border: 1px solid black;
+    border-collapse: collapse;
+    height: 150px; /* Fixed height */
+    width: 700px; /* Fixed width */
+    overflow-y: auto; /* Vertical scrollbar if content is larger than the container */
+}
+
+/* Style for each cell in the Dash DataTable */
+.my-datatable .dash-cell {
+    color: black; /* Font color for the cells */
+    background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
+    min-width: 80px; /* Minimum width for each cell */
+    width: 80px; /* Fixed width for each cell */
+    max-width: 100px; /* Maximum width for each cell */
+    text-align: center; /* Center text alignment */
+}
+
+/* Style for the header cells in the Dash DataTable */
+.my-datatable .dash-header {
+    font-weight: bold; /* Make header text bold */
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
+    border-bottom: 1px solid black; /* Border for the header cells */
+}
+
+/* Additional style for the header, in case the above doesn't apply */
+.my-datatable th {
+    font-weight: bold; /* Make header text bold */
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
+    border-bottom: 1px solid black; /* Border for the header cells */
+}
+
+
+
+#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
+#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
