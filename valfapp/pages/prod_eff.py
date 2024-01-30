@@ -12,6 +12,7 @@ from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
     generate_for_sparkline, working_machinesf, indicator_with_color
 from run.agent import ag
 from valfapp.app import app, prdconf, return_piechart
+from valfapp.layouts import nav_bar
 from valfapp.pages.date_class import update_date, update_date_output
 from config import kb
 
@@ -50,119 +51,120 @@ def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
 
 
 # Layouts for different devices
-layout_27 = dbc.Container([
-    dbc.Row(dcc.Link(
-        children='Main Page',
-        href='/',
-        style={"height": 40, "color": "black", "font-weight": "bold"}
-
-    )),
-    dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                  date=date.today() + timedelta(days=-kb),
-                                  persistence=True,
-                                  persistence_type='memory'
-                                  ),
-             dbc.Col(
-                 html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
-             ], style={}),
-    html.Div(id='refresh3', style={'display': 'none'}),
-    dbc.Row([
-        dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button'),
-        dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button'),
-        dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
-        dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
-        dcc.Store(id="work-dates", storage_type="memory",
-                  data={"workstart": (date.today() - timedelta(days=kb)).isoformat(),
-                        "workend": (date.today() - timedelta(days=1)).isoformat(),
-                        "interval": "day"}),
-        dcc.Location(id='location3', refresh=True),
-        html.Div(id='output', children=''),
-        dcc.Dropdown(id="costcenter", className="dropdown-style",
-                     options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
-                                                                    "TASLAMA", "MONTAJ",
-                                                                    "PRESHANE1", "PRESHANE2"]],
-                     multi=False,
-                     value='CNC',
-                     style={}
-                     )
-    ]
-    ),
-
-    dcc.Store(id='store-costcenter', storage_type='memory', data='CNC'),
-    dbc.Row([
-        dbc.Col([
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='sunburst'), width={"size": 4}),
-                dbc.Col([
-                    dbc.Row(
-                        html.H5("Production Summary",
-                                style={"background-color": "darkolivegreen", "text-align": "center",
-                                       "color": summary_color, "width": 855})
-                    ),
-                    dbc.Row([
-                        dbc.Col(id="my-output1",
-                                width={"size": 1},
-                                style={"margin-left": 0, 'border-bottom': "1px rgb(218, 255, 160) inset",
-                                       'border-left': "1px rgb(218, 255, 160) inset"}),
-                        dbc.Col(
-                            [return_sparks(graph1="fig_prod", graph2="fig_working_machine", margin_left=120)], style={
-                                'border-bottom': "1px rgb(218, 255, 160) inset"},
-                            width={"size": 1}),
-                        dbc.Col(
-                            id="my-output2",
-                            width={"size": 1}, style={'border-bottom': "1px rgb(218, 255, 160) inset"}),
-                        dbc.Col(
-                            [return_sparks(graph1="fig_ppm", graph2="fig_scrap", margin_left=300)]
-                            , width={"size": 1},
-                            style={"border-right": "1px rgb(218, 255, 160) inset", "padding-right": 600,
-                                   'border-bottom': "1px rgb(218, 255, 160) inset", })]
-                    )
-                ], style={}, width={"size": 8})]
-            ),
-
-            dbc.Row([
-                dbc.Col([
-                    html.Div(children=[html.H5("Production Schedule",
-                                               style={"width": 1400, "height": 25, "text-align": "center",
-                                                      "background-color": "darkolivegreen",
-                                                      "color": summary_color}),
-                                       dcc.Graph(id='gann', figure={}),
-                                       html.H5("Breakdowns & Reasons",
-                                               style={"width": 1400, "height": 25, "text-align": "center",
-                                                      "background-color": "darkolivegreen",
-                                                      "color": summary_color}),
-                                       dcc.Graph(id='bubble', figure={}),
-                                       html.H5("Scraps with Reasons",
-                                               style={"width": 1400, "height": 25, "text-align": "center",
-                                                      "background-color": "darkolivegreen",
-                                                      "color": summary_color}),
-                                       dcc.Graph(id='fig_scatscrap', figure={})
-                                       ])
-                ],
-
-                    width=20)
-            ])
-        ], width={"size": 9}),
-        dbc.Col([html.H5("Best Performances", style={"width": 380, "height": 25, "text-align": "center",
-                                                     "background-color": "darkolivegreen",
-                                                     "color": summary_color}),
-                 html.Div(return_tops(), style={"width": 350, "height": 250}),
-                 html.Div(return_tops(graph1="fig_up2"), style={"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_up3"), style={"width": 250, "height": 250}),
-                 html.H5("Worst Performances", style={"width": 380, "height": 25, "text-align": "center",
-                                                      "background-color": "red",
-                                                      "color": summary_color, "margin-top": 160}),
-                 html.Div(return_tops(graph1="fig_down1"), style={"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_down2"), style={"width": 250, "height": 250}),
-                 html.Div(return_tops(graph1="fig_down3"), style={"width": 250, "height": 250})
-
-                 ], style={"border-left": "1px rgb(218, 255, 160) inset", "border-top": "1px rgb(218, 255, 160) inset",
-                           "padding-left": 70}, width=3)
-    ])
-
-], fluid=True)
+# layout_27 = dbc.Container([
+#     dbc.Row(dcc.Link(
+#         children='Main Page',
+#         href='/',
+#         style={"height": 40, "color": "black", "font-weight": "bold"}
+#
+#     )),
+#     dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
+#                                   date=date.today() + timedelta(days=-kb),
+#                                   persistence=True,
+#                                   persistence_type='memory'
+#                                   ),
+#              dbc.Col(
+#                  html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
+#              ], style={}),
+#     html.Div(id='refresh3', style={'display': 'none'}),
+#     dbc.Row([
+#         dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button'),
+#         dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button'),
+#         dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
+#         dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
+#         dcc.Store(id="work-dates", storage_type="memory",
+#                   data={"workstart": (date.today() - timedelta(days=kb)).isoformat(),
+#                         "workend": (date.today() - timedelta(days=1)).isoformat(),
+#                         "interval": "day"}),
+#         dcc.Location(id='location3', refresh=True),
+#         html.Div(id='output', children=''),
+#         dcc.Dropdown(id="costcenter", className="dropdown-style",
+#                      options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
+#                                                                     "TASLAMA", "MONTAJ",
+#                                                                     "PRESHANE1", "PRESHANE2"]],
+#                      multi=False,
+#                      value='CNC',
+#                      style={}
+#                      )
+#     ]
+#     ),
+#
+#     dcc.Store(id='store-costcenter', storage_type='memory', data='CNC'),
+#     dbc.Row([
+#         dbc.Col([
+#             dbc.Row([
+#                 dbc.Col(dcc.Graph(id='sunburst'), width={"size": 4}),
+#                 dbc.Col([
+#                     dbc.Row(
+#                         html.H5("Production Summary",
+#                                 style={"background-color": "darkolivegreen", "text-align": "center",
+#                                        "color": summary_color, "width": 855})
+#                     ),
+#                     dbc.Row([
+#                         dbc.Col(id="my-output1",
+#                                 width={"size": 1},
+#                                 style={"margin-left": 0, 'border-bottom': "1px rgb(218, 255, 160) inset",
+#                                        'border-left': "1px rgb(218, 255, 160) inset"}),
+#                         dbc.Col(
+#                             [return_sparks(graph1="fig_prod", graph2="fig_working_machine", margin_left=120)], style={
+#                                 'border-bottom': "1px rgb(218, 255, 160) inset"},
+#                             width={"size": 1}),
+#                         dbc.Col(
+#                             id="my-output2",
+#                             width={"size": 1}, style={'border-bottom': "1px rgb(218, 255, 160) inset"}),
+#                         dbc.Col(
+#                             [return_sparks(graph1="fig_ppm", graph2="fig_scrap", margin_left=300)]
+#                             , width={"size": 1},
+#                             style={"border-right": "1px rgb(218, 255, 160) inset", "padding-right": 600,
+#                                    'border-bottom': "1px rgb(218, 255, 160) inset", })]
+#                     )
+#                 ], style={}, width={"size": 8})]
+#             ),
+#
+#             dbc.Row([
+#                 dbc.Col([
+#                     html.Div(children=[html.H5("Production Schedule",
+#                                                style={"width": 1400, "height": 25, "text-align": "center",
+#                                                       "background-color": "darkolivegreen",
+#                                                       "color": summary_color}),
+#                                        dcc.Graph(id='gann', figure={}),
+#                                        html.H5("Breakdowns & Reasons",
+#                                                style={"width": 1400, "height": 25, "text-align": "center",
+#                                                       "background-color": "darkolivegreen",
+#                                                       "color": summary_color}),
+#                                        dcc.Graph(id='bubble', figure={}),
+#                                        html.H5("Scraps with Reasons",
+#                                                style={"width": 1400, "height": 25, "text-align": "center",
+#                                                       "background-color": "darkolivegreen",
+#                                                       "color": summary_color}),
+#                                        dcc.Graph(id='fig_scatscrap', figure={})
+#                                        ])
+#                 ],
+#
+#                     width=20)
+#             ])
+#         ], width={"size": 9}),
+#         dbc.Col([html.H5("Best Performances", style={"width": 380, "height": 25, "text-align": "center",
+#                                                      "background-color": "darkolivegreen",
+#                                                      "color": summary_color}),
+#                  html.Div(return_tops(), style={"width": 350, "height": 250}),
+#                  html.Div(return_tops(graph1="fig_up2"), style={"width": 250, "height": 250}),
+#                  html.Div(return_tops(graph1="fig_up3"), style={"width": 250, "height": 250}),
+#                  html.H5("Worst Performances", style={"width": 380, "height": 25, "text-align": "center",
+#                                                       "background-color": "red",
+#                                                       "color": summary_color, "margin-top": 160}),
+#                  html.Div(return_tops(graph1="fig_down1"), style={"width": 250, "height": 250}),
+#                  html.Div(return_tops(graph1="fig_down2"), style={"width": 250, "height": 250}),
+#                  html.Div(return_tops(graph1="fig_down3"), style={"width": 250, "height": 250})
+#
+#                  ], style={"border-left": "1px rgb(218, 255, 160) inset", "border-top": "1px rgb(218, 255, 160) inset",
+#                            "padding-left": 70}, width=3)
+#     ])
+#
+# ], fluid=True)
 
 layout_12 = dbc.Container([
+    nav_bar,
     dbc.Row(dcc.Link(
         children='Main Page',
         href='/',
@@ -315,8 +317,8 @@ def set_layout(device_info):
     if device_type == "12inchDevice":  # Replace "12inchDevice" with the actual identifier for the device
         return layout_12
     else:
-        return layout_27
-
+        return []
+#adaptive layout will be there
 
 @app.callback(Output('store-costcenter', 'data'),
               Input('costcenter', 'value'))

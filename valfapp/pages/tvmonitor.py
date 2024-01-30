@@ -1,60 +1,10 @@
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 
+from valfapp.layouts import nav_bar
 
 layout = [
-    html.Nav(className="main-menu side-bar", children=[
-        dbc.Container([
-            html.Div(className="logo-div resim-container", children=[
-                html.A(className="logo", href="/", children=[
-                    html.Img(src='/assets/valf-logo.gif', className="logo")
-                ])
-            ]),
-            html.Div(className="settings"),
-            html.Div(id="style-1", className="scrollbar", children=[
-                html.Ul(children=[
-                    html.Li(children=[
-                        html.A(href="/", children=[
-                            html.Img(src="../assets/home.png", className="nav-icon"),
-                            html.Span(className="nav-text nav-text-2", children="MAIN")
-                        ])
-                    ]),
-                    html.Li(className="darkerlishadow",children=[
-                        html.A(href="/value", children=[
-                            html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
-                            html.Span(className="nav-text", children="Tutarlama")
-                        ])
-                    ]),
-                    html.Li(className="darkerli",children=[
-                        html.A(href="/uretimrapor", children=[
-                            html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
-                            html.Span(className="nav-text", children="Üretim Raporları")
-                        ])
-                    ]),
-                    html.Li(className="darkerli", children=[
-                        html.A(href="/liveprd", children=[
-                            html.Img(src="../assets/uretim-takip-icon.PNG", className="nav-icon"),
-                            html.Span(className="nav-text", children="Üretim Takip")
-                        ])
-                    ]),
-                    html.Li(className="darkerli",children=[
-                        html.A(href="/tvmonitor", children=[
-                            html.Img(src="../assets/tvmonitor-ıcon.png", className="nav-icon"),
-                            html.Span(className="nav-text", children="Tv Monitor")
-                        ])
-                    ]),
-                    html.Ul(className="darkerlishadowdown", children=[
-                        html.Li(children=[
-                            html.A(href="/energy", children=[
-                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
-                                html.Span(className="nav-text", children="Energy")
-                            ])
-                        ])
-                    ])
-                ])
-            ])
-        ]),
-    ]),
+    nav_bar,
 
     dbc.Row([
         dbc.Col(

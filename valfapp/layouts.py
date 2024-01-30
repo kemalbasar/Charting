@@ -29,6 +29,86 @@ elif today.weekday() == 0:
 else:
     kb = 1
 
+
+###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
+###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
+###### ###### ###### ###### ###### NAV BAR NAV BAR NAV VAR ###### ###### ###### ###
+###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
+###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
+
+
+nav_bar = html.Nav(className="main-menu side-bar", children=[
+        dbc.Container([
+            html.Div(
+                className="logo-div resim-container",
+                children=[
+                    dbc.Row(
+                        html.A(
+                            className="logo",
+                            href="/",
+                            children=[html.Img(src='/assets/valf-logo.gif', className="logo")]
+                        )
+                    ),
+                    dbc.Row(
+                        html.H3("VALFSAN", style={"margin-top":15,"color": '#2149b4'})
+                    )
+                ]
+            )
+            ,
+            html.Div(className="settings"),
+            html.Div(id="style-1", className="scrollbar", children=[
+                html.Ul(children=[
+                    html.Li(children=[
+                        html.A(href="/", children=[
+                            html.Img(src="../assets/home.png", className="nav-icon"),
+                            html.Span(className="nav-text nav-text-2", children="MAIN")
+                        ])
+                    ]),
+                    html.Li(className="darkerlishadow",children=[
+                        html.A(href="/value", children=[
+                            html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
+                            html.Span(className="nav-text", children="Tutarlama")
+                        ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/uretimrapor", children=[
+                            html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Üretim Raporları")
+                        ])
+                    ]),
+                    html.Li(className="darkerli", children=[
+                        html.A(href="/liveprd", children=[
+                            html.Img(src="../assets/uretim-takip-icon.PNG", className="nav-icon"),
+                            html.Span(className="nav-text", children="Üretim Takip")
+                        ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/tvmonitor", children=[
+                            html.Img(src="../assets/tvmonitor-ıcon.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Tv Monitor")
+                        ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/kapasite", children=[
+                            html.Img(src="../assets/kapasite-logo.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Kapasite")
+                        ])
+                    ]),
+                    html.Ul(className="darkerlishadowdown", children=[
+                        html.Li(children=[
+                            html.A(href="/energy", children=[
+                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
+                                html.Span(className="nav-text", children="Energy")
+                            ])
+                        ])
+                    ]),
+                ]),
+            ]),
+        ]),
+    ])
+
+
+
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### VALUATION LAYOUTS ###### ###### ###### ######
@@ -117,58 +197,7 @@ layout_27 = dbc.Container([
 
 
 layout_12 = dbc.Container([
-    html.Nav(className="main-menu side-bar", children=[
-        dbc.Container([
-            html.Div(className="logo-div resim-container", children=[
-                html.A(className="logo", href="/", children=[
-                    html.Img(src='/assets/valf-logo.gif', className="logo")
-                ])
-            ]),
-            html.Div(className="settings"),
-            html.Div(id="style-1", className="scrollbar", children=[
-                html.Ul(children=[
-                    html.Li(children=[
-                        html.A(href="/", children=[
-                            html.Img(src="../assets/home.png", className="nav-icon"),
-                            html.Span(className="nav-text nav-text-2", children="MAIN")
-                        ])
-                    ]),
-                    html.Li(className="darkerlishadow",children=[
-                        html.A(href="/value", children=[
-                            html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
-                            html.Span(className="nav-text", children="Tutarlama")
-                        ])
-                    ]),
-                    html.Li(className="darkerli",children=[
-                        html.A(href="/uretimrapor", children=[
-                            html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
-                            html.Span(className="nav-text", children="Üretim Raporları")
-                        ])
-                    ]),
-                    html.Li(className="darkerli", children=[
-                        html.A(href="/liveprd", children=[
-                            html.Img(src="../assets/uretim-takip-icon.PNG", className="nav-icon"),
-                            html.Span(className="nav-text", children="Üretim Takip")
-                        ])
-                    ]),
-                    html.Li(className="darkerli",children=[
-                        html.A(href="/tvmonitor", children=[
-                            html.Img(src="../assets/tvmonitor-ıcon.png", className="nav-icon"),
-                            html.Span(className="nav-text", children="Tv Monitor")
-                        ])
-                    ]),
-                    html.Ul(className="darkerlishadowdown", children=[
-                        html.Li(children=[
-                            html.A(href="/energy", children=[
-                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
-                                html.Span(className="nav-text", children="Energy")
-                            ])
-                        ])
-                    ])
-                ])
-            ])
-        ]),
-    ]),
+    nav_bar,
 
     dbc.Row(dcc.Link(
         children='Main Page',
@@ -240,64 +269,7 @@ layout_12 = dbc.Container([
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 
 layout_12_loginpage_v2 = layout = html.Div(children=[
-    html.Nav(className="main-menu side-bar", children=[
-        dbc.Container([
-            html.Div(className="logo-div resim-container", children=[
-                html.A(className="logo", href="/", children=[
-                    html.Img(src='/assets/valf-logo.gif', className="logo")
-                ])
-            ]),
-            html.Div(className="settings"),
-            html.Div(id="style-1", className="scrollbar", children=[
-                html.Ul(children=[
-                    html.Li(children=[
-                        html.A(href="/", children=[
-                            html.Img(src="../assets/home.png", className="nav-icon"),
-                            html.Span(className="nav-text nav-text-2", children="MAIN")
-                        ])
-                    ]),
-                    html.Li(className="darkerlishadow",children=[
-                        html.A(href="/value", children=[
-                            html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
-                            html.Span(className="nav-text", children="Tutarlama")
-                        ])
-                    ]),
-                    html.Li(className="darkerli",children=[
-                        html.A(href="/uretimrapor", children=[
-                            html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
-                            html.Span(className="nav-text", children="Üretim Raporları")
-                        ])
-                    ]),
-                    html.Li(className="darkerli", children=[
-                        html.A(href="/liveprd", children=[
-                            html.Img(src="../assets/uretim-takip-icon.PNG", className="nav-icon"),
-                            html.Span(className="nav-text", children="Üretim Takip")
-                        ])
-                    ]),
-                    html.Li(className="darkerli",children=[
-                        html.A(href="/tvmonitor", children=[
-                            html.Img(src="../assets/tvmonitor-ıcon.png", className="nav-icon"),
-                            html.Span(className="nav-text", children="Tv Monitor")
-                        ])
-                    ]),
-                    html.Li(className="darkerli",children=[
-                        html.A(href="/kapasite", children=[
-                            html.Img(src="../assets/kapasite_pic.png", className="nav-icon"),
-                            html.Span(className="nav-text", children="Kapasite")
-                        ])
-                    ]),
-                    html.Ul(className="darkerlishadowdown", children=[
-                        html.Li(children=[
-                            html.A(href="/energy", children=[
-                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
-                                html.Span(className="nav-text", children="Energy")
-                            ])
-                        ])
-                    ]),
-                ]),
-            ]),
-        ]),
-    ]),
+    nav_bar,
 
     dbc.Container(children=[
         dbc.Row(
@@ -369,7 +341,7 @@ layout_12_loginpage_v2 = layout = html.Div(children=[
                 dbc.Col(
                     html.A(
                         html.Div(
-                            "Energy ",
+                            "Enerji Ölçüm",
                             style={
                                 "height": "200px",
                                 "border-radius": "10px",
@@ -380,6 +352,22 @@ layout_12_loginpage_v2 = layout = html.Div(children=[
                             },
                         ),
                         href="/energy", style={"text-decoration": "none", "color":"#2149b4", "font-size":"24px"},
+                    ),className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
+                ),
+                dbc.Col(
+                    html.A(
+                        html.Div(
+                            "Kapasite (Geliştiriliyor)",
+                            style={
+                                "height": "200px",
+                                "border-radius": "10px",
+                                "justify-content": "center",
+                                "align-items": "center",
+                                "display": "flex",
+                                "background-color":"white"
+                            },
+                        ),
+                        href="/kapasite", style={"text-decoration": "none", "color":"#2149b4", "font-size":"24px"},
                     ),className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
                 ),
             ],style={"justify-content":"center", "align-items":"center", "display":"flex",}
@@ -601,6 +589,36 @@ layout_12_loginpage = dbc.Container([
                 html.Div(
                     className="row justify-content-center",
                     children=[
+                        dcc.Link(
+                            html.Div(
+                                className="mt-2 justify-content-center",
+                                style={
+                                    # 'border': '1px solid red',
+                                    'width': '300px',
+                                    'height': '200px',
+                                    'borderRadius': '10px',
+                                    'display': 'flex',
+                                    'alignItems': 'center',
+                                    'justifyContent': 'center',
+                                    'background-color': 'lightgray',
+                                },
+                                children=[
+                                    html.Div(
+                                        style={
+                                            'font-size': '18px',
+                                            'color': 'White',
+                                            'position': 'absolute',
+                                            "border-radius": "20px"
+                                        },
+                                        children=""
+                                    ),
+                                    html.Img(
+                                        src='/assets/enerji.png',
+                                    )
+                                ],
+                            ),
+                            href='/energy', style={"width": "310px"},
+                        ),
                         dcc.Link(
                             html.Div(
                                 className="mt-2 justify-content-center",
@@ -883,3 +901,5 @@ def layout_for_tvs(costcenter='MONTAJ'):
                     ],className="g-0"),
                 ], width=3),
         ],className="g-0")]
+
+

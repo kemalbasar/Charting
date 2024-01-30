@@ -10,6 +10,8 @@ from datetime import date, timedelta, datetime
 from config import kb
 from dash_table import DataTable
 
+from valfapp.layouts import nav_bar
+
 data = ag.run_query(r"SELECT * FROM VLFAYIKLAMA")
 data['MINIMUM'] = data['MINIMUM'].astype(float)
 data['MAXIMUM'] = data['MAXIMUM'].astype(float)
@@ -32,6 +34,7 @@ data2['NOTOKOLCUSEL'] = data2['NOTOKOLCUSEL'].astype(int)
 data2 = data2.to_json(date_format='iso', orient='split')
 
 layout = [
+    nav_bar,
     dcc.Store(id='ayıklama_data',
               data=data),
     dbc.Row([html.H1("Ayıklama Robotu Kalite Sonuçları",

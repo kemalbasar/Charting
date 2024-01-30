@@ -7,8 +7,8 @@ import dash_bootstrap_components as dbc
 from config import kb
 import plotly.express as px
 from valfapp.app import cache, app, prdconf, workcenters
+from valfapp.layouts import nav_bar
 import dash_table
-from dash.exceptions import PreventUpdate
 from valfapp.pages.date_class import update_date, update_date_output
 
 # Define constants and initial data
@@ -92,6 +92,7 @@ def return_tops_with_visibility(graph_id, visible=True):
 
 # Create the layout for the app
 layout = dbc.Container([
+    nav_bar,
     dbc.Row(
         dcc.Link(
             children='Main Page',
@@ -198,7 +199,7 @@ layout = dbc.Container([
          dcc.Location(id='location', refresh=True),
          dcc.Location(id='location2', refresh=True),
 
-         html.Button("Oee Data", id="download-button", n_clicks=0, className="dash-empty-button,
+         html.Button("Oee Data", id="download-button", n_clicks=0, className="dash-empty-button",
                      style={"position": "absolute", "right": "0", "top": "-1", "width": "100px", "height": "35px"}),
          html.Button("Details Data", id="download-button2", n_clicks=0, className="dash-empty-button",
                      style={"position": "absolute", "right": 100, "top": "-1", "width": "100px", "height": "35px"}),
