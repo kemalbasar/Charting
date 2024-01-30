@@ -6,7 +6,7 @@ from dash import dcc, html, Input, Output, State, callback_context, no_update, e
 import dash_bootstrap_components as dbc
 from config import kb
 import plotly.express as px
-from valfapp.app import cache,  app, prdconf, workcenters
+from valfapp.app import cache, app, prdconf, workcenters
 import dash_table
 from dash.exceptions import PreventUpdate
 from valfapp.pages.date_class import update_date, update_date_output
@@ -104,6 +104,9 @@ layout = dbc.Container([
          dcc.Store(id='oeelistw1',
                    data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                        1]),
+         dcc.Store(id='oeelistw2',
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                       2]),
          dcc.Store(id='oeelistw3',
                    data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
                        3]),
@@ -145,6 +148,7 @@ layout = dbc.Container([
                          "interval": "day"}),
          html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="dash-empty-button",
                      style={"position": "absolute", "right": 175, "top": "3", "width": "150px", "height": "35px"}),
+
          html.Div(id="toggle_div", children=[
              html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
              html.Hr(),
@@ -193,13 +197,20 @@ layout = dbc.Container([
          # Include this line in your app layout
          dcc.Location(id='location', refresh=True),
          dcc.Location(id='location2', refresh=True),
-         html.Button("Download Data", id="download-button", n_clicks=0, className="dash-empty-button",
-                     style={"position": "absolute", "right": "0", "top": "-1", "width": "150px", "height": "35px"}),
-         dcc.Download(id="download-data")], ),
 
-    dbc.Row(id='flam', children=
-    [dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,
-             style={"height": 600, "margin-left": 100 if i % 2 == 0 else 180}) for i in range(MAX_OUTPUT)],
+         html.Button("Oee Data", id="download-button", n_clicks=0, className="dash-empty-button,
+                     style={"position": "absolute", "right": "0", "top": "-1", "width": "100px", "height": "35px"}),
+         html.Button("Details Data", id="download-button2", n_clicks=0, className="dash-empty-button",
+                     style={"position": "absolute", "right": 100, "top": "-1", "width": "100px", "height": "35px"}),
+         html.Button("Bad Data", id="download-button3", n_clicks=0, className="dash-empty-button",
+                     style={"position": "absolute", "right": 100, "top": 98, "width": "100px", "height": "35px"}),
+         dcc.Download(id="download-data"),
+         dcc.Download(id="download-data2"),
+         dcc.Download(id="download-data3")], ),
+
+    dbc.Row(id='flam', children=[dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,
+                                         style={"height": 600, "margin-left": 100 if i % 2 == 0 else 180}) for i in
+                                 range(MAX_OUTPUT)],
             )
 ], fluid=True)
 
@@ -241,6 +252,7 @@ def update_table_columns(oeelistw4, costcenter):
     [Output('work-dates1', 'data'),
      Output('refresh2', 'children'),
      Output(component_id='oeelistw1', component_property='data'),
+     Output(component_id='oeelistw2', component_property='data'),
      Output(component_id='oeelistw3', component_property='data'),
      Output(component_id='oeelistw4', component_property='data'),
      Output(component_id='oeelistw5', component_property='data'),
@@ -255,16 +267,14 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
     stored_date = date_picker
     if n1 or date_picker or n2 or n3 or n4:
         data = update_date('1', date_picker, callback_context)
-        print(f"params= {data}")
         if data != {}:
             oeelist = prdconf(params=(data["workstart"], data["workend"], data["interval"]))
-            (oeelist[1], oeelist[3], oeelist[4], oeelist[5], oeelist[7])
             a = update_date_output(n1, date_picker, n2, n3, n4, data)
-            return (a[0], 0) + (oeelist[1], oeelist[3], oeelist[4], oeelist[5], oeelist[7])
+            return (a[0], 0) + (oeelist[1], oeelist[2], oeelist[3], oeelist[4], oeelist[5], oeelist[7])
         else:
-            return (work_dates_bk, 0, no_update, no_update, no_update, no_update, no_update)
+            return (work_dates_bk, 0, no_update, no_update, no_update, no_update, no_update, no_update)
     else:
-        return (work_dates_bk, 0, no_update, no_update, no_update, no_update, no_update)
+        return (work_dates_bk, 0, no_update, no_update, no_update, no_update, no_update, no_update)
 
 
 @app.callback(
@@ -272,7 +282,7 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
     [Input('pers-button', 'n_clicks'),
      Input('wc-button', 'n_clicks')]
 )
-def update_report_type(n1,n2):
+def update_report_type(n1, n2):
     ctx = callback_context
     # Default case
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -303,16 +313,18 @@ def page_refresh2(n2):
 )
 def clear_cache(n_clicks, key):
     if n_clicks > 0:
-        a = cache.get(json.dumps({'workstart': '2023-09-06', 'workend': '2023-09-07', 'interval': 'day'}))
         cache_key = json.dumps(key)
-        x = cache.get(cache_key)
-        cache.delete_memoized(prdconf, (key["workstart"], key["workend"], key["interval"]))
-
+        print(cache_key)
+        cache.delete_memoized(prdconf, key["workstart"], key["workend"], key["interval"])
+        if not cache.get(prdconf, (key["workstart"], key["workend"], key["interval"])):
+            print("Cache successfully deleted.")
+            # Perform any other necessary operations after clearing the cache
+        else:
+            print("Cache not deleted.")
         # Perform any other necessary operations after clearing the cache
         return no_update  # Change the 'refresh' div when the button is clicked
     else:
         return no_update  # Don't change the 'refresh' div if the button hasn't been clicked
-
 
 # Add this callback
 @app.callback(
@@ -386,6 +398,10 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 
     Parameters
     ----------
+    oeelist7w
+    oeelist3w
+    params
+    report_type
     option_slctd
     oeelist1w
     """
@@ -397,15 +413,66 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 
 @app.callback(
     Output("download-data", "data"),
-    [Input("download-button", "n_clicks")],
-    [Input("costcenter1", "value"),
-     Input(component_id='oeelistw3', component_property='data')],
+    Input("download-button", "n_clicks"),
+    State("costcenter1", "value"),
+    State(component_id='oeelistw3', component_property='data'),
+    prevent_initial_call=True
+
+)
+def generate_excel_oee(n_clicks, costcenter, oeelist3w):
+    oeelist3w = pd.read_json(oeelist3w, orient='split')
+    oeelist3w = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
+    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME', 'TOTALTIME',
+     'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OM_TIME', 'TOTAL_SHIFT_TIME',
+     'NANTIME', 'PLANNEDTIME']
+    columns2 = ['WORKCENTER', 'COSTCENTER', 'SHIFT', 'WORKDAY',"AVAILABILITY","PERFORMANCE","QUALITY","OEE"]
+    backup_df = oeelist3w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
+        "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME",
+        "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
+
+    backup_df.reset_index(inplace=True)
+    backup_df["AVAILABILITY"] = backup_df["RUNTIME"] / backup_df["PLANNEDTIME"]
+    backup_df["PERFORMANCE"] = backup_df["IDEALCYCLETIME"] / backup_df["RUNTIME"]
+    backup_df["QUALITY"] = (backup_df["QTY"] - backup_df["SCRAPQTY"]) / backup_df["QTY"]
+    backup_df["OEE"] = backup_df["AVAILABILITY"]*backup_df["QUALITY"]*backup_df["PERFORMANCE"]
+    dff = oeelist3w[columns].merge(backup_df[columns2], on=["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"], how='left')
+    print("download genel butonun ordayım")
+    return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)
+
+@app.callback(
+    Output("download-data2", "data"),
+    Input("download-button2", "n_clicks"),
+    State("costcenter1", "value"),
+    State(component_id='oeelistw2', component_property='data'),
     prevent_initial_call=True
 )
-def generate_excel(n_clicks, costcenter, oeelist3w):
-    oeelist3w = pd.read_json(oeelist3w, orient='split')
-    if n_clicks < 1:
-        raise PreventUpdate
+def generate_excel_breakdowns(n_clicks, costcenter, oeelist2w):
+    oeelist2w = pd.read_json(oeelist2w, orient='split')
+    # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
+    #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
+    #     "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
 
-    dff = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
-    return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)
+    # backup_df.reset_index(inplace=True)
+    print("download detay butonun ordayım")
+    dff2 = oeelist2w.loc[((oeelist2w["COSTCENTER"] == costcenter) & (oeelist2w["CONFTYPE"] != "Uretim"))]
+
+    return dcc.send_data_frame(dff2.to_excel, "yourdata.xlsx", index=False)
+
+@app.callback(
+    Output("download-data3", "data"),
+    Input("download-button3", "n_clicks"),
+    State("costcenter1", "value"),
+    State(component_id='oeelistw4', component_property='data'),
+    prevent_initial_call=True
+)
+def generate_excel_baddatas(n_clicks, costcenter, oeelistw4):
+    oeelistw4 = pd.read_json(oeelistw4, orient='split')
+    # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
+    #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
+    #     "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
+
+    # backup_df.reset_index(inplace=True)
+    print("download HATALI VERİ detay butonun ordayım")
+    dff2 = oeelistw4[oeelistw4["COSTCENTER"] == costcenter]
+
+    return dcc.send_data_frame(dff2.to_excel, "BADdata.xlsx", index=False)

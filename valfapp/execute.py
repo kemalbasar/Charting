@@ -2,7 +2,11 @@ import index
 import warnings
 import os
 from werkzeug.middleware.profiler import ProfilerMiddleware
-PROF_DIR = r'F:\pycarhm projects\Charting\valfapp\profs'
+from config import project_directory
+
+
+
+PROF_DIR = project_directory + r'\Charting\valfapp\profs'
 warnings.filterwarnings("ignore")
 
 server = index.app.server

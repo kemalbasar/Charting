@@ -313,6 +313,7 @@ Enes navbar bitis
 }
 
 
+
 /* dropdown menu hover effect */
 .VirtualizedSelectFocusedOption {
     background-color: #2149b4;
@@ -321,8 +322,9 @@ Enes navbar bitis
 }
 
 .dropdown-style {
-    /*color: white; !* Set font color to white *!*/
+    /*color: black; !* Set font color to black *!*/
     width: 150px;
+  
     background-color: #2149b4;
     /* Purple background color */
     text-align: center;
@@ -349,11 +351,16 @@ Enes navbar bitis
 }
 
 
-/*.Select-placeholder,*/
-/*.Select--single > .Select-control .Select-value {*/
-/*    color: #593096;*/
-/*    background-color: #593096;*/
-/*}*/
+
+.Select-value-label {
+    background-color: #EFE6B8EF;
+    color: black !important;
+}
+
+
+.Select-control .Select-value, .Select-placeholder  {
+    background-color: #EFE6B8EF !important;
+}
 
 #Dropdown Ayarları #Dropdown Ayarları #Dropdown Ayarları #Dropdown Ayarları .estop-button {
     width: 100px;
@@ -366,6 +373,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 48px;
@@ -373,6 +381,8 @@ Enes navbar bitis
     transition-duration: 0.4s;
     /* transition effect duration */
     cursor: pointer;
+  
+  
     border-radius: 0;
     /* square shape */
     overflow: hidden;
@@ -383,6 +393,7 @@ Enes navbar bitis
     /* no padding */
     left: 300px;
     /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+
     top: 34px;
     color: whitesmoke;
 }
@@ -404,6 +415,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 48px;
@@ -428,6 +440,7 @@ Enes navbar bitis
     background-color: #45a049;
     /* color when mouse hovers over */
     color: white;
+
 }
 
 
@@ -442,6 +455,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 48px;
@@ -453,6 +467,7 @@ Enes navbar bitis
     /* square shape */
     overflow: hidden;
     /* in case of text exceeding button size */
+
     padding: 0;
     position: absolute;
     /* no padding */
@@ -465,6 +480,7 @@ Enes navbar bitis
     background-color: #45a049;
     /* color when mouse hovers over */
     color: white;
+
 }
 
 .day-button {
@@ -478,6 +494,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 16px;
@@ -485,6 +502,7 @@ Enes navbar bitis
     transition-duration: 0.4s;
     /* transition effect duration */
     cursor: pointer;
+
     border-radius: 0;
     /* square shape */
     overflow: hidden;
@@ -516,6 +534,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 16px;
@@ -554,6 +573,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 16px;
@@ -592,6 +612,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 16px;
@@ -631,6 +652,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 16px;
@@ -650,6 +672,7 @@ Enes navbar bitis
     /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 75px;
     /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+
 }
 
 
@@ -657,7 +680,7 @@ Enes navbar bitis
 .dash-date-picker {
     width: 150px;
     height: 60px;
-    border-radius: 0;
+    border-radius: 70;
     border: none;
     margin-left: 10px;
     display: inline-block;
@@ -668,16 +691,18 @@ Enes navbar bitis
 .dash-date-picker input {
     background-color: #2149b4;
     color: white;
+
 }
 
 .dash-date-picker-multi {
     width: 300px;
     height: 60px;
-    border-radius: 0;
+    border-radius: 70;
     border: none;
     margin-left: 10px;
     display: inline-block;
     color: white;
+
 
 }
 
@@ -698,6 +723,7 @@ Enes navbar bitis
     /* no border */
     color: white;
     /* text (icon) color */
+
     text-align: center;
     display: inline-block;
     font-size: 16px;
@@ -711,6 +737,7 @@ Enes navbar bitis
     /* in case of text exceeding button size */
     padding: 0;
     /* no padding */
+
     /*position: absolute;  !* position relative to the closest positioned ancestor *!*/
     /*left: 500px;  !* right edge positioned at 0 units from the right edge of its nearest positioned ancestor *!*/
     /*top: 100px;   !* top edge positioned at -1 units from the top edge of its nearest positioned ancestor *!*/

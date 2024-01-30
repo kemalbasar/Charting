@@ -25,6 +25,9 @@ else:
 params_list = [(date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"]
 
 layout = layout_for_tvs(costcenter='TASLAMA')
+
+
+
 @app.callback(
     Output("animate_taslama", "disabled"),
     Input("play", "n_clicks"),

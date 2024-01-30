@@ -872,7 +872,7 @@ def layout_for_tvs(costcenter='MONTAJ'):
                         html.Div(
                             id=f'slider-output-container_{costcenter.lower()}',style={'width':500, 'display': 'inline-block'}),
                         dcc.Interval(id=f"animate_{costcenter.lower()}", interval=10000, disabled=False),
-                        dcc.Interval(id="15min_update", interval=110000, disabled=False),
+                        dcc.Interval(id="15min_update", interval=80000, disabled=False),
                         dcc.Store(id="list_of_stationss"),
                         dcc.Store(
                             id=f"livedata_{costcenter.lower()}",

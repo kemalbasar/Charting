@@ -1,5 +1,5 @@
 ### Import Packages ###
-import json
+import os
 import logging
 import numpy as np
 import pandas as pd
@@ -10,8 +10,9 @@ import dash
 import dash_bootstrap_components as dbc
 from valfapp.functions.functions_prd import calculate_oeemetrics, apply_nat_replacer, get_gann_data, indicator_with_color
 from run.agent import ag
-from config import project_directory
+from config import project_directory, kb
 import plotly.express as px  # (version 4.7.0 or higher)
+from datetime import date, timedelta, datetime
 
 
 MAX_OUTPUT = 25
@@ -42,30 +43,48 @@ cache = Cache(app.server, config={
     'CACHE_DIR': project_directory + r'\Charting\valfapp\cache-directory'
 })
 
-TIMEOUT = 12000
+TIMEOUT = 1200000
 
+#
+# data=[date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=1)).isoformat(),"day"]
+# params = ['2023-12-25','2023-12-25','day']
 
 @cache.memoize(timeout=TIMEOUT)
 def prdconf(params=None):
     paramswith = params[0:2]
     prd_conf = ag.run_query(query=r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
+
+    if os.path.isfile(r"F:\pycarhm projects\Charting\outputs(xlsx)\bul.xlsx"):
+        os.remove(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
+
+    prd_conf.to_excel(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
     onemonth_prdqty = ag.run_query(query=r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?",
                                    params=params)
     if len(prd_conf) == 0:
         return [None, None, None, None, None, None, None, None]
     prd_conf["BREAKDOWNSTART"] = prd_conf.apply(lambda row: apply_nat_replacer(row["BREAKDOWNSTART"]), axis=1)
     prd_conf["IDEALCYCLETIME"] = prd_conf["IDEALCYCLETIME"].astype("float")
-    prd_conf["WORKDAY"] = prd_conf["WORKSTART"].dt.date
 
-    non_times = prd_conf.loc[
-        ((prd_conf["FAILURECODE"] == 'U033') & (prd_conf["BREAKDOWN"] == 10)
-         | (prd_conf["FAILURECODE"] == 'M031')), ["COSTCENTER", "CONFIRMATION", "CONFIRMPOS", "FAILURETIME", "WORKDAY",
-                                                  "WORKCENTER",
-                                                  "SHIFT", "BREAKDOWN"]]
 
-    non_times = non_times.groupby(["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT"]).agg({"FAILURETIME": "sum"})
-    non_times.reset_index(inplace=True)
-    non_times.columns = ["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT", "OMTIME"]
+    # 2 de biten mesai için gün ayarlaması.
+    def adjust_workday(row):
+        if row.hour < 2:  # Checks if the hour is between 00:00 and 01:59
+            return (row - timedelta(days=1)).date()
+        else:
+            return row.date()
+
+    # Apply the function to the 'WORKSTART' column to create/adjust 'WORKDAY' column
+    prd_conf['WORKDAY'] = prd_conf['WORKSTART'].apply(adjust_workday)
+
+
+    #Planlanan Süreden Düşülecek  Duruş Süreleri
+    non_times = ag.run_query(query=r"EXEC VLFPRODEMPTYFAILURE @WORKSTART=?, @WORKEND=?", params=paramswith)
+    non_times["WORKDAY"] = non_times["BREAKDOWNSTART"].dt.date
+    # non_times = non_times.groupby(["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT"]).agg({"FAILURETIME": "sum"})
+    # non_times.reset_index(inplace=True)
+    # non_times.columns = ["COSTCENTER", "WORKCENTER", "WORKDAY", "SHIFT", "OMTIME"]
+    #Planlanan Süreden Düşülecek  Duruş Süreleri
+
 
     summary_helper = prd_conf[prd_conf["CONFTYPE"] == 'Uretim'].groupby(["WORKCENTER", "SHIFT", "MATERIAL"]) \
         .agg({"IDEALCYCLETIME": "sum", "RUNTIME": "sum"})
@@ -83,22 +102,24 @@ def prdconf(params=None):
          2 if ((prd_conf["TOTALTIME"][row] != 0) and (prd_conf["TOTALTIME"][row] <= 3) and prd_conf["QTY"][row] > 3)
          else 3 if prd_conf["BADDATA_FLAG"][row] == 3
          else 0)
-        for row in range(len(prd_conf))
-    ]
-    details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
-        df=prd_conf[prd_conf["BADDATA_FLAG"] == 0], nontimes=non_times)
-    for item in details:
-        try:
-            details[item]["OEE"] = (100 * details[item]["OEE"])
-            details[item]["OEE"] = details[item]["OEE"].astype(int)
-            details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
-        except (TypeError, IntCastingNaNError) as e:
-            print(f"Error: {e}")
-            continue
-    gann_data = get_gann_data(df=prd_conf)
+        for row in range(len(prd_conf))]
 
-    df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0, ["COSTCENTER", "MATERIAL", "QTY", "CONFIRMATION"
-        , "CONFIRMPOS", "WORKSTART", "WORKEND", "BADDATA_FLAG"]]
+    # details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
+    #     df=prd_conf[prd_conf["BADDATA_FLAG"] == 0], nontimes=non_times)
+    #
+    # for item in details:
+    #     try:
+    #         details[item]["OEE"] = (100 * details[item]["OEE"])
+    #         details[item]["OEE"] = details[item]["OEE"].astype(int)
+    #         details[item]['OEE'] = details[item]['OEE'].apply(lambda x: str(x) + ' %')
+    #     except (TypeError, IntCastingNaNError) as e:
+    #         print(f"Error: {e}")
+    #         continue
+
+    gann_data = get_gann_data(df=pd.concat([prd_conf,non_times]))
+
+    df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0, ["COSTCENTER","WORKCENTER", "MATERIAL", "QTY", "CONFIRMATION"
+        , "CONFIRMPOS", "WORKSTART", "WORKEND","RUNTIME", "IDEALCYCLETIME", "BADDATA_FLAG"]]
     df_baddatas["CONFIRMATION"] = df_baddatas["CONFIRMATION"].astype('str')
     df_baddatas.drop_duplicates(inplace=True)
     df_baddata_rates = prd_conf[prd_conf["CONFTYPE"] == "Uretim"].groupby(["COSTCENTER", "BADDATA_FLAG"]).agg(
@@ -174,6 +195,7 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
     # If time interval 'day' then there will be shift and material columns in details table otherwise there wont.
     # i used list indices to manupulate column list of details table
+
     if params["interval"] == 'day':
         col_ind = 0
         groupby_column = "SHIFT"
@@ -327,3 +349,5 @@ app.clientside_callback(
 )
 if __name__ == "__main__":
     app.run(debug=True)
+
+x = 3

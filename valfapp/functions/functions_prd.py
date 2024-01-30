@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import warnings
 import plotly.graph_objs as go
+from datetime import datetime
 
 warnings.filterwarnings("ignore")
 
@@ -65,7 +66,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df.reset_index(drop=True, inplace=True)
     df["SCRAPTEXT"] = df["SCRAPTEXT"].astype(str)
     df["DISPLAY"] = df["DISPLAY"].astype(str)
-
+    df = pd.concat([nontimes,df])
     def custom_agg(group):
         agg_dict = {
             "QTY": group['QTY'].sum(),
@@ -93,26 +94,46 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df_metrics["IDEALCYCLETIME"] = df_metrics["IDEALCYCLETIME"].astype(float)
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"].astype(float)
 
-    if len(nontimes) > 0:
-        df_metrics = df_metrics.merge(nontimes, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
+
 
     if len(df_prdcount) > 0:
         df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
-    df_metrics["OMTIME"] = df_metrics["OMTIME"].fillna(0)
-    df_metrics["OMTIME"] = df_metrics["OMTIME"] / df_metrics["QTY_y"]
+    # df_metrics["OMTIME"] = df_metrics["OMTIME"].fillna(0)
+    # df_metrics["OMTIME"] = df_metrics["OMTIME"] / df_metrics["QTY_y"]
 
     df_shifttotal = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(
         TOTAL_SHIFT_TIME=("TOTALTIME", "sum"))
+    nontimes = nontimes.groupby(["WORKCENTER", "SHIFT", "WORKDAY"]).agg(
+        OM_TIME=("FAILURETIME", "sum"))
+    # nontimes["BREAKDOWNSTART"] = pd.to_datetime(nontimes['BREAKDOWNSTART'])
+    # nontimes["BREAKDOWNSTART"] = nontimes["BREAKDOWNSTART"].dt.date
     df_shifttotal.reset_index(inplace=True)
-    df_metrics = df_metrics.merge(df_shifttotal, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
-    df_metrics["NANTIME"] = (510 - df_metrics["TOTAL_SHIFT_TIME"] - df_metrics["OMTIME"]) * df_metrics["TOTALTIME"] / \
-                            df_metrics["TOTAL_SHIFT_TIME"]
+    nontimes.reset_index(inplace=True)
+    df_metrics = df_metrics.merge(df_shifttotal, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'],
+                                  how='left')
+    df_metrics = df_metrics.merge(nontimes, on=[ 'WORKCENTER', 'WORKDAY', 'SHIFT'],
+                                  how='left')
+    df_metrics["OM_TIME"] = df_metrics["OM_TIME"].fillna(0)
 
-    # There will be counter for broken data.
-    df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0
-                             else df_metrics["NANTIME"][row] for row in
-                             range(len(df_metrics))]
+    def calculate_nantime(workday, total_shift_time, om_time):
+        # Convert '03-07-2023' to a datetime.date object
+        comparison_date = datetime.strptime('03-07-2023', '%d-%m-%Y').date()
+        return (475 if workday > comparison_date else 400) - total_shift_time - om_time
+
+    # Applying the function to each row in the dataframe
+    df_metrics["NANTIME"] = df_metrics.apply(
+        lambda row: calculate_nantime(row["WORKDAY"], row["TOTAL_SHIFT_TIME"], row["OM_TIME"]), axis=1)
+
+    df_metrics["NANTIME"] = df_metrics["NANTIME"] / df_metrics["QTY_y"]
+    df_metrics.loc[df_metrics['NANTIME'] < 0, 'NANTIME'] = 0
+    # df_metrics["NANTIME"] = [0 if df_metrics["NANTIME"][row] < 0
+    #                          else df_metrics["NANTIME"][row] for row in
+    #                          range(len(df_metrics))]
     df_metrics["PLANNEDTIME"] = df_metrics["TOTALTIME"] + df_metrics["NANTIME"]
+
+    #Shift Time Calculations.#Shift Time Calculations.#Shift Time Calculations.
+
+
 
     df_metrics.reset_index(inplace=True, drop=True)
     df_metrics["PERFORMANCE"] = [
@@ -133,7 +154,6 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     # df_metrics["PERFORMANCEWITHWEIGHT"] = df_metrics["PERFORMANCE"] * df_metrics["VARD"]
     # df_metrics["PERFORMANCEWITHWEIGHT"].sum() / df_metrics["VARD"].sum()
     weights = df_metrics.loc[df_metrics.index, "PLANNEDTIME"]
-    weights2 = df_metrics.loc[df_metrics.index, "RUNTIME"]
     weights[weights <= 0] = 1
     df_metrics = df_metrics[df_metrics["TOTALTIME"] > 0]
 
@@ -252,7 +272,9 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         #        df_piechart_final["OPR"]["SESSIONTIME2"] = str(int(df_piechart_final["OPR"]["SESSIONTIME2"])) + '%'
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
-    return details, df_metrics, df_metrics_forwc, df_metrics_forpers
+    df_metrics = pd.concat([df_metrics, nontimes])
+    print(df_metrics)
+    return details,df_metrics, df_metrics_forwc, df_metrics_forpers
 
 
 # df_oee, df_metrics = calculate_oeemetrics()
