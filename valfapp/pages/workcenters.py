@@ -57,18 +57,31 @@ def return_tops_with_visibility(graph_id, visible=True):
     return html.Div(
         children=[
             dcc.Graph(id=f"{graph_id}_graph", figure={}, style={'margin-left': 120}),
-            dash_table.DataTable(id=f"{graph_id}_table", data=[], columns=[],
-                                 style_cell={
-                                     "minWidth": "80px",
-                                     "width": "80px",
-                                     "maxWidth": "100px",
-                                     "textAlign": "center",
-                                 },
-                                 style_table={
-                                     "height": '150px',
-                                     "width": '700px',  # Fixed pixel width
-                                     "overflowY": 'auto',
-                                 }
+            dash_table.DataTable(id=f"{graph_id}_table", data=[], columns=[]
+                                ,style_cell={
+                                    'color': 'black',  # Font color for the cells
+                                    'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
+                                    'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
+                                    'textAlign': 'center',  # Center text alignment
+                                    'border': '1px solid black'  # Border for the cells
+                            },
+                                style_table = {
+                                    'height': '150px',  # Fixed height for the virtualized table
+                                    'width': '800px',  # Fixed width for the table
+                                    'overflowY': 'auto',  # Enable vertical scroll
+                                    'borderCollapse': 'collapse',  # Collapse borders
+                                    'border': '1px solid black'  # Border around the table
+                            },
+                                style_header = {
+                                    'fontWeight': 'bold',  # Make header text bold
+                                    'backgroundColor': 'rgba(0, 0, 0, 0.1)',  # Slightly darker background for the header
+                                    'borderBottom': '1px solid black',  # Bottom border for the header cells
+                                    'color': 'black'  # Font color for the header
+                            },
+                                style_data_conditional = [
+                                # Here you can add any conditional styles you might have
+                                # For example, styling for the active cell or conditional formatting based on cell values
+                            ],
                                  )
         ],
         id=graph_id,
@@ -114,9 +127,10 @@ layout = dbc.Container([
                       options=[{"label": cc, "value": cc} for cc in costcenters],
                       multi=False,
                       value="CNC",
+                      style={'margin-top':5}
                       ),
-         dcc.DatePickerSingle(id='date-picker1', date=date.today(), className="dash-date-picker",
-                              persistence=True, persistence_type='local', style={"color": "white"}),
+         dcc.DatePickerSingle(id='date-picker1', date=(date.today() - timedelta(days=kb)), className="dash-date-picker",
+                              persistence=True, persistence_type='memory', style={"color": "white"}),
 
          dbc.Button("Week", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
          dbc.Button("Month", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
@@ -132,8 +146,9 @@ layout = dbc.Container([
                    data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
                          "workend": date.today().isoformat(),
                          "interval": "day"}),
-         html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
-                     style={"position": "absolute", "right": 200, "top": "3", "width": "150px", "height": "35px"}),
+         html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="dash-empty-button",
+                     style={"position": "absolute", "right": 175, "top": "3", "width": "150px", "height": "35px"}),
+
          html.Div(id="toggle_div", children=[
              html.H1("Hatalı Veri Girişleri", style={"textAlign": "center"}),
              html.Hr(),
@@ -147,29 +162,47 @@ layout = dbc.Container([
                      dash_table.DataTable(
                          id="invalid_data_table",
                          columns=[],
-                         # [{"name": i, "id": i} for i in oeelist[4].columns],
-                         style_cell={
-                             "minWidth": "100px",
-                             "width": "100px",
-                             "maxWidth": "100px",
-                             "textAlign": "center",
-                         },
+                         style_cell = {
+                            'color': 'black',  # Font color for the cells
+                            'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
+                            'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
+                            'textAlign': 'center',  # Center text alignment
+                            'border': '1px solid black'  # Border for the cells
+                    },
+                         style_table = {
+                            'height': '150px',  # Fixed height for the virtualized table
+                            'width': '800px',  # Fixed width for the table
+                            'overflowY': 'auto',  # Enable vertical scroll
+                            'borderCollapse': 'collapse',  # Collapse borders
+                            'border': '1px solid black'  # Border around the table
+                    },
+                         style_header = {
+                            'fontWeight': 'bold',  # Make header text bold
+                            'backgroundColor': 'rgba(0, 0, 0, 0.1)',  # Slightly darker background for the header
+                            'borderBottom': '1px solid black',  # Bottom border for the header cells
+                            'color': 'black'  # Font color for the header
+                    },
+                         style_data_conditional = [
+                        # Here you can add any conditional styles you might have
+                        # For example, styling for the active cell or conditional formatting based on cell values
+                    ],
                      ),
                      width={"size": 8}
                  ),
              ]),
-         ]),
+         ],style = {"display": 'none'}),
          html.Div(id='refresh', style={'display': 'none'}),
          html.Div(id='refresh2', style={'display': 'none'}),
          html.Div(id='output-div'),
          # Include this line in your app layout
          dcc.Location(id='location', refresh=True),
          dcc.Location(id='location2', refresh=True),
-         html.Button("Oee Data", id="download-button", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+
+         html.Button("Oee Data", id="download-button", n_clicks=0, className="dash-empty-button,
                      style={"position": "absolute", "right": "0", "top": "-1", "width": "100px", "height": "35px"}),
-         html.Button("Details Data", id="download-button2", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+         html.Button("Details Data", id="download-button2", n_clicks=0, className="dash-empty-button",
                      style={"position": "absolute", "right": 100, "top": "-1", "width": "100px", "height": "35px"}),
-         html.Button("Bad Data", id="download-button3", n_clicks=0, className="bbtn btn-primary btn-sm ml-auto",
+         html.Button("Bad Data", id="download-button3", n_clicks=0, className="dash-empty-button",
                      style={"position": "absolute", "right": 100, "top": 98, "width": "100px", "height": "35px"}),
          dcc.Download(id="download-data"),
          dcc.Download(id="download-data2"),
@@ -308,7 +341,8 @@ def page_refresh(n):
 @app.callback(
     Output("toggle_div", "style"),
     Output('flam', 'style'),
-    Input("toggle_button", "n_clicks")
+    Input("toggle_button", "n_clicks"),
+    prevent_initial_call=True
 )
 def toggle_first_div(n_clicks):
     if n_clicks and n_clicks % 2 == 1:
