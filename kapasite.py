@@ -1,28 +1,15 @@
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 import math
 import dash
+import tkinter as tk
+from tkinter import ttk
+
 import dash_bootstrap_components as dbc
-from dash import dcc
+import pandas as pd
+from dash import dcc,Input, Output, State
 from run.agent import ag
 import plotly.express as px
-
-
-
-app = dash.Dash(
-    __name__,
-    meta_tags=[{'name': 'viewport',
-                'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
-    external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"],
-    external_stylesheets=[dbc.themes.PULSE],
-    suppress_callback_exceptions=True)
-
-app.css.append_css({
-    "external_url": (
-        "https://cdnjs.cloudflare.com/ajax/libs/"
-        "twitter-bootstrap/4.5.0/css/bootstrap.css"
-    ),
-    "raw": ".row-cols {margin-right: -0.5rem; margin-left: -0.5rem;}"
-})
+from valfapp.app import app
 
 
 
@@ -33,10 +20,11 @@ df = ag.run_query(r"SELECT * FROM VLFPLATECAP")
 def pivotting_table():
     df_sade = df[formatted_weeks()]
     print(df_sade)
-    pivot_columns = df_sade.columns.difference(['MATERIAL','COSTCENTER','SURE_HESAPLAMA_KODU','MACHINE','LABOUR','SETUP','BASEQUAN'])
+    pivot_columns = df_sade.columns.difference(['MATERIAL','COSTCENTER','WORKCENTER','SURE_HESAPLAMA_KODU','MACHINE','LABOUR','SETUP','BASEQUAN'])
 
     # Pivot the data
-    pivoted_df = df.melt(id_vars=['MATERIAL','COSTCENTER','SURE_HESAPLAMA_KODU','MACHINE','LABOUR','SETUP','BASEQUAN'], value_vars=pivot_columns, var_name='current_week', value_name='value')
+    pivoted_df = df.melt(id_vars=['MATERIAL','COSTCENTER','WORKCENTER','SURE_HESAPLAMA_KODU','MACHINE','LABOUR','SETUP','BASEQUAN'], value_vars=pivot_columns, var_name='current_week', value_name='value')
+
     print(pivoted_df)
     pivoted_df["BASEQUAN"] = pivoted_df["BASEQUAN"].astype(int)
     pivoted_df["MACHINE"] = pivoted_df["MACHINE"].astype(float)
@@ -50,7 +38,6 @@ def pivotting_table():
         lambda x: '-'.join([x.split('-')[0], x.split('-')[1].zfill(2)]) if len(x.split('-')) > 1 else x)
 
     return pivoted_df
-
 
 
 def formatted_weeks():
@@ -73,6 +60,8 @@ def formatted_weeks():
     formatted_weeks.insert(0, 'IHT0')
     formatted_weeks.insert(0, 'MATERIAL')
     formatted_weeks.insert(0, 'COSTCENTER')
+    formatted_weeks.insert(0, 'WORKCENTER')
+
     formatted_weeks.insert(0, 'SURE_HESAPLAMA_KODU')
     formatted_weeks.insert(0, 'MACHINE')
     formatted_weeks.insert(0, 'LABOUR')
@@ -118,14 +107,87 @@ def calculate_maxtime(row):
 # Apply the function to each row in the DataFrame
 
 
-a = pivotting_table()
-
-sum_a = a.groupby('COSTCENTER').sum({'value_min'}).reset_index()
-
-fig = px.bar(sum_a, x='COSTCENTER', y='value_min')
 
 app.layout = dbc.Container([dcc.Graph(figure=fig)
 ])
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+a = pivotting_table()
+
+print(a)
+
+root = tk.Tk()
+root.title("ComboBox Örneği")
+
+
+
+layout = dbc.Container([
+    dcc.Store(id='stored_data'),
+    dbc.Row([
+        dbc.Col([dcc.Dropdown(
+            id='costcenter-dropdown',
+            options=[{'label': i, 'value': i} for i in
+                     ["CNC", "CNCTORNA", "FASON", "ISIL", "MONTAJ", "PAKET", "PLKYZYIS", "PRESHANE", "TASLAMA",
+                      "YIKAMA"]],
+            value='CNC'
+        )
+        ]),
+        dbc.Col([dcc.Dropdown(
+            id='workcenter-dropdown',
+            options=[],
+            value='CNC'
+        )
+            ])
+        ]),
+    dbc.Row([
+        dbc.Col([
+dcc.Graph(id='fig')
+    ]),
+        dbc.Col([
+dcc.Graph(id='figx')
+    ])
+        ])
+
+])
+
+
+@app.callback(
+    Output('figx', 'figure'),
+    [Input('costcenter-dropdown', 'value')]
+)
+def update_graph(selected_costcenter):
+    filtered_a = a[a['COSTCENTER'] == selected_costcenter]
+    sum_b = filtered_a.groupby(['COSTCENTER', 'WORKCENTER']).sum({'value_min'}).reset_index()
+    figx = px.bar(sum_b, x='WORKCENTER', y='value_min')
+    return figx
+
+def update_graph(selected_costcenter):
+    filtered_a = a[a['COSTCENTER'] == selected_costcenter]
+    sum_a = a.groupby('COSTCENTER', 'current_week').sum({'value_min'}).reset_index()
+    fig = px.bar(sum_a, x='current_week', y='value_min')
+    return fig
+
+
+
+
+@app.callback(
+    Output('stored_data','data'),
+    Input('workcenter-dropdowns','options')
+)
+def workcenter_data_generate(costcenter):
+    df = ag.run_query(f"SELECT * FROM VLFPLATEMRP WHERE COSTCENTER = '{costcenter}'")
+#    df = SORgu yazıyorum
+    df = df.to_json(date_format='iso', orient='split'),
+    return df
+
+
+@app.callback(
+    Output('workcenter-dropdowns', 'options'),
+    Input('stored_data','data')
+)
+def workcenter_data_generate(df):
+#    [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
+    df = pd.read_json(df, orient='split')
+
+    return df["WORKCENTER"].unique()
+
+
