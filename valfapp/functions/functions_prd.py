@@ -572,7 +572,7 @@ def indicator_for_tvs(status='white', fullname='',
                 color='black'
             )
         ),
-        "paper_bgcolor": layout_color,
+        "paper_bgcolor": status,
         "width": size["width"], "height": size["height"]})
 
     return fig
@@ -664,7 +664,7 @@ def indicator_for_yislem(status='white', fullname='',
         #     'tickangle': 45,
         #     'tickfont': {'size': 12, 'color': 'blue'}
         # },
-        "paper_bgcolor": layout_color,
+        "paper_bgcolor": status,
         "width": size["width"],
         "height": size["height"],
 
