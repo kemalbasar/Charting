@@ -13,6 +13,7 @@ from valfapp.app import app
 
 
 
+
 df = ag.run_query(r"SELECT * FROM VLFPLATECAP")
 
 
@@ -23,6 +24,7 @@ def pivotting_table():
 
     # Pivot the data
     pivoted_df = df.melt(id_vars=['MATERIAL','COSTCENTER','WORKCENTER','SURE_HESAPLAMA_KODU','MACHINE','LABOUR','SETUP','BASEQUAN'], value_vars=pivot_columns, var_name='current_week', value_name='value')
+
     print(pivoted_df)
     pivoted_df["BASEQUAN"] = pivoted_df["BASEQUAN"].astype(int)
     pivoted_df["MACHINE"] = pivoted_df["MACHINE"].astype(float)
@@ -36,6 +38,7 @@ def pivotting_table():
         lambda x: '-'.join([x.split('-')[0], x.split('-')[1].zfill(2)]) if len(x.split('-')) > 1 else x)
 
     return pivoted_df
+
 
 def formatted_weeks():
     # Current date
@@ -58,6 +61,7 @@ def formatted_weeks():
     formatted_weeks.insert(0, 'MATERIAL')
     formatted_weeks.insert(0, 'COSTCENTER')
     formatted_weeks.insert(0, 'WORKCENTER')
+
     formatted_weeks.insert(0, 'SURE_HESAPLAMA_KODU')
     formatted_weeks.insert(0, 'MACHINE')
     formatted_weeks.insert(0, 'LABOUR')
@@ -102,6 +106,10 @@ def calculate_maxtime(row):
 
 # Apply the function to each row in the DataFrame
 
+
+
+app.layout = dbc.Container([dcc.Graph(figure=fig)
+])
 
 a = pivotting_table()
 
@@ -182,5 +190,4 @@ def workcenter_data_generate(df):
 
     return df["WORKCENTER"].unique()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+

@@ -26,7 +26,7 @@ app = dash.Dash(
     __name__,
     meta_tags=[{'name': 'viewport',
                 'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
-    external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"],
+    external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js","/website/css/uicons-outline-rounded.css","https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"],
     external_stylesheets=[dbc.themes.PULSE],
     suppress_callback_exceptions=True)
 
@@ -118,8 +118,8 @@ def prdconf(params=None):
 
     gann_data = get_gann_data(df=pd.concat([prd_conf,non_times]))
 
-    df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0, ["COSTCENTER", "MATERIAL", "QTY", "CONFIRMATION"
-        , "CONFIRMPOS", "WORKSTART", "WORKEND", "BADDATA_FLAG"]]
+    df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0, ["COSTCENTER","WORKCENTER", "MATERIAL", "QTY", "CONFIRMATION"
+        , "CONFIRMPOS", "WORKSTART", "WORKEND","RUNTIME", "IDEALCYCLETIME", "BADDATA_FLAG"]]
     df_baddatas["CONFIRMATION"] = df_baddatas["CONFIRMATION"].astype('str')
     df_baddatas.drop_duplicates(inplace=True)
     df_baddata_rates = prd_conf[prd_conf["CONFTYPE"] == "Uretim"].groupby(["COSTCENTER", "BADDATA_FLAG"]).agg(

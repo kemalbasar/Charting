@@ -1,18 +1,12 @@
 import pandas as pd
 from datetime import datetime
 
-server = '*'
-database = '*'
-database_iot = '*'
-username = '*'
-password = '*'
 
 reengen_username = "takgun@valfsan.com.tr"
 reengen_password = '1234Ta1234'
 reengen_company = 'valfsan'
 
-
-project_directory = r"C:\Users\fozturk\Documents\GitHub"
+project_directory = r"F:\pycarhm projects"
 
 directory = project_directory + r'\Charting\queries'
 dirofquery = project_directory + r'\Charting\queries\query2.txt'
@@ -103,5 +97,11 @@ valftoreeg = {"Bütün":{"Analizörler":"Analizörler","Bölümler":"Bölümler"
               "TRAFO":{'TRAFO - 1600 kVA': 'valfsan_trafo'}}
 
 
+today = datetime.today()
 
-
+if today.weekday() == 6:
+    kb = 2
+elif today.weekday() == 0:
+    kb = 3
+else:
+    kb = 1

@@ -5,27 +5,41 @@ import dash_table
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
+from _plotly_utils.colors.qualitative import Alphabet
 from dash import dcc, html, Input, Output, State
 from dash.exceptions import PreventUpdate
 from dateutil.relativedelta import relativedelta
 from config import valftoreeg, project_directory
 from run.agent import ag
 from valfapp.app import cache, app
+from valfapp.configuration import layout_color
+from valfapp.layouts import nav_bar
 
-query = f"SELECT MPOINT, SUM(OUTPUT) AS TOTAL,SUBSTRING(DATE, 1, 7)  as DATE " \
+query = f"SELECT  TOP 3 MPOINT, SUM(OUTPUT) AS TOTAL,SUBSTRING(DATE, 1, 7)  as DATE " \
         f"FROM VLFENERGY " \
         f"WHERE COSTCENTER = 'TRAFO' " \
-        f"AND CAST(SUBSTRING(DATE, 1, 10) AS DATE) >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0) " \
-        f"GROUP BY MPOINT, SUBSTRING(DATE, 1, 7) "
+        f"AND CAST(SUBSTRING(DATE, 1, 10) AS DATE) > DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0) " \
+        f"GROUP BY MPOINT, SUBSTRING(DATE, 1, 7) " \
+        f"ORDER BY SUBSTRING(DATE, 1, 7) DESC"
 
 query_pie = f"SELECT COSTCENTER,SUM(OUTPUT) AS CONSUMPTION FROM VLFENERGY WHERE MPOINT NOT LIKE CASE COSTCENTER WHEN 'CNC' THEN '%-%' ELSE '%ASDF%' END " \
             f"AND MPOINT  LIKE CASE COSTCENTER WHEN 'PRESHANE' THEN '%Pano%' ELSE '%%'  END AND DATE > '20231117' GROUP BY COSTCENTER ORDER BY COSTCENTER"
 
 df = ag.run_query(query)
 
-fig = px.bar(df, y='DATE', x='TOTAL', width=425, height=425, orientation='h',color_continuous_midpoint="darkorange")
-fig.update_layout(bargap=0.2)
-colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
+fig = px.bar(df,orientation='h',x='TOTAL', y='DATE', width=350, height=400)
+fig.update_layout(xaxis=dict(
+        showgrid=True,  # Show gridlines for x-axis
+        gridcolor='LightPink',  # Change to desired gridline color for x-axis
+        gridwidth=2  # Change to desired gridline width for x-axis
+    ),
+    yaxis=dict(
+        dtick="M1",
+        showgrid=True,  # Show gridlines for y-axis
+        gridcolor='LightBlue',  # Change to desired gridline color for y-axis
+        gridwidth=2  # Change to desired gridline width for y-axis
+    ),bargap=0.2,paper_bgcolor=layout_color,plot_bgcolor='rgba(0, 0, 0, 0)')
+
 
 
 def return_pie():
@@ -34,104 +48,121 @@ def return_pie():
     df_pie.iloc[-1] = ("DIGER", df_pie.loc[df_pie["COSTCENTER"] == 'TRAFO', "CONSUMPTION"].sum() - df_pie.loc[
         df_pie["COSTCENTER"] != 'TRAFO', "CONSUMPTION"].sum())
     df_pief = df_pie[df_pie["COSTCENTER"] != 'TRAFO']
-    fig = px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER")
-    fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=10,
-                      marker=dict(colors=colors, line=dict(color='white', width=1)))
-    fig.update_layout(
-        width=475,  # Set the desired width
-        height=475,
-        uniformtext_minsize=9, uniformtext_mode='hide',
-        legend=dict(
-            font=dict(
-                size=7  # You can adjust the size to your preference
-            )
-        )
-    )
+    fig=px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER").update_layout(legend=dict(
+        font=dict(size=9),  # Decrease font size for legend text
+    ),paper_bgcolor=layout_color,width=480, height=400)
+    fig.update_traces(textinfo='percent', textfont_size = 12,marker = dict(colors=Alphabet, line=dict(color='#000000', width=2)))
+
+
     return fig
 
-
 layout = [
+    # Your commented-out buttons
     # dbc.Button("Day", id="btn-day_en", n_clicks=0, color="primary", className='day-button'),
     # dbc.Button("Week", id="btn-week1_en", n_clicks=0, color="primary", className='week-button'),
     # dbc.Button("Month", id="btn-month1_en", n_clicks=0, color="primary", className='month-button'),
     # dbc.Button("Year", id="btn-year1_en", n_clicks=0, color="primary", className='year-button'),
 
+    # Store and Download components
     dcc.Store(id='generated_data'), dcc.Download(id="download-energy"),
-    dbc.Row(html.H1("Valfsan Production Energy Consumption",
-                    style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,
-                           'backgroundColor': '#f0f0f0'})),
+
+    # Navigation Bar
+    nav_bar,
+
+    # Energy Search and Filter Components
+
+    dbc.Row(
+        [
+            dbc.Col(
+                html.Div(
+                    [
+                        dcc.Dropdown(
+                            id='machine-type-dropdown',
+                            options=[
+                                {'label': k, 'value': k}
+                                for k in valftoreeg.keys()
+                            ],
+                            value=list(valftoreeg.keys())[0],
+                            style={
+                                'color': 'white',
+                                'width': 220,
+                            },
+                        )],style={"margin-top":18}),width =1),
+            dbc.Col(
+                html.Div(
+                    [dcc.Dropdown(
+                            id='machine-dropdown',
+                            style={
+                                'color': 'white',
+                                'width': 220,
+                            },
+                            value='Analizörler'
+                        )],style={"margin-top":18}),width =1),
+            dbc.Col(
+                html.Div(
+                    [dcc.Dropdown(
+                            id='date-dropdown',
+                            options=[
+                                {'label': i, 'value': i}
+                                for i in ['Day', 'Month']
+                            ],
+                            style={
+                                'color': 'white',
+                                'font': {'color': '#2149b4'},
+                                'width': 220,
+                            },
+                            value='month',
+                        ),
+                    ],
+                    style={"margin-top":18},
+                ),
+                className="",width =1
+            ),
+            dbc.Col(
+                html.Div(
+                    [
+                        dcc.DatePickerRange(
+                            id='date-picker',
+                            className="dash-date-picker-multi",
+                            start_date=(date.today() - timedelta(weeks=1)).isoformat(),
+                            end_date=(date.today()).isoformat(),
+                            display_format='YYYY-MM-DD',
+                            style={'color': '#212121'},
+                            persistence=True,
+                            persistence_type='session',
+                        ),
+                        html.Button(
+                            'Search',
+                            id='search',
+                            className="dash-empty-button",
+                            n_clicks=0,
+                        ),
+                        html.Button(
+                            'Download',
+                            id='download',
+                            className="dash-empty-button",
+                            n_clicks=0,
+                        ),
+                    ],
+                ),style={"margin-left":100,"margin-top":15}
+            ),
+        ],style= {"margin-top":40,'border': '3px dashed blue',"margin-left":44}, className="g-0"
+    ),
     dbc.Row([
         dbc.Col([
             dbc.Row([
-                dbc.Col([
-                    dcc.Link(
-                        children='Main Page',
-                        href='/',
-                        style={"color": "black", "font-weight": "bold"}
-                    ),
-                    html.Br(),
-                    html.Br(),
-                    html.Div(
-                        [
-                            # Div for dropdowns and date pickers
-                            html.Div(
-                                [
-                                    dbc.Row([dcc.Dropdown(
-                                        id='machine-type-dropdown',
-                                        options=[{'label': k, 'value': k} for k in valftoreeg.keys()],
-                                        value=list(valftoreeg.keys())[0],  # Default value
-                                        style={"width": 150}
-                                    ),
-                                        html.Br(),
-                                        dcc.Dropdown(
-                                            id='machine-dropdown',
-                                            style={"width": 220},
-                                            value='Analizörler'
-                                        )]),
-                                    dcc.Dropdown(
-                                        id='date-dropdown',
-                                        options=['day', 'month'],
-                                        style={"width": 150},
-                                        value='month'
-                                    ),
-                                    html.Br(),
-                                    dcc.DatePickerRange(
-                                        id='date-picker',
-                                        className="dash-date-picker-multi",
-                                        start_date=(date.today() - timedelta(weeks=1)).isoformat(),
-                                        end_date=(date.today()).isoformat(),
-                                        display_format='YYYY-MM-DD',
-                                        style={'color': '#212121'},
-                                        persistence=True, persistence_type='session'
-                                    )
-                                ],
-                                style={'display': 'inline-block', 'width': 'auto', 'marginRight': '20px'}
-                            ),
-                            # Separate Div for the button
-                            html.Div(
-                                [
-                                    html.Button(
-                                        'Search',
-                                        id='search',
-                                        className="dash-empty-button",
-                                        n_clicks=0,
-                                    ),
-                                    html.Button(
-                                        'Download',
-                                        id='download',
-                                        className="dash-empty-button",
-                                        n_clicks=0,
-                                    )
-                                ],
-                                style={'display': 'inline-block', 'textAlign': 'center'}
-                            )
-                        ],
-
-                    )], width=2),
-                dbc.Col([
-                    dcc.Graph(id="pie_chart", figure=return_pie())], width=5),
-                dbc.Col([dcc.Graph(id='example-graph', figure=fig)], width=1)
+                dbc.Col(
+                    dcc.Graph(id="pie_chart", figure=return_pie()),
+                    className="",style={"margin-top":49}
+                ),
+                dbc.Col(
+                    html.Div([
+                        dcc.Graph(id='example-graph', figure=fig),
+                    ],style={"margin-left":75,"margin-top":49}),
+                    className="",
+                ),
             ]),
+
             dbc.Row([
                 dash_table.DataTable(
                     id="data_table",
@@ -139,15 +170,12 @@ layout = [
                     columns=[],
                     filter_action='native',
                     style_cell={
-                        "minWidth": "100px",
-                        "width": "100px",
-                        "maxWidth": "150px",
                         "textAlign": "center",
-                        "padding": "10px"
+                        "padding": "10px",
+                        "color":"black",
+                        'max-width': 100
                     },
                     style_table={
-                        'width': '100%',
-                        'margin': 'auto',
                         'borderCollapse': 'collapse',
                     },
                     style_data_conditional=[
@@ -160,23 +188,23 @@ layout = [
                         'backgroundColor': 'rgb(230, 230, 230)',
                         'fontWeight': 'bold'
                     },
-                    sort_action='native',
+                    sort_action='native'
                 ),
                 dash_table.DataTable(
                     id="data_table_sum",
                     data=[],
                     columns=[],
                     style_cell={
-                        "minWidth": "100px",
-                        "width": "100px",
-                        "maxWidth": "150px",
                         "textAlign": "center",
-                        "padding": "10px"
+                        "padding": "10px",
+                        "color":"black",
+                        'max-width': 115
+
                     },
                     style_table={
-                        'width': '100%',
                         'margin': 'auto',
                         'borderCollapse': 'collapse',
+                        "margin-top": "20px",
                     },
                     style_data_conditional=[
                         {
@@ -190,19 +218,15 @@ layout = [
                     },
                     sort_action='native',
                 )
+            ], style={"margin-top":75}, className="")
+            ],width=7,style={"margin-left":"100px"}),
 
-            ], style={"marginTop": 50}
-            )
-        ]),
-        dbc.Col([
-            html.Div(id="wc-output-container_energy"), ]
-            , width=4)
-    ]),
-    dbc.Row([
-        dbc.Col(),
-
-    ])
+        dbc.Col(
+            html.Div(id="wc-output-container_energy"),
+            style={ "margin-top": 50}
+        ,width=4)])
 ]
+
 
 
 # Define the callback to update the second dropdown
@@ -228,7 +252,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
     else:
         gruplamami = 0
 
-    if date_interval == 'day':
+    if date_interval == 'Day':
         with open(project_directory + f"\Charting\queries\energy_qandweight_daily.sql", 'r') as file:
             filedata = file.read()
     else:
@@ -319,7 +343,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
         # ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
         # ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!! ENERJİ DATALARINI ÇEKİYORUZ!!
 
-        if date_interval == 'day':
+        if date_interval == 'Day':
 
             if m_point_tmp == '11 Pres (Pano 3 Diger)':
                 df_works = ag.run_query(f"WITH ASD AS ( SELECT CAST(DATE AS DATETIME) AS DATE,"
@@ -436,7 +460,7 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                                        "19 CNC (Pano 1)", 'PRES - Pano 3', 'PRES - Pano 2',
                                        'PRES - Pano 1'])))]
 
-        if date_interval == 'month':
+        if date_interval == 'Month':
             print("*****")
             print(df_final)
             df_final = df_final.groupby(["COSTCENTER", "DATE"]).agg({"TOTALNETWEIGHT(ton)": "sum",
@@ -570,19 +594,25 @@ def line_graph_update(data):
         title='Energy Consumption Per Ton',
         xaxis_title='Date',
         yaxis_title='Consumption Per Ton',
-        legend_title="Metrics"
+        legend_title="Metrics",
+        paper_bgcolor=layout_color,
+        plot_bgcolor='rgba(0, 0, 0, 0)'
     )
     fig_combined_perqty.update_layout(
         title='Energy Consumption Per Quantity',
         xaxis_title='Date',
         yaxis_title='Consumption Per Quantıy',
-        legend_title="Metrics"
+        legend_title="Metrics",
+        paper_bgcolor=layout_color,
+        plot_bgcolor='rgba(0, 0, 0, 0)'
     )
     fig_combined_cons.update_layout(
         title='Energy Consumption Comparison',
         xaxis_title='Date',
         yaxis_title='Energy Consumption',
-        legend_title="Metrics"
+        legend_title="Metrics",
+        paper_bgcolor=layout_color,
+        plot_bgcolor='rgba(0, 0, 0, 0)'
     )
 
     return html.Div(children=[dcc.Graph(figure=fig_combined_perton), dcc.Graph(figure=fig_combined_perqty),

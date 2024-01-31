@@ -7,8 +7,9 @@ import dash_bootstrap_components as dbc
 ### Import Dash Instance and Pages ###
 from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
-from valfapp.layouts import layout_27_loginpage, layout_12_loginpage
-from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv,kameraayıklama
+from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
+from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
+    tvmonitor,uretimrapor,deneme,kapasite
 from flask import request,g
 
 ### Page container ###
@@ -46,7 +47,7 @@ login_layout = dbc.Container([
 
 ### Index Page Layout ###
 
-index_layout = layout_12_loginpage
+index_layout = layout_12_loginpage_v2
 
 # Update the before_request method
 @app.server.before_request
@@ -141,6 +142,14 @@ def display_page(pathname,login_status_data):
             return yuzeyislemtv.layout
         elif pathname == '/camayik':
             return kameraayıklama.layout
+        elif pathname == '/tvmonitor':
+            return tvmonitor.layout
+        elif pathname == '/uretimrapor':
+            return uretimrapor.layout
+        elif pathname == '/deneme':
+            return deneme.layout
+        elif pathname == '/kapasite':
+            return kapasite.layout
         else:
             print(f"adsadasd{pathname}")
             return '404'
@@ -169,7 +178,11 @@ app.validation_layout = html.Div(
         taslamatv.layout,
         montajtv.layout,
         yuzeyislemtv.layout,
-        kameraayıklama.layout
+        kameraayıklama.layout,
+        tvmonitor.layout,
+        uretimrapor.layout,
+        deneme.layout,
+        kapasite.layout
         # ittools.layout
     ]
 )
