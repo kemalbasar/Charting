@@ -14,9 +14,7 @@ try:
     value = int(
         ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0])
 except TypeError:
-    ag.run_query("EXEC [VLFPROCVALUATIONBASEWEEKS]")
-    value = int(
-        ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0])
+    value = int(12000000)
 
 total_value_with_separator = format(value, ",")
 
@@ -310,6 +308,10 @@ layout_12_loginpage = dbc.Container([
     dcc.Link(
         children='Kamera Ayıklama Sonuçlar',
         href='/camayik',
+    ),
+    dcc.Link(
+        children='Kamera Ayıklama Üretim Raporu',
+        href='/camayikuretim',
     )
 
 ], fluid=True, style={"height": "100vh", "position": "relative"})

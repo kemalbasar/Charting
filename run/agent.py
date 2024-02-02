@@ -3,8 +3,6 @@ from config import server, username, password, database, database_iot, directory
 from matplotlib import colors
 import matplotlib.pyplot as plt
 import pyodbc
-
-
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -194,13 +192,25 @@ class Agent:
         for i in range(len(texttoput)):
             filedata = filedata.replace(texttofind[i], texttoput[i])
 
-        with open(project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon_test.sql", 'w') as file:
+        ''''
+        with open(textfile, 'w') as file:
             file.write(filedata)
         file.close()
-
+        '''''
+        print(filedata)
+        retry_count = 0
         if return_string == 1:
             with self.connection.cursor() as cursor:
-                return cursor.execute(filedata)
+                while retry_count < 10:
+                    try:
+                        cursor.execute(filedata)
+                        results = cursor.fetchall()
+                        columns = [column[0] for column in cursor.description]
+                        return pd.DataFrame.from_records(results, columns=columns)
+                    except pyodbc.Error as e:
+                        print(f"An error occurred ({retry_count + 1}/{10}): {e}")
+                        retry_count += 1
+                        time.sleep(1)
 
     def replace_and_insertinto(self, path=project_directory + r"\Charting\queries\HİSTORİCALSTOCKS.sql",
                                rapto=dt.date(2022, 9, 1), torep='xxxx-xx-xx'):
