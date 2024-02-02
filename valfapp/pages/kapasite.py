@@ -18,14 +18,17 @@ df = ag.run_query(r"SELECT * FROM VLFPLATECAP")
 
 
 def pivotting_table():
+    today = datetime.today()
+    one_week_ago = today - timedelta(days=7)
+    year_ago, week_num_ago, week_day_ago = one_week_ago.isocalendar()
+    formatted_date_one_week_ago = f"{year_ago}-{week_num_ago}"
+
     df_sade = df[formatted_weeks()]
-    print(df_sade)
     pivot_columns = df_sade.columns.difference(['MATERIAL','COSTCENTER','WORKCENTER','SURE_HESAPLAMA_KODU','MACHINE','LABOUR','SETUP','BASEQUAN'])
 
     # Pivot the data
     pivoted_df = df.melt(id_vars=['MATERIAL','COSTCENTER','WORKCENTER','SURE_HESAPLAMA_KODU','MACHINE','LABOUR','SETUP','BASEQUAN'], value_vars=pivot_columns, var_name='current_week', value_name='value')
 
-    print(pivoted_df)
     pivoted_df["BASEQUAN"] = pivoted_df["BASEQUAN"].astype(int)
     pivoted_df["MACHINE"] = pivoted_df["MACHINE"].astype(float)
     pivoted_df["LABOUR"] = pivoted_df["LABOUR"].astype(float)
@@ -33,7 +36,7 @@ def pivotting_table():
     pivoted_df["value"] = pivoted_df["value"].astype(float)
     pivoted_df['value_min'] = pivoted_df.apply(lambda row: calculate_maxtime(row), axis=1)
     pivoted_df['current_week'] = pivoted_df['current_week'].apply(
-        lambda x: "1990-1" if x == 'IHT0' else x[4:].replace('_', '-'))
+        lambda x: formatted_date_one_week_ago if x == 'IHT0' else x[4:].replace('_', '-'))
     pivoted_df['current_week'] = pivoted_df['current_week'].apply(
         lambda x: '-'.join([x.split('-')[0], x.split('-')[1].zfill(2)]) if len(x.split('-')) > 1 else x)
 
@@ -61,6 +64,7 @@ def formatted_weeks():
     formatted_weeks.insert(0, 'MATERIAL')
     formatted_weeks.insert(0, 'COSTCENTER')
     formatted_weeks.insert(0, 'WORKCENTER')
+
     formatted_weeks.insert(0, 'SURE_HESAPLAMA_KODU')
     formatted_weeks.insert(0, 'MACHINE')
     formatted_weeks.insert(0, 'LABOUR')
@@ -101,23 +105,16 @@ def calculate_maxtime(row):
             return 0
 
     else:
-
         return 0
 
 # Apply the function to each row in the DataFrame
 
 
-a = pivotting_table()
-
-print(a)
-
 root = tk.Tk()
 root.title("ComboBox Örneği")
 
-
-
 layout = dbc.Container([
-    dcc.Store(id='stored_data'),
+    dcc.Store(id='stored_data',data=pivotting_table().to_json(date_format='iso', orient='split')),
     dbc.Row([
         dbc.Col([dcc.Dropdown(
             id='costcenter-dropdown',
@@ -130,7 +127,7 @@ layout = dbc.Container([
         dbc.Col([dcc.Dropdown(
             id='workcenter-dropdown',
             options=[],
-            value='CNC'
+            value=None
         )
             ])
         ]),
@@ -147,43 +144,57 @@ dcc.Graph(id='figx')
 
 
 @app.callback(
-    Output('figx', 'figure'),
-    [Input('costcenter-dropdown', 'value')]
+    Output('fig', 'figure'),
+     Input('costcenter-dropdown', 'value'),
+     State('stored_data', 'data')
 )
-def update_graph(selected_costcenter):
-    filtered_a = a[a['COSTCENTER'] == selected_costcenter]
-    sum_b = filtered_a.groupby(['COSTCENTER', 'WORKCENTER']).sum({'value_min'}).reset_index()
-    figx = px.bar(sum_b, x='WORKCENTER', y='value_min')
-    return figx
-
-def update_graph(selected_costcenter):
-    filtered_a = a[a['COSTCENTER'] == selected_costcenter]
-    sum_a = a.groupby('COSTCENTER', 'current_week').sum({'value_min'}).reset_index()
-    fig = px.bar(sum_a, x='current_week', y='value_min')
+def update_graph(selected_costcenter,df_json):
+    if df_json is None:
+        return px.bar()
+    if df_json is None:
+        return [], None
+    df = pd.read_json(df_json, orient='split')
+    costcenter_df = df[df['COSTCENTER'] == selected_costcenter]
+    sum_b = costcenter_df.groupby(['COSTCENTER','current_week']).sum({'value_min'}).reset_index()
+    fig = px.bar(sum_b, x='current_week', y='value_min')
+    fig.update_xaxes(type='category')
     return fig
 
-
-
-'''
 @app.callback(
-    Output('stored_data','data'),
-    Input('workcenter-dropdowns','options')
+    Output('figx', 'figure'),
+     Input('workcenter-dropdown', 'value'),
+     State('stored_data', 'data')
 )
-def workcenter_data_generate(costcenter):
-    df = ag.run_query(f"SELECT * FROM VLFPLATEMRP WHERE COSTCENTER = '{costcenter}'")
-#    df = SORgu yazıyorum
-    df = df.to_json(date_format='iso', orient='split'),
-    return df
+def update_graph(selected_workcenter,df_json):
+    if df_json is None:
+        return px.bar()
+    if df_json is None:
+        return [], None
+    df = pd.read_json(df_json, orient='split')
+    filtered_df = df[df['WORKCENTER'] == selected_workcenter]
+    sum_df = filtered_df.groupby(['WORKCENTER', 'current_week']).sum({'value_min'}).reset_index()
+    figx = px.bar(sum_df, x='current_week', y='value_min')
+    figx.update_xaxes(type='category')
+    return figx
 
 
 @app.callback(
-    Input('stored_data','data'),
-    Output('workcenter-dropdowns','options')
+    [Output('workcenter-dropdown', 'options'),
+     Output('workcenter-dropdown', 'value')],
+    [Input('costcenter-dropdown', 'value'),
+     State('stored_data', 'data')]
 )
-def workcenter_data_generate(df):
-#    [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
-    df = pd.read_json(df, orient='split')
+def workcenter_data_generate(selected_costcenter,df_json):
 
-    return df["WORKCENTER"].unique()
-'''
+    if df_json is None:
+        return [], None
+    df = pd.read_json(df_json, orient='split')
+
+#   [{'label': v, 'value': k} for k, v in valftoreeg[selected_machine_type].items()]
+    filtered_df = df[df['COSTCENTER'] == selected_costcenter]
+    unique_workcenters = filtered_df["WORKCENTER"].unique().tolist()
+    sorted_workcenters = sorted(unique_workcenters)
+    options_list = [{'label': wc, 'value': wc} for wc in sorted_workcenters]
+    first_option = options_list[0] if options_list else None
+    return options_list, first_option["value"]
 
