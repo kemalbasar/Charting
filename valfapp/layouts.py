@@ -98,6 +98,12 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                                html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
                                 html.Span(className="nav-text", children="Energy")
                             ])
+                        ]),
+                        html.Li(children=[
+                            html.A(href="/prdenergy", children=[
+                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
+                                html.Span(className="nav-text", children="Prod Energy")
+                            ])
                         ])
                     ]),
                 ]),

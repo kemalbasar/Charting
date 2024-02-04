@@ -57,7 +57,6 @@ def prdconf(params=None):
     if os.path.isfile(r"F:\pycarhm projects\Charting\outputs(xlsx)\bul.xlsx"):
         os.remove(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
 
-    prd_conf.to_excel(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
     onemonth_prdqty = ag.run_query(query=r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?",
                                    params=params)
     if len(prd_conf) == 0:

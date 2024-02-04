@@ -48,7 +48,7 @@ def formatted_weeks():
     current_week_start = current_date - timedelta(days=current_date.weekday())
 
     # Generate the current week and the next 17 weeks
-    weeks = [current_week_start + timedelta(weeks=i) for i in range(18)]  # Generating the weeks
+    weeks = [current_week_start + timedelta(weeks=i) for i in range(17)]  # Generating the weeks
 
     # Formatting weeks as 'Year_WeekNumber' using ISO week date
     # Adjusting to remove leading zeros and ensuring no week "00"

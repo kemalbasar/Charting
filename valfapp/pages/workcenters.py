@@ -58,30 +58,31 @@ def return_tops_with_visibility(graph_id, visible=True):
         children=[
             dcc.Graph(id=f"{graph_id}_graph", figure={}, style={'margin-left': 120}),
             dash_table.DataTable(id=f"{graph_id}_table", data=[], columns=[]
-                                ,style_cell={
-                                    'color': 'black',  # Font color for the cells
-                                    'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
-                                    'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
-                                    'textAlign': 'center',  # Center text alignment
-                                    'border': '1px solid black'  # Border for the cells
-                            },
-                                style_table = {
-                                    'height': '150px',  # Fixed height for the virtualized table
-                                    'width': '800px',  # Fixed width for the table
-                                    'overflowY': 'auto',  # Enable vertical scroll
-                                    'borderCollapse': 'collapse',  # Collapse borders
-                                    'border': '1px solid black'  # Border around the table
-                            },
-                                style_header = {
-                                    'fontWeight': 'bold',  # Make header text bold
-                                    'backgroundColor': 'rgba(0, 0, 0, 0.1)',  # Slightly darker background for the header
-                                    'borderBottom': '1px solid black',  # Bottom border for the header cells
-                                    'color': 'black'  # Font color for the header
-                            },
-                                style_data_conditional = [
-                                # Here you can add any conditional styles you might have
-                                # For example, styling for the active cell or conditional formatting based on cell values
-                            ],
+                                 , style_cell={
+                    'color': 'black',  # Font color for the cells
+                    'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
+                    'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
+                    'textAlign': 'center',  # Center text alignment
+                    'border': '1px solid black'  # Border for the cells
+                },
+                                 style_table={
+                                     'height': '150px',  # Fixed height for the virtualized table
+                                     'width': '800px',  # Fixed width for the table
+                                     'overflowY': 'auto',  # Enable vertical scroll
+                                     'borderCollapse': 'collapse',  # Collapse borders
+                                     'border': '1px solid black'  # Border around the table
+                                 },
+                                 style_header={
+                                     'fontWeight': 'bold',  # Make header text bold
+                                     'backgroundColor': 'rgba(0, 0, 0, 0.1)',
+                                     # Slightly darker background for the header
+                                     'borderBottom': '1px solid black',  # Bottom border for the header cells
+                                     'color': 'black'  # Font color for the header
+                                 },
+                                 style_data_conditional=[
+                                     # Here you can add any conditional styles you might have
+                                     # For example, styling for the active cell or conditional formatting based on cell values
+                                 ],
                                  )
         ],
         id=graph_id,
@@ -128,7 +129,7 @@ layout = dbc.Container([
                       options=[{"label": cc, "value": cc} for cc in costcenters],
                       multi=False,
                       value="CNC",
-                      style={'margin-top':5}
+                      style={'margin-top': 5}
                       ),
          dcc.DatePickerSingle(id='date-picker1', date=(date.today() - timedelta(days=kb)), className="dash-date-picker",
                               persistence=True, persistence_type='memory', style={"color": "white"}),
@@ -163,35 +164,35 @@ layout = dbc.Container([
                      dash_table.DataTable(
                          id="invalid_data_table",
                          columns=[],
-                         style_cell = {
-                            'color': 'black',  # Font color for the cells
-                            'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
-                            'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
-                            'textAlign': 'center',  # Center text alignment
-                            'border': '1px solid black'  # Border for the cells
-                    },
-                         style_table = {
-                            'height': '150px',  # Fixed height for the virtualized table
-                            'width': '800px',  # Fixed width for the table
-                            'overflowY': 'auto',  # Enable vertical scroll
-                            'borderCollapse': 'collapse',  # Collapse borders
-                            'border': '1px solid black'  # Border around the table
-                    },
-                         style_header = {
-                            'fontWeight': 'bold',  # Make header text bold
-                            'backgroundColor': 'rgba(0, 0, 0, 0.1)',  # Slightly darker background for the header
-                            'borderBottom': '1px solid black',  # Bottom border for the header cells
-                            'color': 'black'  # Font color for the header
-                    },
-                         style_data_conditional = [
-                        # Here you can add any conditional styles you might have
-                        # For example, styling for the active cell or conditional formatting based on cell values
-                    ],
+                         style_cell={
+                             'color': 'black',  # Font color for the cells
+                             'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
+                             'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
+                             'textAlign': 'center',  # Center text alignment
+                             'border': '1px solid black'  # Border for the cells
+                         },
+                         style_table={
+                             'height': '150px',  # Fixed height for the virtualized table
+                             'width': '800px',  # Fixed width for the table
+                             'overflowY': 'auto',  # Enable vertical scroll
+                             'borderCollapse': 'collapse',  # Collapse borders
+                             'border': '1px solid black'  # Border around the table
+                         },
+                         style_header={
+                             'fontWeight': 'bold',  # Make header text bold
+                             'backgroundColor': 'rgba(0, 0, 0, 0.1)',  # Slightly darker background for the header
+                             'borderBottom': '1px solid black',  # Bottom border for the header cells
+                             'color': 'black'  # Font color for the header
+                         },
+                         style_data_conditional=[
+                             # Here you can add any conditional styles you might have
+                             # For example, styling for the active cell or conditional formatting based on cell values
+                         ],
                      ),
                      width={"size": 8}
                  ),
              ]),
-         ],style = {"display": 'none'}),
+         ], style={"display": 'none'}),
          html.Div(id='refresh', style={'display': 'none'}),
          html.Div(id='refresh2', style={'display': 'none'}),
          html.Div(id='output-div'),
@@ -327,6 +328,7 @@ def clear_cache(n_clicks, key):
     else:
         return no_update  # Don't change the 'refresh' div if the button hasn't been clicked
 
+
 # Add this callback
 @app.callback(
     Output('location', 'href'),
@@ -423,22 +425,24 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 def generate_excel_oee(n_clicks, costcenter, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist3w = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
-    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME', 'TOTALTIME',
-     'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OM_TIME', 'TOTAL_SHIFT_TIME',
-     'NANTIME', 'PLANNEDTIME']
-    columns2 = ['WORKCENTER', 'COSTCENTER', 'SHIFT', 'WORKDAY',"AVAILABILITY","PERFORMANCE","QUALITY","OEE"]
+    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME',
+               'TOTALTIME',
+               'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OM_TIME', 'TOTAL_SHIFT_TIME',
+               'NANTIME', 'PLANNEDTIME']
+    columns2 = ['WORKCENTER', 'COSTCENTER', 'SHIFT', 'WORKDAY', "AVAILABILITY", "PERFORMANCE", "QUALITY", "OEE"]
     backup_df = oeelist3w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
-        "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME",
-        "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
+    "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME",
+    "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
 
     backup_df.reset_index(inplace=True)
     backup_df["AVAILABILITY"] = backup_df["RUNTIME"] / backup_df["PLANNEDTIME"]
     backup_df["PERFORMANCE"] = backup_df["IDEALCYCLETIME"] / backup_df["RUNTIME"]
     backup_df["QUALITY"] = (backup_df["QTY"] - backup_df["SCRAPQTY"]) / backup_df["QTY"]
-    backup_df["OEE"] = backup_df["AVAILABILITY"]*backup_df["QUALITY"]*backup_df["PERFORMANCE"]
+    backup_df["OEE"] = backup_df["AVAILABILITY"] * backup_df["QUALITY"] * backup_df["PERFORMANCE"]
     dff = oeelist3w[columns].merge(backup_df[columns2], on=["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"], how='left')
     print("download genel butonun ordayım")
     return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)
+
 
 @app.callback(
     Output("download-data2", "data"),
@@ -458,6 +462,7 @@ def generate_excel_breakdowns(n_clicks, costcenter, oeelist2w):
     dff2 = oeelist2w.loc[((oeelist2w["COSTCENTER"] == costcenter) & (oeelist2w["CONFTYPE"] != "Uretim"))]
 
     return dcc.send_data_frame(dff2.to_excel, "yourdata.xlsx", index=False)
+
 
 @app.callback(
     Output("download-data3", "data"),
