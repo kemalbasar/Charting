@@ -231,7 +231,8 @@ def cache_to_result(s_date, f_date, costcenter, m_point, date_interval, button):
     Input("download2", "n_clicks"),
     prevent_initial_call=True
 )
-def generate_excel(n_clicks, generated_data):
+def generate_excel(n_clicks,):
+    print("here")
     generated_data = ag.run_query(r"SELECT * FROM VLFPRDENERGY")
     if n_clicks < 1:
         raise PreventUpdate
@@ -241,10 +242,11 @@ def generate_excel(n_clicks, generated_data):
 @app.callback(
     Output("download-energy3", "data"),
     Input("download3", "n_clicks"),
-    prevent_initial_call=True
 )
-def generate_excel(n_clicks, generated_data):
-    generated_data = ag.run_query(r"SELECT * FROM VLFPRDENERGYVIEW")
+def generate_excel2(n_clicks,):
+    print("here")
+
+    generated_data = ag.run_query(r"SELECT * FROM VLFPRDENERGYVİEW")
     if n_clicks < 1:
         raise PreventUpdate
 
