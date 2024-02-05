@@ -143,34 +143,7 @@ layout = [
                     },
                     sort_action='native'
                 ),
-                dash_table.DataTable(
-                    id="data_table_sum2",
-                    data=[],
-                    columns=[],
-                    style_cell={
-                        "textAlign": "center",
-                        "padding": "10px",
-                        "color": "black",
-                        'max-width': 115
 
-                    },
-                    style_table={
-                        'margin': 'auto',
-                        'borderCollapse': 'collapse',
-                        "margin-top": "20px",
-                    },
-                    style_data_conditional=[
-                        {
-                            'if': {'row_index': 'odd'},
-                            'backgroundColor': 'rgb(248, 248, 248)'
-                        }
-                    ],
-                    style_header={
-                        'backgroundColor': 'rgb(230, 230, 230)',
-                        'fontWeight': 'bold'
-                    },
-                    sort_action='native',
-                )
             ], style={"margin-top": 75}, className="")
         ], width=12, style={"margin-left": "100px"}),])
 ]
@@ -197,9 +170,6 @@ def set_machine_options(selected_machine_type):
 @app.callback(
     Output("data_table2", "data"),
     Output("data_table2", "columns"),
-    Output("data_table_sum2", "data"),
-    Output("data_table_sum2", "columns"),
-    Output('generated_data2', 'data'),
     [State('date-picker2', 'start_date'),
      State('date-picker2', 'end_date'),
      State('machine-type-dropdown2', 'value'),
@@ -218,11 +188,8 @@ def cache_to_result(s_date, f_date, costcenter, m_point, date_interval, button):
     pivot_table = df.pivot_table(index="MATERIAL", columns='COSTCENTER', values='KWHPERTON', aggfunc='first')
     pivot_table.reset_index(inplace=True)
     columns = [{"name": i, "id": i} for i in pivot_table.columns]
-    columns2 = [{"name": i, "id": i} for i in pivot_table.columns]
     print("********************************")
-    excel_data = pd.concat([pivot_table, pivot_table]).to_json(date_format='iso', orient='split')
-    return pivot_table.to_dict("records"), columns, pivot_table.to_dict("records"), \
-        columns2, excel_data
+    return pivot_table.to_dict("records"), columns
 
 
 
@@ -233,7 +200,7 @@ def cache_to_result(s_date, f_date, costcenter, m_point, date_interval, button):
 )
 def generate_excel(n_clicks,):
     print("here")
-    generated_data = ag.run_query(r"SELECT * FROM VLFPRDENERGY")
+    generated_data = ag.run_query(r"SELECT * FROM VLFPRDENERGYUNSTRUCTERED")
     if n_clicks < 1:
         raise PreventUpdate
 
