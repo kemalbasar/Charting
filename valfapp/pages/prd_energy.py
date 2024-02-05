@@ -134,6 +134,32 @@ layout = [
                     },
                     sort_action='native'
                 ),
+                dash_table.DataTable(
+                    id="data_table3",
+                    data=[],
+                    columns=[],
+                    filter_action='native',
+                    style_cell={
+                        "textAlign": "center",
+                        "padding": "10px",
+                        "color": "black",
+                        'max-width': 100
+                    },
+                    style_table={
+                        'borderCollapse': 'collapse',
+                    },
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 'odd'},
+                            'backgroundColor': 'rgb(248, 248, 248)'
+                        }
+                    ],
+                    style_header={
+                        'backgroundColor': 'rgb(230, 230, 230)',
+                        'fontWeight': 'bold'
+                    },
+                    sort_action='native'
+                ),
 
             ], style={"margin-top": 75}, className="")
         ], width=12, style={"margin-left": "100px"}),])
@@ -161,6 +187,8 @@ def set_machine_options(selected_machine_type):
 @app.callback(
     Output("data_table2", "data"),
     Output("data_table2", "columns"),
+    Output("data_table3", "data"),
+    Output("data_table3", "columns"),
     Output('generated_data2', 'data'),
     [State('date-picker2', 'start_date'),
      State('date-picker2', 'end_date'),
@@ -186,6 +214,7 @@ def cache_to_result(s_date, f_date, input_material, m_point, date_interval, butt
     pivot_table.reset_index(inplace=True)
 
     pivot_table.columns = [col.replace(' ', '') for col in pivot_table.columns]
+    df_details = pd.DataFrame(columns=["A","B","C"])
 
     if input_material == 'Enter material...' or input_material == '':
         print("here")
@@ -211,15 +240,17 @@ def cache_to_result(s_date, f_date, input_material, m_point, date_interval, butt
         print(df_columns["COSTCENTER"].unique())
         print(pivot_table[df_columns["COSTCENTER"].unique()].sum(axis=1, skipna=True))
         pivot_table['TOTAL'] = pivot_table[[x for x in list(pivot_table.columns) if x not in ['MATERIAL','TOTAL']]].sum(axis=1, skipna=True)
+        df_details = ag.run_query(f"SELECT * FROM VLFPRDENERGYVİEW_DETAILS WHERE MATERIALREAL = '{input_material}'")
 
     print("******")
     print(pivot_table.dtypes)
     print([x for x in list(pivot_table.columns) if x != 'MATERIAL'])
     pivot_table_store = pivot_table.to_json(date_format='iso', orient='split')
     columns = [{"name": i, "id": i} for i in pivot_table.columns]
+    columns3 = [{"name": i, "id": i} for i in df_details.columns]
     print("***")
     print(columns)
-    return pivot_table.to_dict("records"), columns,pivot_table_store
+    return pivot_table.to_dict("records"),columns,df_details.to_dict("records"),columns3,pivot_table_store
 
 # Assuming pivot_table is your DataFrame with the specified columns
 # Listing the columns you want to sum
