@@ -104,6 +104,12 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                                html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
                                 html.Span(className="nav-text", children="Prod Energy")
                             ])
+                        ]),
+                        html.Li(children=[
+                            html.A(href="/kameraayiklama", children=[
+                               html.Img(src="../assets/kamayik.png", className="nav-icon"),
+                                html.Span(className="nav-text", children="Kam. Ayıklama")
+                            ])
                         ])
                     ]),
                 ]),

@@ -37,7 +37,7 @@ layout = [
                 html.Div(
                     [
                         dcc.Input(
-                            id='text-input', type='text', value='Enter material...'
+                            id='text-input', type='text', value=''
                         )], style={"margin-top": 18}), width=1),
             dbc.Col(
                 html.Div(
@@ -210,19 +210,20 @@ def cache_to_result(s_date, f_date, input_material, m_point, date_interval, butt
     df["TOTWEIGHT"] = df["TOTWEIGHT"].fillna(0)
     df["KWHPERTON"] = df.apply(lambda x: (x["TOTKWH"] / x["TOTWEIGHT"]) if x["TOTWEIGHT"] != 0 else 1.111, axis=1)
     df['KWHPERTON'] = df['KWHPERTON'].apply(lambda x: Decimal(x).quantize(Decimal('0.000')))
+    costcenter_list = list(df["COSTCENTER"].unique())
+    costcenter_list = [x.replace(' ', '') for x in costcenter_list]
+    costcenter_list.insert(0, 'MATERIAL')
     pivot_table = df.pivot_table(index="MATERIAL", columns='COSTCENTER', values='KWHPERTON', aggfunc='first')
     pivot_table.reset_index(inplace=True)
 
     pivot_table.columns = [col.replace(' ', '') for col in pivot_table.columns]
     df_details = pd.DataFrame(columns=["A","B","C"])
 
-    if input_material == 'Enter material...' or input_material == '':
+    if input_material == '' or input_material == '':
         print("here")
 
-        pivot_table = pivot_table[['MATERIAL','PRESHANE1','PRESHANE2','PRESHAN2','ISIL','ISOFINIS','ISOFINI2','KURUTMA','KURUTMA2','KURUTMA3','MENEVIS','TASLAMA','TASLAMA2','DOGRULTMA','PLKYZYIS','YIKAMA','CNC','CNCTORN2','CNCTORN3','CNCTORNA']]
-        columns_to_sum = ['PRESHANE1', 'PRESHANE2', 'PRESHAN2', 'ISIL', 'ISOFINIS', 'ISOFINI2', 'KURUTMA', 'KURUTMA2',
-                          'KURUTMA3', 'MENEVIS', 'TASLAMA', 'TASLAMA2', 'DOGRULTMA', 'PLKYZYIS', 'YIKAMA', 'CNC',
-                          'CNCTORN2', 'CNCTORN3', 'CNCTORNA']
+        pivot_table = pivot_table[costcenter_list]
+
 
     else:
         pivot_table["PAKET"] = 0.000
