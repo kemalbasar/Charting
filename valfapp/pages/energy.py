@@ -10,7 +10,7 @@ from dash import dcc, html, Input, Output, State
 from dash.exceptions import PreventUpdate
 from config import valftoreeg, project_directory
 from run.agent import ag
-from valfapp.app import app
+from valfapp.app import app, cache
 from valfapp.configuration import layout_color
 from valfapp.layouts import nav_bar
 
@@ -242,7 +242,7 @@ def set_machine_options(selected_machine_type):
         return list_of_mpoints
 
 
-# @cache.memoize()
+@cache.memoize()
 def update_table(s_date, f_date, costcenter, m_point, date_interval):
     if m_point == 'Bölümler':
         gruplamami = 1
@@ -351,10 +351,10 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                                         f"GROUP BY CAST(DATE AS DATETIME),COSTCENTER,INTERVAL )"
                                         f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, OUTPUT,DATE,COSTCENTER from ASD ")
             else:
-                df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
-                                        f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
-                                        f" WHERE MPOINT = '{m_point_tmp}' "
-                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
+                    df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
+                                            f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+                                            f" WHERE MPOINT = '{m_point_tmp}' "
+                                            f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
         else:
 
             if m_point_tmp == '11 Pres (Pano 3 Diger)':

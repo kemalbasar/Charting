@@ -142,15 +142,13 @@ def display_page(pathname,login_status_data):
             return montajtv.layout
         elif pathname == '/yislemtv':
             return yuzeyislemtv.layout
-        elif pathname == '/camayik':
-            return kameraayıklama.layout
         elif pathname == '/tvmonitor':
             return tvmonitor.layout
         elif pathname == '/uretimrapor':
             return uretimrapor.layout
         elif pathname == '/kapasite':
             return kapasite.layout
-        elif pathname == '/kameraayıklama':
+        elif pathname == '/kameraayiklama':
             return kameraayıklama.layout
         elif pathname == '/deneme_page':
             return deneme_page.layout

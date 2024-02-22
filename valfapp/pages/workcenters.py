@@ -132,7 +132,7 @@ layout = dbc.Container([
                       style={'margin-top': 5}
                       ),
          dcc.DatePickerSingle(id='date-picker1', date=(date.today() - timedelta(days=kb)), className="dash-date-picker",
-                              persistence=True, persistence_type='memory', style={"color": "white"}),
+                               style={"color": "white"}),
 
          dbc.Button("Week", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
          dbc.Button("Month", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
