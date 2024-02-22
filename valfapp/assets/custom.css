@@ -14,6 +14,71 @@
 
 /*Enes Sidenavbar CSS*/
 
+.email {
+    background: hsl(0deg 0% 100%);
+    box-shadow: 0 0 2em hsl(231deg 62% 94%);
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    border-radius: 20px;
+    color: hsl(0deg 0% 30%);
+    margin-top: -3em;
+
+    input {
+              outline: none;
+              border: none;
+
+              &::placeholder {
+                        color: hsl(0deg 0% 0%);
+                        font-size: 0.9em;
+              }
+    }
+
+    ion-icon {
+              color: hsl(0deg 0% 30%);
+              margin-bottom: -.2em;
+    }
+}
+
+.password {
+    background: hsl(0deg 0% 100%);
+    box-shadow: 0 0 2em hsl(231deg 62% 94%);
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    border-radius: 20px;
+    color: hsl(0deg 0% 30%);
+
+    input {
+              outline: none;
+              border: none;
+
+              &::placeholder {
+                        color: hsl(0deg 0% 0%);
+                        font-size: 0.9em;
+              }
+    }
+
+    ion-icon {
+              color: hsl(0deg 0% 30%);
+              margin-bottom: -.2em;
+    }
+
+    .show-hide {
+              margin-right: -5em;
+    }
+}
+
+.login {
+    padding: 1em;
+    background: #2149b5;
+    color: hsl(0 0 100);
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+}
 
 body {
     margin: 0;
@@ -80,9 +145,9 @@ body {
 }
 
 .sidebar.kapali .resim-container img {
-    width: 64px;
+    width: 70px;
     /* Kapandığında resmin genişliği 64px olacak */
-    height: 64px;
+    height: 70px;
     /* Kapandığında resmin yüksekliği 64px olacak */
 }
 
@@ -294,6 +359,10 @@ nav.main-menu li.active>a,
     height: 100%;
 }
 
+#work-dates{
+    border-radius: 10px;
+}
+
 @font-face {
     font-family: 'Titillium Web';
     font-style: normal;
@@ -325,7 +394,7 @@ Enes navbar bitis
     /*color: black; !* Set font color to black *!*/
     width: 150px;
   
-    background-color: #2149b4;
+
     /* Purple background color */
     text-align: center;
     display: inline-block;
@@ -503,7 +572,7 @@ Enes navbar bitis
     /* transition effect duration */
     cursor: pointer;
 
-    border-radius: 0;
+    border-radius: 10px;
     /* square shape */
     overflow: hidden;
     /* in case of text exceeding button size */
@@ -554,6 +623,7 @@ Enes navbar bitis
     /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 30px;
     /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+    border-radius: 10px;
 }
 
 .week-button:hover {
@@ -581,7 +651,7 @@ Enes navbar bitis
     transition-duration: 0.4s;
     /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;
+    border-radius: 10px;
     /* square shape */
     overflow: hidden;
     /* in case of text exceeding button size */
@@ -620,7 +690,7 @@ Enes navbar bitis
     transition-duration: 0.4s;
     /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;
+    border-radius: 10px;
     /* square shape */
     overflow: hidden;
     /* in case of text exceeding button size */
@@ -675,7 +745,9 @@ Enes navbar bitis
 
 }
 
-
+.tarih-secim{
+    border-radius: 10px;
+}
 
 .dash-date-picker {
     width: 150px;

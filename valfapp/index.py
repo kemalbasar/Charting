@@ -9,7 +9,7 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor, kapasite, prd_energy
+    tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page
 from flask import request,g
 
 ### Page container ###
@@ -150,6 +150,8 @@ def display_page(pathname,login_status_data):
             return kapasite.layout
         elif pathname == '/kameraayiklama':
             return kameraayıklama.layout
+        elif pathname == '/deneme_page':
+            return deneme_page.layout
         else:
             print(f"adsadasd{pathname}")
             return '404'
@@ -163,7 +165,7 @@ def display_page(pathname,login_status_data):
 app.layout = page_container
 ### Assemble all layouts ###
 app.validation_layout = html.Div(
-    children=[
+    children=(
         page_container,
         index_layout,
         liveprd.layout,
@@ -182,9 +184,10 @@ app.validation_layout = html.Div(
         kameraayıklama.layout,
         tvmonitor.layout,
         uretimrapor.layout,
-        kapasite.layout
+        kapasite.layout,
+        deneme_page.layout
         # ittools.layout
-    ]
+    )
 )
 
 app.layout.interval = -1

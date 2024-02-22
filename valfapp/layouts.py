@@ -37,22 +37,11 @@ else:
 
 nav_bar = html.Nav(className="main-menu side-bar", children=[
         dbc.Container([
-            html.Div(
-                className="logo-div resim-container",
-                children=[
-                    dbc.Row(
-                        html.A(
-                            className="logo",
-                            href="/",
-                            children=[html.Img(src='/assets/valf-logo.gif', className="logo")]
-                        )
-                    ),
-                    dbc.Row(
-                        html.H3("VALFSAN", style={"margin-top":15,"color": '#2149b4'})
-                    )
-                ]
-            )
-            ,
+            html.Div(className="logo-div resim-container", children=[
+                html.A(className="logo", href="/", children=[
+                    html.Img(src='./assets/valfsan-logo.png', className="logo")
+                ])
+            ]),
             html.Div(className="settings"),
             html.Div(id="style-1", className="scrollbar", children=[
                 html.Ul(children=[
@@ -92,6 +81,7 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                             html.Span(className="nav-text", children="Kapasite")
                         ])
                     ]),
+
                     html.Ul(className="darkerlishadowdown", children=[
                         html.Li(children=[
                             html.A(href="/energy", children=[
@@ -110,8 +100,15 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                                html.Img(src="../assets/kamayik.png", className="nav-icon"),
                                 html.Span(className="nav-text", children="Kam. Ayıklama")
                             ])
+
                         ])
                     ]),
+                    html.Li(className="darkerlishadowdown",children=[
+                        html.A(href="/prdenergy", children=[
+                            html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Prod Energy")
+                        ])
+                    ])
                 ]),
             ]),
         ]),
@@ -380,7 +377,7 @@ layout_12_loginpage_v2 = layout = html.Div(children=[
                         href="/kapasite", style={"text-decoration": "none", "color":"#2149b4", "font-size":"24px"},
                     ),className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
                 ),
-            ],style={"justify-content":"center", "align-items":"center", "display":"flex",}
+            ],style={"justify-content":"center", "align-items":"center",}
         )
     ],)
 ])
