@@ -165,129 +165,138 @@ def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
 
 layout_12 = dbc.Container([
     nav_bar,
-    dbc.Row(dcc.Link(
-        children='Main Page',
-        href='/',
-        style={"height": 40, "color": "black", "font-weight": "bold"}
-
-    )),
-    dbc.Row([dcc.DatePickerSingle(id='date-picker2', className="dash-date-picker",
-                                  date=(date.today() - timedelta(days=kb)),
-                                  persistence=True,
-                                  persistence_type='memory'
-                                  ),
-             dbc.Col(
-                 html.H1("Daily Efficiency Dashboard", style={'text-align': 'center', "textfont": 'Arial Black'}))
-             ], style={}),
-    html.Div(id='refresh3', style={'display': 'none'}),
-    dbc.Row([
-        dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button'),
-        dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button'),
-        dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button'),
-        dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button'),
-        dcc.Store(id="work-dates", storage_type="memory",
-                  data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
-                        "workend": date.today().isoformat(),
-                        "interval": "day"}),
-        dcc.Location(id='location3', refresh=True),
-        html.Div(id='output', children=''),
-        dcc.Dropdown(id="costcenter", className="dropdown-style",
-                     options=[{"label": cc, "value": cc} for cc in ["CNC", "CNCTORNA",
-                                                                    "TASLAMA", "MONTAJ",
-                                                                    "PRESHANE1", "PRESHANE2"]],
-                     multi=False,
-                     value='CNC',
-                     style={}
-                     )
-    ]
-    ),
-
-    dcc.Store(id='store-costcenter', storage_type='memory', data='CNC'),
+    
     dbc.Row([
         dbc.Col([
-            dbc.Row(html.Div([dcc.Graph(id='sunburst')],
-                             style={"margin-left": 385,
-                                    })),
-            dbc.Row([
-                dbc.Col([
-                    dbc.Row(
-                        html.H5("Production Summary",
-                                style={"background-color": "darkolivegreen", "text-align": "center",
-                                       "color": summary_color, "width": 1800, "margin-left": 148})
-                    ),
-                    dbc.Row([
-                        dbc.Col(id="my-output1",
-                                width={"size": 1},
-                                style={"margin-left": 0}),
-                        dbc.Col(
-                            [return_sparks(graph1="fig_prod", graph2="fig_working_machine", margin_left=180)],
-                            width={"size": 1}),
-                        dbc.Col(
-                            id="my-output2",
-                            width={"size": 1},
-                            style={"margin-left": 80}),
-                        dbc.Col(
-                            [return_sparks(graph1="fig_ppm", graph2="fig_scrap", margin_left=385)]
-                            , width={"size": 1},
-                            style={"padding-right": 300})],
-                        style={"margin-left": 80}
-                    )
-                ], style={}, width={"size": 12})]
+            dcc.DatePickerSingle(
+                id='date-picker2',
+                className="dash-date-picker mt-2",
+                date=(date.today() - timedelta(days=kb)),
+                persistence=True,
+                persistence_type='memory'
             ),
+            dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button',style={"margin-left":120, "margin-top":60}),
+            dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button',style={"margin-left":120, "margin-top":60}),
+            dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button',style={"margin-left":226, "margin-top":7}),
+            dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button',style={"margin-left":226, "margin-top":7}),
+            dcc.Store(
+                id="work-dates",
+                storage_type="memory",
+                data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
+                    "workend": date.today().isoformat(),
+                    "interval": "day"},
+            ),
+            dcc.Location(id='location3', refresh=True),
+            html.Div(id='output', children=''),
+            html.Div(
+                dcc.Dropdown(
+                id="costcenter",
+                className="dropdown-style",
+                options=[{"label": cc, "value": cc} for cc in
+                         ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]],
+                multi=False,
+                value='CNC',
+                ),style={"position":"relative","left":475,"bottom":50}
+            ),
+        ],style={"border": "3px dashed #2149b5", "height": "70px", "border-radius": "20px", "margin-top": "5rem"},),
+    ]),
+    
+    html.Div(id='refresh3', style={'display': 'none'}),
+    
+    dcc.Store(id='store-costcenter', storage_type='memory', data='CNC'),
+    dbc.Row(style={"text-align": "center", "justify-content": "center"}, children=[
+    dbc.Col(children=[
+        dbc.Row(html.Div([dcc.Graph(id='sunburst')], style={"margin-left": 300})),
+        dbc.Row([
+            dbc.Col(children=[
+                dbc.Row(html.H5("Üretim Özeti", style={
+                    "background-color": "#2149b4",
+                    "text-align": "center",
+                    "color": "white",
+                })),
+                dbc.Row([
+                    dbc.Col(id="my-output1", width={"size": 1}, style={"margin-left": 0}),
+                    dbc.Col([return_sparks(graph1="fig_prod", graph2="fig_working_machine", margin_left=180)],
+                            width={"size": 1}),
+                    dbc.Col(id="my-output2", width={"size": 1}, style={"margin-left": 80}),
+                    dbc.Col([return_sparks(graph1="fig_ppm", graph2="fig_scrap", margin_left=385)],
+                            width={"size": 1},
+                            style={"padding-right": 300})
+                ], style={"margin-left": 80})
+            ], style={}, width={"size": 12})
+        ]),
+        dbc.Row([
+            dbc.Col(children=[
+                html.Div(children=[
+                    html.H5("Üretim Planı", style={
+                        "height": 25,
+                        "text-align": "center",
+                        "background-color": "#2149b4",
+                        "color": "white",
+                        "margin-top":"30px"
+                    }),
+                    dcc.Graph(id='gann', figure={}, style={"position":"relative", "right":"75px", "top":"10px"}),
+                    html.H5("Arızalar ve Nedenler", style={
+                        "height": 25,
+                        "text-align": "center",
+                        "background-color": "#2149b4",
+                        "color": "white",
+                        "margin-top":"50px"
+                    }),
+                    dcc.Graph(id='bubble', figure={}, style={"position":"relative", "right":"75px", "top":"10px"}),
+                    html.H5("Hurda ve Nedenleri", style={
+                        "height": 25,
+                        "text-align": "center",
+                        "background-color": "#2149b4",
+                        "color": "white",
+                        "margin-top":"50px"
+                    }),
+                    dcc.Graph(id='fig_scatscrap', figure={}, style={"position":"relative", "right":"75px", "top":"30px"})
+                ])
+            ], width=20)
+        ])
+    ], width={"size": 9}),
+    
+    
+    dbc.Row([
+        dbc.Col(children=[
+            html.H5("En İyi Performanslar", style={
+                "width": 400,
+                "height": 25,
+                "text-align": "center",
+                "background-color": "#2149b4",
+                "color": "white"
+            }),
+            html.Div(return_tops(), style={"margin-left": 35, "width": 350, "height": 250}),
+            html.Div(return_tops(graph1="fig_up2"), style={"margin-left": 35, "width": 250, "height": 250}),
+            html.Div(return_tops(graph1="fig_up3"), style={"margin-left": 35, "width": 250, "height": 250})
+        ], width=4, style={
+            "border-right": "1px rgb(218, 255, 160) inset",
+            "border-left": "1px rgb(218, 255, 160) inset",
+            "border-top": "1px rgb(218, 255, 160) inset"
+        }),
+        dbc.Col(children=[
+            html.H5("En Kötü Performanslar", style={
+                "width": 400,
+                "height": 25,
+                "text-align": "center",
+                "background-color": "red",
+                "color": "white"
+            }),
+            html.Div(return_tops(graph1="fig_down1"), style={"margin-left": 35, "width": 250, "height": 250}),
+            html.Div(return_tops(graph1="fig_down2"), style={"margin-left": 35, "width": 250, "height": 250}),
+            html.Div(return_tops(graph1="fig_down3"), style={"margin-left": 35, "width": 250, "height": 250})
+        ], width=4, style={
+            "border-right": "1px rgb(218, 255, 160) inset",
+            "border-left": "1px rgb(218, 255, 160) inset",
+            "border-top": "1px rgb(218, 255, 160) inset",
+            "margin-left": 80
+        })
+    ], style={"justify-content": "center", "text-align": "center", "margin-top":"120px"})
+])
 
-            dbc.Row([
-                dbc.Col([
-                    html.Div(children=[html.H5("Production Schedule",
-                                               style={"width": 1400, "height": 25, "text-align": "center",
-                                                      "background-color": "darkolivegreen",
-                                                      "color": summary_color}),
-                                       dcc.Graph(id='gann', figure={}),
-                                       html.H5("Breakdowns & Reasons",
-                                               style={"width": 1400, "height": 25, "text-align": "center",
-                                                      "background-color": "darkolivegreen",
-                                                      "color": summary_color}),
-                                       dcc.Graph(id='bubble', figure={}),
-                                       html.H5("Scraps with Reasons",
-                                               style={"width": 1400, "height": 25, "text-align": "center",
-                                                      "background-color": "darkolivegreen",
-                                                      "color": summary_color}),
-                                       dcc.Graph(id='fig_scatscrap', figure={})
-                                       ])
-                ],
+],style={"justify-content":"center", "align-items":"center"})
 
-                    width=20)
-            ])
-        ], width={"size": 9}),
-        dbc.Row([dbc.Col([html.H5("Best Performances", style={"width": 400, "height": 25, "text-align": "center",
-                                                              "background-color": "darkolivegreen",
-                                                              "color": summary_color}),
-                          html.Div(return_tops(), style={"margin-left": 35, "width": 350, "height": 250}),
-                          html.Div(return_tops(graph1="fig_up2"),
-                                   style={"margin-left": 35, "width": 250, "height": 250}),
-                          html.Div(return_tops(graph1="fig_up3"),
-                                   style={"margin-left": 35, "width": 250, "height": 250})],
-                         width=4, style={"border-right": "1px rgb(218, 255, 160) inset",
-                                         "border-left": "1px rgb(218, 255, 160) inset",
-                                         "border-top": "1px rgb(218, 255, 160) inset"}
-                         ),
-                 dbc.Col([html.H5("Worst Performances", style={"width": 400, "height": 25, "text-align": "center",
-                                                               "background-color": "red",
-                                                               "color": summary_color}),
-                          html.Div(return_tops(graph1="fig_down1"),
-                                   style={"margin-left": 35, "width": 250, "height": 250}),
-                          html.Div(return_tops(graph1="fig_down2"),
-                                   style={"margin-left": 35, "width": 250, "height": 250}),
-                          html.Div(return_tops(graph1="fig_down3"),
-                                   style={"margin-left": 35, "width": 250, "height": 250})],
-                         width=4, style={"border-right": "1px rgb(218, 255, 160) inset",
-                                         "border-left": "1px rgb(218, 255, 160) inset",
-                                         "border-top": "1px rgb(218, 255, 160) inset",
-                                         "margin-left": 80})
-
-                 ], style={"margin-left": 120})
-    ])
-
-], fluid=True)
 
 # Main Layout
 layout = html.Div([

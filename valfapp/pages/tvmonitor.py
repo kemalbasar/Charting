@@ -29,6 +29,7 @@ layout = [
                                 'alignItems': 'center',
                                 'justifyContent': 'center',
                                 'background-color': 'lightgray',
+                                'margin-left':'30px'
                             },
                             children=[
                                 html.Div(
@@ -67,6 +68,7 @@ layout = [
                                 'alignItems': 'center',
                                 'justifyContent': 'center',
                                 'background-color': 'lightgray',
+                                'margin-left':'30px'
                             },
                             children=[
                                 html.Div(
@@ -105,6 +107,7 @@ layout = [
                                 'alignItems': 'center',
                                 'justifyContent': 'center',
                                 'background-color': 'lightgray',
+                                'margin-left':'30px'
                             },
                             children=[
                                 html.Div(
@@ -143,6 +146,7 @@ layout = [
                                 'alignItems': 'center',
                                 'justifyContent': 'center',
                                 'background-color': 'lightgray',
+                                'margin-left':'30px'
                             },
                             children=[
                                 html.Div(
