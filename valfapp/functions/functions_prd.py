@@ -117,8 +117,8 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     def calculate_nantime(workday, total_shift_time, om_time):
         # Convert '03-07-2023' to a datetime.date object
         comparison_date = datetime.strptime('03-07-2023', '%d-%m-%Y').date()
-        return (475 if workday > comparison_date else 400) - total_shift_time - om_time
 
+        return (475 if workday > comparison_date else 400) - float(total_shift_time) - float(om_time)
     # Applying the function to each row in the dataframe
     df_metrics["NANTIME"] = df_metrics.apply(
         lambda row: calculate_nantime(row["WORKDAY"], row["TOTAL_SHIFT_TIME"], row["OM_TIME"]), axis=1)

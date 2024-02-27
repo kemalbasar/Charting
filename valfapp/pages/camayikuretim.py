@@ -17,6 +17,8 @@ from dash.dependencies import Input, Output
 
 
 layout = [
+    dcc.Store(id='filtered-data'),
+
     dbc.Row([html.H1("Günlük Üretim Raporu",
                      style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,
                             'backgroundColor': '#f0f0f0'})])
@@ -34,7 +36,7 @@ layout = [
 
     dbc.Row([
         dbc.Col([
-            html.H3("Rapor",style={"align":"center"}),
+            html.H3("Rapor",style={"text-align":"center"}),
             DataTable(
                 id='uretim_data',
                 columns=[],
@@ -44,9 +46,11 @@ layout = [
                     'overflowY': 'auto',
                     'border': 'thin lightgrey solid',
                     'fontFamily': 'Arial, sans-serif',
-                    'minWidth': '70%',  # Adjust this value to set the minimum width
-                    'width': '80%',  # Adjust this value to set the width
-                    'textAlign': 'center',
+                    'minWidth': '85%',  # Adjust this value to set the minimum width
+                    'width': '95%',  # Adjust this value to set the width
+                    'textAlign': 'left',
+                    ##'margin': 'auto'  # Center the table horizontally
+
                 },
                 style_header={
                     'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
@@ -62,24 +66,36 @@ layout = [
             ),
         ],width=8),
 
-        dbc.Col([html.Div(id='indicator-figures-container', className='row'), ], width=4),
+        dbc.Col([html.H3("Saniye Başına", style={"text-align": "right"}),
+                 html.Div(id='indicator-figures-container', style={'width': '75%', 'margin': 'auto'}),
+                 ], width=2),
+        dbc.Col([ html.H3("Denetlenen Adet", style={"text-align": "left"}),
+                html.Div(id='indicator-figures-container2', style={'width': '75%', 'margin': 'auto'})
+                 ], width=2),
 
     ]),
 
-    dbc.Row([dbc.Col([dcc.Graph(id="gantt_chart",style={"margin-top":70}),], width=9),
-    ]),
+   dbc.Row([
+        dbc.Col([
+            html.H3("Gantt Chart", style={"text-align": "center", "margin-top": 10}),
+            dcc.Graph(id="gantt_chart"),
+        ], width=8)
+    ])
 ]
 
 @app.callback(
     Output('uretim_data', 'columns'),
     Output("uretim_data", 'data'),
     Output('indicator-figures-container', 'children'),
+    Output('indicator-figures-container2', 'children'),
     Input("date-picker-range", 'start_date'),
     Input("date-picker-range", 'end_date')
 )
 def update_summary_table(start_date, end_date):
     result_data = []
     fig_container = []
+    fig_container2 = []
+
     counter = 0
 
     query_path = r"C:\Users\fozturk\Documents\GitHub\Charting\queries\vlf_ayıklamakmr_uretim.sql"
@@ -95,89 +111,187 @@ def update_summary_table(start_date, end_date):
         text_to_put2 = [f'KMR-0{x}', start_date, end_date]
         data2 = ag.editandrun_query(query_path2, text_to_find2, text_to_put2)
 
-        data2["MATERIAL"] = data["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
+        data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
+        print(f"DATAAAAAAAAA");
+        print(data);
+
+        print(f"DATA222222222");
+        print(data2);
 
         merged_data = pd.merge(data, data2, left_on=['PRDORDER', 'AYKDATE', 'SHIFTURETIM'],
                                right_on=['CONFIRMATION', 'MACHINEDATE', 'SHIFTAYK'], how='inner')
+
+        merged_data = merged_data.sort_values(by=['MACHINE', 'MIN_WORKSTART'])
+
+        print(f"MERGED DATA ÖNCESİİİİİİ:");
+        print(merged_data);
 
         merged_data["MIN_WORKSTART"] = pd.to_datetime(merged_data["MIN_WORKSTART"]).dt.strftime('%Y-%m-%d %H:%M:%S')
         merged_data["MAX_WORKEND"] = pd.to_datetime(merged_data["MAX_WORKEND"]).dt.strftime('%Y-%m-%d %H:%M:%S')
 
         result_data.append(merged_data)
 
+        print(f"MERGED DATA SONRASIIIIII");
+        print(merged_data);
 
 
     final_result = pd.concat(result_data, ignore_index=True)
 
-    table_data = final_result.groupby(['MACHINE', 'SHIFTAYK', 'NAME', 'MATERIAL_x', 'PRDORDER']).agg(
-        {'QUANTITY': 'first', 'NOTOK': 'first',
-         'MIN_WORKSTART': 'min', 'MAX_WORKEND': 'max', 'CALISIYOR': 'sum',
-         'DURUS': 'first', 'SANIYE_DENETLENEN': 'first', 'PPM': 'first'})
 
-    table_data['SANIYE_DENETLENEN'] = (table_data['QUANTITY'] + table_data['NOTOK']) / (table_data['CALISIYOR']) / 60
+
+    table_data = final_result.groupby(['MACHINE', 'SHIFTAYK', 'NAME', 'PRDORDER', 'MATERIAL_x']).agg(
+        {'MIN_WORKSTART': 'min', 'MAX_WORKEND': 'max' ,'QUANTITY': 'first', 'NOTOK': 'first',
+         'CALISIYOR': 'sum',
+         'DURUS': 'sum', 'SANIYE_DENETLENEN': 'first', 'MACHINETIME': 'first', 'PPM': 'first'})
+
+    print(f"TABLEE DATA:AAAAAAAAAAA");
+    print(table_data);
+
+    oee_data = final_result.groupby(['MACHINE' , 'MATERIAL_x', 'PRDORDER']).agg(
+        {'QUANTITY': 'sum', 'MACHINETIME': 'first', 'CALISIYOR': 'sum', 'NOTOK': 'sum', 'PPM': 'first'})
+
+    oee_data['OEE'] = '0'
+    oee_data['PPM'] = '0'
+
+    print(oee_data)
+
+    print(oee_data.dtypes)
+
+    oee_data['OEE'] = oee_data['OEE'].astype(int)
+    oee_data['QUANTITY'] = oee_data['QUANTITY'].astype(int)
+    oee_data['CALISIYOR'] = oee_data['CALISIYOR'].astype(int)
+    oee_data['MACHINETIME'] = oee_data['MACHINETIME'].astype(float)
+    oee_data['NOTOK'] = oee_data['NOTOK'].astype(int)
+    oee_data['PPM'] = oee_data['PPM'].astype(int)
+
+    print(oee_data.dtypes)
+
+    oee_data['OEE'] = ((oee_data['QUANTITY'] / ((oee_data['CALISIYOR'] * 1000) / oee_data['MACHINETIME'])) * (
+            oee_data['CALISIYOR'] / 1440)) * oee_data['QUANTITY']
+
+    oee_data['PPM'] = ((oee_data['NOTOK'] * 1000000) / oee_data['QUANTITY'])
+
+    print(oee_data)
+
+
+    print(oee_data)
+    print(f"OEE DATA")
+
+    denominator = table_data['CALISIYOR']
+    denominator_nonzero = denominator.replace(0, np.nan)
+    table_data['SANIYE_DENETLENEN'] = np.where(denominator_nonzero.isna(), 0, (table_data['QUANTITY'] + table_data['NOTOK']) / denominator_nonzero / 60)
+
+    ##table_data['SANIYE_DENETLENEN'] = (table_data['QUANTITY'] + table_data['NOTOK']) / (table_data['CALISIYOR']) / 60
+
+
+    table_data['MACHINETIME'] = ((1000/ table_data['MACHINETIME'])/60)
+
     table_data = table_data.sort_values(by=['MACHINE', 'MIN_WORKSTART'])
 
+
+
+    table_data['SANIYE_DENETLENEN'] = table_data['SANIYE_DENETLENEN'].astype(float)
+    table_data['SANIYE_DENETLENEN'] = table_data['SANIYE_DENETLENEN'].round(3)
+    table_data['MACHINETIME'] = table_data['MACHINETIME'].astype(float)
+    table_data['MACHINETIME'] = table_data['MACHINETIME'].round(3)
+
+    ##table_data['SANIYE_DENETLENEN'] = round(table_data['SANIYE_DENETLENEN'], 3)
 
     table_data = table_data.reset_index()
 
     table_data['MIN_WORKSTART'] = pd.to_datetime(table_data['MIN_WORKSTART']).dt.strftime('%Y-%m-%d %H:%M:%S')
 
 
-    machine_data = table_data.groupby(['MACHINE']).agg(
-        {'QUANTITY': 'sum', 'NOTOK': 'sum', 'MIN_WORKSTART': 'min', 'MAX_WORKEND': 'max', 'CALISIYOR': 'sum',
-        'PPM': 'first'})
+    machine_data = oee_data.groupby(['MACHINE']).agg(
+        {'QUANTITY': 'sum', 'OEE': 'sum', 'PPM': 'first'})
 
-    domain_y1 = 0;
-    domain_y2 = 0;
+    print(f"MACHINE DATAM :BBBBBBBBBBBBB");
+    print(machine_data);
 
     for machine_index, indicator_data in machine_data.iterrows():
 
-
-        domain_y1 = 0.05 + domain_y1
-        domain_y2 = 0.15 + domain_y2
-
-        fig2 = go.Figure()
-        fig2.add_trace(go.Indicator(
-            value=((indicator_data['QUANTITY'] + indicator_data['NOTOK']) / (indicator_data['CALISIYOR']) / 60),
-            title = {'text': "Saniye Başına Denetlenen"},
-            delta={'reference': 6},
-            gauge={'axis': {'visible': False}},
-            domain={'x': [0.05, 0.50], 'y': [-0.3, 0.25]}) )
-
-        fig2.add_trace(go.Indicator(
-            value=indicator_data['PPM'],
-            title={'text': "PPM"},
-            gauge={
-                'shape': "bullet",
-                'axis': {'visible': False}},
-            domain={'x': [0.05, 0.40], 'y': [domain_y1, domain_y2]})
-        )
-
-        fig2.update_layout(
-            grid={'rows': 2, 'columns': 2, 'pattern': "independent"},
-            template={'data': {'indicator': [{
-                'mode': "number+delta+gauge",
-                'delta': {'reference': 5000}}]
-            }}, height=200,
-            width=400,
-           ##margin=dict(l=55, r=75, t=55, b=15)  # Adjust margin values to decrease distance
-
-        )
-
-        ##fig_container.append(dcc.Graph(figure=fig2, id=f'indicator-graph-{machine_index}'))
-
-        fig_container.append(html.Div([dcc.Graph(figure=fig2)], className='two columns'))
-
         counter += 1
 
-        # If two figures are added to the row, start a new row
-        if counter == 3:
-            counter = 0
-            fig_container.append(html.Div([], className='row'))
+        if counter <=3:
+
+
+            fig2 = go.Figure()
+            fig2.add_trace(go.Indicator(
+                value= (indicator_data['OEE'] / indicator_data['QUANTITY']) * 100,
+                title={'text': f'{machine_index}'},
+                delta={'reference': 80},
+                gauge={'axis': {'visible': False}},)
+                )
+
+            fig2.add_trace(go.Indicator(
+                value=indicator_data['PPM'],
+                title={'text': "PPM",'font': {'size': 15}},
+                gauge={
+                    'shape': "bullet",
+                    'axis': {'visible': False},
+                    'bar': {'thickness': 0.4}  # Adjust the thickness to make it bigger
+                },
+                domain={'x': [0.05, 0.45], 'y': [0.35, 0.55]},
+                number={'font': {'size': 12}} )
+            )
+
+            fig2.update_layout(
+                grid={'rows': 2, 'columns': 2, 'pattern': "independent"},
+                template={'data': {'indicator': [{
+                    'mode': "number+delta+gauge",
+                    'delta': {'reference': 5000}}]
+                }}, height=300,
+                width=400,
+               ##margin=dict(l=55, r=75, t=55, b=15)  # Adjust margin values to decrease distance
+
+            )
+
+            fig_container.append(dcc.Graph(figure=fig2, id=f'indicator-figures-container'))
+
+
+
+        else:
+
+            fig3 = go.Figure()
+            fig3.add_trace(go.Indicator(
+                value= (indicator_data['OEE'] / indicator_data['QUANTITY']) * 100,
+                title={'text': f'{machine_index}'},
+                delta={'reference': 80},
+                gauge={'axis': {'visible': False}}, )
+            )
+
+            fig3.add_trace(go.Indicator(
+                value=indicator_data['PPM'],
+                title={'text': "PPM",'font': {'size': 15}},
+                gauge={
+                    'shape': "bullet",
+                    'axis': {'visible': False},
+                    'bar': {'thickness': 0.4} ,
+                },
+                domain={'x': [0.10, 0.45], 'y': [0.35, 0.55]},
+                number={'font': {'size': 12}} )
+            )
+
+            fig3.update_layout(
+                grid={'rows': 2, 'columns': 2, 'pattern': "independent"},
+                template={'data': {'indicator': [{
+                    'mode': "number+delta+gauge",
+                    'delta': {'reference': 5000}}]
+                }}, height=300,
+                width=400,
+                ##margin=dict(l=55, r=75, t=55, b=15)  # Adjust margin values to decrease distance
+
+            )
+
+            fig_container2.append(dcc.Graph(figure=fig3, id=f'indicator-figures-container2'))
+
+
 
     columns = [{"name": i, "id": i} for i in table_data.columns]
 
-    return columns, table_data.to_dict("records"), fig_container
+    return columns, table_data.to_dict("records"), fig_container , fig_container2
+
+
 @app.callback(
 
     Output("gantt_chart", "figure"),
@@ -205,4 +319,5 @@ def draw_dist_plot(data,start_date,end_date):
                    color_discrete_map={"CALISIYOR": "forestgreen" , "BEKLEME DURUSU" : "red" , "MALZEME DURUSU" : "brown"})
 
     return fig
+
 
