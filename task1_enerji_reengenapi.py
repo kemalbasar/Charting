@@ -131,3 +131,5 @@ for index, row in df.iterrows():
             # agiot.run_query(sql,params,0)
 
 
+# Set up dependencies
+sql_task >> mail_task

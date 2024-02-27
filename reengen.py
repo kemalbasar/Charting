@@ -105,12 +105,12 @@ payload = {
             },
         ],
         "point": ["valfsan_cnc_pano1"],
-        "start": "2024-01-01T00:00:00",
-        "end": "2024-01-30T00:00:00",
+        "start": "2023-10-30 16:31:44.000",
+        "end": "2023-10-31 01:08:03.000",
         "break": {
             "type": "point"
         },
-        "resolution": "day"
+        "resolution": "fifteenmin"
     }
 }
 

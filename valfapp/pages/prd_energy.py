@@ -20,7 +20,7 @@ questions = list(ag.run_query(r"SELECT DISTINCT  NAME1 FROM IASMATCUSTOMERS")["N
 # WHERE CUSTOMER = '10000030'
 
 layout = [
-    dcc.Store(id='generated_data2',data= {}), dcc.Download(id="download-energy2"), dcc.Download(id="download-energy3"),
+    dcc.Store(id='generated_data2', data={}), dcc.Download(id="download-energy2"), dcc.Download(id="download-energy3"),
     dcc.Store(id='shared-state'),
 
     # Navigation Bar
@@ -139,8 +139,8 @@ layout = [
                     sort_action='native'
                 ),
                 dbc.Button(id="unselect-rows-btn",
-                            className="dash-empty-button",
-                                style= {"margin-top":50}),
+                           className="dash-empty-button",
+                           style={"margin-top": 50}),
                 dash_table.DataTable(
                     id="data_table3",
                     data=[],
@@ -169,7 +169,7 @@ layout = [
                 )
 
             ], style={"margin-top": 0}, className="")
-        ], width=12, style={"margin-left": "100px"}), ],style={"margin-left":30,"margin-top":25})
+        ], width=12, style={"margin-left": "100px"}), ], style={"margin-left": 30, "margin-top": 25})
 ]
 
 
@@ -188,8 +188,6 @@ def main_table(input_material, input_customer, s_date, f_date):
 
             df = ag.run_query(f"EXEC VLFPRDENERGYPROC @WORKSTART=?, @WORKEND=?,@PROVIDEDMAT =?, @CUSTOMER =?",
                               params=[str(s_date), str(f_date), 1, input_customer])
-
-
 
     df["TOTWEIGHT"] = df["TOTWEIGHT"].fillna(0)
     df["KWHPERTON"] = df.apply(lambda x: (x["TOTKWH"] / x["TOTWEIGHT"]) if x["TOTWEIGHT"] != 0 else 1.111, axis=1)
@@ -289,7 +287,7 @@ def cache_to_result(s_date, f_date, input_material, input_customer, button):
 
 @app.callback(
     Output('data_table2', 'style_data_conditional'),
-    Output('data_table2' ,'style_table'),
+    Output('data_table2', 'style_table'),
     Output('data_table3', 'style'),
     Output("data_table3", "data"),
     Output("data_table3", "columns"),
@@ -299,8 +297,7 @@ def cache_to_result(s_date, f_date, input_material, input_customer, button):
     State('date-picker2', 'end_date'),
     State('generated_data2', 'data'),
 )
-def update_style(go,selected_rows, s_date, f_date, pivot_table):
-
+def update_style(go, selected_rows, s_date, f_date, pivot_table):
     print("here")
     try:
         df = pd.read_json(pivot_table, orient='split')
@@ -345,8 +342,6 @@ def update_style(go,selected_rows, s_date, f_date, pivot_table):
             "records"), columns3
 
 
-
-
 @app.callback(
     Output('data_table2', 'selected_rows'),
     Input('unselect-rows-btn', 'n_clicks'),
@@ -354,6 +349,7 @@ def update_style(go,selected_rows, s_date, f_date, pivot_table):
 )
 def unselect_rows(n_clicks):
     return []  # Returns an empty list to unselect all rows
+
 
 @app.callback(
     Output("download-energy2", "data"),
@@ -374,9 +370,17 @@ def generate_excel(n_clicks, ):
         )
 
 
+
+@app.callback(
+    Output("download-energy3", "data"),
+    Input("data_table3", "data"),
+    Input("download3", "n_clicks"),
+    prevent_initial_call=True
+)
 def generate_excel2(generated_data, n_clicks, ):
     if n_clicks < 1:
         raise PreventUpdate
+    print(generated_data)
     generated_data = pd.read_json(generated_data, orient='split')
 
     return dcc.send_data_frame(generated_data.to_excel, "energydata.xlsx", index=False)

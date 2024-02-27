@@ -472,6 +472,7 @@ def generate_excel_breakdowns(n_clicks, costcenter, oeelist2w):
     prevent_initial_call=True
 )
 def generate_excel_baddatas(n_clicks, costcenter, oeelistw4):
+
     oeelistw4 = pd.read_json(oeelistw4, orient='split')
     # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
     #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",

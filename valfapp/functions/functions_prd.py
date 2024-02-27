@@ -575,6 +575,7 @@ def indicator_for_tvs(status='white', fullname='',
         "paper_bgcolor": status,
         "width": size["width"], "height": size["height"]})
 
+
     return fig
 
 

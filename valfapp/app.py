@@ -168,18 +168,49 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
     oeelist7w = pd.read_json(oeelist7w, orient='split')
 
     list_of_wcs = []
-    if report_type == 'wc':
-        max_output = len(oeelist1w)
-        for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
-            list_of_wcs.append(item)
-    else:
-        max_output = len(oeelist7w)
-        for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
-            list_of_wcs.append(item)
 
-    df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
-    df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
-    df_forpers = oeelist7w[oeelist7w["COSTCENTER"] == option_slctd]
+    if option_slctd == 'CNC1' or option_slctd == 'CNC2':
+
+        if  option_slctd == 'CNC1':
+            list_of_wcs = ["CNC-07", "CNC-19", "CNC-26", "CNC-28", "CNC-08", "CNC-29"]
+        else:
+            list_of_wcs = ["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
+                       "CNC-17", "CNC-18",
+                       "CNC-20", "CNC-21", "CNC-22", "CNC-23"]
+
+
+        if report_type == 'wc':
+            max_output = len(oeelist1w)
+            for item in oeelist1w.loc[oeelist1w["WORKCENTER"].isin(list_of_wcs)]["WORKCENTER"].unique():
+                list_of_wcs.append(item)
+        else:
+            print("burada mı ıyz ?")
+            print(oeelist3w)
+
+            max_output = len(oeelist7w)
+
+
+            list_of_wcs =  oeelist3w.loc[oeelist3w["WORKCENTER"].isin(list_of_wcs)]["DISPLAY"].unique()
+
+            print("burada mı ıyz ?")
+
+        df = oeelist1w[oeelist1w["WORKCENTER"].isin(["CNC-07","CNC-19","CNC-26","CNC-28","CNC-08","CNC-29"])]
+        df_wclist = oeelist3w[oeelist3w["WORKCENTER"].isin(["CNC-07","CNC-19","CNC-26","CNC-28","CNC-08","CNC-29"])]
+        df_forpers = oeelist7w[oeelist7w["DISPLAY"].isin(list_of_wcs)]
+
+    else:
+        if report_type == 'wc':
+            max_output = len(oeelist1w)
+            for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
+                list_of_wcs.append(item)
+        else:
+            max_output = len(oeelist7w)
+            for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
+                list_of_wcs.append(item)
+
+        df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
+        df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
+        df_forpers = oeelist7w[oeelist7w["COSTCENTER"] == option_slctd]
 
     list_of_figs = []
     list_of_columns = []
