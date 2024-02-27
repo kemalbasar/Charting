@@ -47,14 +47,14 @@ else:
 connection = pyodbc.connect(f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}')
 
 
-begin_month = 10
+begin_month = 9
 begin_year = 2023
-final_month = 2
+final_month = 3
 final_year = 2024
 
 
 start_date = datetime(begin_year, begin_month,1)
-end_date = datetime(final_year, final_month, 26)
+end_date = datetime(final_year, final_month, 30)
 difference = relativedelta(end_date, start_date)
 
 end_date = end_date.strftime('%Y-%m-%d %H:%M:%S.%f')
@@ -63,8 +63,7 @@ start_date = start_date.strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
 
-df = ag.run_query(query=r"EXEC [VLFENERGYPRD_P31] @WORKSTART=?, @WORKEND=?", params=[start_date,end_date])
-
+df = ag.run_query("SELECT * FROM VLFTMPENERGYDATA")
 df.reset_index(inplace=True)
 for index, row in df.iterrows():
 
@@ -133,7 +132,7 @@ for index, row in df.iterrows():
 
         totval = totval*float(df_mpoint["RATE"])
 
-        with open('example.txt', 'a') as file:
+        with open('example2.txt', 'a') as file:
 
             sql = f"INSERT INTO VLFPRDENERGY (MATERIAL, OUTPUT, COSTCENTER, WORKCENTER, QTY, KWH, WORKSTART, WORKEND, CONFIRMATION, CONFIRMPOS, WORKINGHOUR, MPOINT, SETUPTIME, IDEALCYCLETIME) " \
                   f"VALUES ('{row['MATERIAL']}', 0, '{row['COSTCENTER']}', '{row['WORKCENTER']}', {row['QTY']},{totval}, '{row['WORKSTART']}', '{row['WORKEND']}', {row['CONFIRMATION']}, {row['CONFIRMPOS']}, {row['WORKINGHOUR']}, '{tmp_mpoint}', {row['SETUPTIME']}, {row['IDEALCYCLETIME']})"
@@ -184,7 +183,7 @@ for index, row in df.iterrows():
 
         if response_data["properties"]["data"]['0'] is not None:
             total_kwh = 0.000
-            with open('example.txt', 'a') as file:
+            with open('example2.txt', 'a') as file:
                 for item in response_data["properties"]["data"]['0']:
 
                     total_kwh = total_kwh + round(float(item[2]), 4)

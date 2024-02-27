@@ -44,29 +44,29 @@ else:
 
 # Headers
 
-headers = {
-    'Content-Type': 'application/json',
-    'XConnectionId': connection_id,       # Replace with your connection id
-    'XLang': 'valfsan'               # Replace with your tenant name
-}
-
-# Payload for GetPointHierarchy
-payload = {
-    "$": "GetPointHierarchy"
-}
-
-# Make the POST request
-response = requests.post(url, data=json.dumps(payload), headers=headers)
-
-# Check if the request was successful
-if response.status_code == 200:
-    response_data = response.json()
-    print(json.dumps(response_data, indent=4))   # Pretty print the JSON response
-else:
-    print(f"HTTP Error: {response.status_code}")
-get_hierarchy = { "$": "GetPointHierarchy"}
-
-response = requests.post(url, data=json.dumps(auth_payload), headers=headers)
+# headers = {
+#     'Content-Type': 'application/json',
+#     'XConnectionId': connection_id,       # Replace with your connection id
+#     'XLang': 'valfsan'               # Replace with your tenant name
+# }
+#
+# # Payload for GetPointHierarchy
+# payload = {
+#     "$": "GetPointHierarchy"
+# }
+#
+# # Make the POST request
+# response = requests.post(url, data=json.dumps(payload), headers=headers)
+#
+# # Check if the request was successful
+# if response.status_code == 200:
+#     response_data = response.json()
+#     print(json.dumps(response_data, indent=4))   # Pretty print the JSON response
+# else:
+#     print(f"HTTP Error: {response.status_code}")
+# get_hierarchy = { "$": "GetPointHierarchy"}
+#
+# response = requests.post(url, data=json.dumps(auth_payload), headers=headers)
 
 
 #
@@ -104,15 +104,16 @@ payload = {
                 "decimalPoints": 3
             },
         ],
-        "point": ["valfsan_cnc_pano1"],
-        "start": "2023-10-30 16:31:44.000",
-        "end": "2023-10-31 01:08:03.000",
+        "point": ["valfsan_otecsantrifuj"],
+        "start": "2023-10-12T17:20:39.000",
+        "end": "2023-10-12T18:40:58.000",
         "break": {
             "type": "point"
         },
         "resolution": "fifteenmin"
     }
 }
+
 
 # Make the POST request
 response = requests.post(url, data=json.dumps(payload), headers=headers)

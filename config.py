@@ -4,8 +4,8 @@ from datetime import datetime
 server = '172.30.134.12'
 database = 'VALFSAN604'
 database_iot = 'VALFAN_IOT_001'
-username = 'kemal'
-password = '1212whenwhen..'
+username = 'pythonreporter'
+password = '1212casecase..'
 
 reengen_username = "takgun@valfsan.com.tr"
 reengen_password = '1234Ta1234'
@@ -66,12 +66,15 @@ valftoreeg = {"Bütün": {"Analizörler": "Analizörler", "Bölümler": "Bölüm
                           "STAG-02": "valfsan_taslama_stag_02",
                           "STAG-03": "valfsan_taslama_stag_03"},
               "PRESHANE": {'PRES - Pano 1': 'PRESHANE / PANO 1',
-                           'PRES - Pano 2': 'PRESHANE / PANO 2',
+                           'P-06': 'PRESHANE / PANO 2',
                            'PRES - Pano 3': 'PRESH2hANE / PANO 3',
+                           "P-16": "valfsan_pres16",
                            "P-17": "valfsan_pres17",
                            "P-20": "valfsan_pres20",
+                           "P-60": "valfsan_pres20",
                            "P-21": "valfsan_pres21",
                            "P-29": "valfsan_pres29",
+                           "P-31": "valfsan_pres31",
                            "P-36": "valfsan_pres36",
                            "P-69": "valfsan_pres_cinpresi",
                            "P-72": "valfsan_pres72",

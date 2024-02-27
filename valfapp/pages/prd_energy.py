@@ -102,7 +102,7 @@ layout = [
                             n_clicks=0,
                         ),
                     ],
-                ), style={"margin-left": 100, "margin-top": 15}
+                ), style={"margin-left": 40, "margin-top": 15}
             ),
         ], style={"margin-top": 40, 'border': '3px dashed blue', "margin-left": 60}, className="g-0"
     ),
@@ -119,7 +119,7 @@ layout = [
                         "textAlign": "center",
                         "padding": "10px",
                         "color": "black",
-                        'max-width': 100
+                        'max-width': 200
                     },
                     row_selectable='single',  # Enable multi-row selection
                     selected_rows=[],
@@ -167,6 +167,61 @@ layout = [
                     },
                     sort_action='native'
                 )
+                , dash_table.DataTable(
+                    id="ccentersummary",
+                    data=[],
+                    columns=[],
+                    filter_action='native',
+                    style_cell={
+                        "textAlign": "center",
+                        "padding": "10px",
+                        "color": "black",
+                        "background-color": "yellow",
+                        'max-width': 60
+                    },
+                    style_table={
+                        'borderCollapse': 'collapse',
+                    },
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 'odd'},
+                            'backgroundColor': 'rgb(248, 248, 248)'
+                        }
+                    ],
+                    style_header={
+                        'backgroundColor': 'rgb(230, 230, 230)',
+                        'fontWeight': 'bold'
+                    },
+                    sort_action='native'
+                )
+                , dash_table.DataTable(
+                    id="finalsum",
+                    data=[],
+                    columns=[],
+                    filter_action='native',
+                    style_cell={
+                        "textAlign": "center",
+                        "padding": "10px",
+                        "color": "black",
+                        "size" : 50,
+                        "background-color": "orange",
+                        'max-width': 60
+                    },
+                    style_table={
+                        'borderCollapse': 'collapse',
+                    },
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 'odd'},
+                            'backgroundColor': 'rgb(248, 248, 248)'
+                        }
+                    ],
+                    style_header={
+                        'backgroundColor': 'rgb(230, 230, 230)',
+                        'fontWeight': 'bold'
+                    },
+                    sort_action='native'
+                ),
 
             ], style={"margin-top": 0}, className="")
         ], width=12, style={"margin-left": "100px"}), ], style={"margin-left": 30, "margin-top": 25})
@@ -291,6 +346,12 @@ def cache_to_result(s_date, f_date, input_material, input_customer, button):
     Output('data_table3', 'style'),
     Output("data_table3", "data"),
     Output("data_table3", "columns"),
+    Output("ccentersummary", "style"),
+    Output("ccentersummary", "data"),
+    Output("ccentersummary", "columns"),
+    Output("finalsum", "style"),
+    Output("finalsum", "data"),
+    Output("finalsum", "columns"),
     Input('shared-state', 'data'),
     Input('data_table2', 'selected_rows'),
     State('date-picker2', 'start_date'),
@@ -298,7 +359,6 @@ def cache_to_result(s_date, f_date, input_material, input_customer, button):
     State('generated_data2', 'data'),
 )
 def update_style(go, selected_rows, s_date, f_date, pivot_table):
-    print("here")
     try:
         df = pd.read_json(pivot_table, orient='split')
     except ValueError as e:
@@ -307,39 +367,64 @@ def update_style(go, selected_rows, s_date, f_date, pivot_table):
     if not selected_rows:
         # If no rows are selected, don't apply any conditional style
         print("not selected")
-        style = [
+
+        style_data_conditional = [
             # {
             #     'if': {'row_index': i},
             #     'display': 'table-row'  # Explicitly show the row, though this is typically not necessary
             # } for i in range(len(df))
         ]
-        table_height = f"{30 * len(df) + 30}px"
-        style2 = {'display': 'none'}
-        style_table = {'height': table_height, 'borderCollapse': 'collapse'}
-        return style, style_table, style2, pd.DataFrame().to_dict(
+
+        table_height_styletable = f"{30 * len(df) + 30}px"
+        style_of_datatable3 = {'display': 'none'}
+        style_table = {'height': table_height_styletable, 'borderCollapse': 'collapse'}
+        return style_data_conditional, style_table, style_of_datatable3, pd.DataFrame().to_dict(
+            "records"), [], style_of_datatable3, pd.DataFrame().to_dict(
+            "records"), [], style_of_datatable3, pd.DataFrame().to_dict(
             "records"), []
+
     else:
         print("selected")
+
         df_details = ag.run_query(
-            f"SELECT DISTINCT A.MPOINT,A.WORKCENTER,A.QTY,A.QTY*M.NETWEIGHT/1000 AS KG,A.KWH,CASE WHEN A.WORKINGHOUR = 0 THEN NULL ELSE A.IDEALCYCLETIME/A.WORKINGHOUR END AS PERFORMANCE,WORKSTART,WORKEND,A.SETUPTIME"
+            f"SELECT DISTINCT A.MPOINT,A.WORKCENTER,A.COSTCENTER,A.QTY,A.QTY*M.NETWEIGHT/1000 AS KG,A.KWH,CASE WHEN A.WORKINGHOUR = 0 THEN NULL ELSE A.IDEALCYCLETIME/A.WORKINGHOUR END AS PERFORMANCE,WORKSTART,WORKEND,A.SETUPTIME"
             f" FROM VLFPRDENERGY A LEFT JOIN IASMATBASIC M ON M.MATERIAL = A.MATERIAL"
             f" WHERE A.MATERIAL = '{df['MATERIAL'][selected_rows[0]]}' AND WORKSTART > '{s_date}' AND WORKEND < '{f_date}'")
-        print(df_details)
+
         columns3 = [] if df_details is None else [{"name": i, "id": i} for i in df_details.columns]
-        style = [
+        style_data_conditional = [
             {
                 'if': {'row_index': i},
                 'display': 'none'  # This will hide the row
             } for i in range(len(df)) if i not in selected_rows
         ]
-        style2 = {'display': 'none'}
 
-        visible_rows = len(df) - len(selected_rows)
-        table_height = 180
-        style_table = {'height': table_height, 'borderCollapse': 'collapse'}
+        df_sumof_costcenters = df_details.groupby(["COSTCENTER"]).agg({"QTY": "sum", "KWH": "sum", "KG": "sum"})
+        df_sumof_costcenters.reset_index(inplace=True)
+        df_sumof_costcenters["KWH\QTY"] = df_sumof_costcenters["KWH"] / df_sumof_costcenters["QTY"]
+        df_sumof_costcenters["KWH\KG"] = df_sumof_costcenters["KWH"] / df_sumof_costcenters["KG"]
+        columns4 = [] if df_sumof_costcenters is None else [{"name": i, "id": i} for i in df_sumof_costcenters.columns]
 
-        return style, style_table, style2, pd.DataFrame() if df_details is None else df_details.to_dict(
-            "records"), columns3
+        df_great_sum = df_sumof_costcenters.copy()
+        df_great_sum["KWH"]  = (df_great_sum["KWH"]*10000) /  df_great_sum["QTY"]
+        df_great_sum["KG"]  = (df_great_sum["KG"]*10000) /  df_great_sum["QTY"]
+        df_great_sum = df_great_sum.groupby(["COSTCENTER"]).agg({"QTY": "sum", "KWH": "sum", "KG": "sum"})
+        df_great_sum.reset_index(inplace=True)
+        df_great_sum["KWH\QTY"] = df_great_sum["KWH"] / df_great_sum["QTY"]
+        df_great_sum["KWH\KG"] = df_great_sum["KWH"] / df_great_sum["KG"]
+        df_great_sum.iloc[-1] = ( "TOTAL",10000,df_great_sum["KWH"].sum(),df_great_sum.iloc[0][4],df_great_sum["KWH\QTY"].sum(),df_great_sum["KWH\KG"].sum() )
+        df_great_sum = df_great_sum[df_great_sum["COSTCENTER"] == 'TOTAL']
+        columns5 = [] if df_great_sum is None else [{"name": i, "id": i} for i in df_great_sum.columns]
+
+
+        style_of_datatable3 = {'display': 'none'}
+        table_height_styletable = 180
+        style_table = {'height': table_height_styletable, 'borderCollapse': 'collapse'}
+
+        return style_data_conditional, style_table, style_of_datatable3, pd.DataFrame() if df_details is None else df_details.to_dict(
+            "records"), columns3, style_of_datatable3, pd.DataFrame() if df_sumof_costcenters is None else df_sumof_costcenters.to_dict(
+            "records"), columns4, style_of_datatable3, pd.DataFrame() if df_great_sum is None else df_great_sum.to_dict(
+            "records"), columns5
 
 
 @app.callback(
@@ -368,7 +453,6 @@ def generate_excel(n_clicks, ):
             State(component_id='generated_data2', component_property='data'),
             Input("download3", "n_clicks"),
         )
-
 
 
 @app.callback(
