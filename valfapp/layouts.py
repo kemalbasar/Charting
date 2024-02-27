@@ -14,7 +14,8 @@ try:
     value = int(
         ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0])
 except TypeError:
-    value = int(1200000)
+    value = int(12000000)
+
 
 total_value_with_separator = format(value, ",")
 
@@ -662,6 +663,14 @@ layout_12_loginpage = dbc.Container([
             ),
         ], style={'justify-content': 'center'}, className='mt-5',
     ),
+    dcc.Link(
+        children='Kamera Ayıklama Sonuçlar',
+        href='/camayik',
+    ),
+    dcc.Link(
+        children='Kamera Ayıklama Üretim Raporu',
+        href='/camayikuretim',
+    )
 ], style={"height": "100vh", "position": "relative"}, fluid=True)
 
 

@@ -7,9 +7,9 @@ import dash_bootstrap_components as dbc
 ### Import Dash Instance and Pages ###
 from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
-from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
+from valfapp.layouts import layout_27_loginpage, layout_12_loginpage
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page
+    camayikuretim,tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page
 from flask import request,g
 
 ### Page container ###
@@ -150,6 +150,8 @@ def display_page(pathname,login_status_data):
             return kapasite.layout
         elif pathname == '/kameraayiklama':
             return kameraayıklama.layout
+        elif pathname == '/camayikuretim':
+            return camayikuretim.layout
         elif pathname == '/deneme_page':
             return deneme_page.layout
         else:
@@ -182,6 +184,7 @@ app.validation_layout = html.Div(
         montajtv.layout,
         yuzeyislemtv.layout,
         kameraayıklama.layout,
+        camayikuretim.layout,
         tvmonitor.layout,
         uretimrapor.layout,
         kapasite.layout,
