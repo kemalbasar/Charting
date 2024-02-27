@@ -1,16 +1,12 @@
 import time
 from config import server, username, password, database, database_iot, directory, project_directory
-from matplotlib import colors
-import matplotlib.pyplot as plt
 import pyodbc
 import seaborn as sns
 import pandas as pd
-import numpy as np
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 import os
 import warnings
-
 warnings.filterwarnings("ignore")
 
 import plotly.graph_objects as go
@@ -228,61 +224,27 @@ class Agent:
                 cursor.execute(query)
             rapto += relativedelta(months=-1)
 
-    def correlation_matrix(self):
+    # def correlation_matrix(self):
+    #
+    #     corr = self.df.corr()
+    #     sns.set_theme(style="white")
+    #     # Generate a mask for the upper triangle
+    #     mask = np.triu(np.ones_like(corr, dtype=bool))
+    #
+    #     # Set up the matplotlib figure
+    #     f, ax = plt.subplots(figsize=(11, 9))
+    #
+    #     # Generate a custom diverging colormap
+    #     cmap = sns.diverging_palette(500, 220, as_cmap=True)
+    #
+    #     # Draw the heatmap with the mask and correct aspect ratio
+    #     sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+    #                 square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
-        corr = self.df.corr()
-        sns.set_theme(style="white")
-        # Generate a mask for the upper triangle
-        mask = np.triu(np.ones_like(corr, dtype=bool))
 
-        # Set up the matplotlib figure
-        f, ax = plt.subplots(figsize=(11, 9))
 
-        # Generate a custom diverging colormap
-        cmap = sns.diverging_palette(500, 220, as_cmap=True)
 
-        # Draw the heatmap with the mask and correct aspect ratio
-        sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
-                    square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
-    def draw_distrubiton_plot(self, workcenter, uplimit):
-
-        # there will be auto-detect outliers code block!!!
-        df_of_workcenter = self.df.loc[(self.df["WORKCENTER"] == workcenter) & (self.df["QUANTITY"] < uplimit)]
-        # cnc01 = a.df.loc[(a.df["WORKCENTER"] == "CNC-01") & (a.df["QUANTITY"] < 1250)]
-        #
-        # shapiro(cnc04["TOTALPRD"])
-        #
-        # sns.displot()
-
-        # fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
-        #
-        # # We can set the number of bins with the *bins* keyword argument.
-        # axs[0].hist(cnc04["TOTALPRD"], bins=55)
-
-        fig, axs = plt.subplots(1, tight_layout=True)
-
-        # N is the count in each bin, bins is the lower-limit of the bin
-        N, bins, patches = axs[0].hist(df_of_workcenter["QUANTITY"], bins=55)
-
-        # We'll color code by height, but you could use any scalar
-        fracs = N / N.max()
-
-        # we need to normalize the data to 0..1 for the full range of the colormap
-        norm = colors.Normalize(fracs.min(), fracs.max())
-
-        # Now, we'll loop through our objects and set the color of each accordingly
-        for thisfrac, thispatch in zip(fracs, patches):
-            color = plt.cm.viridis(norm(thisfrac))
-            thispatch.set_facecolor(color)
-
-        # We can also normalize our inputs by the total number of counts
-        axs[0].hist(df_of_workcenter["QUANTITY"], bins=55, density=True)
-        # axs[1].hist(cnc01["QUANTITY"], bins=55)
-        # Now we format the y-axis to display percentage
-        # axs[1].yaxis.set_major_formatter(PercentFormatter(xmax=1))
-
-        plt.show()
 
     # def pie_multi_layer(self,df):
     #     fig = px.sunburst(df, names='names'  values='value')

@@ -10,104 +10,108 @@ from valfapp.pages import livecnc, livepres
 # Define the Dash app
 
 # Define the layout for the main page
-layout = html.Div(
-    style={
-        "display": "flex",
-        "justify-content": "center",
-        "align-items": "center",
-        "height": "100vh",
-    },
-    children=[
-        dbc.Container(
-            dbc.Row(
-                [
-                    dbc.Col(
-                        dcc.Link(
-                            children=[
-                                html.Div(
-                                    [
-                                        html.Img(
-                                            src="/assets/cnc.jpg",
-                                            style={
-                                                "width": "100%",
-                                                "height": "100%",
-                                                "object-fit": "cover",
-                                                "object-position": "center",
-                                            },
-                                        ),
-                                        html.H1(
-                                            "Talaşlı İmalat",
-                                            style={
-                                                "color": "white",
-                                                "font-weight": "bold",
-                                                "position": "absolute",
-                                                "bottom": 0,
-                                                "left": "50%",
-                                                "transform": "translateX(-50%)",
-                                            },
-                                        ),
-                                    ],
-                                    style={
-                                        "display": "inline-block",
-                                        "position": "relative",
-                                        "width": "100%",
-                                        "height": "480px",
-                                        "text-align": "center",
-                                    },
-                                )
-                            ],
-                            href="/liveprd/livecnc",
-                        ),
-                        width=6,
-                    ),
-                    dbc.Col(
-                        dcc.Link(
-                            children=[
-                                html.Div(
-                                    [
-                                        html.Img(
-                                            src="/assets/pres.png",
-                                            style={
-                                                "width": "100%",
-                                                "height": "100%",
-                                                "object-fit": "cover",
-                                                "object-position": "center",
-                                            },
-                                        ),
-                                        html.H1(
-                                            "Preshane",
-                                            style={
-                                                "color": "white",
-                                                "font-weight": "bold",
-                                                "position": "absolute",
-                                                "bottom": 0,
-                                                "left": "50%",
-                                                "transform": "translateX(-50%)",
-                                            },
-                                        ),
-                                    ],
-                                    style={
-                                        "display": "inline-block",
-                                        "position": "relative",
-                                        "width": "100%",
-                                        "height": "480px",
-                                        "text-align": "center",
-                                    },
-                                )
-                            ],
-                            href="/liveprd/livepres",
-                        ),
-                        width=6,
-                    ),
-                ],
-                justify="center",
-                style={"padding": 15},
-            ),
-            fluid=True,
-        )
-    ],
-)
-
+layout = [
+    html.Nav(className="main-menu side-bar", children=[
+        dbc.Container([
+            html.Div(className="logo-div resim-container", children=[
+                html.A(className="logo", href="/", children=[
+                    html.Img(src='./assets/valfsan-logo.png', className="logo")
+                ])
+            ]),
+            html.Div(className="settings"),
+            html.Div(id="style-1", className="scrollbar", children=[
+                html.Ul(children=[
+                    html.Li(children=[
+                        html.A(href="/", children=[
+                            html.Img(src="../assets/home.png", className="nav-icon"),
+                            html.Span(className="nav-text nav-text-2", children="MAIN")
+                        ])
+                    ]),
+                    html.Li(className="darkerlishadow", children=[
+                        html.A(href="/value", children=[
+                            html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
+                            html.Span(className="nav-text", children="Tutarlama")
+                        ])
+                    ]),
+                    html.Li(className="darkerli", children=[
+                        html.A(href="/uretimrapor", children=[
+                            html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Üretim Raporları")
+                        ])
+                    ]),
+                    html.Li(className="darkerli", children=[
+                        html.A(href="/liveprd", children=[
+                            html.Img(src="../assets/uretim-takip-icon.PNG", className="nav-icon"),
+                            html.Span(className="nav-text", children="Üretim Takip")
+                        ])
+                    ]),
+                    html.Li(className="darkerli", children=[
+                        html.A(href="/tvmonitor", children=[
+                            html.Img(src="../assets/tvmonitor-ıcon.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Tv Monitor")
+                        ])
+                    ]),
+                    html.Ul(className="darkerlishadowdown", children=[
+                        html.Li(children=[
+                            html.A(href="/energy", children=[
+                                html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
+                                html.Span(className="nav-text", children="Energy")
+                            ])
+                        ])
+                    ])
+                ])
+            ])
+        ]),
+    ]),
+    html.Div(
+        style={
+            "justify-content": "center",
+            "align-items": "center",
+            "height": "100vh",
+        },
+        children=[
+            dbc.Container(
+                children=[
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                html.A(
+                                    html.Div(
+                                        "Talaşlı İmalat",
+                                        style={
+                                            "height": "200px",
+                                            "border-radius": "10px",
+                                            "justify-content": "center",
+                                            "align-items": "center",
+                                            "display": "flex",
+                                            "background-color": "white"
+                                        },
+                                    ),
+                                    href="/livecnc", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                                ), className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
+                            ),
+                            dbc.Col(
+                                html.A(
+                                    html.Div(
+                                        "Preshane",
+                                        style={
+                                            "height": "200px",
+                                            "border-radius": "10px",
+                                            "justify-content": "center",
+                                            "align-items": "center",
+                                            "display": "flex",
+                                            "background-color": "white"
+                                        },
+                                    ),
+                                    href="/livepres", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                                ), className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
+                            ),
+                        ], style={"justify-content": "center", "align-items": "center", }
+                    )
+                ])
+        ]
+    )
+]
 
 
 

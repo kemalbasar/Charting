@@ -1,251 +1,758 @@
+/* img {
+    border-radius: 10px;
+} */
+
+.valfsan-logo {
+    width: 150px;
+    height: 50px;
+}
+
 .slider {
     width: 50%;
     height: 50%;
-  }
+}
 
-#Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
+/*Enes Sidenavbar CSS*/
+
+.email {
+    background: hsl(0deg 0% 100%);
+    box-shadow: 0 0 2em hsl(231deg 62% 94%);
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    border-radius: 20px;
+    color: hsl(0deg 0% 30%);
+    margin-top: -3em;
+
+    input {
+              outline: none;
+              border: none;
+
+              &::placeholder {
+                        color: hsl(0deg 0% 0%);
+                        font-size: 0.9em;
+              }
+    }
+
+    ion-icon {
+              color: hsl(0deg 0% 30%);
+              margin-bottom: -.2em;
+    }
+}
+
+.password {
+    background: hsl(0deg 0% 100%);
+    box-shadow: 0 0 2em hsl(231deg 62% 94%);
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    border-radius: 20px;
+    color: hsl(0deg 0% 30%);
+
+    input {
+              outline: none;
+              border: none;
+
+              &::placeholder {
+                        color: hsl(0deg 0% 0%);
+                        font-size: 0.9em;
+              }
+    }
+
+    ion-icon {
+              color: hsl(0deg 0% 30%);
+              margin-bottom: -.2em;
+    }
+
+    .show-hide {
+              margin-right: -5em;
+    }
+}
+
+.login {
+    padding: 1em;
+    background: #2149b5;
+    color: hsl(0 0 100);
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Open Sans", arial;
+    background-color: #b2b2b2b2;
+    color: #fff;
+    font-weight: 300;
+}
+
+.link-hover a:hover {
+    background-color: #8a8a8a
+}
+
+@import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
+@import url(https://fonts.googleapis.com/css?family=Titillium+Web:300);
+@import url(https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
+
+
+.div-1,
+.div-2,
+.div-3,
+.div-4 {
+    justify-content: center;
+    align-items: center;
+    border: 1px solid;
+    text-align: center;
+}
+
+
+.logo-div {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.logo {
+    width: 128px;
+    height: 128px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.footer {
+    margin-top: 100%;
+    text-align: center;
+}
+
+.sidebar {
+    z-index: 1000;
+}
+
+.resim-container {
+    text-align: center;
+    /* Resmi merkezlemek için */
+}
+
+.resim-container img {
+    max-width: 100%;
+    /* Resmin maksimum genişliği 100% olacak şekilde */
+    height: auto;
+    /* Oranları koruyarak boyutu ayarla */
+}
+
+.sidebar.kapali .resim-container img {
+    width: 70px;
+    /* Kapandığında resmin genişliği 64px olacak */
+    height: 70px;
+    /* Kapandığında resmin yüksekliği 64px olacak */
+}
+
+.settings {
+    height: 73px;
+    float: left;
+    background: url(https://s3.postimg.org/bqfooag4z/startific.jpg);
+    background-repeat: no-repeat;
+    width: 250px;
+    margin: 0;
+    text-align: center;
+    font-size: 20px;
+    font-family: 'Strait', sans-serif;
+}
+
+ ScrollBar
+.scrollbar {
+    height: 90%;
+    width: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+/*.scrollbar:hover {*/
+/*    height: 90%;*/
+/*    width: 100%;*/
+/*    overflow-y: scroll;*/
+/*    overflow-x: hidden;*/
+/*}*/
+
+
+/* Scrollbar Style */
+#style-1::-webkit-scrollbar-track {
+    border-radius: 2px;
+}
+
+#style-1::-webkit-scrollbar {
+    width: 5px;
+    background-color: #F7F7F7;
+}
+
+#style-1::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #BFBFBF;
+}
+
+ Scrollbar End
+
+ .fa-lg {
+    font-size: 1em;
+}
+
+.fa {
+    position: relative;
+    display: table-cell;
+    width: 55px;
+    height: 36px;
+    text-align: center;
+    top: 12px;
+    font-size: 20px;
+}
+
+.main-menu:hover,
+nav.main-menu.expanded {
+    width: 250px;
+    overflow: hidden;
+    opacity: 1;
+}
+
+.main-menu {
+    background: #F7F7F7;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    width: 55px;
+    overflow: hidden;
+    -webkit-transition: width 0.2s linear;
+    transition: width 0.2s linear;
+    -webkit-transform: translateZ(0) scale(1, 1);
+    box-shadow: 1px 0 15px rgba(0, 0, 0, 0.07);
+    opacity: 1;
+    z-index: 1000;
+}
+
+.div-hover {}
+
+.main-menu>ul {
+    margin: 7px 0;
+}
+
+.main-menu li {
+    position: relative;
+    display: block;
+    width: 250px;
+}
+
+.main-menu li>a {
+    position: relative;
+    width: 255px;
+    display: table;
+    border-collapse: collapse;
+    border-spacing: 0;
+    color: #8a8a8a;
+    font-size: 13px;
+    text-decoration: none;
+    -webkit-transform: translateZ(0) scale(1, 1);
+    -webkit-transition: all 0.14s linear;
+    transition: all 0.14s linear;
+    font-family: 'Strait', sans-serif;
+    border-top: 1px solid #f2f2f2;
+    text-shadow: 1px 1px 1px #fff;
+}
+
+.main-menu .nav-icon {
+    position: relative;
+    display: table-cell;
+    width: 20px;
+    height: 17px;
+    text-align: center;
+    vertical-align: middle;
+    top: 10px;
+    left: 5px;
+    font-weight: 300;
+}
+
+.main-menu .nav-text {
+    display: table-cell;
+    vertical-align: middle;
+    width: 190px;
+    font-family: 'Titillium Web', sans-serif;
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: 22px;
+    color: #2149b4;
+
+}
+
+.nav-text-2 {
+    font-weight: 1000 !important;
+}
+
+a:hover,
+a:focus {
+    text-decoration: none;
+    border-left: 0px solid #F7F7F7;
+}
+
+nav {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+nav ul,
+nav li {
+    outline: 0;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+/* Darker element side menu Start */
+.darkerli {
+    background-color: #ededed;
+    text-transform: capitalize;
+}
+
+.darkerlishadow {
+    background-color: #ededed;
+    text-transform: capitalize;
+    -webkit-box-shadow: inset 0px 5px 5px -4px rgba(50, 50, 50, 0.55);
+    -moz-box-shadow: inset 0px 5px 5px -4px rgba(50, 50, 50, 0.55);
+    box-shadow: inset 0px 5px 5px -4px rgba(50, 50, 50, 0.55);
+}
+
+.darkerlishadowdown {
+    background-color: #ededed;
+    text-transform: capitalize;
+    -webkit-box-shadow: inset 0px -4px 5px -4px rgba(50, 50, 50, 0.55);
+    -moz-box-shadow: inset 0px -4px 5px -4px rgba(50, 50, 50, 0.55);
+    box-shadow: inset 0px -4px 5px -4px rgba(50, 50, 50, 0.55);
+}
+
+/* Darker element side menu End */
+
+.main-menu li:hover>a,
+nav.main-menu li.active>a,
+.dropdown-menu>li>a:hover,
+.dropdown-menu>li>a:focus,
+.dropdown-menu>.active>a,
+.dropdown-menu>.active>a:hover,
+.dropdown-menu>.active>a:focus,
+.no-touch .dashboard-page nav.dashboard-menu ul li:hover a,
+.dashboard-page nav.dashboard-menu ul li.active a {
+    color: #fff;
+    background-color: #00bbbb;
+    text-shadow: 0px 0px 0px;
+}
+
+.area {
+    float: left;
+    background: #e2e2e2;
+    width: 100%;
+    height: 100%;
+}
+
+#work-dates{
+    border-radius: 10px;
+}
+
+@font-face {
+    font-family: 'Titillium Web';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Titillium WebLight'), local('TitilliumWeb-Light'),
+        url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2BTjF6FB5E.woff) format('woff');
+}
+
+Enes navbar bitis
+
+#Dropdown Ayarları #Dropdown Ayarları #Dropdown Ayarları #Dropdown Ayarları
+
 /* dropdown menu options */
 .VirtualizedSelectOption {
-    background-color: #593096;
+    background-color: #2149b4;
     color: white;
- }
+}
+
 
 
 /* dropdown menu hover effect */
 .VirtualizedSelectFocusedOption {
-    background-color: rgba(141, 123, 169, 0.81);
+    background-color: #2149b4;
     opacity: .7;
+    color: whitesmoke;
 }
 
 .dropdown-style {
-    /*color: white; !* Set font color to white *!*/
+    /*color: black; !* Set font color to black *!*/
     width: 150px;
-    background-color: #593096; /* Purple background color */
+  
+
+    /* Purple background color */
     text-align: center;
     display: inline-block;
-    transition-duration: 0.4s; /* Transition effect duration */
-    border-radius: 0; /* Square shape */
-    padding: 0; /* No padding */
+    transition-duration: 0.4s;
+    /* Transition effect duration */
+    border-radius: 0;
+    /* Square shape */
+    padding: 0;
+    /* No padding */
 }
 
-/*.Select-control {*/
-/*    background-color: #593096 !important;*/
-/*    color:white;*/
-/*  }*/
+.Select-control {
+    background-color: #2149b4 !important;
+    color: black;
+}
 
 .Select-menu-outer {
-    background-color: #593096 !important;
-    color: white;
+    color: black;
+}
+
+.Select-value-label {
+    color: white !important;
 }
 
 
 
-/*.Select-value-label {*/
-/*    background-color: #593096;*/
-/*    color: white !important;*/
-/*}*/
+.Select-value-label {
+    background-color: #EFE6B8EF;
+    color: black !important;
+}
 
 
 .Select-control .Select-value, .Select-placeholder  {
-    background-color: #593096 !important;
+    background-color: #EFE6B8EF !important;
 }
 
-#Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları  #Dropdown Ayarları
+#Dropdown Ayarları #Dropdown Ayarları #Dropdown Ayarları #Dropdown Ayarları .estop-button {
+    width: 100px;
+    /* width of the square button */
+    height: 100px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
 
-
-.estop-button {
-    width: 100px;    /* width of the square button */
-    height: 100px;   /* height of the square button */
-    background-color: #593096;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
     text-align: center;
     display: inline-block;
-    font-size: 48px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
+    font-size: 48px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
-    padding: 0;  /* no padding */
-    position: absolute;/* no padding */
-    left: 300px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+  
+  
+    border-radius: 0;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+    padding: 0;
+    /* no padding */
+    position: absolute;
+    /* no padding */
+    left: 300px;
+    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+
     top: 34px;
+    color: whitesmoke;
 }
 
 .estop-button:hover {
-    background-color: #45a049;  /* color when mouse hovers over */
+    background-color: #45a049;
+    /* color when mouse hovers over */
     color: white;
 }
 
 .wc-button {
-    width: 100px;    /* width of the square button */
-    height: 100px;   /* height of the square button */
-    background-color: #593096;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    width: 100px;
+    /* width of the square button */
+    height: 100px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
+
     text-align: center;
     display: inline-block;
-    font-size: 48px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
+    font-size: 48px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
-    padding: 0;  /* no padding */
-    position: absolute;/* no padding */
-    left: 300px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    border-radius: 0;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+    padding: 0;
+    /* no padding */
+    position: absolute;
+    /* no padding */
+    left: 300px;
+    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 34px;
 }
 
 .wc-button:hover {
-    background-color: #45a049;  /* color when mouse hovers over */
+    background-color: #45a049;
+    /* color when mouse hovers over */
     color: white;
+
 }
 
 
 .pers-button {
-    width: 100px;    /* width of the square button */
-    height: 100px;   /* height of the square button */
-    background-color: #FF6347;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    width: 100px;
+    /* width of the square button */
+    height: 100px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
+
     text-align: center;
     display: inline-block;
-    font-size: 48px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
+    font-size: 48px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
+    border-radius: 0;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+
     padding: 0;
-    position: absolute;/* no padding */
-    left: 408px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    position: absolute;
+    /* no padding */
+    left: 408px;
+    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
     top: 34px;
 }
 
 .pers-button:hover {
-    background-color: #45a049;  /* color when mouse hovers over */
+    background-color: #45a049;
+    /* color when mouse hovers over */
     color: white;
+
 }
+
 .day-button {
-    width: 50px;    /* width of the square button */
-    height: 50px;   /* height of the square button */
-    background-color: #593096 ;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    width: 50px;
+    /* width of the square button */
+    height: 50px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
+
     text-align: center;
     display: inline-block;
-    font-size: 16px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
+    font-size: 16px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
-    padding: 0;  /* no padding */
-    position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 178px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 30px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+
+    border-radius: 10px;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+    padding: 0;
+    /* no padding */
+    position: absolute;
+    /* position relative to the closest positioned ancestor */
+    left: 178px;
+    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 30px;
+    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
 }
 
 .day-button:hover {
-    background-color: #45a049;  /* color when mouse hovers over */
+    background-color: #45a049;
+    /* color when mouse hovers over */
     color: white;
 }
 
 .week-button {
-    width: 50px;    /* width of the square button */
-    height: 50px;   /* height of the square button */
-    background-color: #593096;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    width: 50px;
+    /* width of the square button */
+    height: 50px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
+
     text-align: center;
     display: inline-block;
-    font-size: 16px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
+    font-size: 16px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
-    padding: 0;  /* no padding */
-    position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 231px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 30px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+    border-radius: 0;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+    padding: 0;
+    /* no padding */
+    position: absolute;
+    /* position relative to the closest positioned ancestor */
+    left: 231px;
+    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 30px;
+    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+    border-radius: 10px;
 }
 
 .week-button:hover {
-    background-color: #45a049; /* color when mouse hovers over */
+    background-color: #45a049;
+    /* color when mouse hovers over */
     color: white;
 }
 
 .month-button {
-    width: 50px;    /* width of the square button */
-    height: 50px;   /* height of the square button */
-    background-color: #593096;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    width: 50px;
+    /* width of the square button */
+    height: 50px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
+
     text-align: center;
     display: inline-block;
-    font-size: 16px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
+    font-size: 16px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
-    padding: 0;  /* no padding */
-    position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 178px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 83px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+    border-radius: 10px;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+    padding: 0;
+    /* no padding */
+    position: absolute;
+    /* position relative to the closest positioned ancestor */
+    left: 178px;
+    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 83px;
+    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
 }
 
 .month-button:hover {
-    background-color: #45a049; /* color when mouse hovers over */
+    background-color: #45a049;
+    /* color when mouse hovers over */
     color: white;
 }
 
 .year-button {
-    width: 50px;    /* width of the square button */
-    height: 50px;   /* height of the square button */
-    background-color: #593096;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    width: 50px;
+    /* width of the square button */
+    height: 50px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
+
     text-align: center;
     display: inline-block;
-    font-size: 16px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
+    font-size: 16px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
-    padding: 0;  /* no padding */
-    position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 231px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 83px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+    border-radius: 10px;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+    padding: 0;
+    /* no padding */
+    position: absolute;
+    /* position relative to the closest positioned ancestor */
+    left: 231px;
+    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 83px;
+    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
 }
 
 .year-button:hover {
-    background-color: #45a049; /* color when mouse hovers over */
-    color: white;}
-
-
-.toggle-button {
-    width: 80px;    /* width of the square button */
-    height: 60px;   /* height of the square button */
-    background-color: #593096;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
-    text-align: center;
-    display: inline-block;
-    font-size: 16px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
-    cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
-    padding: 0;  /* no padding */
-    position: absolute;  /* position relative to the closest positioned ancestor */
-    left: 550px;  /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 75px;   /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+    background-color: #45a049;
+    /* color when mouse hovers over */
+    color: white;
 }
 
 
+.toggle-button {
+    width: 80px;
+    /* width of the square button */
+    height: 60px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
+
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
+    cursor: pointer;
+    border-radius: 0;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+    padding: 0;
+    /* no padding */
+    position: absolute;
+    /* position relative to the closest positioned ancestor */
+    left: 550px;
+    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
+    top: 75px;
+    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+
+}
+
+.tarih-secim{
+    border-radius: 10px;
+}
 
 .dash-date-picker {
     width: 150px;
     height: 60px;
-    border-radius: 0;
+    border-radius: 70;
     border: none;
     margin-left: 10px;
     display: inline-block;
@@ -254,52 +761,67 @@
 
 
 .dash-date-picker input {
-    background-color: #593096;
+    background-color: #2149b4;
     color: white;
+
 }
 
-.dash-date-picker-multi{
+.dash-date-picker-multi {
     width: 300px;
     height: 60px;
-    border-radius: 0;
+    border-radius: 70;
     border: none;
     margin-left: 10px;
     display: inline-block;
-    color:white;
+    color: white;
+
 
 }
 
 
 .dash-date-picker-multi input {
-    background-color: #593096;
+    background-color: #2149b4;
     color: white;
 }
 
 .dash-empty-button {
-    width: 100px;    /* width of the square button */
-    height: 40px;   /* height of the square button */
-    background-color: #593096;  /* button color */
-    border: none;  /* no border */
-    color: white;  /* text (icon) color */
+    width: 100px;
+    /* width of the square button */
+    height: 40px;
+    /* height of the square button */
+    background-color: #2149b4;
+    /* button color */
+    border: none;
+    /* no border */
+    color: white;
+    /* text (icon) color */
+
     text-align: center;
     display: inline-block;
-    font-size: 16px;  /* icon size */
-    transition-duration: 0.4s;  /* transition effect duration */
+    font-size: 16px;
+    /* icon size */
+    transition-duration: 0.4s;
+    /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;  /* square shape */
-    overflow: hidden;  /* in case of text exceeding button size */
-    padding: 0;  /* no padding */
+    border-radius: 0;
+    /* square shape */
+    overflow: hidden;
+    /* in case of text exceeding button size */
+    padding: 0;
+    /* no padding */
+
     /*position: absolute;  !* position relative to the closest positioned ancestor *!*/
     /*left: 500px;  !* right edge positioned at 0 units from the right edge of its nearest positioned ancestor *!*/
     /*top: 100px;   !* top edge positioned at -1 units from the top edge of its nearest positioned ancestor *!*/
 
 }
 
-@media only screen and (max-width: 600px) {
-    .dash-graph-container {
-        height: 300px !important; /* Adjust according to your need */
-    }
-}
+/*@media only screen and (max-width: 600px) {*/
+/*    .dash-graph-container {*/
+/*        height: 300px !important;*/
+/*        !* Adjust according to your need *!*/
+/*    }*/
+/*}*/
 
 /*.container-fluid {*/
 /*    padding-left: 0;*/
@@ -310,3 +832,81 @@
 /*    padding-left: 0;*/
 /*    padding-right: 0;*/
 /*}*/
+
+/* custom.css */
+.plot-container .legend {
+  background-color: rgba(255, 255, 255, 0.5) !important; /* Your desired color with semi-transparency */
+}
+
+
+
+#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
+#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
+
+/* custom.css */
+
+/* Style for the Dash DataTable overall layout */
+.my-datatable {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+/* Style for each cell in the Dash DataTable */
+.my-datatable .dash-cell {
+    color: black; /* Font color for the cells */
+    background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
+}
+
+/* Style for the header cells in the Dash DataTable */
+.my-datatable .dash-header {
+    font-weight: bold; /* Make header text bold */
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
+    border-bottom: 1px solid black; /* Border for the header cells */
+}
+
+/* Additional style for the header, in case the above doesn't apply */
+.my-datatable th {
+    font-weight: bold; /* Make header text bold */
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
+    border-bottom: 1px solid black; /* Border for the header cells */
+}
+
+/* custom.css */
+
+/* Style for the Dash DataTable overall layout */
+.my-datatable {
+    border: 1px solid black;
+    border-collapse: collapse;
+    height: 150px; /* Fixed height */
+    width: 700px; /* Fixed width */
+    overflow-y: auto; /* Vertical scrollbar if content is larger than the container */
+}
+
+/* Style for each cell in the Dash DataTable */
+.my-datatable .dash-cell {
+    color: black; /* Font color for the cells */
+    background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
+    min-width: 80px; /* Minimum width for each cell */
+    width: 80px; /* Fixed width for each cell */
+    max-width: 100px; /* Maximum width for each cell */
+    text-align: center; /* Center text alignment */
+}
+
+/* Style for the header cells in the Dash DataTable */
+.my-datatable .dash-header {
+    font-weight: bold; /* Make header text bold */
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
+    border-bottom: 1px solid black; /* Border for the header cells */
+}
+
+/* Additional style for the header, in case the above doesn't apply */
+.my-datatable th {
+    font-weight: bold; /* Make header text bold */
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
+    border-bottom: 1px solid black; /* Border for the header cells */
+}
+
+
+
+#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
+#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE

@@ -9,7 +9,7 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    camayikuretim
+    camayikuretim,tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page
 from flask import request,g
 
 ### Page container ###
@@ -47,7 +47,7 @@ login_layout = dbc.Container([
 
 ### Index Page Layout ###
 
-index_layout = layout_12_loginpage
+index_layout = layout_12_loginpage_v2
 
 # Update the before_request method
 @app.server.before_request
@@ -132,6 +132,8 @@ def display_page(pathname,login_status_data):
             return dragtester.layout
         elif pathname == '/energy':
             return energy.layout
+        elif pathname == '/prdenergy':
+            return prd_energy.layout
         elif pathname == '/cnctotv':
             return cnctotv.layout
         elif pathname == '/taslamatv':
@@ -140,10 +142,18 @@ def display_page(pathname,login_status_data):
             return montajtv.layout
         elif pathname == '/yislemtv':
             return yuzeyislemtv.layout
-        elif pathname == '/camayik':
+        elif pathname == '/tvmonitor':
+            return tvmonitor.layout
+        elif pathname == '/uretimrapor':
+            return uretimrapor.layout
+        elif pathname == '/kapasite':
+            return kapasite.layout
+        elif pathname == '/kameraayiklama':
             return kameraayıklama.layout
         elif pathname == '/camayikuretim':
             return camayikuretim.layout
+        elif pathname == '/deneme_page':
+            return deneme_page.layout
         else:
             print(f"adsadasd{pathname}")
             return '404'
@@ -157,7 +167,7 @@ def display_page(pathname,login_status_data):
 app.layout = page_container
 ### Assemble all layouts ###
 app.validation_layout = html.Div(
-    children=[
+    children=(
         page_container,
         index_layout,
         liveprd.layout,
@@ -168,14 +178,19 @@ app.validation_layout = html.Div(
         livecnc.layout,
         dragtester.layout,
         energy.layout,
+        prd_energy.layout,
         cnctotv.layout,
         taslamatv.layout,
         montajtv.layout,
         yuzeyislemtv.layout,
         kameraayıklama.layout,
-        camayikuretim.layout
+        camayikuretim.layout,
+        tvmonitor.layout,
+        uretimrapor.layout,
+        kapasite.layout,
+        deneme_page.layout
         # ittools.layout
-    ]
+    )
 )
 
 app.layout.interval = -1
