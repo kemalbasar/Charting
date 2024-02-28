@@ -107,6 +107,9 @@ layout = [
             ),
         ], style={"margin-top": 40, 'border': '3px dashed blue', "margin-left": 60}, className="g-0"
     ),
+    dbc.Row([dbc.Button(id="unselect-rows-btn",
+                           className="dash-empty-button",
+                           style={"margin-top": 50})]),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -139,9 +142,7 @@ layout = [
                     },
                     sort_action='native'
                 ),
-                dbc.Button(id="unselect-rows-btn",
-                           className="dash-empty-button",
-                           style={"margin-top": 50}),
+
                 dash_table.DataTable(
                     id="data_table3",
                     data=[],
