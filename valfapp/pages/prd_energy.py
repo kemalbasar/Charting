@@ -3,6 +3,7 @@ from datetime import datetime, date, timedelta
 import dash_bootstrap_components as dbc
 import dash_table
 import pandas as pd
+import numpy as np
 import plotly.express as px
 from decimal import Decimal
 import plotly.graph_objs as go
@@ -102,7 +103,7 @@ layout = [
                             n_clicks=0,
                         ),
                     ],
-                ), style={"margin-left": 40, "margin-top": 15}
+                ), style={"margin-left": 70, "margin-top": 15}
             ),
         ], style={"margin-top": 40, 'border': '3px dashed blue', "margin-left": 60}, className="g-0"
     ),
@@ -401,8 +402,10 @@ def update_style(go, selected_rows, s_date, f_date, pivot_table):
 
         df_sumof_costcenters = df_details.groupby(["COSTCENTER"]).agg({"QTY": "sum", "KWH": "sum", "KG": "sum"})
         df_sumof_costcenters.reset_index(inplace=True)
-        df_sumof_costcenters["KWH\QTY"] = df_sumof_costcenters["KWH"] / df_sumof_costcenters["QTY"]
-        df_sumof_costcenters["KWH\KG"] = df_sumof_costcenters["KWH"] / df_sumof_costcenters["KG"]
+        df_sumof_costcenters["KWH\QTY"] = np.where(df_sumof_costcenters["QTY"] != 0,
+                                                   df_sumof_costcenters["KWH"] / df_sumof_costcenters["QTY"],0)
+        df_sumof_costcenters["KWH\KG"] = np.where(df_sumof_costcenters["QTY"] != 0,
+                                                   df_sumof_costcenters["KWH"] / df_sumof_costcenters["KG"],0)
         columns4 = [] if df_sumof_costcenters is None else [{"name": i, "id": i} for i in df_sumof_costcenters.columns]
 
         df_great_sum = df_sumof_costcenters.copy()
