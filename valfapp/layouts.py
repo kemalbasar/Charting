@@ -802,6 +802,7 @@ def sliding_indicator_container(livedata, selected_value, costcenter,border='2px
         df = df[df["WORKCENTER"].isin(["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
                        "CNC-17", "CNC-18",
                        "CNC-20", "CNC-21", "CNC-22", "CNC-23"])].reset_index(drop=True)
+        print(df["WORKCENTER"].unique())
     else:
         df = df[df["COSTCENTER"] == costcenter].reset_index(drop=True)
 

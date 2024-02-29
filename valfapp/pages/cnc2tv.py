@@ -25,6 +25,8 @@ else:
 params_list = [(date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"]
 
 layout = layout_for_tvs(costcenter='CNC2')
+
+
 @app.callback(
     Output("animate_cnc2", "disabled"),
     Input("play", "n_clicks"),
@@ -45,6 +47,7 @@ def toggle(n, playing):
     Output("wc-slider_cnc2", "max"),
     Input("animate_cnc2", "n_intervals"),
     Input("wc-slider_cnc2", "value"),
+
     State(component_id='oeelist1w_tv_cnc2', component_property='data'),
     State(component_id='oeelist3w_tv_cnc2', component_property='data'),
     State(component_id='oeelist7w_tv_cnc2', component_property='data'),
@@ -55,21 +58,21 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                   "workend": date.today().isoformat(),
                   "interval": "day"}
 
-
     list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters("CNC2", "pers", params_dic, oeelist1w,
-                                                                              oeelist3w, oeelist7w,1)
+                                                                              oeelist3w, oeelist7w, 1)
+
     list_of_figs = [i for i in list_of_figs if i != {}]
     max_of_slider = len(list_of_figs)
 
     print("asdadasdasda")
-    print(list_of_data)
+    print(len(list_of_figs))
     print("asdadasdasda")
 
     if selected_value + 1 > len(list_of_figs):
         selected_value = -1
         return html.Div(
             children=[
-                dcc.Graph(figure=list_of_figs[selected_value]),
+                dcc.Graph(figure=list_of_figs[selected_value], style={'margin-left': '107px'}),
                 dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
                                      style_cell={
                                          "minWidth": "80px",
@@ -83,14 +86,15 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                                          "overflowY": 'auto',
                                      }
                                      )
-            ]
+            ], style={'margin-left': '-180px'}
         ), selected_value + 1, ag.run_query(project_directory + r"\Charting\queries\liveprd.sql") \
             .to_json(date_format='iso', orient='split'), max_of_slider
     else:
         return html.Div(
             children=[
-                dcc.Graph(figure=list_of_figs[selected_value]),
+                dcc.Graph(figure=list_of_figs[selected_value], style={'margin-left': '107px'}),
                 dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
+
                                      style_cell={
                                          'color': 'black',  # Font color for the cells
                                          'backgroundColor': 'rgba(255, 255, 255, 0.8)',
@@ -119,7 +123,7 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                                          # For example, styling for the active cell or conditional formatting based on cell values
                                      ],
                                      )
-            ]
+            ], style={'margin-left': '-180px'}
         ), selected_value + 1, no_update, max_of_slider
 
 
@@ -162,7 +166,7 @@ def refresh_data(n):
     oeelist3w = prdconf(params_list)[3]
     oeelist7w = prdconf(params_list)[7]
     oeelist0w = prdconf(params_list)[0]
-    return  oeelist1w,oeelist3w,oeelist7w,oeelist0w
+    return oeelist1w, oeelist3w, oeelist7w, oeelist0w
     #
     # fig, data, columns, styles = workcenters("MONTAJ", "pers", params_dic, oeelist1w, oeelist3w, oeelist7w)
     # alt satırı app.workcennter metoduna taşımak gerek
@@ -172,6 +176,6 @@ def refresh_data(n):
     Output('pie_of_yesterday_cnc2', 'figure'),
     Input("oeelist0w_tv_cnc2", "data"),
     Input("play", "n_clicks"))
-def update_piechart(oeelist0w,n):
+def update_piechart(oeelist0w, n):
     print(oeelist0w)
     return return_piechart("CNCTORNA", oeelist0w)

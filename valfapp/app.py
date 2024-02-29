@@ -167,13 +167,19 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist7w = pd.read_json(oeelist7w, orient='split')
 
-    list_of_wcs = []
+    list_of_items = []
 
     if option_slctd == 'CNC1' or option_slctd == 'CNC2':
 
         if  option_slctd == 'CNC1':
+            list_of_items = ["CNC-07", "CNC-19", "CNC-26", "CNC-28", "CNC-08", "CNC-29"]
             list_of_wcs = ["CNC-07", "CNC-19", "CNC-26", "CNC-28", "CNC-08", "CNC-29"]
+
+
         else:
+            list_of_items = ["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
+                       "CNC-17", "CNC-18",
+                       "CNC-20", "CNC-21", "CNC-22", "CNC-23"]
             list_of_wcs = ["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
                        "CNC-17", "CNC-18",
                        "CNC-20", "CNC-21", "CNC-22", "CNC-23"]
@@ -181,32 +187,25 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
         if report_type == 'wc':
             max_output = len(oeelist1w)
-            for item in oeelist1w.loc[oeelist1w["WORKCENTER"].isin(list_of_wcs)]["WORKCENTER"].unique():
-                list_of_wcs.append(item)
+            for item in oeelist1w.loc[oeelist1w["WORKCENTER"].isin(list_of_items)]["WORKCENTER"].unique():
+                list_of_items.append(item)
         else:
-            print("burada mı ıyz ?")
-            print(oeelist3w)
-
             max_output = len(oeelist7w)
+            list_of_items =  oeelist3w.loc[oeelist3w["WORKCENTER"].isin(list_of_items)]["DISPLAY"].unique()
 
-
-            list_of_wcs =  oeelist3w.loc[oeelist3w["WORKCENTER"].isin(list_of_wcs)]["DISPLAY"].unique()
-
-            print("burada mı ıyz ?")
-
-        df = oeelist1w[oeelist1w["WORKCENTER"].isin(["CNC-07","CNC-19","CNC-26","CNC-28","CNC-08","CNC-29"])]
-        df_wclist = oeelist3w[oeelist3w["WORKCENTER"].isin(["CNC-07","CNC-19","CNC-26","CNC-28","CNC-08","CNC-29"])]
-        df_forpers = oeelist7w[oeelist7w["DISPLAY"].isin(list_of_wcs)]
+        df = oeelist1w[oeelist1w["WORKCENTER"].isin(list_of_wcs)]
+        df_wclist = oeelist3w[oeelist3w["WORKCENTER"].isin(list_of_wcs)]
+        df_forpers = oeelist7w[oeelist7w["DISPLAY"].isin(list_of_items)]
 
     else:
         if report_type == 'wc':
             max_output = len(oeelist1w)
             for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
-                list_of_wcs.append(item)
+                list_of_items.append(item)
         else:
             max_output = len(oeelist7w)
             for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
-                list_of_wcs.append(item)
+                list_of_items.append(item)
 
         df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
         df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
@@ -238,16 +237,16 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
     for item in range(MAX_OUTPUT):
 
-        if item < len(list_of_wcs):
+        if item < len(list_of_items):
             if report_type == 'wc':
-                fig = indicator_with_color(df_metrics=df, order=list_of_wcs[item], colorof='black', height=420,
+                fig = indicator_with_color(df_metrics=df, order=list_of_items[item], colorof='black', height=420,
                                            width=450)
-                df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_wcs[item]),
+                df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_items[item]),
                 wc_col[col_ind:]]
             else:
-                fig = indicator_with_color(df_metrics=df_forpers, order=list_of_wcs[item], colorof='black',
+                fig = indicator_with_color(df_metrics=df_forpers, order=list_of_items[item], colorof='black',
                                            title='DISPLAY', height=420, width=450)
-                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_wcs[item]), pers_col[col_ind:]]
+                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_items[item]), pers_col[col_ind:]]
 
             aggregations = {
                 'MATERIAL': max,  # Sum of 'performance' column
