@@ -309,25 +309,27 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
             df_details["OEE"] = df_details["OEE"].astype(str) + '%'
             df_details["PERFORMANCE"] = (df_details["PERFORMANCE"] * 100).round()
             df_details["PERFORMANCE"] = df_details["PERFORMANCE"].astype(str) + '%'
+
             if come_from_tvlayout == 1:
                 df_details = df_details[["MATERIAL","QTY","AVAILABILITY","QUALITY"]]
             else:
                 if col_ind == 0:
                     df_details["SHIFT"] = df_details["SHIFT"].astype(str)
                     df_details.sort_values(by='SHIFT', inplace=True)
+
+            df_details.columns = ["Vard.", "Mal.", "Adet", "Opr.","Kul.","Perf.","Klite", "OEE" , 'Süre']
             style = {}
             columns = [{"name": i, "id": i} for i in df_details.columns]
             data = df_details.to_dict("records")
+
         else:
-            fig = {}
-            columns = []
-            data = []
-            style = {"display": "none"}
+            continue
 
         list_of_figs.append(fig)
         list_of_data.append(data)
         list_of_columns.append(columns)
         list_of_styles.append(style)
+
     return list_of_figs,list_of_data,list_of_columns ,list_of_styles
 
 # @cache.memoize(timeout=TIMEOUT)
