@@ -557,7 +557,7 @@ def indicator_for_tvs(status='white', fullname='',
         'text': '(' + str(durus) + ')',
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 1 if durus is None else (30 if len(durus) > 20 else 40 * rate), 'color': 'white'}
+        'font': {'size': 1 if type(durus) is not str else (30 if len(durus) > 20 else 40 * rate), 'color': 'white'}
     }
 
     fig.update_layout({
