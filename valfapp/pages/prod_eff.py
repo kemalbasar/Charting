@@ -384,7 +384,7 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
 )
 def page_refresh3(n3):
     if n3:
-        return "/prod_eff"
+        return "/prodeff"
     return no_update
 
 

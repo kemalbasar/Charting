@@ -118,7 +118,7 @@ def display_page(pathname,login_status_data):
             return index_layout
         elif pathname == '/liveprd':
             return liveprd.layout
-        elif pathname == '/prod_eff':
+        elif pathname == '/prodeff':
             return prod_eff.layout
         elif pathname == '/value':
             return value.layout
