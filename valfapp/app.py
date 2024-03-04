@@ -312,12 +312,14 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
             if come_from_tvlayout == 1:
                 df_details = df_details[["MATERIAL","QTY","AVAILABILITY","QUALITY"]]
+                df_details.columns = ["Malzeme","Adet","Kullanb.","Klite"]
+
             else:
                 if col_ind == 0:
                     df_details["SHIFT"] = df_details["SHIFT"].astype(str)
                     df_details.sort_values(by='SHIFT', inplace=True)
+                    df_details.columns = ["Vard.", "Mal.", "Adet", "Opr.", "Kul.", "Perf.", "Klite", "OEE", 'Süre']
 
-            df_details.columns = ["Vard.", "Mal.", "Adet", "Opr.","Kul.","Perf.","Klite", "OEE" , 'Süre']
             style = {}
             columns = [{"name": i, "id": i} for i in df_details.columns]
             data = df_details.to_dict("records")
