@@ -12,7 +12,7 @@ options.add_argument("--disable-gpu")  # Applicable to windows os only
 driver = webdriver.Chrome(options=options)
 
 # Load the page
-driver.get("http://172.30.134.22:8050/prod_eff")
+driver.get("http://127.0.0.1:8050/prodeff")
 
 # Wait for a certain time or until a specific condition is met
 time.sleep(10)  # Wait for 10 seconds
