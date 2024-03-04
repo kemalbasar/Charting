@@ -8,10 +8,9 @@ import plotly.graph_objs as go
 from _plotly_utils.colors.qualitative import Alphabet
 from dash import dcc, html, Input, Output, State
 from dash.exceptions import PreventUpdate
-from dateutil.relativedelta import relativedelta
 from config import valftoreeg, project_directory
 from run.agent import ag
-from valfapp.app import cache, app
+from valfapp.app import app, cache
 from valfapp.configuration import layout_color
 from valfapp.layouts import nav_bar
 
@@ -27,19 +26,18 @@ query_pie = f"SELECT COSTCENTER,SUM(OUTPUT) AS CONSUMPTION FROM VLFENERGY WHERE 
 
 df = ag.run_query(query)
 
-fig = px.bar(df,orientation='h',x='TOTAL', y='DATE', width=350, height=400)
+fig = px.bar(df, orientation='h', x='TOTAL', y='DATE', width=350, height=400)
 fig.update_layout(xaxis=dict(
-        showgrid=True,  # Show gridlines for x-axis
-        gridcolor='LightPink',  # Change to desired gridline color for x-axis
-        gridwidth=2  # Change to desired gridline width for x-axis
-    ),
+    showgrid=True,  # Show gridlines for x-axis
+    gridcolor='LightPink',  # Change to desired gridline color for x-axis
+    gridwidth=2  # Change to desired gridline width for x-axis
+),
     yaxis=dict(
         dtick="M1",
         showgrid=True,  # Show gridlines for y-axis
         gridcolor='LightBlue',  # Change to desired gridline color for y-axis
         gridwidth=2  # Change to desired gridline width for y-axis
-    ),bargap=0.2,paper_bgcolor=layout_color,plot_bgcolor='rgba(0, 0, 0, 0)')
-
+    ), bargap=0.2, paper_bgcolor=layout_color, plot_bgcolor='rgba(0, 0, 0, 0)')
 
 
 def return_pie():
@@ -48,13 +46,14 @@ def return_pie():
     df_pie.iloc[-1] = ("DIGER", df_pie.loc[df_pie["COSTCENTER"] == 'TRAFO', "CONSUMPTION"].sum() - df_pie.loc[
         df_pie["COSTCENTER"] != 'TRAFO', "CONSUMPTION"].sum())
     df_pief = df_pie[df_pie["COSTCENTER"] != 'TRAFO']
-    fig=px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER").update_layout(legend=dict(
+    fig = px.pie(data_frame=df_pief, values="CONSUMPTION", names="COSTCENTER").update_layout(legend=dict(
         font=dict(size=9),  # Decrease font size for legend text
-    ),paper_bgcolor=layout_color,width=480, height=400)
-    fig.update_traces(textinfo='percent', textfont_size = 12,marker = dict(colors=Alphabet, line=dict(color='#000000', width=2)))
-
+    ), paper_bgcolor=layout_color, width=480, height=400)
+    fig.update_traces(textinfo='percent', textfont_size=12,
+                      marker=dict(colors=Alphabet, line=dict(color='#000000', width=2)))
 
     return fig
+
 
 layout = [
     # Your commented-out buttons
@@ -87,36 +86,36 @@ layout = [
                                 'color': 'white',
                                 'width': 220,
                             },
-                        )],style={"margin-top":18}),width =1),
+                        )], style={"margin-top": 18}), width=1),
             dbc.Col(
                 html.Div(
                     [dcc.Dropdown(
-                            id='machine-dropdown',
-                            style={
-                                'color': 'white',
-                                'width': 220,
-                            },
-                            value='Analizörler'
-                        )],style={"margin-top":18}),width =1),
+                        id='machine-dropdown',
+                        style={
+                            'color': 'white',
+                            'width': 220,
+                        },
+                        value='Analizörler'
+                    )], style={"margin-top": 18}), width=1),
             dbc.Col(
                 html.Div(
                     [dcc.Dropdown(
-                            id='date-dropdown',
-                            options=[
-                                {'label': i, 'value': i}
-                                for i in ['Day', 'Month']
-                            ],
-                            style={
-                                'color': 'white',
-                                'font': {'color': '#2149b4'},
-                                'width': 220,
-                            },
-                            value='month',
-                        ),
+                        id='date-dropdown',
+                        options=[
+                            {'label': i, 'value': i}
+                            for i in ['Day', 'Month']
+                        ],
+                        style={
+                            'color': 'white',
+                            'font': {'color': '#2149b4'},
+                            'width': 220,
+                        },
+                        value='month',
+                    ),
                     ],
-                    style={"margin-top":18},
+                    style={"margin-top": 18},
                 ),
-                className="",width =1
+                className="", width=1
             ),
             dbc.Col(
                 html.Div(
@@ -144,21 +143,21 @@ layout = [
                             n_clicks=0,
                         ),
                     ],
-                ),style={"margin-left":100,"margin-top":15}
+                ), style={"margin-left": 100, "margin-top": 15}
             ),
-        ],style= {"margin-top":40,'border': '3px dashed blue',"margin-left":44}, className="g-0"
+        ], style={"margin-top": 40, 'border': '3px dashed blue', "margin-left": 44}, className="g-0"
     ),
     dbc.Row([
         dbc.Col([
             dbc.Row([
                 dbc.Col(
                     dcc.Graph(id="pie_chart", figure=return_pie()),
-                    className="",style={"margin-top":49}
+                    className="", style={"margin-top": 49}
                 ),
                 dbc.Col(
                     html.Div([
                         dcc.Graph(id='example-graph', figure=fig),
-                    ],style={"margin-left":75,"margin-top":49}),
+                    ], style={"margin-left": 75, "margin-top": 49}),
                     className="",
                 ),
             ]),
@@ -172,7 +171,7 @@ layout = [
                     style_cell={
                         "textAlign": "center",
                         "padding": "10px",
-                        "color":"black",
+                        "color": "black",
                         'max-width': 100
                     },
                     style_table={
@@ -197,7 +196,7 @@ layout = [
                     style_cell={
                         "textAlign": "center",
                         "padding": "10px",
-                        "color":"black",
+                        "color": "black",
                         'max-width': 115
 
                     },
@@ -218,15 +217,13 @@ layout = [
                     },
                     sort_action='native',
                 )
-            ], style={"margin-top":75}, className="")
-            ],width=7,style={"margin-left":"100px"}),
+            ], style={"margin-top": 75}, className="")
+        ], width=7, style={"margin-left": "100px"}),
 
         dbc.Col(
             html.Div(id="wc-output-container_energy"),
-            style={ "margin-top": 50}
-        ,width=4)])
+            style={"margin-top": 50}, width=4)])
 ]
-
 
 
 # Define the callback to update the second dropdown
@@ -245,7 +242,7 @@ def set_machine_options(selected_machine_type):
         return list_of_mpoints
 
 
-# @cache.memoize()
+@cache.memoize()
 def update_table(s_date, f_date, costcenter, m_point, date_interval):
     if m_point == 'Bölümler':
         gruplamami = 1
@@ -353,16 +350,11 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
                                         f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE "
                                         f"GROUP BY CAST(DATE AS DATETIME),COSTCENTER,INTERVAL )"
                                         f"SELECT '11 Pres (Pano 3 Diger)' AS MPOINT, OUTPUT,DATE,COSTCENTER from ASD ")
-            # elif m_point_tmp == 'Hepsi':
-            #     df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
-            #                             f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
-            #                             f" WHERE COSTCENTER = '{costcenter_tmp}' "
-            #                             f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
             else:
-                df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
-                                        f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
-                                        f" WHERE MPOINT = '{m_point_tmp}' "
-                                        f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
+                    df_works = ag.run_query(f"SELECT CAST(DATE AS DATETIME) AS DATE,MPOINT,SCODE,"
+                                            f"OUTPUT,COSTCENTER,INTERVAL FROM VLFENERGY"
+                                            f" WHERE MPOINT = '{m_point_tmp}' "
+                                            f"AND  DATE >= '{code_works}' AND '{code_worke}' >= DATE ")
         else:
 
             if m_point_tmp == '11 Pres (Pano 3 Diger)':
@@ -552,9 +544,8 @@ def cache_to_result(s_date, f_date, costcenter, m_point, date_interval, button):
     columns = [{"name": i, "id": i} for i in df_final.columns]
     columns2 = [{"name": i, "id": i} for i in df_final_sum.columns]
     excel_data = pd.concat([df_final, df_final_sum]).to_json(date_format='iso', orient='split')
-    return df_final.to_dict("records"), columns \
-        , df_final_sum.to_dict("records"), columns2, \
-        excel_data
+    return df_final.to_dict("records"), columns, df_final_sum.to_dict("records"), \
+        columns2, excel_data
 
 
 @app.callback(
@@ -568,11 +559,6 @@ def line_graph_update(data):
     fig_combined_perton = go.Figure()
     fig_combined_perqty = go.Figure()
     fig_combined_cons = go.Figure()
-
-    # Add trace for kwhPERton
-    traces_perton = []
-    traces_perqty = []
-    traces_cons = []
 
     for m_point in df["MPOINT"].unique():
         print(m_point)

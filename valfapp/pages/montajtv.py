@@ -65,7 +65,7 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
         selected_value = -1
         return html.Div(
             children=[
-                dcc.Graph(figure=list_of_figs[selected_value]),
+                dcc.Graph(figure=list_of_figs[selected_value],style={'margin-left':'107px'}),
                 dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
                                      style_cell={
                                          "minWidth": "80px",
@@ -79,27 +79,43 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                                          "overflowY": 'auto',
                                      }
                                      )
-            ]
+            ], style={'margin-left': '-180px'}
         ), selected_value + 1, ag.run_query(project_directory + r"\Charting\queries\liveprd.sql") \
             .to_json(date_format='iso', orient='split'), max_of_slider
     else:
         return html.Div(
             children=[
-                dcc.Graph(figure=list_of_figs[selected_value]),
+                dcc.Graph(figure=list_of_figs[selected_value],style={'margin-left':'107px'}),
                 dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
                                      style_cell={
-                                         "minWidth": "80px",
-                                         "width": "80px",
-                                         "maxWidth": "100px",
-                                         "textAlign": "center",
+                                         'color': 'black',  # Font color for the cells
+                                         'backgroundColor': 'rgba(255, 255, 255, 0.8)',
+                                         # Slightly transparent background
+                                         'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',
+                                         # Cell width specifications
+                                         'textAlign': 'center',  # Center text alignment
+                                         'border': '1px solid black'  # Border for the cells
                                      },
                                      style_table={
-                                         "height": '150px',
-                                         "width": '4    00px',  # Fixed pixel width
-                                         "overflowY": 'auto',
-                                     }
+                                         'height': '150px',  # Fixed height for the virtualized table
+                                         'width': '800px',  # Fixed width for the table
+                                         'overflowY': 'auto',  # Enable vertical scroll
+                                         'borderCollapse': 'collapse',  # Collapse borders
+                                         'border': '1px solid black'  # Border around the table
+                                     },
+                                     style_header={
+                                         'fontWeight': 'bold',  # Make header text bold
+                                         'backgroundColor': 'rgba(0, 0, 0, 0.1)',
+                                         # Slightly darker background for the header
+                                         'borderBottom': '1px solid black',  # Bottom border for the header cells
+                                         'color': 'black'  # Font color for the header
+                                     },
+                                     style_data_conditional=[
+                                         # Here you can add any conditional styles you might have
+                                         # For example, styling for the active cell or conditional formatting based on cell values
+                                     ]
                                      )
-            ]
+            ], style={'margin-left': '-180px'}
         ), selected_value + 1, no_update, max_of_slider
 
 

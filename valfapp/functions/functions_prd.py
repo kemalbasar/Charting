@@ -118,8 +118,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     def calculate_nantime(workday, total_shift_time, om_time):
         # Convert '03-07-2023' to a datetime.date object
         comparison_date = datetime.strptime('03-07-2023', '%d-%m-%Y').date()
-        return (475 if workday > comparison_date else 400) - total_shift_time - om_time
-
+        return (475 if workday > comparison_date else 400) - float(total_shift_time) - float(om_time)
     # Applying the function to each row in the dataframe
     df_metrics["NANTIME"] = df_metrics.apply(
         lambda row: calculate_nantime(row["WORKDAY"], row["TOTAL_SHIFT_TIME"], row["OM_TIME"]), axis=1)
@@ -558,7 +557,7 @@ def indicator_for_tvs(status='white', fullname='',
         'text': '(' + str(durus) + ')',
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 1 if durus is None else (30 if len(durus) > 20 else 40 * rate), 'color': 'white'}
+        'font': {'size': 1 if type(durus) is not str else (30 if len(durus) > 20 else 40 * rate), 'color': 'white'}
     }
 
     fig.update_layout({
@@ -572,8 +571,9 @@ def indicator_for_tvs(status='white', fullname='',
                 color='black'
             )
         ),
-        "paper_bgcolor": layout_color,
+        "paper_bgcolor": status,
         "width": size["width"], "height": size["height"]})
+
 
     return fig
 
@@ -664,7 +664,7 @@ def indicator_for_yislem(status='white', fullname='',
         #     'tickangle': 45,
         #     'tickfont': {'size': 12, 'color': 'blue'}
         # },
-        "paper_bgcolor": layout_color,
+        "paper_bgcolor": status,
         "width": size["width"],
         "height": size["height"],
 

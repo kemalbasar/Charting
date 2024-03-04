@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta, date
 from config import project_directory
 from run.agent import ag
-from valfapp.app import return_piechart, prdconf
+from valfapp.app import prdconf
 from valfapp.functions.functions_prd import indicator_for_tvs
 
 cur_week = (dt.datetime.now() + relativedelta(months=-1)).strftime('%Y-%U').zfill(6)
@@ -14,7 +14,9 @@ try:
     value = int(
         ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0])
 except TypeError:
-    value = int(1200000)
+
+value = int(12000000)
+
 
 total_value_with_separator = format(value, ",")
 
@@ -37,22 +39,11 @@ else:
 
 nav_bar = html.Nav(className="main-menu side-bar", children=[
         dbc.Container([
-            html.Div(
-                className="logo-div resim-container",
-                children=[
-                    dbc.Row(
-                        html.A(
-                            className="logo",
-                            href="/",
-                            children=[html.Img(src='/assets/valf-logo.gif', className="logo")]
-                        )
-                    ),
-                    dbc.Row(
-                        html.H3("VALFSAN", style={"margin-top":15,"color": '#2149b4'})
-                    )
-                ]
-            )
-            ,
+            html.Div(className="logo-div resim-container", children=[
+                html.A(className="logo", href="/", children=[
+                    html.Img(src='./assets/valfsan-logo.png', className="logo")
+                ])
+            ]),
             html.Div(className="settings"),
             html.Div(id="style-1", className="scrollbar", children=[
                 html.Ul(children=[
@@ -92,14 +83,34 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                             html.Span(className="nav-text", children="Kapasite")
                         ])
                     ]),
+
                     html.Ul(className="darkerlishadowdown", children=[
                         html.Li(children=[
                             html.A(href="/energy", children=[
                                html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
                                 html.Span(className="nav-text", children="Energy")
                             ])
+                        ]),
+                        html.Li(children=[
+                            html.A(href="/prdenergy", children=[
+                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
+                                html.Span(className="nav-text", children="Prod Energy")
+                            ])
+                        ]),
+                        html.Li(children=[
+                            html.A(href="/kameraayiklama", children=[
+                               html.Img(src="../assets/kamayik.png", className="nav-icon"),
+                                html.Span(className="nav-text", children="Kam. Ayıklama")
+                            ])
+
                         ])
                     ]),
+                    html.Li(className="darkerlishadowdown",children=[
+                        html.A(href="/prdenergy", children=[
+                            html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Prod Energy")
+                        ])
+                    ])
                 ]),
             ]),
         ]),
@@ -368,7 +379,7 @@ layout_12_loginpage_v2 = layout = html.Div(children=[
                         href="/kapasite", style={"text-decoration": "none", "color":"#2149b4", "font-size":"24px"},
                     ),className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
                 ),
-            ],style={"justify-content":"center", "align-items":"center", "display":"flex",}
+            ],style={"justify-content":"center", "align-items":"center",}
         )
     ],)
 ])
@@ -653,6 +664,14 @@ layout_12_loginpage = dbc.Container([
             ),
         ], style={'justify-content': 'center'}, className='mt-5',
     ),
+    dcc.Link(
+        children='Kamera Ayıklama Sonuçlar',
+        href='/camayik',
+    ),
+    dcc.Link(
+        children='Kamera Ayıklama Üretim Raporu',
+        href='/camayikuretim',
+    )
 ], style={"height": "100vh", "position": "relative"}, fluid=True)
 
 
@@ -762,7 +781,7 @@ layout_27_loginpage = dbc.Container([
 ], fluid=True)
 
 
-def sliding_indicator_container(livedata, selected_value, costcenter):
+def sliding_indicator_container(livedata, selected_value, costcenter,border='2px solid white'):
     """
 
     Parameters
@@ -777,19 +796,35 @@ def sliding_indicator_container(livedata, selected_value, costcenter):
 
     """
     df = pd.read_json(livedata, orient='split')
-    df = df[df["COSTCENTER"] == costcenter].reset_index(drop=True)
+
+    if costcenter == 'CNC1':
+        df = df[df["WORKCENTER"].isin(["CNC-07","CNC-19","CNC-26","CNC-28","CNC-08","CNC-29"])].reset_index(drop=True)
+    elif costcenter == 'CNC2':
+        df = df[df["WORKCENTER"].isin(["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
+                       "CNC-17", "CNC-18",
+                       "CNC-20", "CNC-21", "CNC-22", "CNC-23"])].reset_index(drop=True)
+        print(df["WORKCENTER"].unique())
+    else:
+        df = df[df["COSTCENTER"] == costcenter].reset_index(drop=True)
 
     list_of_figs = []
     list_of_stationss = []
-    for item in df.loc[df["COSTCENTER"] == costcenter]["WORKCENTER"].unique():
-        list_of_stationss.append(item)
+
+    if costcenter == 'CNC1':
+        list_of_stationss = ["CNC-07", "CNC-19", "CNC-26", "CNC-28", "CNC-08", "CNC-29"]
+    elif costcenter == 'CNC2':
+        list_of_stationss = ["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
+                       "CNC-17", "CNC-18",
+                       "CNC-20", "CNC-21", "CNC-22", "CNC-23"]
+    else:
+        for item in df.loc[df["COSTCENTER"] == costcenter]["WORKCENTER"].unique():
+            list_of_stationss.append(item)
+
     for index, row in df.iterrows():
         if index < len(list_of_stationss):
             fig = indicator_for_tvs(row["STATUSR"], row["FULLNAME"], row["WORKCENTER"], row["DRAWNUM"],
                                     row["STEXT"], 0,size={"width": 310, "height": 500},rate=3/4)
-
             list_of_figs.append(fig)
-
         else:
             fig = {}
             style = {"display": "none"}
@@ -806,19 +841,19 @@ def sliding_indicator_container(livedata, selected_value, costcenter):
             listofdivs.append(html.Div([
                 dbc.Row([
                     dbc.Col(dcc.Graph(figure=list_of_figs[i]), style={
-                        'border': '2px solid red'}, width=3),
+                        'border': border}, width=3),
                     dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 1])], style={
-                        'border': '2px solid red'}), width=3),
+                        'border': border}), width=3),
                     dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 2])], style={
-                        'border': '2px solid red'}), width=3)
+                        'border': border}), width=3)
                 ], className="g-0"),
                 dbc.Row([
                     dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 3])], style={
-                        'border': '2px solid red'}), width=3),
+                        'border': border}), width=3),
                     dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 4])], style={
-                        'border': '2px solid red'}), width=3),
+                        'border': border}), width=3),
                     dbc.Col(html.Div(children=[dcc.Graph(figure=list_of_figs[i + 5])], style={
-                        'border': '2px solid red'}), width=3),
+                        'border': border}), width=3),
                 ], className="g-0")
             ]))
         else:
@@ -873,7 +908,7 @@ def layout_for_tvs(costcenter='MONTAJ'):
                 # Second Column
                 dbc.Col([
                     dbc.Row([
-                        dcc.Graph(id=f"pie_of_yesterday_{costcenter.lower()}")
+                        dcc.Graph(id=f"pie_of_yesterday_{costcenter.lower()}",style={'margin-left':'-60px'})
                     ], className="g-0"),
                     dbc.Row([
                         html.Button("Play", id="play", style={'width': '45px'}),
@@ -897,7 +932,7 @@ def layout_for_tvs(costcenter='MONTAJ'):
                                 orient='split')
                         ),
                     ],className="g-0"),
-                ], width=3),
+                ], width=4),
         ],className="g-0")]
 
 

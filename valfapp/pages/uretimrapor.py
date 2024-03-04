@@ -4,85 +4,48 @@ from valfapp.layouts import nav_bar
 
 layout = [
     nav_bar,
-    dbc.Row([
-        dbc.Col(
-            html.Div(
-                className="row justify-content-center",
-                children=[
-                    dcc.Link(
+    dbc.Container(
+        [
+            dbc.Row([
+                dbc.Col(
+                    html.A(
                         html.Div(
-                            className="justify-content-center",
+                            "OEE RAPORU",
                             style={
-                                'border': '1px solid red',
-                                'width': '300px',
-                                'height': '200px',
-                                'borderRadius': '10px',
-                                'display': 'flex',
-                                'alignItems': 'center',
-                                'justifyContent': 'center',
-                                'backgroundColor': 'lightgray',
+                                "height": "200px",
+                                "border-radius": "10px",
+                                "justify-content": "center",
+                                "align-items": "center",
+                                "display": "flex",
+                                "background-color": "white"
                             },
-                            children=[
-                                html.Div(
-                                    style={
-                                        'fontSize': '18px',
-                                        'color': 'White',
-                                        'position': 'absolute',
-                                        "borderRadius": "20px"
-                                    },
-                                    children=""
-                                ),
-                                html.Img(
-                                    src='/assets/M.Merkezi OEE Raporu.png',
-                                )
-                            ],
                         ),
-                        href='/prod_eff',
-                        style={"width": "310px"},
-                    )
-                ]
-            ),
-            className="mt-2 col-lg-6 col-md-6 col-sm-12 px-1", # Adjusted padding here
-        ),
-        dbc.Col(
-            html.Div(
-                className="row justify-content-center",
-                children=[
-                    dcc.Link(
+                        href="/prod_eff",
+                        style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                    ),
+                    className="mt-2 col-lg-4 col-md-6 col-sm-12",
+                ),
+                dbc.Col(
+                    html.A(
                         html.Div(
-                            className="justify-content-center",
+                            "İŞ MERKEZİ RAPORU",
                             style={
-                                'border': '1px solid red',
-                                'width': '300px',
-                                'height': '200px',
-                                'borderRadius': '10px',
-                                'display': 'flex',
-                                'alignItems': 'center',
-                                'justifyContent': 'center',
-                                'backgroundColor': 'lightgray',
+                                "height": "200px",
+                                "border-radius": "10px",
+                                "justify-content": "center",
+                                "align-items": "center",
+                                "display": "flex",
+                                "background-color": "white"
                             },
-                            children=[
-                                html.Div(
-                                    style={
-                                        'fontSize': '18px',
-                                        'color': 'White',
-                                        'position': 'absolute',
-                                        "borderRadius": "20px"
-                                    },
-                                    children=""
-                                ),
-                                html.Img(
-                                    src='/assets/İs Merkezi Raporu.png',
-                                )
-                            ],
                         ),
-                        href='/wcreport',
-                        style={"width": "310px"},
-                    )
-                ]
-            ),
-            className="g-0", # Adjusted padding here
-        ),
-    ]) # This removes gutter spacing between columns
+                        href="/wcreport",
+                        style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                    ),
+                    className="mt-2 col-lg-4 col-md-6 col-sm-12",
+                ),
+            ], className="justify-content-center align-items-center")
+        ],
+        fluid=True,  # Set to True for a fluid layout that fills the available space
+    )
 ]
 

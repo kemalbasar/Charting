@@ -43,7 +43,7 @@ def generate_output_list(max_output):
         [Output(f"wc{i + 1}", "style") for i in range(max_output)]
 
 
-def return_tops_with_visibility(graph_id, visible=True):
+def return_1indicator1data_div(graph_id, visible=True):
     """
     Creates a Dash HTML Div containing a Graph and DataTable with optional visibility.
 
@@ -55,35 +55,7 @@ def return_tops_with_visibility(graph_id, visible=True):
         html.Div: A Dash HTML Div containing the Graph and DataTable.
     """
     return html.Div(
-        children=[
-            dcc.Graph(id=f"{graph_id}_graph", figure={}, style={'margin-left': 120}),
-            dash_table.DataTable(id=f"{graph_id}_table", data=[], columns=[]
-                                ,style_cell={
-                                    'color': 'black',  # Font color for the cells
-                                    'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
-                                    'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
-                                    'textAlign': 'center',  # Center text alignment
-                                    'border': '1px solid black'  # Border for the cells
-                            },
-                                style_table = {
-                                    'height': '150px',  # Fixed height for the virtualized table
-                                    'width': '800px',  # Fixed width for the table
-                                    'overflowY': 'auto',  # Enable vertical scroll
-                                    'borderCollapse': 'collapse',  # Collapse borders
-                                    'border': '1px solid black'  # Border around the table
-                            },
-                                style_header = {
-                                    'fontWeight': 'bold',  # Make header text bold
-                                    'backgroundColor': 'rgba(0, 0, 0, 0.1)',  # Slightly darker background for the header
-                                    'borderBottom': '1px solid black',  # Bottom border for the header cells
-                                    'color': 'black'  # Font color for the header
-                            },
-                                style_data_conditional = [
-                                # Here you can add any conditional styles you might have
-                                # For example, styling for the active cell or conditional formatting based on cell values
-                            ],
-                                 )
-        ],
+        children=[],
         id=graph_id,
         style={"display": "flex", "flex-direction": "column", "justify-content": "center", "width": 1000},
         hidden=not visible
@@ -128,10 +100,10 @@ layout = dbc.Container([
                       options=[{"label": cc, "value": cc} for cc in costcenters],
                       multi=False,
                       value="CNC",
-                      style={'margin-top':5}
+                      style={'margin-top': 5}
                       ),
          dcc.DatePickerSingle(id='date-picker1', date=(date.today() - timedelta(days=kb)), className="dash-date-picker",
-                              persistence=True, persistence_type='memory', style={"color": "white"}),
+                               style={"color": "white"}),
 
          dbc.Button("Week", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
          dbc.Button("Month", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
@@ -163,35 +135,35 @@ layout = dbc.Container([
                      dash_table.DataTable(
                          id="invalid_data_table",
                          columns=[],
-                         style_cell = {
-                            'color': 'black',  # Font color for the cells
-                            'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
-                            'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
-                            'textAlign': 'center',  # Center text alignment
-                            'border': '1px solid black'  # Border for the cells
-                    },
-                         style_table = {
-                            'height': '150px',  # Fixed height for the virtualized table
-                            'width': '800px',  # Fixed width for the table
-                            'overflowY': 'auto',  # Enable vertical scroll
-                            'borderCollapse': 'collapse',  # Collapse borders
-                            'border': '1px solid black'  # Border around the table
-                    },
-                         style_header = {
-                            'fontWeight': 'bold',  # Make header text bold
-                            'backgroundColor': 'rgba(0, 0, 0, 0.1)',  # Slightly darker background for the header
-                            'borderBottom': '1px solid black',  # Bottom border for the header cells
-                            'color': 'black'  # Font color for the header
-                    },
-                         style_data_conditional = [
-                        # Here you can add any conditional styles you might have
-                        # For example, styling for the active cell or conditional formatting based on cell values
-                    ],
+                         style_cell={
+                             'color': 'black',  # Font color for the cells
+                             'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
+                             'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
+                             'textAlign': 'center',  # Center text alignment
+                             'border': '1px solid black'  # Border for the cells
+                         },
+                         style_table={
+                             'height': '150px',  # Fixed height for the virtualized table
+                             'width': '800px',  # Fixed width for the table
+                             'overflowY': 'auto',  # Enable vertical scroll
+                             'borderCollapse': 'collapse',  # Collapse borders
+                             'border': '1px solid black'  # Border around the table
+                         },
+                         style_header={
+                             'fontWeight': 'bold',  # Make header text bold
+                             'backgroundColor': 'rgba(0, 0, 0, 0.1)',  # Slightly darker background for the header
+                             'borderBottom': '1px solid black',  # Bottom border for the header cells
+                             'color': 'black'  # Font color for the header
+                         },
+                         style_data_conditional=[
+                             # Here you can add any conditional styles you might have
+                             # For example, styling for the active cell or conditional formatting based on cell values
+                         ],
                      ),
                      width={"size": 8}
                  ),
              ]),
-         ],style = {"display": 'none'}),
+         ], style={"display": 'none'}),
          html.Div(id='refresh', style={'display': 'none'}),
          html.Div(id='refresh2', style={'display': 'none'}),
          html.Div(id='output-div'),
@@ -209,13 +181,9 @@ layout = dbc.Container([
          dcc.Download(id="download-data2"),
          dcc.Download(id="download-data3")], ),
 
-    dbc.Row(id='flam', children=[dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,
-                                         style={"height": 600, "margin-left": 100 if i % 2 == 0 else 180}) for i in
-                                 range(MAX_OUTPUT)],
-            )
+    html.Div(id = "generated_1graph1data")
 ], fluid=True)
 
-list_of_callbacks = generate_output_list(MAX_OUTPUT)
 
 
 @app.callback(Output('store-costcenter1', 'data'),
@@ -327,6 +295,7 @@ def clear_cache(n_clicks, key):
     else:
         return no_update  # Don't change the 'refresh' div if the button hasn't been clicked
 
+
 # Add this callback
 @app.callback(
     Output('location', 'href'),
@@ -341,7 +310,6 @@ def page_refresh(n):
 # Callback for hiding/showing the first div
 @app.callback(
     Output("toggle_div", "style"),
-    Output('flam', 'style'),
     Input("toggle_button", "n_clicks"),
     prevent_initial_call=True
 )
@@ -376,7 +344,7 @@ def update_pie_chart(costcenter, oeelist5w):
 
 
 @app.callback(
-    [*list_of_callbacks],
+    [Output("generated_1graph1data","children")],
     [Input("costcenter1", "value"),
      Input("store-report-type", "data"),
      Input("work-dates1", "data"),
@@ -409,7 +377,54 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 
     list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters(option_slctd, report_type, params,
                                                                               oeelist1w, oeelist3w, oeelist7w)
-    return tuple(list_of_figs + list_of_data + list_of_columns + list_of_styles)
+
+    def create_column(fig, data, columns, margin_left):
+        return dbc.Col(
+            [
+                dcc.Graph(figure=fig, style={'margin-left': 150}),
+                dash_table.DataTable(
+                    data=data,
+                    columns=columns,
+                    style_cell={
+                        'color': 'black',
+                        'backgroundColor': 'rgba(255, 255, 255, 0.8)',
+                        'minWidth': '20px', 'width': '80px', 'maxWidth': '60px',
+                        'textAlign': 'center',
+                        'border': '1px solid black',
+                        'minWidth': '80px', 'maxWidth': '300px',
+                        'fontSize': '10px'
+                    },
+                    style_table={
+                        'height': '150px',
+                        'width': '800px',
+                        'overflowY': 'auto',
+                        'borderCollapse': 'collapse',
+                        'border': '1px solid black'
+                    },
+                    style_header={
+                        'fontWeight': 'bold',
+                        'backgroundColor': 'rgba(0, 0, 0, 0.1)',
+                        'borderBottom': '1px solid black',
+                        'color': 'black'
+                    },
+                    style_data_conditional=[]
+                )
+            ],
+            width=4,
+            style={"display": "flex", "flex-direction": "column", "justify-content": "center","margin-left":margin_left ,"width": 600}
+        )
+
+    # This list comprehension creates all columns needed for the layout
+    columns = [create_column(list_of_figs[i], list_of_data[i], list_of_columns[i], 50 if i % 2 == 0 else 400) for i
+               in range(len(list_of_figs))]
+
+    # This code groups the columns into rows of 3 columns each
+    rows = [dbc.Row(columns[i:i + 2]) for i in range(0, len(columns), 2)]
+
+    layout = html.Div(children=rows)
+
+    return [layout]
+
 
 
 @app.callback(
@@ -423,22 +438,24 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 def generate_excel_oee(n_clicks, costcenter, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist3w = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
-    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME', 'TOTALTIME',
-     'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OM_TIME', 'TOTAL_SHIFT_TIME',
-     'NANTIME', 'PLANNEDTIME']
-    columns2 = ['WORKCENTER', 'COSTCENTER', 'SHIFT', 'WORKDAY',"AVAILABILITY","PERFORMANCE","QUALITY","OEE"]
+    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME',
+               'TOTALTIME',
+               'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OM_TIME', 'TOTAL_SHIFT_TIME',
+               'NANTIME', 'PLANNEDTIME']
+    columns2 = ['WORKCENTER', 'COSTCENTER', 'SHIFT', 'WORKDAY', "AVAILABILITY", "PERFORMANCE", "QUALITY", "OEE"]
     backup_df = oeelist3w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
-        "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME",
-        "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
+    "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME",
+    "TOTAL_SHIFT_TIME", "NANTIME", "PLANNEDTIME"].sum()
 
     backup_df.reset_index(inplace=True)
     backup_df["AVAILABILITY"] = backup_df["RUNTIME"] / backup_df["PLANNEDTIME"]
     backup_df["PERFORMANCE"] = backup_df["IDEALCYCLETIME"] / backup_df["RUNTIME"]
     backup_df["QUALITY"] = (backup_df["QTY"] - backup_df["SCRAPQTY"]) / backup_df["QTY"]
-    backup_df["OEE"] = backup_df["AVAILABILITY"]*backup_df["QUALITY"]*backup_df["PERFORMANCE"]
+    backup_df["OEE"] = backup_df["AVAILABILITY"] * backup_df["QUALITY"] * backup_df["PERFORMANCE"]
     dff = oeelist3w[columns].merge(backup_df[columns2], on=["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"], how='left')
     print("download genel butonun ordayım")
     return dcc.send_data_frame(dff.to_excel, "mydata.xlsx", index=False)
+
 
 @app.callback(
     Output("download-data2", "data"),
@@ -459,6 +476,7 @@ def generate_excel_breakdowns(n_clicks, costcenter, oeelist2w):
 
     return dcc.send_data_frame(dff2.to_excel, "yourdata.xlsx", index=False)
 
+
 @app.callback(
     Output("download-data3", "data"),
     Input("download-button3", "n_clicks"),
@@ -467,6 +485,7 @@ def generate_excel_breakdowns(n_clicks, costcenter, oeelist2w):
     prevent_initial_call=True
 )
 def generate_excel_baddatas(n_clicks, costcenter, oeelistw4):
+
     oeelistw4 = pd.read_json(oeelistw4, orient='split')
     # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
     #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",

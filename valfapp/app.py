@@ -57,7 +57,6 @@ def prdconf(params=None):
     if os.path.isfile(r"F:\pycarhm projects\Charting\outputs(xlsx)\bul.xlsx"):
         os.remove(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
 
-    prd_conf.to_excel(project_directory + r"\Charting\outputs(xlsx)\bul.xlsx")
     onemonth_prdqty = ag.run_query(query=r"EXEC VLFPROCPRDFORSPARKLINES @WORKSTART=?, @WORKEND=?, @DATEPART=?",
                                    params=params)
     if len(prd_conf) == 0:
@@ -168,19 +167,49 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist7w = pd.read_json(oeelist7w, orient='split')
 
-    list_of_wcs = []
-    if report_type == 'wc':
-        max_output = len(oeelist1w)
-        for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
-            list_of_wcs.append(item)
-    else:
-        max_output = len(oeelist7w)
-        for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
-            list_of_wcs.append(item)
+    list_of_items = []
 
-    df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
-    df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
-    df_forpers = oeelist7w[oeelist7w["COSTCENTER"] == option_slctd]
+    if option_slctd == 'CNC1' or option_slctd == 'CNC2':
+
+        if  option_slctd == 'CNC1':
+            list_of_items = ["CNC-07", "CNC-19", "CNC-26", "CNC-28", "CNC-08", "CNC-29"]
+            list_of_wcs = ["CNC-07", "CNC-19", "CNC-26", "CNC-28", "CNC-08", "CNC-29"]
+
+
+        else:
+            list_of_items = ["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
+                       "CNC-17", "CNC-18",
+                       "CNC-20", "CNC-21", "CNC-22", "CNC-23"]
+            list_of_wcs = ["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
+                       "CNC-17", "CNC-18",
+                       "CNC-20", "CNC-21", "CNC-22", "CNC-23"]
+
+
+        if report_type == 'wc':
+            max_output = len(oeelist1w)
+            for item in oeelist1w.loc[oeelist1w["WORKCENTER"].isin(list_of_items)]["WORKCENTER"].unique():
+                list_of_items.append(item)
+        else:
+            max_output = len(oeelist7w)
+            list_of_items =  oeelist3w.loc[oeelist3w["WORKCENTER"].isin(list_of_items)]["DISPLAY"].unique()
+
+        df = oeelist1w[oeelist1w["WORKCENTER"].isin(list_of_wcs)]
+        df_wclist = oeelist3w[oeelist3w["WORKCENTER"].isin(list_of_wcs)]
+        df_forpers = oeelist7w[oeelist7w["DISPLAY"].isin(list_of_items)]
+
+    else:
+        if report_type == 'wc':
+            max_output = len(oeelist1w)
+            for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
+                list_of_items.append(item)
+        else:
+            max_output = len(oeelist7w)
+            for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
+                list_of_items.append(item)
+
+        df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
+        df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
+        df_forpers = oeelist7w[oeelist7w["COSTCENTER"] == option_slctd]
 
     list_of_figs = []
     list_of_columns = []
@@ -208,16 +237,16 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
     for item in range(MAX_OUTPUT):
 
-        if item < len(list_of_wcs):
+        if item < len(list_of_items):
             if report_type == 'wc':
-                fig = indicator_with_color(df_metrics=df, order=list_of_wcs[item], colorof='black', height=420,
+                fig = indicator_with_color(df_metrics=df, order=list_of_items[item], colorof='black', height=420,
                                            width=450)
-                df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_wcs[item]),
+                df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_items[item]),
                 wc_col[col_ind:]]
             else:
-                fig = indicator_with_color(df_metrics=df_forpers, order=list_of_wcs[item], colorof='black',
+                fig = indicator_with_color(df_metrics=df_forpers, order=list_of_items[item], colorof='black',
                                            title='DISPLAY', height=420, width=450)
-                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_wcs[item]), pers_col[col_ind:]]
+                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_items[item]), pers_col[col_ind:]]
 
             aggregations = {
                 'MATERIAL': max,  # Sum of 'performance' column
@@ -280,25 +309,27 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
             df_details["OEE"] = df_details["OEE"].astype(str) + '%'
             df_details["PERFORMANCE"] = (df_details["PERFORMANCE"] * 100).round()
             df_details["PERFORMANCE"] = df_details["PERFORMANCE"].astype(str) + '%'
+
             if come_from_tvlayout == 1:
                 df_details = df_details[["MATERIAL","QTY","AVAILABILITY","QUALITY"]]
             else:
                 if col_ind == 0:
                     df_details["SHIFT"] = df_details["SHIFT"].astype(str)
                     df_details.sort_values(by='SHIFT', inplace=True)
+
+            df_details.columns = ["Vard.", "Mal.", "Adet", "Opr.","Kul.","Perf.","Klite", "OEE" , 'Süre']
             style = {}
             columns = [{"name": i, "id": i} for i in df_details.columns]
             data = df_details.to_dict("records")
+
         else:
-            fig = {}
-            columns = []
-            data = []
-            style = {"display": "none"}
+            continue
 
         list_of_figs.append(fig)
         list_of_data.append(data)
         list_of_columns.append(columns)
         list_of_styles.append(style)
+
     return list_of_figs,list_of_data,list_of_columns ,list_of_styles
 
 # @cache.memoize(timeout=TIMEOUT)

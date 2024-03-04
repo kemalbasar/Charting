@@ -62,7 +62,7 @@ layout = [
                      value='Burası',
                      ),
 
-    ], style={'display': 'flex', 'flexDirection': 'row'})
+    ], style={'display': 'flex', 'flexDirection': 'row', "margin-left": 75})
     ),
     dbc.Row([
         dbc.Col([
@@ -80,6 +80,8 @@ layout = [
                     'minWidth': '5%',  # Adjust this value to set the minimum width
                     'width': '10%',  # Adjust this value to set the width
                     'textAlign': 'center',
+                    'color': 'black'
+
                 },
                 style_header={
                     'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
@@ -92,10 +94,10 @@ layout = [
                     # Font size
                 }
             ),
-        ],width=3),
+        ], width=3),
 
         dbc.Col([
-            html.H3("Özet",style={"align":"center"}),
+            html.H3("Özet", style={"align": "center"}),
             DataTable(
                 id='one_line_summary',
                 columns=[
@@ -113,6 +115,7 @@ layout = [
                     'minWidth': '70%',  # Adjust this value to set the minimum width
                     'width': '80%',  # Adjust this value to set the width
                     'textAlign': 'center',
+                    'color':'black'
                 },
                 style_header={
                     'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
@@ -126,11 +129,10 @@ layout = [
                 }
 
             ),
-        ],width=9),
-    ]),
+        ], width=8),
+    ], style={"margin-left": 75}),
 
     dbc.Row([
-
         dbc.Col([
             html.H3("Ölçüm Bilgileri"),
             html.Div(DataTable(
@@ -152,7 +154,7 @@ layout = [
                     'textAlign': 'center',
                 },
                 style_header={
-                    'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
+                    'backgroundColor': 'rgb(230, 230, 230)',  # Semi-transparent background
                     'fontWeight': 'bold',  # Bold font
                     'color': '#2F4F4F',  # Cool text color
                     'fontFamily': 'Arial, sans-serif',  # Font family
@@ -162,7 +164,22 @@ layout = [
                     # Font size
                 },
 
-            ),style={"margin-top":100}),
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': 'rgb(248, 248, 248)'
+                    }
+                ],
+                style_cell={
+                        "textAlign": "center",
+                        "padding": "10px",
+                        "color": "black",
+                        'max-width': 115
+
+                    }
+
+
+            ), style={"margin-top": 100}),
 
             html.Div(DataTable(
                 id='all_intervals_dis',
@@ -183,7 +200,7 @@ layout = [
                     'textAlign': 'center',
                 },
                 style_header={
-                    'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
+                    'backgroundColor': 'rgb(230, 230, 230)',  # Semi-transparent background
                     'fontWeight': 'bold',  # Bold font
                     'color': '#2F4F4F',  # Cool text color
                     'fontFamily': 'Arial, sans-serif',  # Font family
@@ -191,9 +208,24 @@ layout = [
                     'border': '1px dotted brown',
                     'borderRadius': '2px'
                     # Font size
+                },
+
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': 'rgb(248, 248, 248)'
+                    }
+                ],
+                style_cell={
+                    "textAlign": "center",
+                    "padding": "10px",
+                    "color": "black",
+                    'max-width': 115
+
                 }
 
-            ),style={"margin-top":95}),
+            ), style={"margin-top": 95}),
+
             html.Div(DataTable(
                 id='all_intervals_es',
                 columns=[
@@ -213,7 +245,7 @@ layout = [
                     'textAlign': 'center',
                 },
                 style_header={
-                    'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
+                    'backgroundColor': 'rgb(230, 230, 230)',  # Semi-transparent background
                     'fontWeight': 'bold',  # Bold font
                     'color': '#2F4F4F',  # Cool text color
                     'fontFamily': 'Arial, sans-serif',  # Font family
@@ -221,16 +253,29 @@ layout = [
                     'border': '1px dotted brown',
                     'borderRadius': '2px'
                     # Font size
+                },
+
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': 'rgb(248, 248, 248)'
+                    }
+                ],
+                style_cell={
+                    "textAlign": "center",
+                    "padding": "10px",
+                    "color": "black",
+                    'max-width': 115
+
                 }
 
-
-            ),style={"margin-top":80})
+            ), style={"margin-top": 80})
         ], width=3),
 
-        dbc.Col([dcc.Graph(id="dist_plot1",style={"margin-top":70}),
-                 dcc.Graph(id="dist_plot2",style={"margin-top":50}),
-                 dcc.Graph(id="dist_plot3",style={"margin-top":20})], width=9)
-    ]),
+        dbc.Col([dcc.Graph(id="dist_plot1", style={"margin-top": 70}),
+                 dcc.Graph(id="dist_plot2", style={"margin-top": 50}),
+                 dcc.Graph(id="dist_plot3", style={"margin-top": 20})], width=8)
+    ], style={"margin-left": 75}),
 
     dcc.Interval(id="data_refresh", interval=1000000)
 
@@ -272,14 +317,18 @@ def material_data(data, value, n):
 
 
 @app.callback(
-    Output("datatable_summary", 'data'),
-    Input("material_ayk", "value"),
-    State("machine_ayk", 'value'),
+    Output("one_line_summary", 'data'),
+    Output('one_line_summary', 'columns'),
+    Output("ppmtable", 'data'),
+    Output('ppmtable', 'columns'),
+    Input("machine_ayk", 'value'),
     State("ayıklama_data", 'data'),
+    State("date-picker_ayk",'date'),
     prevent_initial_call=True
 
 )
-def update_table_data(material, machine, data):
+def update_table_data(machine, data,selected_date):
+    print(f"burayım {selected_date}")
     if not machine == 'Makinalar':
         data2 = ag.run_query(
             f"SELECT MATERIAL,CONFIRMATION,MAX(OK) AS OK , MAX(NOTOKGORSEL) AS NOTOKGORSEL , MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL FROM  [dbo].[{machine}]  GROUP BY MATERIAL,CONFIRMATION")
@@ -296,7 +345,7 @@ def update_table_data(material, machine, data):
         filtered_data2 = data2[data2["MATERIAL"].isin(selected_material)]
 
         table_data = filtered_data2.to_dict('records')
-        return table_data
+        return table_data,[{"name": i, "id": i} for i in filtered_data2.columns]
     else:
         no_update
 
@@ -386,7 +435,7 @@ def draw_dist_plot(material, data):
     Output("all_intervals_es", 'data'),
     Output("dist_plot1", "figure"),
     Output("dist_plot2", "figure"),
-    Output("dist_plot3","figure"),
+    Output("dist_plot3", "figure"),
     Input("material_ayk", "value"),
     State("ayıklama_data", "data"),
     prevent_initial_call=True
@@ -406,7 +455,6 @@ def draw_dist_plot(material, data):
 
     df_nom['MTYPENOM'] = df_nom['MTYPENOM'].astype(float)
 
-
     df_ic = df_nom.loc[df_nom["MTYPE"] == 'ICCAP']
     df_es = df_nom.loc[df_nom["MTYPE"] == 'ESMERKEZLILIK']
     df_dis = df_nom.loc[df_nom["MTYPE"] == 'DISCAP']
@@ -419,18 +467,19 @@ def draw_dist_plot(material, data):
     fig1 = go.Figure()
     fig2 = go.Figure()
 
-    list_of_data =[]
+    list_of_data = []
 
-    for figure,data_interval,data_summary in [[fig, data_ic, df_ic],
-                                              [fig1, data_es, df_es],
-                                               [fig2, data_dis, df_dis]]:
+    for figure, data_interval, data_summary in [[fig, data_ic, df_ic],
+                                                [fig1, data_es, df_es],
+                                                [fig2, data_dis, df_dis]]:
 
         data_interval = data_interval.merge(data_summary, on=["MATERIAL"], how='left')
         # data_es = data_es.merge(df_es,on=["MATERIAL"], how='left')
         # data_dis = data_dis.merge(df_dis,on=["MATERIAL"], how='left')
 
         data_interval['OKNOTOK'] = np.where(
-            (data_interval['MAXIMUM'] > data_interval['MTYPENOM'] * 1.01) | (data_interval['MINIMUM'] < data_interval['MTYPENOM'] * 0.99),
+            (data_interval['MAXIMUM'] > data_interval['MTYPENOM'] * 1.01) | (
+                        data_interval['MINIMUM'] < data_interval['MTYPENOM'] * 0.99),
             'RED',
             'KABUL'
         )
@@ -460,9 +509,11 @@ def draw_dist_plot(material, data):
 
         # Update layout and annotations as before
         figure.update_layout(
+            showlegend=False,
             plot_bgcolor='FloralWhite',
-            xaxis=dict( autorange='reversed',title='Midpoints', title_font=dict(size=20, family='Arial'),dtick=dtick_value),
-            yaxis=dict(title='KABUL-RED', title_font=dict(size=20, family='Arial'),type='category'),
+            xaxis=dict(autorange='reversed', title='Midpoints', title_font=dict(size=20, family='Arial'),
+                       dtick=dtick_value),
+            yaxis=dict(title='KABUL-RED', title_font=dict(size=20, family='Arial'), type='category'),
             title=dict(text='İç Çap', y=0.95, font=dict(size=25, family='Arial')),
             legend=dict(x=0, y=1.1, traceorder="normal", orientation="h"),
             height=400,
@@ -490,6 +541,8 @@ def draw_dist_plot(material, data):
 
         data_interval = data_interval[["MINIMUM", "MAXIMUM", "QUANTITY", "MTYPENOM", "MTYPETOL", "OKNOTOK"]]
         list_of_data.append(data_interval)
-    return [{"name": i, "id": i} for i in list_of_data[0].columns],[{"name": i, "id": i} for i in list_of_data[1].columns],\
-            [{"name": i, "id": i} for i in list_of_data[2].columns],list_of_data[0].to_dict("records"),list_of_data[1].to_dict("records"),\
-        list_of_data[2].to_dict("records"),fig, fig1, fig2
+    return [{"name": i, "id": i} for i in list_of_data[0].columns], [{"name": i, "id": i} for i in
+                                                                     list_of_data[1].columns], \
+        [{"name": i, "id": i} for i in list_of_data[2].columns], list_of_data[0].to_dict("records"), list_of_data[
+        1].to_dict("records"), \
+        list_of_data[2].to_dict("records"), fig, fig1, fig2

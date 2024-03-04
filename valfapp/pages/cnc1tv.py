@@ -24,11 +24,11 @@ else:
 
 params_list = [(date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"]
 
-layout = layout_for_tvs(costcenter='CNCTORNA')
+layout = layout_for_tvs(costcenter='CNC1')
 @app.callback(
-    Output("animate_cnctorna", "disabled"),
+    Output("animate_cnc1", "disabled"),
     Input("play", "n_clicks"),
-    State("animate_cnctorna", "disabled"),
+    State("animate_cnc1", "disabled"),
 )
 def toggle(n, playing):
     print("****888*****")
@@ -39,25 +39,27 @@ def toggle(n, playing):
 
 
 @app.callback(
-    Output('slider-output-container_cnctorna', 'children'),
-    Output("wc-slider_cnctorna", "value"),
-    Output("livedata_cnctorna", "data"),
-    Output("wc-slider_cnctorna", "max"),
-    Input("animate_cnctorna", "n_intervals"),
-    Input("wc-slider_cnctorna", "value"),
-    State(component_id='oeelist1w_tv_cnctorna', component_property='data'),
-    State(component_id='oeelist3w_tv_cnctorna', component_property='data'),
-    State(component_id='oeelist7w_tv_cnctorna', component_property='data'),
+    Output('slider-output-container_cnc1', 'children'),
+    Output("wc-slider_cnc1", "value"),
+    Output("livedata_cnc1", "data"),
+    Output("wc-slider_cnc1", "max"),
+    Input("animate_cnc1", "n_intervals"),
+    Input("wc-slider_cnc1", "value"),
+    State(component_id='oeelist1w_tv_cnc1', component_property='data'),
+    State(component_id='oeelist3w_tv_cnc1', component_property='data'),
+    State(component_id='oeelist7w_tv_cnc1', component_property='data'),
     prevent_initial_call=True,
 )
 def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
+    print("buradayız")
     params_dic = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
                   "workend": date.today().isoformat(),
                   "interval": "day"}
 
 
-    list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters("CNCTORNA", "pers", params_dic, oeelist1w,
+    list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters("CNC1", "pers", params_dic, oeelist1w,
                                                                               oeelist3w, oeelist7w,1)
+    print(" burada mıyız ????? ")
     list_of_figs = [i for i in list_of_figs if i != {}]
     max_of_slider = len(list_of_figs)
 
@@ -83,14 +85,15 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                                          "overflowY": 'auto',
                                      }
                                      )
-            ], style={'margin-left': '-180px'}
+            ],style={'margin-left': '-180px'}
         ), selected_value + 1, ag.run_query(project_directory + r"\Charting\queries\liveprd.sql") \
             .to_json(date_format='iso', orient='split'), max_of_slider
     else:
         return html.Div(
             children=[
                 dcc.Graph(figure=list_of_figs[selected_value],style={'margin-left':'107px'}),
-                dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
+                dash_table.DataTable(data=list_of_data[selected_value],
+                                     columns=list_of_columns[selected_value],
                                      style_cell={
                                          'color': 'black',  # Font color for the cells
                                          'backgroundColor': 'rgba(255, 255, 255, 0.8)',
@@ -117,19 +120,19 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                                      style_data_conditional=[
                                          # Here you can add any conditional styles you might have
                                          # For example, styling for the active cell or conditional formatting based on cell values
-                                     ]
+                                     ],
                                      )
-            ], style={'margin-left': '-180px'}
-        ), selected_value + 1, no_update, max_of_slider
+            ]
+        , style={'margin-left': '-180px'}), selected_value + 1, no_update, max_of_slider
 
 
 @app.callback(
-    Output('wc-output-container_cnctorna', 'children'),
-    Input("animate_cnctorna", "n_intervals"),
-    Input("wc-slider_cnctorna", "value"),
-    State("livedata_cnctorna", 'data')
+    Output('wc-output-container_cnc1', 'children'),
+    Input("animate_cnc1", "n_intervals"),
+    Input("wc-slider_cnc1", "value"),
+    State("livedata_cnc1", 'data')
 )
-def update_ind_fig(n, selected_value, livedata_cnctorna):
+def update_ind_fig(n, selected_value, livedata_cnc1):
     """
     Callback to update individual figures for each work center in the selected cost center.
 
@@ -140,15 +143,15 @@ def update_ind_fig(n, selected_value, livedata_cnctorna):
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
 
-    return sliding_indicator_container(livedata=livedata_cnctorna,
-                                       selected_value=selected_value, costcenter='CNCTORNA')
+    return sliding_indicator_container(livedata=livedata_cnc1,
+                                       selected_value=selected_value, costcenter='CNC1')
 
 
 @app.callback(
-    Output("oeelist1w_tv_cnctorna", "data"),
-    Output('oeelist3w_tv_cnctorna', 'data'),
-    Output('oeelist7w_tv_cnctorna', 'data'),
-    Output('oeelist0w_tv_cnctorna', 'data'),
+    Output("oeelist1w_tv_cnc1", "data"),
+    Output('oeelist3w_tv_cnc1', 'data'),
+    Output('oeelist7w_tv_cnc1', 'data'),
+    Output('oeelist0w_tv_cnc1', 'data'),
     Input("15min_update", "n_intervals"))
 def refresh_data(n):
     params_dic = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
@@ -169,8 +172,8 @@ def refresh_data(n):
 
 
 @app.callback(
-    Output('pie_of_yesterday_cnctorna', 'figure'),
-    Input("oeelist0w_tv_cnctorna", "data"),
+    Output('pie_of_yesterday_cnc1', 'figure'),
+    Input("oeelist0w_tv_cnc1", "data"),
     Input("play", "n_clicks"))
 def update_piechart(oeelist0w,n):
     print(oeelist0w)
