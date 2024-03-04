@@ -15,7 +15,7 @@ try:
         ag.run_query(f"SELECT SUM(VALUE) AS TOTALVAL FROM VLFVALUATION WHERE VALDATE = '{cur_week}'")["TOTALVAL"][0])
 except TypeError:
 
-value = int(12000000)
+    value = int(12000000)
 
 
 total_value_with_separator = format(value, ",")

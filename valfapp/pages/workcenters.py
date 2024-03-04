@@ -392,7 +392,7 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
                         'textAlign': 'center',
                         'border': '1px solid black',
                         'minWidth': '80px', 'maxWidth': '300px',
-                        'fontSize': '10px'
+                        'fontSize': '12px'
                     },
                     style_table={
                         'height': '150px',
