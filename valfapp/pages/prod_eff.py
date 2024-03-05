@@ -52,7 +52,7 @@ def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
 
 
 # Main Layout
-layout = html.Div([
+layout = dbc.Container([
     dcc.Store(id='oeelist0',
               data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[0]),
     dcc.Store(id='oeelist1',
@@ -62,7 +62,6 @@ layout = html.Div([
     dcc.Store(id='oeelist6',
               data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[6]),
     dcc.Store(id='device-info-store'),
-    dbc.Container([
         nav_bar,
 
         dbc.Row([
@@ -201,8 +200,7 @@ layout = html.Div([
             ], style={"justify-content": "center", "text-align": "center", "margin-top": "120px"})
         ])
 
-    ], style={"justify-content": "center", "align-items": "center"})
-])
+    ],style={"justify-content": "center", "align-items": "center"})
 
 
 
@@ -343,10 +341,7 @@ def update_graph_sunburst(option_slctd, oeelist0):
      Input('device-info-store', 'data')]
 )
 def update_graph_bubble(option_slctd, oeelist2, dev_type):
-    if dev_type["device_type"] == "Desktop":
-        graphwidth = 1100
-    else:
-        graphwidth = 1100
+    graphwidth = 1100
     oeelist2 = pd.read_json(oeelist2, orient='split')
     df, category_order = scatter_plot(df=oeelist2.loc[oeelist2["COSTCENTER"] == option_slctd])
 
@@ -375,14 +370,10 @@ def update_graph_bubble(option_slctd, oeelist2, dev_type):
 @app.callback(
     [Output(component_id='gann', component_property='figure')],
     [Input(component_id='costcenter', component_property='value'),
-     Input(component_id='oeelist2', component_property='data'),
-     Input('device-info-store', 'data')]
+     Input(component_id='oeelist2', component_property='data')]
 )
-def update_chart_gann(option_slctd, oeelist2, dev_type):
-    if dev_type["device_type"] == "Desktop":
-        graphwidth = 1100
-    else:
-        graphwidth = 1100
+def update_chart_gann(option_slctd, oeelist2):
+    graphwidth = 1100
     oeelist2 = pd.read_json(oeelist2, orient='split')
     df = oeelist2.loc[oeelist2["COSTCENTER"] == option_slctd]
     df.sort_values(by="CONFTYPE", ascending=False, inplace=True)
@@ -496,14 +487,11 @@ def update_ind_fig(option_slctd, oeelist1):
 @app.callback(
     [Output(component_id='fig_scatscrap', component_property='figure')],
     [Input(component_id='costcenter', component_property='value'),
-     Input(component_id='work-dates', component_property='data'),
-     Input('device-info-store', 'data')]
+     Input(component_id='work-dates', component_property='data')]
 )
-def create_scatterplot_for_scrapqty(costcenter, dates, dev_type):
-    if dev_type["device_type"] == "Desktop":
-        graphwidth = 1100
-    else:
-        graphwidth = 1100
+def create_scatterplot_for_scrapqty(costcenter, dates):
+
+    graphwidth = 1100
     now = datetime.now()
     df_scrap = ag.run_query(query=r"EXEC VLFPRDSCRAPWITHPARAMS @WORKSTART=?, @WORKEND=?"
                             , params=(dates["workstart"], dates["workend"]))
