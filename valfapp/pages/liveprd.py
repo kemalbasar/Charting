@@ -103,7 +103,7 @@ layout = [
                                             "background-color": "white"
                                         },
                                     ),
-                                    href="/livepres", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                                    href="liveprd/livepres", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
                                 ), className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
                             ),
                         ], style={"justify-content": "center", "align-items": "center", }

@@ -318,7 +318,14 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
                 if col_ind == 0:
                     df_details["SHIFT"] = df_details["SHIFT"].astype(str)
                     df_details.sort_values(by='SHIFT', inplace=True)
-                    df_details.columns = ["Vard.", "Mal.", "Adet", "Opr.", "Kul.", "Perf.", "Klite", "OEE", 'Süre']
+
+                    if report_type == 'wc':
+                        df_details.columns = ["Vard.", "Mal.", "Adet", "Opr.", "Kul.", "Perf.", "Klite", "OEE", 'Süre']
+                    else:
+                        df_details.columns = ["Vard.", "Adet", "Opr.", "Kul.", "Perf.", "Klite", "OEE", 'Süre']
+
+
+
 
             style = {}
             columns = [{"name": i, "id": i} for i in df_details.columns]
