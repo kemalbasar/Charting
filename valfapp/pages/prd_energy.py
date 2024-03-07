@@ -105,7 +105,7 @@ layout = [
     ),
     dbc.Row([dbc.Button(id="unselect-rows-btn",
                            className="dash-empty-button",
-                           style={"margin-top": 50})]),
+                           style={"margin-top": 40,"margin-left":65})]),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -222,7 +222,7 @@ layout = [
                 ),
 
             ], style={"margin-top": 0}, className="")
-        ], width=12, style={"margin-left": "100px"}), ], style={"margin-left": 30, "margin-top": 25})
+        ], width=12, style={"margin-left": "35px"}), ], style={"margin-left": 70, "margin-top": 25})
 ]
 
 
@@ -389,13 +389,13 @@ def update_style(go, selected_rows, s_date, f_date, pivot_table):
             f" FROM VLFPRDENERGY A LEFT JOIN IASMATBASIC M ON M.MATERIAL = A.MATERIAL"
             f" WHERE A.MATERIAL = '{df['MATERIAL'][selected_rows[0]]}' AND WORKSTART > '{s_date}' AND WORKEND < '{f_date}'")
 
-        if len(df_details) == 0:
-            drawnum = ag.run_query(f"SELECT DRAWNUM FROM IASMATBASIC WHERE MATERIAL = '{df['MATERIAL'][selected_rows[0]]}'")["DRAWNUM"][0]
-            df_details = ag.run_query(
-                f"SELECT DISTINCT A.MPOINT,A.WORKCENTER,A.COSTCENTER,A.QTY,A.QTY*M.NETWEIGHT/1000 AS KG,A.KWH,CASE WHEN A.WORKINGHOUR = 0 THEN NULL ELSE A.IDEALCYCLETIME/A.WORKINGHOUR END AS PERFORMANCE,WORKSTART,WORKEND,A.SETUPTIME"
-                f" FROM VLFPRDENERGY A LEFT JOIN IASMATBASIC M ON M.MATERIAL = A.MATERIAL"
-                f" WHERE A.MATERIAL = '{drawnum}' AND WORKSTART > '{s_date}' AND WORKEND < '{f_date}'")
+        drawnum = ag.run_query(f"SELECT DRAWNUM FROM IASMATBASIC WHERE MATERIAL = '{df['MATERIAL'][selected_rows[0]]}'")["DRAWNUM"][0]
+        df_details_add = ag.run_query(
+            f"SELECT DISTINCT A.MPOINT,A.WORKCENTER,A.COSTCENTER,A.QTY,A.QTY*M.NETWEIGHT/1000 AS KG,A.KWH,CASE WHEN A.WORKINGHOUR = 0 THEN NULL ELSE A.IDEALCYCLETIME/A.WORKINGHOUR END AS PERFORMANCE,WORKSTART,WORKEND,A.SETUPTIME"
+            f" FROM VLFPRDENERGY A LEFT JOIN IASMATBASIC M ON M.MATERIAL = A.MATERIAL"
+            f" WHERE A.MATERIAL = '{drawnum}' AND WORKSTART > '{s_date}' AND WORKEND < '{f_date}'")
 
+        df_details = pd.concat([df_details,df_details_add])
 
         columns3 = [] if df_details is None else [{"name": i, "id": i} for i in df_details.columns]
         style_data_conditional = [

@@ -520,3 +520,11 @@ def create_scatterplot_for_scrapqty(costcenter, dates):
                       )
                       )
     return [fig]
+
+
+
+
+
+
+
+

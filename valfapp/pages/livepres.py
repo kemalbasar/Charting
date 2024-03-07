@@ -58,8 +58,11 @@ topic4 = topcis_in["out/CamAngle"]
 topic5 = topcis_in["out/OpMode"]
 topic6 = topcis_in["out/GreenLight"]
 
+
+wclist = ["P-14", "P-26", "P-67", "P-68"]
+
 a = ()
-for w in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]:
+for w in wclist:
     a = a + (w,)
 a = "('" + "','".join(map(str, a)) + "')"
 print(f"{query} {a}")
@@ -77,7 +80,7 @@ try:
 except Exception as e:
     print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
 
-callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]]
+callbacks_strings = [Output(f"{wc}", "figure") for wc in wclist]
 
 
 def calculate_current_optimal_qty(optimalqty):
@@ -108,9 +111,9 @@ layout = html.Div(children=[
     dcc.Store(id='nothing'),
     dcc.Store(id="store-bgcolor"),
     dcc.Store(id="df_infos_t"),
-    dcc.Store(id="workcenter_list", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
-    dcc.Store(id="workcenter_list_b", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
-    dcc.Store(id="workcenter_list_c", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
+    dcc.Store(id="workcenter_list", storage_type='memory', data=wclist),
+    dcc.Store(id="workcenter_list_b", storage_type='memory', data=wclist),
+    dcc.Store(id="workcenter_list_c", storage_type='memory', data=wclist),
     dcc.Interval(id="bgcolor-interval", interval=5000),
     dbc.Row(dcc.Link(
         children='Main Page',
@@ -143,10 +146,10 @@ layout = html.Div(children=[
 )
 def update_lists(costcenter):
     global callbacks_strings
-    callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]]
+    callbacks_strings = [Output(f"{wc}", "figure") for wc in wclist]
     if costcenter == 'PRESHANE':
-        list = ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]
-        list_t = "('P-64', 'P-73', 'P-74', 'P-75', 'P-76', 'P-77')"
+        list = wclist
+        list_t = str(tuple(listreport))
     else:
         list = ["T-33", "T-34", "T-35", "T-36", "T-37", "T-38"]
         list_t = "('T-33', 'T-34', 'T-35', 'T-36', 'T-37', 'T-38')"
@@ -214,6 +217,7 @@ def generate_workcenter_layout(workcenters):
     """
 
     layout = []
+    workcenters.append
     for i in range(0, len(workcenters), 3):
         layout.append(dbc.Row([
             dbc.Col(
@@ -222,12 +226,12 @@ def generate_workcenter_layout(workcenters):
                 style={'border': '1px solid white', 'padding': 0}
             ),
             dbc.Col(
-                dcc.Graph(id=f"{workcenters[i + 1]}"),
+                [] if i+2 > len(workcenters)  else dcc.Graph(id=f"{workcenters[i + 1]}"),
                 width=4,
                 style={'border': '1px solid white', 'padding': 0}
             ),
             dbc.Col(
-                dcc.Graph(id=f"{workcenters[i + 2]}"),
+                [] if i+2 > len(workcenters) else dcc.Graph(id=f"{workcenters[i + 2]}"),
                 width=4,
                 style={'border': '1px solid white', 'padding': 0}
             )],
