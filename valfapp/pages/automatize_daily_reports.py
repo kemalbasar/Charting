@@ -345,8 +345,8 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
                 }
             ],
             "layout": {
+                "margin": dict(l=50, r=0, t=4, b=4, pad=0),
                 "uirevision": True,
-                "margin": dict(l=0, r=0, t=4, b=4, pad=0),
                 "xaxis": dict(
                     showline=False,
                     showgrid=False,
@@ -361,7 +361,7 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
                 ),
                 "paper_bgcolor": layout_color,
                 "plot_bgcolor": "rgba(0,0,0,0)",
-                "width": 225,
+                "width": 300,
                 "height": 65
             },
         }
