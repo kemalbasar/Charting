@@ -329,8 +329,6 @@ def return_summary_data(option_slctd, dates, oeelist6):
      Input(component_id='oeelist0', component_property='data')]
 )
 def update_graph_sunburst(option_slctd, oeelist0):
-    print(" here here ")
-    print(return_piechart(option_slctd, oeelist0))
     return [return_piechart(option_slctd, oeelist0)]
 
 
