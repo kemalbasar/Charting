@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 from pandas.errors import IntCastingNaNError
-from dash import ClientsideFunction, Output, Input
+from dash import ClientsideFunction, Output, Input, html, dcc
 from flask_caching import Cache
 import dash
 import dash_bootstrap_components as dbc
@@ -342,15 +342,63 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
     return list_of_figs,list_of_data,list_of_columns ,list_of_styles
 
 # @cache.memoize(timeout=TIMEOUT)
-def return_piechart(option_slctd,oeelist0):
+def return_piechart(option_slctd,oeelist0,forreports=0):
+
     oeelist0 = {k: pd.read_json(v, orient='split') for k, v in oeelist0.items()}
     df = oeelist0[option_slctd]
-    print(df)
     df["OEE"] = df["OEE"] * 100
     try:
         df["OEE"] = df["OEE"].astype(int)
     except pd.errors.IntCastingNaNError:
         df["OEE"] = 0
+
+    def sunburst_statusbar():
+        # Assuming 'df' and 'fig' are already defined and 'fig' is your sunburst chart
+
+        # Generate a list of color values from the color scale used in the sunburst chart
+
+        # rates_min = df["RATES"].min()
+        # rates_max = df["RATES"].max()
+
+        rates_min = 0
+        rates_max = 100
+
+        rates_range = np.linspace(rates_min, rates_max, num=10)  # Create 10 intervals for the example
+
+        if int(df["OEE"][0] * 100) > 38:
+            color_scale = px.colors.diverging.RdYlGn  # Replace with the color scale you used in your sunburst chart
+        else:
+            color_scale = px.colors.diverging.RRdYlGn_r
+
+        # Map each rate to a color
+        rate_to_color = {rate: color_scale[int((rate - rates_min) / (rates_max - rates_min) * (len(color_scale) - 1))]
+                         for rate in rates_range}
+
+        # Create custom color scale bar
+        color_scale_divs = [
+            html.Div(
+                style={
+                    'backgroundColor': rate_to_color[rate],
+                    'height': '20px',  # Fixed height for each color segment
+                    'color': 'black' if rate < (rates_max + rates_min) / 2 else 'white',
+                    # Adjust text color for contrast
+                    'textAlign': 'center',  # Center the text
+                    'fontWeight': 'bold'  # Optional: make the text bold
+                },
+                children=str(int(rate))  # Display the rate value
+            )
+            for rate in rates_range
+        ]
+
+        color_scale_legend = html.Div(color_scale_divs, style={
+            'display': 'flex',
+            'flexDirection': 'column',  # Stack divs vertically
+            'margin-left':30,
+            'margin-top':85
+        })
+
+        return color_scale_legend
+
     if int(df["OEE"][0]*100) > 38:
         print("if doğru ( app.py satır 283 ) ")
         fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
@@ -362,25 +410,14 @@ def return_piechart(option_slctd,oeelist0):
                           color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn_r,
                           color_continuous_midpoint=50)
 
-    fig.update_traces(hovertemplate='<b>Actual Rate is %{value} </b>',
-                      textfont=dict(size=[15,15,15,15,15,60,60]))
-    fig.update_layout(showlegend=False,
+    fig.update_traces(hoverinfo='none')  # Disables hover information
+
+    fig.update_layout(showlegend=False,coloraxis_showscale=False if forreports == 1 else True,
                       paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
                       # width= 10, height= 10,
-                      title_x=0.5, title_xanchor="center",
-                      title_font_size=40,
-                      annotations=[
-                          dict(
-                              text="OEE - Kullanılabilirlik - Performans",
-                              showarrow=False,
-                              xref='paper', yref='paper',
-                              x=0.5, y=1,
-                              xanchor='center', yanchor='bottom',
-                              font=dict(size=18, color=summary_color),
-                              bgcolor='darkolivegreen',  # The desired background color for the title
-                          )]
                       )
-    return fig
+    return fig if forreports ==0 \
+        else dbc.Row([dbc.Col(dcc.Graph(figure=fig), width=8), dbc.Col(sunburst_statusbar(), width=4)])
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="make_draggable"),

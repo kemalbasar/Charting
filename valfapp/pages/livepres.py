@@ -114,6 +114,11 @@ layout = html.Div(children=[
     dcc.Store(id="workcenter_list", storage_type='memory', data=wclist),
     dcc.Store(id="workcenter_list_b", storage_type='memory', data=wclist),
     dcc.Store(id="workcenter_list_c", storage_type='memory', data=wclist),
+    dcc.Interval(
+            id='interval-component',
+            interval=5000,  # in milliseconds
+            n_intervals=0,  # Start at 0
+        ),
     dcc.Interval(id="bgcolor-interval", interval=5000),
     dbc.Row(dcc.Link(
         children='Main Page',
@@ -130,9 +135,10 @@ layout = html.Div(children=[
             style={"color": "green", "background-color": "DimGray", 'width': 200}
         ),
         dcc.Interval(
-            id='interval-component',
+            id='first_trigger',
             interval=5000,  # Update interval in milliseconds
-            n_intervals=0
+            n_intervals=0,
+            max_intervals=1
         ),
         html.Div(id='main-layout-div-live')
     ]),
@@ -143,13 +149,13 @@ layout = html.Div(children=[
 @app.callback(
     Output(component_id='workcenter_list', component_property='data'),
     Input(component_id='costcenter', component_property='value'),
-)
-def update_lists(costcenter):
+    Input(component_id='first_trigger', component_property='n_intervals'))
+def update_lists(costcenter,n):
     global callbacks_strings
     callbacks_strings = [Output(f"{wc}", "figure") for wc in wclist]
     if costcenter == 'PRESHANE':
         list = wclist
-        list_t = str(tuple(listreport))
+        list_t = str(tuple(list))
     else:
         list = ["T-33", "T-34", "T-35", "T-36", "T-37", "T-38"]
         list_t = "('T-33', 'T-34', 'T-35', 'T-36', 'T-37', 'T-38')"

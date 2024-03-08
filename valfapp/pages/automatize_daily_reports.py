@@ -11,7 +11,7 @@ import dash_bootstrap_components as dbc
 
 from valfapp.configuration import layout_color
 from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
-    generate_for_sparkline, working_machinesf, indicator_with_color
+    generate_for_sparkline, working_machinesf, indicator_with_color, legend_generater
 from run.agent import ag
 from valfapp.app import app, prdconf, return_piechart, workcenters
 from valfapp.layouts import nav_bar
@@ -68,8 +68,7 @@ layout = dbc.Container([
               data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[7]),
 
     dcc.Store(id='work-datees', data={"workstart": (date.today() - timedelta(days=kb)).isoformat(),
-              'workend':  date.today().isoformat()}),
-
+                                      'workend': date.today().isoformat()}),
 
     html.Div(id='refresh3_forreports', style={'display': 'none'}),
     html.H2("CNC Bölüm Raporu", style={
@@ -82,11 +81,15 @@ layout = dbc.Container([
         "font-family": "Arial, sans-serif",
         "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
     }),
+    dbc.Row(html.H5("Performans(( Kullanılabilirlik(( OEE", style={
+                    "background-color": "#2149b4",
+                    "text-align": "center",
+                    "color": "white",
+                })),
     dbc.Row(
-        dbc.Col(html.Div([dcc.Graph(id='sunburst_forreports')]),
-                width=12, className="d-flex justify-content-center"),
-        className="g-0"
-    ),
+        dbc.Col(html.Div(id='sunburst_forreports'),
+                width=12, className="d-flex justify-content-center",)
+    ,className = "g-0"),
     dbc.Row([
         dbc.Col(children=[
             dbc.Row(html.H5("Üretim Özeti", style={
@@ -103,7 +106,7 @@ layout = dbc.Container([
                     dbc.Col(id="my-output_forreports2", width={"size": 2}, style={"margin-left": 0}),
                     dbc.Col([return_sparks(graph1="fig_ppm_forreports", graph2="fig_scrap__forreports",
                                            margin_left=0)],
-                            width={"size": 2}) ],className="d-flex justify-content-center",width=12)
+                            width={"size": 2})], className="d-flex justify-content-center", width=12)
             ], className="g-0")
         ], style={})
     ]),
@@ -117,49 +120,47 @@ layout = dbc.Container([
             })),
             dbc.Row(
                 dbc.Col([
-                    dcc.Graph(id='gann_forreports', figure={},)],
-                              className="d-flex justify-content-center",width=12)
-                            ,className="g-0")],
-                      style={}, width={"size": 12}
-                        ),]),
+                    html.Div(id='gann_forreports')],
+                    className="d-flex justify-content-center", width=12)
+                , className="g-0")],
+            style={}, width={"size": 12}
+        ), ]),
     dbc.Row([
         dbc.Col(children=[
 
-            dbc.Row(html.H5("Üretim DuruŞları", style={
+            dbc.Row(html.H5("Üretim Duruşları", style={
                 "background-color": "#2149b4",
                 "text-align": "center",
                 "color": "white",
             })),
             dbc.Row(
                 dbc.Col([
-                    dcc.Graph(id='bubble_forreports', figure={})],
-                              className="d-flex justify-content-center",width=12)
-                            ,className="g-0")],
-                      style={}, width={"size": 12}
-                        ),]),
+                    html.Div(id='bubble_forreports')],
+                    className="d-flex justify-content-center", width=12)
+                , className="g-0")],
+            style={}, width={"size": 12}
+        ), ]),
     dbc.Row([
         dbc.Col(children=[
 
-        html.H5("Hurda ve Nedenleri", style={
-            "height": 25,
-            "text-align": "center",
-            "background-color": "#2149b4",
-            "color": "white",
-            "margin-top": "50px"
-        }),
-        dbc.Row(
-            dbc.Col([
-                dcc.Graph(id='fig_scatscrap_forreports')],
-                          className="d-flex justify-content-center",width=12)
-                            ,className="g-0")],
-                      style={}, width={"size": 12}
-                        ),])
+            html.H5("Hurda ve Nedenleri", style={
+                "height": 25,
+                "text-align": "center",
+                "background-color": "#2149b4",
+                "color": "white",
+                "margin-top": "50px"
+            }),
+            dbc.Row(
+                dbc.Col([
+                    html.Div(id='fig_scatscrap_forreports')],
+                    className="d-flex justify-content-center", width=12)
+                , className="g-0")],
+            style={}, width={"size": 12}
+        ), ])
     ,
     html.Div(id="generated_1graph1data_for_report")]
 
-, style={"justify-content": "center", "align-items": "center"},fluid=True)
-
-
+    , style={"justify-content": "center", "align-items": "center"}, fluid=True)
 
 
 ################################ DATE BUTTONS START  ############################################
@@ -184,17 +185,17 @@ def page_refresh3_forreports(n3):
     [Output(component_id='my-output_forreports1', component_property='children'),
      Output(component_id='my-output_forreports2', component_property='children')],
     [Input(component_id='work-datees', component_property='data'),
-    Input(component_id='oeeelist6', component_property='data')]
+     Input(component_id='oeeelist6', component_property='data')]
 )
-def return_summary_data( dates, oeeelist6):
+def return_summary_data(dates, oeeelist6):
     oeeelist6 = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                                        , params=(dates["workstart"], dates["workend"]))
     data1 = ["Production Volume", get_daily_qty(df=oeeelist6)]
     data2 = ["Working Machines",
              working_machinesf(working_machines=df_working_machines)[-1]]
-    data3 = ["PPM", get_daily_qty(df=oeeelist6, ppm = True)]
-    data4 = ["Scrap", get_daily_qty(df=oeeelist6, type = 'HURDA')]
+    data3 = ["PPM", get_daily_qty(df=oeeelist6, ppm=True)]
+    data4 = ["Scrap", get_daily_qty(df=oeeelist6, type='HURDA')]
 
     return [html.Div(children=[html.Div(children=data1[1],
                                         style={"fontSize": 30, "color": summary_color,
@@ -237,54 +238,64 @@ def return_summary_data( dates, oeeelist6):
 
 # Connect the Plotly graphs with Dash Components
 @app.callback(
-    [Output(component_id='sunburst_forreports', component_property='figure')],
+    Output(component_id='sunburst_forreports', component_property='children'),
     Input(component_id='oeeelist0', component_property='data')
 )
-def update_graph_sunburst_forreports( oeeelist0):
-    print(" here here ")
-    print(return_piechart('CNC', oeeelist0))
-    return [return_piechart('CNC', oeeelist0)]
+def update_graph_sunburst_forreports(oeeelist0):
+    return return_piechart('CNC', oeeelist0,1)
 
 
 @app.callback(
-    [Output(component_id='bubble_forreports', component_property='figure')],
+    Output(component_id='bubble_forreports', component_property='children'),
     Input(component_id='oeeelist2', component_property='data'))
-def update_graph_bubble_forreports( oeeelist2):
-    graphwidth = 1100
+def update_graph_bubble_forreports(oeeelist2):
+    graphwidth = 950
     oeeelist2 = pd.read_json(oeeelist2, orient='split')
-    df, category_order = scatter_plot(df=oeeelist2.loc[oeeelist2["COSTCENTER"] ==  'CNC'])
+    df, category_order = scatter_plot(df=oeeelist2.loc[oeeelist2["COSTCENTER"] == 'CNC'])
+
+    # Generate a dynamic color map by assigning colors from Alphabet to each unique 'STEXT' value
+    color_map = {category: color for category, color in zip(category_order, px.colors.qualitative.Alphabet)}
 
     figs = px.histogram(df, x="WORKCENTER", y="FAILURETIME",
                         color="STEXT",
                         hover_data=["WORKCENTER"],
-                        color_discrete_sequence=px.colors.qualitative.Alphabet,
-                        width=1500, height=500, category_orders={"STEXT": category_order})
+                        color_discrete_map=color_map,category_orders={"STEXT": category_order})
     # figs.update_traces(textfont=dict(family=['Arial Black']))
-    figs.update_xaxes(type="category", tickangle=90, fixedrange=True, categoryorder='total ascending')
+    figs.update_xaxes(type="category", tickangle=90, fixedrange=True, categoryorder='total ascending'
+                      , tickfont=dict(
+            color='black',  # Set tick label color to white
+            size=13,  # Set font size (adjust as needed)
+            family='Arial Black')
+                      ),
+
+
     # figs.update_yaxes(categoryorder="total descending")
-    figs.update_layout(xaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
+    figs.update_layout(margin=dict(l=100, r=70, t=100, b=100),
+                       barmode='overlay',
+                       xaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
                        yaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
                        paper_bgcolor=layout_color, plot_bgcolor=layout_color, font_color=summary_color,
-                       title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420,
-                       legend=dict(
-                           bgcolor='lightgray',  # Background color of the legend
-                           bordercolor='gray',  # Border color of the legend
-                           borderwidth=1  # Border width of the legend
-                       ),
+                       title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=500,
+                       showlegend=False,
+                       xaxis_title="",
+                       yaxis_title=""
                        )
 
-    return [figs]
+    return html.Div(
+        [dbc.Row([
+            dbc.Col(
+                dcc.Graph(figure=figs), width=10), dbc.Col(legend_generater(color_map, 10), width=2)])])
 
 
 @app.callback(
-    [Output(component_id='gann_forreports', component_property='figure')],
+    Output(component_id='gann_forreports', component_property='children'),
     Input(component_id='oeeelist2', component_property='data')
 )
 def update_chart_gann_forreports(oeeelist2):
-    graphwidth = 1400
+    graphwidth = 900
     color_map = {"Uretim": "forestgreen", "Plansiz Durus": "red"
-                           , "Ariza Durusu": "Brown", "Planli Durus": "Coral"
-                           , "Kurulum": "Aqua"}
+        , "Ariza Durusu": "Brown", "Planli Durus": "Coral"
+        , "Kurulum": "Aqua"}
     oeeelist2 = pd.read_json(oeeelist2, orient='split')
     df = oeeelist2.loc[oeeelist2["COSTCENTER"] == 'CNC']
     df.sort_values(by="CONFTYPE", ascending=False, inplace=True)
@@ -293,61 +304,31 @@ def update_chart_gann_forreports(oeeelist2):
                        x_end="WORKEND",
                        y='WORKCENTER', color="CONFTYPE",
                        color_discrete_map=color_map)
-    def legend_generater():
-        legend_x = 0.90  # Outside the plot area
-        legend_y = 1  # Start from the top
 
-        # Annotation and rectangle settings
-        legend_text_y_offset = 0.05
-        legend_rect_height = 0.03
-        legend_rect_width = 0.05
 
-        annotations = []
-        shapes = []
+    figs.update_xaxes(type="date", tickangle=90, fixedrange=True, tickfont=dict(
+        color='grey',  # Set tick label color to white
+        size=13,  # Set font size (adjust as needed)
+        family='Arial Black')),
 
-        for i, (label, color) in enumerate(color_map.items()):
-            # Annotations for the legend text
-            annotations.append(dict(
-                xref="paper",
-                yref="paper",
-                x=legend_x + legend_rect_width + 0.02,  # Offset text to the right of the rectangle
-                y=legend_y - (i * legend_text_y_offset),
-                text=label,
-                showarrow=False,
-                xanchor="left",
-                yanchor="middle",
-                font=dict(size=10)
-            ))
-
-            # Rectangles for the legend colors
-            shapes.append(dict(
-                type="path",
-                xref="paper",
-                yref="paper",
-                x0=legend_x,
-                y0=legend_y - (i * legend_text_y_offset) - (legend_rect_height / 2),
-                x1=legend_x + legend_rect_width,
-                y1=legend_y - (i * legend_text_y_offset) + (legend_rect_height / 2),
-                fillcolor=color,
-                line=dict(color="black")
-            ))
-
-        return annotations,shapes
-
-    annotations,shapes = legend_generater()
-    #
-    # figs.update_traces(textfont=dict(family=['Arial Black']),
-    #                   marker_colors= px.colors.qualitative.Alphabet)
-    figs.update_xaxes(type="date", tickangle=90, fixedrange=True)
-    figs.update_yaxes(categoryorder="category ascending")
-    figs.update_layout(margin=dict(l=100, r=150, t=100, b=100),barmode='overlay', paper_bgcolor=layout_color, plot_bgcolor='rgba(0, 0, 0, 0)',
+    figs.update_yaxes(categoryorder="category ascending", tickfont=dict(
+        color='black',  # Set tick label color to white
+        size=13,  # Set font size (adjust as needed)
+        family='Arial Black'))
+    figs.update_layout(margin=dict(l=100, r=70, t=100, b=100), barmode='overlay', paper_bgcolor=layout_color,
+                       plot_bgcolor='rgba(0, 0, 0, 0)',
                        font_color=summary_color,
                        title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=800,
-                       annotations=annotations, shapes=shapes, showlegend=False
+                       showlegend=False,
+                       xaxis_title="",
+                       yaxis_title=""
                        )
 
-
-    return [figs]
+    return html.Div(
+        [dbc.Row([
+            dbc.Col(
+                dcc.Graph(figure=figs), width=10), dbc.Col(legend_generater(color_map,margin_left=20), width=2)])])
+    # dcc.Graph(figure=legend_generater(color_map)),
 
 
 def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
@@ -395,17 +376,17 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
     Input(component_id='work-datees', component_property='data'),
     Input(component_id='oeeelist6', component_property='data')
 )
-def update_spark_line( dates, oeeelist6):
+def update_spark_line(dates, oeeelist6):
     onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                                        , params=(dates["workstart"], dates["workend"]))
-    fig_prod_forreports = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses= 'CNC'))
+    fig_prod_forreports = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC'))
     fig_scrap__forreports = get_spark_line(
-        data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC', type = 'HURDA'))
+        data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC', type='HURDA'))
     fig_working_machine_forreports = get_spark_line(
         data=working_machinesf(working_machines=df_working_machines))
     fig_ppm_forreports = get_spark_line(
-        data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC', ppm = True))
+        data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC', ppm=True))
     return [fig_prod_forreports, fig_scrap__forreports, fig_working_machine_forreports, fig_ppm_forreports]
 
 
@@ -419,7 +400,7 @@ def update_spark_line( dates, oeeelist6):
      ],
     Input(component_id='oeeelist1', component_property='data')
 )
-def update_ind_fig( oeeelist1):
+def update_ind_fig(oeeelist1):
     df = pd.read_json(oeeelist1, orient='split')
     df = df[df["COSTCENTER"] == 'CNC']
     fig_up1_forreports = indicator_with_color(df_metrics=df)
@@ -433,49 +414,51 @@ def update_ind_fig( oeeelist1):
 
 
 @app.callback(
-    [Output(component_id='fig_scatscrap_forreports', component_property='figure')],
+    Output(component_id='fig_scatscrap_forreports', component_property='children'),
     Input(component_id='work-datees', component_property='data')
 )
 def create_scatterplot_for_scrapqty(dates):
-    graphwidth = 1100
-    now = datetime.now()
+
+    graphwidth = 900
     df_scrap = ag.run_query(query=r"EXEC VLFPRDSCRAPWITHPARAMS @WORKSTART=?, @WORKEND=?"
                             , params=(dates["workstart"], dates["workend"]))
-    now = datetime.now()
     df_scrap = df_scrap[df_scrap["COSTCENTER"] == 'CNC']
     cat_order_sumscrap = df_scrap.groupby("STEXT")["SCRAP"].sum().sort_values(ascending=False).index
     df_scrap["SCRAP"] = df_scrap["SCRAP"].astype("int")
+    category_order = df_scrap["STEXT"].unique()
+    color_map = {category: color for category, color in zip(category_order, px.colors.qualitative.Alphabet)}
+
     fig = px.histogram(data_frame=df_scrap.loc[df_scrap["COSTCENTER"] == 'CNC'],
                        x="WORKCENTER",
                        y="SCRAP",
                        color="STEXT",
+                       color_discrete_map=color_map,
                        hover_data=["MTEXTX"],
                        width=1500, height=500,
                        category_orders={"STEXT": cat_order_sumscrap})
     # fig.update_traces(textfont=dict(family=['Arial Black']))
-    fig.update_xaxes(type="category", tickangle=90, fixedrange=True)
-    # figs.update_yaxes(categoryorder="total descending")
-    fig.update_layout(xaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
-                      yaxis=dict(showgrid=True, gridcolor='rgba(0, 0, 0, 0.2)'),
-                      paper_bgcolor=layout_color, plot_bgcolor=layout_color, font_color=summary_color,
-                      title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=420,
-                      legend=dict(
-                          bgcolor='lightgray',  # Background color of the legend
-                          bordercolor='gray',  # Border color of the legend
-                          borderwidth=1  # Border width of the legend
+    fig.update_xaxes(type="category", tickangle=90, fixedrange=True, tickfont=dict(
+        color='grey',  # Set tick label color to white
+        size=13,  # Set font size (adjust as needed)
+        family='Arial Black')),    # figs.update_yaxes(categoryorder="total descending")
+    fig.update_layout(margin=dict(l=100, r=70, t=100, b=100), barmode='overlay', paper_bgcolor=layout_color,
+                       plot_bgcolor='rgba(0, 0, 0, 0)',
+                       font_color=summary_color,
+                       title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=400,
+                       showlegend=False,
+                       xaxis_title="",
+                       yaxis_title=""
                       )
-                      )
-    return [fig]
+    return html.Div([dbc.Row([dbc.Col(dcc.Graph(figure=fig), width=10), dbc.Col(legend_generater(color_map,12), width=2, style={'margin-left':0})])])
+
 
 @app.callback(
     [Output("generated_1graph1data_for_report", "children")],
     [Input("work-datees", "data"),
-        Input(component_id='oeeelist1', component_property='data'),
-        Input(component_id='oeeelist3', component_property='data'),
-        Input(component_id='oeeelist7', component_property='data')]
-
-)
-def update_ind_fig( params, oeeelist1w, oeeelist3w, oeeelist7w):
+     Input(component_id='oeeelist1', component_property='data'),
+     Input(component_id='oeeelist3', component_property='data'),
+     Input(component_id='oeeelist7', component_property='data')])
+def update_ind_fig(params, oeeelist1w, oeeelist3w, oeeelist7w):
     """
     Callback to update individual figures for each work center in the selected cost center.
 
@@ -495,12 +478,10 @@ def update_ind_fig( params, oeeelist1w, oeeelist3w, oeeelist7w):
     report_type
     option_slctd = 'CNC'
     oeeelist1w
-
-
-
     """
 
     params["interval"] = 'day'
+
     def return_layout(report_type='wc'):
         list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters('CNC', report_type,
                                                                                   params,
@@ -510,7 +491,8 @@ def update_ind_fig( params, oeeelist1w, oeeelist3w, oeeelist7w):
             return dbc.Col(
                 [dbc.Row(
                     dcc.Graph(figure=fig, style={'margin-left': 150, 'margin-bottom': 300})),
-                dbc.Row(dash_table.DataTable(
+                dbc.Row(
+                    dash_table.DataTable(
                         data=data,
                         columns=columns,
                         style_cell={
@@ -536,10 +518,10 @@ def update_ind_fig( params, oeeelist1w, oeeelist3w, oeeelist7w):
                             'color': 'black'
                         },
                         style_data_conditional=[]
-                    ), style= {'margin-top':70})
+                    ), style={'margin-top': 70})
                 ],
                 width=4,
-                style={ "justify-content": "center",
+                style={"justify-content": "center",
                        "margin-left": margin_left, "width": 600}
             )
 
@@ -548,24 +530,22 @@ def update_ind_fig( params, oeeelist1w, oeeelist3w, oeeelist7w):
                    in range(len(list_of_figs))]
 
         # This code groups the columns into rows of 3 columns each
-        rows = [dbc.Row(columns[i:i + 2]) for i in range(0, len(columns), 2)]
+        rows = [dbc.Row(columns[i:i + 2],style={"margin-bot":150}) for i in range(0, len(columns), 2)]
 
-        layout = html.Div(children=rows)
+        layout = html.Div(children=rows,style={"margin-bot":400})
 
         return layout
 
     return [html.Div(children=[html.H3("İş Merkezi Göstergeleri", style={
-            "height": 35,
-            "text-align": "center",
-            "background-color": "#2149b4",
-            "color": "white",
-            "margin-top": "50px"
-        }),return_layout("wc"), html.H3("Personel Göstergeleri", style={
-            "height": 35,
-            "text-align": "center",
-            "background-color": "#2149b4",
-            "color": "white",
-            "margin-top": "50px"
-        }),return_layout("pers")])]
-
-
+        "height": 35,
+        "text-align": "center",
+        "background-color": "#b6b8bf",
+        "color": "white",
+        "margin-top": "50px"
+    }), return_layout("wc"), html.H3("Personel Göstergeleri", style={
+        "height": 35,
+        "text-align": "center",
+        "background-color": "#b6b8bf",
+        "color": "white",
+        "margin-top": "50px"
+    }), return_layout("pers")])]

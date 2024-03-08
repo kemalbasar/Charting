@@ -1,3 +1,5 @@
+from dash import html
+
 from valfapp.configuration import layout_color
 from config import project_directory
 import pandas as pd
@@ -272,7 +274,6 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
     df_metrics = pd.concat([df_metrics, nontimes])
-    print(df_metrics)
     return details,df_metrics, df_metrics_forwc, df_metrics_forpers
 
 
@@ -442,6 +443,10 @@ def indicator_with_color(df_metrics=None, order=0,
     else:
         colorof2 = coloroftext
 
+    if colorof == 'black':
+        value = final_card[finalnum].values[0] * 100  # assuming this is your value for the gauge
+        colorof = "red" if 0 <= value <= 40 else ("yellow" if 40 < value <= 80 else "green")
+
     title_txt = final_card[title].values[0]
 
     fig = go.Figure()
@@ -452,7 +457,7 @@ def indicator_with_color(df_metrics=None, order=0,
             "text": f"<span style='font-size:1.5em;'>{title_txt}</span><br><br><br><br><br><br><span style='font-size:5em;color:gray'>"}
         ,
         gauge={
-            'axis': {'range': [None, 150]},
+            'axis': {'range': [None, 100]},
             'bar': {'color': colorof, "thickness": 1},
             'bgcolor': "white",
             'borderwidth': 2,
@@ -461,7 +466,6 @@ def indicator_with_color(df_metrics=None, order=0,
                 {'range': [0, 33], 'color': 'white'},
                 {'range': [33, 80], 'color': 'white'},
                 {'range': [81, 100], 'color': 'white'},
-                {'range': [100, 120], 'color': 'white'}
             ],
             'threshold': {
                 'line': {'color': "orange", 'width': 6},
@@ -673,3 +677,35 @@ def indicator_for_yislem(status='white', fullname='',
 
 
     return fig
+
+
+def legend_generater(color_map,fontsize =12,margin_left=0):
+
+    legend_items = []
+    for label, color in color_map.items():
+        # Each legend item is a Div containing a colored square and the label text
+        legend_item = html.Div([
+            # Colored square
+            html.Div(style={
+                'display': 'inline-block',
+                'width': '20px',
+                'height': '20px',
+                'backgroundColor': color,
+                'marginRight': '5px',
+                'border': '1px solid black'  # Optionally add a border
+            }),
+            # Label text
+            html.Span(label, style={'verticalAlign': 'middle','color': 'black','fontSize':fontsize}),
+        ], style={'marginBottom': '5px'})  # Add space between items
+
+        legend_items.append(legend_item)
+
+    # Wrap all legend items in a single Div
+    legend_div = html.Div(legend_items, style={
+        'padding': '10px',  # Add padding around the legend
+        'border': '1px solid black',  # Optionally add a border around the entire legend
+        'display': 'inline-block',  # Use inline-block for tighter wrapping around the content
+        "margin-left":margin_left
+    })
+
+    return legend_div
