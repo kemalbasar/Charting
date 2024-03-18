@@ -148,7 +148,9 @@ layout = [
                         "textAlign": "center",
                         "padding": "10px",
                         "color": "black",
-                        'max-width': 100
+                        'max-width': 100,
+                        'font-size': '12px'
+
                     },
                     style_table={
                         'borderCollapse': 'collapse',
@@ -175,7 +177,7 @@ layout = [
                         "padding": "10px",
                         "color": "black",
                         "background-color": "yellow",
-                        'max-width': 60
+                        'max-width': 60,
                     },
                     style_table={
                         'borderCollapse': 'collapse',
