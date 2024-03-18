@@ -9,7 +9,8 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page, cnc1tv, cnc2tv,camayikuretim,automatize_daily_reports
+    tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
+    adr_PRES1, adr_PRES2
 from flask import request,g
 
 ### Page container ###
@@ -158,8 +159,14 @@ def display_page(pathname,login_status_data):
             return camayikuretim.layout
         elif pathname == '/deneme_page':
             return deneme_page.layout
-        elif pathname == '/automatize_daily_reports':
-            return automatize_daily_reports.layout
+        elif pathname == '/adrcnc':
+            return adr_CNC.layout
+        elif pathname == '/adrcnctorna':
+            return adr_CNCTORNA.layout
+        elif pathname == '/adrpres"':
+            return adr_PRES1.layout
+        elif pathname == '/adrpres2':
+            return adr_PRES2.layout
         else:
             print(f"adsadasd{pathname}")
             return '404'
@@ -197,7 +204,10 @@ app.validation_layout = html.Div(
         uretimrapor.layout,
         kapasite.layout,
         deneme_page.layout,
-        automatize_daily_reports
+        adr_CNC.layout,
+        adr_CNCTORNA.layout,
+        adr_PRES1.layout,
+        adr_PRES2.layout
         # ittools.layout
     )
 )
