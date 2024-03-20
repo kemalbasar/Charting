@@ -39,7 +39,8 @@ pd.set_option('display.width', 500)
 pd.set_option('display.max_columns', None)
 
 
-def return_tops(graph1="fig_up1_forreportsttt", margin_top=0, graph2="fig_up2_forreportsttt", graph3="fig_up3_forreportsttt"):
+def return_tops(graph1="fig_up1_forreportsttt", margin_top=0, graph2="fig_up2_forreportsttt",
+                graph3="fig_up3_forreportsttt"):
     return html.Div(children=[dcc.Graph(id=graph1, figure={}, style={"margin-top": margin_top})])
 
 
@@ -82,14 +83,14 @@ layout = dbc.Container([
         "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
     }),
     dbc.Row(html.H5("Performans(( Kullanılabilirlik(( OEE", style={
-                    "background-color": "#2149b4",
-                    "text-align": "center",
-                    "color": "white",
-                })),
+        "background-color": "#2149b4",
+        "text-align": "center",
+        "color": "white",
+    })),
     dbc.Row(
         dbc.Col(html.Div(id='sunburst_forreportsttt'),
-                width=12, className="d-flex justify-content-center",)
-    ,className = "g-0"),
+                width=12, className="d-flex justify-content-center", )
+        , className="g-0"),
     dbc.Row([
         dbc.Col(children=[
             dbc.Row(html.H5("Üretim Özeti", style={
@@ -191,11 +192,10 @@ def return_summary_data(dates, oeeelist6):
     oeeelist6 = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                                        , params=(dates["workstart"], dates["workend"]))
-    data1 = ["Production Volume", get_daily_qty(df=oeeelist6)]
-    data2 = ["Working Machines",
-             working_machinesf(working_machines=df_working_machines)[-1]]
-    data3 = ["PPM", get_daily_qty(df=oeeelist6, ppm=True)]
-    data4 = ["Scrap", get_daily_qty(df=oeeelist6, type='HURDA')]
+    data1 = ["Production Volume", get_daily_qty(df=oeeelist6, costcenter='PRESHANE2')]
+    data2 = ["Working Machines", working_machinesf(working_machines=df_working_machines, costcenter='PRESHANE2')[-1]]
+    data3 = ["PPM", get_daily_qty(df=oeeelist6, costcenter='PRESHANE2', ppm=True)]
+    data4 = ["Scrap", get_daily_qty(df=oeeelist6, costcenter='PRESHANE2', type='HURDA')]
 
     return [html.Div(children=[html.Div(children=data1[1],
                                         style={"fontSize": 30, "color": summary_color,
@@ -242,7 +242,7 @@ def return_summary_data(dates, oeeelist6):
     Input(component_id='oeeelist0', component_property='data')
 )
 def update_graph_sunburst_forreportsttt(oeeelist0):
-    return return_piechart('PRESHANE2', oeeelist0,1)
+    return return_piechart('PRESHANE2', oeeelist0, 1)
 
 
 @app.callback(
@@ -259,7 +259,7 @@ def update_graph_bubble_forreportsttt(oeeelist2):
     figs = px.histogram(df, x="WORKCENTER", y="FAILURETIME",
                         color="STEXT",
                         hover_data=["WORKCENTER"],
-                        color_discrete_map=color_map,category_orders={"STEXT": category_order})
+                        color_discrete_map=color_map, category_orders={"STEXT": category_order})
     # figs.update_traces(textfont=dict(family=['Arial Black']))
     figs.update_xaxes(type="category", tickangle=90, fixedrange=True, categoryorder='total ascending'
                       , tickfont=dict(
@@ -267,7 +267,6 @@ def update_graph_bubble_forreportsttt(oeeelist2):
             size=13,  # Set font size (adjust as needed)
             family='Arial Black')
                       ),
-
 
     # figs.update_yaxes(categoryorder="total descending")
     figs.update_layout(margin=dict(l=100, r=70, t=100, b=100),
@@ -305,7 +304,6 @@ def update_chart_gann_forreportsttt(oeeelist2):
                        y='WORKCENTER', color="CONFTYPE",
                        color_discrete_map=color_map)
 
-
     figs.update_xaxes(type="date", tickangle=90, fixedrange=True, tickfont=dict(
         color='grey',  # Set tick label color to white
         size=13,  # Set font size (adjust as needed)
@@ -327,7 +325,7 @@ def update_chart_gann_forreportsttt(oeeelist2):
     return html.Div(
         [dbc.Row([
             dbc.Col(
-                dcc.Graph(figure=figs), width=10), dbc.Col(legend_generater(color_map,margin_left=20), width=2)])])
+                dcc.Graph(figure=figs), width=10), dbc.Col(legend_generater(color_map, margin_left=20), width=2)])])
     # dcc.Graph(figure=legend_generater(color_map)),
 
 
@@ -379,7 +377,8 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
 def update_spark_line(dates, oeeelist6):
     onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                       , params=(dates["workstart"], dates["workend"]))
+                                       , params=(
+            (date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat()))
     fig_prod_forreportsttt = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses='PRESHANE2'))
     fig_scrap__forreportsttt = get_spark_line(
         data=generate_for_sparkline(data=onemonth_prdqty, proses='PRESHANE2', type='HURDA'))
@@ -409,7 +408,8 @@ def update_ind_fig(oeeelist1):
     fig_down1_forreportsttt = indicator_with_color(df_metrics=df, order=-1, colorof='red')
     fig_down2_forreportsttt = indicator_with_color(df_metrics=df, order=-2, colorof='red')
     fig_down3_forreportsttt = indicator_with_color(df_metrics=df, order=-3, colorof='red')
-    return [fig_up1_forreportsttt, fig_up2_forreportsttt, fig_up3_forreportsttt, fig_down1_forreportsttt, fig_down2_forreportsttt,
+    return [fig_up1_forreportsttt, fig_up2_forreportsttt, fig_up3_forreportsttt, fig_down1_forreportsttt,
+            fig_down2_forreportsttt,
             fig_down3_forreportsttt]
 
 
@@ -418,7 +418,6 @@ def update_ind_fig(oeeelist1):
     Input(component_id='work-datees', component_property='data')
 )
 def create_scatterplot_for_scrapqty(dates):
-
     graphwidth = 900
     df_scrap = ag.run_query(query=r"EXEC VLFPRDSCRAPWITHPARAMS @WORKSTART=?, @WORKEND=?"
                             , params=(dates["workstart"], dates["workend"]))
@@ -440,16 +439,17 @@ def create_scatterplot_for_scrapqty(dates):
     fig.update_xaxes(type="category", tickangle=90, fixedrange=True, tickfont=dict(
         color='grey',  # Set tick label color to white
         size=13,  # Set font size (adjust as needed)
-        family='Arial Black')),    # figs.update_yaxes(categoryorder="total descending")
+        family='Arial Black')),  # figs.update_yaxes(categoryorder="total descending")
     fig.update_layout(margin=dict(l=100, r=70, t=100, b=100), barmode='overlay', paper_bgcolor=layout_color,
-                       plot_bgcolor='rgba(0, 0, 0, 0)',
-                       font_color=summary_color,
-                       title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=400,
-                       showlegend=False,
-                       xaxis_title="",
-                       yaxis_title=""
+                      plot_bgcolor='rgba(0, 0, 0, 0)',
+                      font_color=summary_color,
+                      title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=400,
+                      showlegend=False,
+                      xaxis_title="",
+                      yaxis_title=""
                       )
-    return html.Div([dbc.Row([dbc.Col(dcc.Graph(figure=fig), width=10), dbc.Col(legend_generater(color_map,12), width=2, style={'margin-left':0})])])
+    return html.Div([dbc.Row([dbc.Col(dcc.Graph(figure=fig), width=10),
+                              dbc.Col(legend_generater(color_map, 12), width=2, style={'margin-left': 0})])])
 
 
 @app.callback(
@@ -491,34 +491,34 @@ def update_ind_fig(params, oeeelist1w, oeeelist3w, oeeelist7w):
             return dbc.Col(
                 [dbc.Row(
                     dcc.Graph(figure=fig, style={'margin-left': 150, 'margin-bottom': 300})),
-                dbc.Row(
-                    dash_table.DataTable(
-                        data=data,
-                        columns=columns,
-                        style_cell={
-                            'color': 'black',
-                            'backgroundColor': 'rgba(255, 255, 255, 0.8)',
-                            'minWidth': '20px', 'width': '80px', 'maxWidth': '60px',
-                            'textAlign': 'center',
-                            'border': '1px solid black',
-                            'minWidth': '80px', 'maxWidth': '300px',
-                            'fontSize': '12px'
-                        },
-                        style_table={
-                            'height': '150px',
-                            'width': '800px',
-                            'overflowY': 'auto',
-                            'borderCollapse': 'collapse',
-                            'border': '1px solid black'
-                        },
-                        style_header={
-                            'fontWeight': 'bold',
-                            'backgroundColor': 'rgba(0, 0, 0, 0.1)',
-                            'borderBottom': '1px solid black',
-                            'color': 'black'
-                        },
-                        style_data_conditional=[]
-                    ), style={'margin-top': 70})
+                    dbc.Row(
+                        dash_table.DataTable(
+                            data=data,
+                            columns=columns,
+                            style_cell={
+                                'color': 'black',
+                                'backgroundColor': 'rgba(255, 255, 255, 0.8)',
+                                'minWidth': '20px', 'width': '80px', 'maxWidth': '60px',
+                                'textAlign': 'center',
+                                'border': '1px solid black',
+                                'minWidth': '80px', 'maxWidth': '300px',
+                                'fontSize': '12px'
+                            },
+                            style_table={
+                                'height': '150px',
+                                'width': '800px',
+                                'overflowY': 'auto',
+                                'borderCollapse': 'collapse',
+                                'border': '1px solid black'
+                            },
+                            style_header={
+                                'fontWeight': 'bold',
+                                'backgroundColor': 'rgba(0, 0, 0, 0.1)',
+                                'borderBottom': '1px solid black',
+                                'color': 'black'
+                            },
+                            style_data_conditional=[]
+                        ), style={'margin-top': 70})
                 ],
                 width=4,
                 style={"justify-content": "center",
@@ -530,9 +530,9 @@ def update_ind_fig(params, oeeelist1w, oeeelist3w, oeeelist7w):
                    in range(len(list_of_figs))]
 
         # This code groups the columns into rows of 3 columns each
-        rows = [dbc.Row(columns[i:i + 2],style={"margin-bot":150}) for i in range(0, len(columns), 2)]
+        rows = [dbc.Row(columns[i:i + 2], style={"margin-bot": 150}) for i in range(0, len(columns), 2)]
 
-        layout = html.Div(children=rows,style={"margin-bot":400})
+        layout = html.Div(children=rows, style={"margin-bot": 400})
 
         return layout
 

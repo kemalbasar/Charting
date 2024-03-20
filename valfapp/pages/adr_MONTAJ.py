@@ -39,11 +39,11 @@ pd.set_option('display.width', 500)
 pd.set_option('display.max_columns', None)
 
 
-def return_tops(graph1="fig_up1_forreportst", margin_top=0, graph2="fig_up2_forreportst", graph3="fig_up3_forreportst"):
+def return_tops(graph1="fig_up1_forreportstttm", margin_top=0, graph2="fig_up2_forreportstttm", graph3="fig_up3_forreportstttm"):
     return html.Div(children=[dcc.Graph(id=graph1, figure={}, style={"margin-top": margin_top})])
 
 
-def return_sparks(graph1="fig_prod_forreportst", graph2="fig_scrap__forreportst", margin_left=0):
+def return_sparks(graph1="fig_prod_forreportstttm", graph2="fig_scrap__forreportstttm", margin_left=0):
     return html.Div(children=[dcc.Graph(id=graph1, figure={},
                                         style={'width': '4vh', 'height': '2vh', "margin-top": 50,
                                                "margin-left": margin_left}),
@@ -70,8 +70,8 @@ layout = dbc.Container([
     dcc.Store(id='work-datees', data={"workstart": (date.today() - timedelta(days=kb)).isoformat(),
                                       'workend': date.today().isoformat()}),
 
-    html.Div(id='refresh3_forreportst', style={'display': 'none'}),
-    html.H2("CNCTORNA Bölüm Raporu", style={
+    html.Div(id='refresh3_forreportstttm', style={'display': 'none'}),
+    html.H2("MONTAJ Bölüm Raporu", style={
         "background-color": "#2149b4",
         "text-align": "center",
         "color": "white",
@@ -87,7 +87,7 @@ layout = dbc.Container([
                     "color": "white",
                 })),
     dbc.Row(
-        dbc.Col(html.Div(id='sunburst_forreportst'),
+        dbc.Col(html.Div(id='sunburst_forreportstttm'),
                 width=12, className="d-flex justify-content-center",)
     ,className = "g-0"),
     dbc.Row([
@@ -99,12 +99,12 @@ layout = dbc.Container([
             })),
             dbc.Row([
                 dbc.Col([
-                    dbc.Col(id="my-output_forreportst1", width={"size": 2}, style={"margin-left": 0}),
-                    dbc.Col([return_sparks(graph1="fig_prod_forreportst", graph2="fig_working_machine_forreportst",
+                    dbc.Col(id="my-output_forreportstttm1", width={"size": 2}, style={"margin-left": 0}),
+                    dbc.Col([return_sparks(graph1="fig_prod_forreportstttm", graph2="fig_working_machine_forreportstttm",
                                            margin_left=0)],
                             width={"size": 2}),
-                    dbc.Col(id="my-output_forreportst2", width={"size": 2}, style={"margin-left": 0}),
-                    dbc.Col([return_sparks(graph1="fig_ppm_forreportst", graph2="fig_scrap__forreportst",
+                    dbc.Col(id="my-output_forreportstttm2", width={"size": 2}, style={"margin-left": 0}),
+                    dbc.Col([return_sparks(graph1="fig_ppm_forreportstttm", graph2="fig_scrap__forreportstttm",
                                            margin_left=0)],
                             width={"size": 2})], className="d-flex justify-content-center", width=12)
             ], className="g-0")
@@ -120,7 +120,7 @@ layout = dbc.Container([
             })),
             dbc.Row(
                 dbc.Col([
-                    html.Div(id='gann_forreportst')],
+                    html.Div(id='gann_forreportstttm')],
                     className="d-flex justify-content-center", width=12)
                 , className="g-0")],
             style={}, width={"size": 12}
@@ -135,7 +135,7 @@ layout = dbc.Container([
             })),
             dbc.Row(
                 dbc.Col([
-                    html.Div(id='bubble_forreportst')],
+                    html.Div(id='bubble_forreportstttm')],
                     className="d-flex justify-content-center", width=12)
                 , className="g-0")],
             style={}, width={"size": 12}
@@ -152,13 +152,13 @@ layout = dbc.Container([
             }),
             dbc.Row(
                 dbc.Col([
-                    html.Div(id='fig_scatscrap_forreportst')],
+                    html.Div(id='fig_scatscrap_forreportstttm')],
                     className="d-flex justify-content-center", width=12)
                 , className="g-0")],
             style={}, width={"size": 12}
         ), ])
     ,
-    html.Div(id="generated_1graph1data_for_reportt")]
+    html.Div(id="generated_1graph1data_for_reportttm")]
 
     , style={"justify-content": "center", "align-items": "center"}, fluid=True)
 
@@ -168,10 +168,10 @@ layout = dbc.Container([
 
 
 @app.callback(
-    Output('location3_forreportst', 'href'),
-    Input('refresh3_forreportst', 'children')
+    Output('location3_forreportstttm', 'href'),
+    Input('refresh3_forreportstttm', 'children')
 )
-def page_refresh3_forreportst(n3):
+def page_refresh3_forreportstttm(n3):
     if n3:
         return "/prodeff"
     return no_update
@@ -182,8 +182,8 @@ def page_refresh3_forreportst(n3):
 ################################################################################################
 
 @app.callback(
-    [Output(component_id='my-output_forreportst1', component_property='children'),
-     Output(component_id='my-output_forreportst2', component_property='children')],
+    [Output(component_id='my-output_forreportstttm1', component_property='children'),
+     Output(component_id='my-output_forreportstttm2', component_property='children')],
     [Input(component_id='work-datees', component_property='data'),
      Input(component_id='oeeelist6', component_property='data')]
 )
@@ -191,10 +191,11 @@ def return_summary_data(dates, oeeelist6):
     oeeelist6 = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                                        , params=(dates["workstart"], dates["workend"]))
-    data1 = ["Production Volume", get_daily_qty(df=oeeelist6,costcenter='CNCTORNA')]
-    data2 = ["Working Machines",working_machinesf(working_machines=df_working_machines,costcenter='CNCTORNA')[-1]]
-    data3 = ["PPM", get_daily_qty(df=oeeelist6,costcenter='CNCTORNA', ppm=True)]
-    data4 = ["Scrap", get_daily_qty(df=oeeelist6, costcenter='CNCTORNA',type='HURDA')]
+    data1 = ["Production Volume", get_daily_qty(df=oeeelist6,costcenter='MONTAJ')]
+    data2 = ["Working Machines",
+             working_machinesf(working_machines=df_working_machines,costcenter='MONTAJ')[-1]]
+    data3 = ["PPM", get_daily_qty(df=oeeelist6,costcenter='MONTAJ', ppm=True)]
+    data4 = ["Scrap", get_daily_qty(df=oeeelist6, type='HURDA',costcenter='MONTAJ')]
 
     return [html.Div(children=[html.Div(children=data1[1],
                                         style={"fontSize": 30, "color": summary_color,
@@ -237,20 +238,20 @@ def return_summary_data(dates, oeeelist6):
 
 # Connect the Plotly graphs with Dash Components
 @app.callback(
-    Output(component_id='sunburst_forreportst', component_property='children'),
+    Output(component_id='sunburst_forreportstttm', component_property='children'),
     Input(component_id='oeeelist0', component_property='data')
 )
-def update_graph_sunburst_forreportst(oeeelist0):
-    return return_piechart('CNCTORNA', oeeelist0,1)
+def update_graph_sunburst_forreportstttm(oeeelist0):
+    return return_piechart('MONTAJ', oeeelist0,1)
 
 
 @app.callback(
-    Output(component_id='bubble_forreportst', component_property='children'),
+    Output(component_id='bubble_forreportstttm', component_property='children'),
     Input(component_id='oeeelist2', component_property='data'))
-def update_graph_bubble_forreportst(oeeelist2):
+def update_graph_bubble_forreportstttm(oeeelist2):
     graphwidth = 950
     oeeelist2 = pd.read_json(oeeelist2, orient='split')
-    df, category_order = scatter_plot(df=oeeelist2.loc[oeeelist2["COSTCENTER"] == 'CNCTORNA'])
+    df, category_order = scatter_plot(df=oeeelist2.loc[oeeelist2["COSTCENTER"] == 'MONTAJ'])
 
     # Generate a dynamic color map by assigning colors from Alphabet to each unique 'STEXT' value
     color_map = {category: color for category, color in zip(category_order, px.colors.qualitative.Alphabet)}
@@ -287,16 +288,16 @@ def update_graph_bubble_forreportst(oeeelist2):
 
 
 @app.callback(
-    Output(component_id='gann_forreportst', component_property='children'),
+    Output(component_id='gann_forreportstttm', component_property='children'),
     Input(component_id='oeeelist2', component_property='data')
 )
-def update_chart_gann_forreportst(oeeelist2):
+def update_chart_gann_forreportstttm(oeeelist2):
     graphwidth = 900
     color_map = {"Uretim": "forestgreen", "Plansiz Durus": "red"
         , "Ariza Durusu": "Brown", "Planli Durus": "Coral"
         , "Kurulum": "Aqua"}
     oeeelist2 = pd.read_json(oeeelist2, orient='split')
-    df = oeeelist2.loc[oeeelist2["COSTCENTER"] == 'CNCTORNA']
+    df = oeeelist2.loc[oeeelist2["COSTCENTER"] == 'MONTAJ']
     df.sort_values(by="CONFTYPE", ascending=False, inplace=True)
     figs = px.timeline(data_frame=df[["WORKSTART", "WORKEND", "WORKCENTER", "CONFTYPE", "STEXT", "QTY"]],
                        x_start="WORKSTART",
@@ -368,10 +369,10 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
 
 
 @app.callback(
-    [Output(component_id='fig_prod_forreportst', component_property='figure'),
-     Output(component_id='fig_scrap__forreportst', component_property='figure'),
-     Output(component_id='fig_working_machine_forreportst', component_property='figure'),
-     Output(component_id='fig_ppm_forreportst', component_property='figure')],
+    [Output(component_id='fig_prod_forreportstttm', component_property='figure'),
+     Output(component_id='fig_scrap__forreportstttm', component_property='figure'),
+     Output(component_id='fig_working_machine_forreportstttm', component_property='figure'),
+     Output(component_id='fig_ppm_forreportstttm', component_property='figure')],
     Input(component_id='work-datees', component_property='data'),
     Input(component_id='oeeelist6', component_property='data')
 )
@@ -379,41 +380,41 @@ def update_spark_line(dates, oeeelist6):
     onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                                        , params=((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat()))
-    fig_prod_forreportst = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses='CNCTORNA'))
-    fig_scrap__forreportst = get_spark_line(
-        data=generate_for_sparkline(data=onemonth_prdqty, proses='CNCTORNA', type='HURDA'))
-    fig_working_machine_forreportst = get_spark_line(
+    fig_prod_forreportstttm = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses='MONTAJ'))
+    fig_scrap__forreportstttm = get_spark_line(
+        data=generate_for_sparkline(data=onemonth_prdqty, proses='MONTAJ', type='HURDA'))
+    fig_working_machine_forreportstttm = get_spark_line(
         data=working_machinesf(working_machines=df_working_machines))
-    fig_ppm_forreportst = get_spark_line(
-        data=generate_for_sparkline(data=onemonth_prdqty, proses='CNCTORNA', ppm=True))
-    return [fig_prod_forreportst, fig_scrap__forreportst, fig_working_machine_forreportst, fig_ppm_forreportst]
+    fig_ppm_forreportstttm = get_spark_line(
+        data=generate_for_sparkline(data=onemonth_prdqty, proses='MONTAJ', ppm=True))
+    return [fig_prod_forreportstttm, fig_scrap__forreportstttm, fig_working_machine_forreportstttm, fig_ppm_forreportstttm]
 
 
 @app.callback(
-    [Output(component_id='fig_up1_forreportst', component_property='figure'),
-     Output(component_id='fig_up2_forreportst', component_property='figure'),
-     Output(component_id='fig_up3_forreportst', component_property='figure'),
-     Output(component_id='fig_down1_forreportst', component_property='figure'),
-     Output(component_id='fig_down2_forreportst', component_property='figure'),
-     Output(component_id='fig_down3_forreportst', component_property='figure')
+    [Output(component_id='fig_up1_forreportstttm', component_property='figure'),
+     Output(component_id='fig_up2_forreportstttm', component_property='figure'),
+     Output(component_id='fig_up3_forreportstttm', component_property='figure'),
+     Output(component_id='fig_down1_forreportstttm', component_property='figure'),
+     Output(component_id='fig_down2_forreportstttm', component_property='figure'),
+     Output(component_id='fig_down3_forreportstttm', component_property='figure')
      ],
     Input(component_id='oeeelist1', component_property='data')
 )
 def update_ind_fig(oeeelist1):
     df = pd.read_json(oeeelist1, orient='split')
-    df = df[df["COSTCENTER"] == 'CNCTORNA']
-    fig_up1_forreportst = indicator_with_color(df_metrics=df)
-    fig_up2_forreportst = indicator_with_color(df_metrics=df, order=1)
-    fig_up3_forreportst = indicator_with_color(df_metrics=df, order=2)
-    fig_down1_forreportst = indicator_with_color(df_metrics=df, order=-1, colorof='red')
-    fig_down2_forreportst = indicator_with_color(df_metrics=df, order=-2, colorof='red')
-    fig_down3_forreportst = indicator_with_color(df_metrics=df, order=-3, colorof='red')
-    return [fig_up1_forreportst, fig_up2_forreportst, fig_up3_forreportst, fig_down1_forreportst, fig_down2_forreportst,
-            fig_down3_forreportst]
+    df = df[df["COSTCENTER"] == 'MONTAJ']
+    fig_up1_forreportstttm = indicator_with_color(df_metrics=df)
+    fig_up2_forreportstttm = indicator_with_color(df_metrics=df, order=1)
+    fig_up3_forreportstttm = indicator_with_color(df_metrics=df, order=2)
+    fig_down1_forreportstttm = indicator_with_color(df_metrics=df, order=-1, colorof='red')
+    fig_down2_forreportstttm = indicator_with_color(df_metrics=df, order=-2, colorof='red')
+    fig_down3_forreportstttm = indicator_with_color(df_metrics=df, order=-3, colorof='red')
+    return [fig_up1_forreportstttm, fig_up2_forreportstttm, fig_up3_forreportstttm, fig_down1_forreportstttm, fig_down2_forreportstttm,
+            fig_down3_forreportstttm]
 
 
 @app.callback(
-    Output(component_id='fig_scatscrap_forreportst', component_property='children'),
+    Output(component_id='fig_scatscrap_forreportstttm', component_property='children'),
     Input(component_id='work-datees', component_property='data')
 )
 def create_scatterplot_for_scrapqty(dates):
@@ -421,13 +422,13 @@ def create_scatterplot_for_scrapqty(dates):
     graphwidth = 900
     df_scrap = ag.run_query(query=r"EXEC VLFPRDSCRAPWITHPARAMS @WORKSTART=?, @WORKEND=?"
                             , params=(dates["workstart"], dates["workend"]))
-    df_scrap = df_scrap[df_scrap["COSTCENTER"] == 'CNCTORNA']
+    df_scrap = df_scrap[df_scrap["COSTCENTER"] == 'MONTAJ']
     cat_order_sumscrap = df_scrap.groupby("STEXT")["SCRAP"].sum().sort_values(ascending=False).index
     df_scrap["SCRAP"] = df_scrap["SCRAP"].astype("int")
     category_order = df_scrap["STEXT"].unique()
     color_map = {category: color for category, color in zip(category_order, px.colors.qualitative.Alphabet)}
 
-    fig = px.histogram(data_frame=df_scrap.loc[df_scrap["COSTCENTER"] == 'CNCTORNA'],
+    fig = px.histogram(data_frame=df_scrap.loc[df_scrap["COSTCENTER"] == 'MONTAJ'],
                        x="WORKCENTER",
                        y="SCRAP",
                        color="STEXT",
@@ -452,7 +453,7 @@ def create_scatterplot_for_scrapqty(dates):
 
 
 @app.callback(
-    [Output("generated_1graph1data_for_reportt", "children")],
+    [Output("generated_1graph1data_for_reportttm", "children")],
     [Input("work-datees", "data"),
      Input(component_id='oeeelist1', component_property='data'),
      Input(component_id='oeeelist3', component_property='data'),
@@ -463,7 +464,7 @@ def update_ind_fig(params, oeeelist1w, oeeelist3w, oeeelist7w):
 
     Args:
         list_of_wcs (list): The list of work centers to display.
-        option_slctd = 'CNCTORNA' (str): The selected cost center.
+        option_slctd = 'MONTAJ' (str): The selected cost center.
         report_day (str): The date for which to display the report. Default is "2022-07-26".
 
     Returns:
@@ -475,14 +476,14 @@ def update_ind_fig(params, oeeelist1w, oeeelist3w, oeeelist7w):
     oeeelist3w
     params
     report_type
-    option_slctd = 'CNCTORNA'
+    option_slctd = 'MONTAJ'
     oeeelist1w
     """
 
     params["interval"] = 'day'
 
     def return_layout(report_type='wc'):
-        list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters('CNCTORNA', report_type,
+        list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters('MONTAJ', report_type,
                                                                                   params,
                                                                                   oeeelist1w, oeeelist3w, oeeelist7w)
 

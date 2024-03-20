@@ -191,11 +191,11 @@ def return_summary_data(dates, oeeelist6):
     oeeelist6 = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                                        , params=(dates["workstart"], dates["workend"]))
-    data1 = ["Production Volume", get_daily_qty(df=oeeelist6)]
+    data1 = ["Production Volume", get_daily_qty(df=oeeelist6,costcenter='PRESHANE1')]
     data2 = ["Working Machines",
-             working_machinesf(working_machines=df_working_machines)[-1]]
-    data3 = ["PPM", get_daily_qty(df=oeeelist6, ppm=True)]
-    data4 = ["Scrap", get_daily_qty(df=oeeelist6, type='HURDA')]
+             working_machinesf(working_machines=df_working_machines,costcenter='PRESHANE1')[-1]]
+    data3 = ["PPM", get_daily_qty(df=oeeelist6,costcenter='PRESHANE1', ppm=True)]
+    data4 = ["Scrap", get_daily_qty(df=oeeelist6,costcenter='PRESHANE1', type='HURDA')]
 
     return [html.Div(children=[html.Div(children=data1[1],
                                         style={"fontSize": 30, "color": summary_color,
@@ -379,7 +379,7 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
 def update_spark_line(dates, oeeelist6):
     onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                       , params=(dates["workstart"], dates["workend"]))
+                                       , params=((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat()))
     fig_prod_forreportstt = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses='CNCTORNA'))
     fig_scrap__forreportstt = get_spark_line(
         data=generate_for_sparkline(data=onemonth_prdqty, proses='CNCTORNA', type='HURDA'))

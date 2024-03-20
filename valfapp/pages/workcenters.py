@@ -94,7 +94,7 @@ layout = dbc.Container([
                        7]),
          dcc.Store(id='store-costcenter1', storage_type='memory'),
          dcc.Store(id='store-report-type', data='wc', storage_type='memory'),
-         dbc.Button("Day", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
+         dbc.Button("Günlük", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
          dcc.Dropdown(id="costcenter1",
                       className='dropdown-style',
                       options=[{"label": cc, "value": cc} for cc in costcenters],
@@ -105,9 +105,9 @@ layout = dbc.Container([
          dcc.DatePickerSingle(id='date-picker1', date=(date.today() - timedelta(days=kb)), className="dash-date-picker",
                                style={"color": "white"}),
 
-         dbc.Button("Week", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
-         dbc.Button("Month", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
-         dbc.Button("Year", id="btn-year1", n_clicks=0, color="primary", className='year-button'),
+         dbc.Button("Haftalık", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
+         dbc.Button("Aylık", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
+         dbc.Button("Yıllık", id="btn-year1", n_clicks=0, color="primary", className='year-button'),
 
          html.Button(html.Img(src='/assets/wc.jpg', style={'width': '100%', 'height': '100%'}),
                      id='wc-button', className='wc-button'),
@@ -170,13 +170,13 @@ layout = dbc.Container([
          # Include this line in your app layout
          dcc.Location(id='location', refresh=True),
          dcc.Location(id='location2', refresh=True),
+        html.Button("Verimlilik Verileri", id="download-button", n_clicks=0, className="dash-empty-button",
+                    style={"position": "absolute", "right": "0px", "top": "0", "width": "150px", "height": "35px"}),
+        html.Button("Duruş Detayları İndir", id="download-button2", n_clicks=0, className="dash-empty-button",
+                    style={"position": "absolute", "right": "0px", "top": "45px", "width": "150px", "height": "35px"}),
+        html.Button("Bozuk Verileri İndir", id="download-button3", n_clicks=0, className="dash-empty-button",
+                    style={"position": "absolute", "right": "0px", "top": "90px", "width": "150px", "height": "35px"}),
 
-         html.Button("Oee Data", id="download-button", n_clicks=0, className="dash-empty-button",
-                     style={"position": "absolute", "right": "0", "top": "-1", "width": "100px", "height": "35px"}),
-         html.Button("Details Data", id="download-button2", n_clicks=0, className="dash-empty-button",
-                     style={"position": "absolute", "right": 100, "top": "-1", "width": "100px", "height": "35px"}),
-         html.Button("Bad Data", id="download-button3", n_clicks=0, className="dash-empty-button",
-                     style={"position": "absolute", "right": 100, "top": 98, "width": "100px", "height": "35px"}),
          dcc.Download(id="download-data"),
          dcc.Download(id="download-data2"),
          dcc.Download(id="download-data3")], ),
@@ -438,7 +438,7 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 def generate_excel_oee(n_clicks, costcenter, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist3w = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
-    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME',
+    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL','MATCODE', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME',
                'TOTALTIME',
                'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OM_TIME', 'TOTAL_SHIFT_TIME',
                'NANTIME', 'PLANNEDTIME']

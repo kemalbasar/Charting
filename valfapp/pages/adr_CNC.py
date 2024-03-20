@@ -187,15 +187,16 @@ def page_refresh3_forreports(n3):
     [Input(component_id='work-datees', component_property='data'),
      Input(component_id='oeeelist6', component_property='data')]
 )
+
+
 def return_summary_data(dates, oeeelist6):
     oeeelist6 = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                       , params=(dates["workstart"], dates["workend"]))
-    data1 = ["Production Volume", get_daily_qty(df=oeeelist6)]
-    data2 = ["Working Machines",
-             working_machinesf(working_machines=df_working_machines)[-1]]
-    data3 = ["PPM", get_daily_qty(df=oeeelist6, ppm=True)]
-    data4 = ["Scrap", get_daily_qty(df=oeeelist6, type='HURDA')]
+                                       , params=((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat()))
+    data1 = ["Production Volume", get_daily_qty(df=oeeelist6,costcenter='CNC')]
+    data2 = ["Working Machines",working_machinesf(working_machines=df_working_machines,costcenter='CNC')[-1]]
+    data3 = ["PPM", get_daily_qty(df=oeeelist6,costcenter='CNC', ppm=True)]
+    data4 = ["Scrap", get_daily_qty(df=oeeelist6,costcenter='CNC', type='HURDA')]
 
     return [html.Div(children=[html.Div(children=data1[1],
                                         style={"fontSize": 30, "color": summary_color,
@@ -379,7 +380,7 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
 def update_spark_line(dates, oeeelist6):
     onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                       , params=(dates["workstart"], dates["workend"]))
+                                       , params=((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat()))
     fig_prod_forreports = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC'))
     fig_scrap__forreports = get_spark_line(
         data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC', type='HURDA'))
@@ -536,16 +537,12 @@ def update_ind_fig(params, oeeelist1w, oeeelist3w, oeeelist7w):
 
         return layout
 
-    return [html.Div(children=[html.H3("İş Merkezi Göstergeleri", style={
-        "height": 35,
-        "text-align": "center",
-        "background-color": "#b6b8bf",
-        "color": "white",
-        "margin-top": "50px"
-    }), return_layout("wc"), html.H3("Personel Göstergeleri", style={
-        "height": 35,
-        "text-align": "center",
-        "background-color": "#b6b8bf",
-        "color": "white",
-        "margin-top": "50px"
-    }), return_layout("pers")])]
+    return [html.Div(children=[html.H5("İş Merkezi Göstergeleri",style={
+                "background-color": "#2149b4",
+                "text-align": "center",
+                "color": "white",
+            }), return_layout("wc"),html.Br(), html.H5("Personel Göstergeleri", style={
+                "background-color": "#2149b4",
+                "text-align": "center",
+                "color": "white",
+            }), return_layout("pers")])]
