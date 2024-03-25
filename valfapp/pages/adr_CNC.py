@@ -55,20 +55,20 @@ def return_sparks(graph1="fig_prod_forreports", graph2="fig_scrap__forreports", 
 # Main Layout
 layout = dbc.Container([
     dcc.Store(id='oeeelist0',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[0]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[0]),
     dcc.Store(id='oeeelist1',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[1]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[1]),
     dcc.Store(id='oeeelist2',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[2]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[2]),
     dcc.Store(id='oeeelist3',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[3]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[3]),
     dcc.Store(id='oeeelist6',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[6]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[6]),
     dcc.Store(id='oeeelist7',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[7]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[7]),
 
     dcc.Store(id='work-datees', data={"workstart": (date.today() - timedelta(days=kb)).isoformat(),
-                                      'workend': date.today().isoformat()}),
+                                      'workend': (date.today() - timedelta(days=kb-1)).isoformat()}),
 
     html.Div(id='refresh3_forreports', style={'display': 'none'}),
     html.H2("CNC Bölüm Raporu", style={
@@ -192,7 +192,7 @@ def page_refresh3_forreports(n3):
 def return_summary_data(dates, oeeelist6):
     oeeelist6 = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                       , params=((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat()))
+                                       , params=((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat()))
     data1 = ["Production Volume", get_daily_qty(df=oeeelist6,costcenter='CNC')]
     data2 = ["Working Machines",working_machinesf(working_machines=df_working_machines,costcenter='CNC')[-1]]
     data3 = ["PPM", get_daily_qty(df=oeeelist6,costcenter='CNC', ppm=True)]
@@ -380,7 +380,7 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
 def update_spark_line(dates, oeeelist6):
     onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                       , params=((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat()))
+                                       , params=((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat()))
     fig_prod_forreports = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC'))
     fig_scrap__forreports = get_spark_line(
         data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC', type='HURDA'))
