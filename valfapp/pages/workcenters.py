@@ -16,15 +16,9 @@ MAX_OUTPUT = 25
 costcenters = ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]
 global work_dates_bk
 work_dates_bk = {"workstart": (date.today() - timedelta(days=1)).isoformat(),
-                 "workend": date.today().isoformat(),
+                 "workend": (date.today() - timedelta(days=kb-1)).isoformat(),
                  "interval": "day"}
 
-
-# start_day = (date.today() - timedelta(days=1)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
-#     else (date.today() - timedelta(days=2)).isoformat()
-# end_day = (date.today() - timedelta(days=0)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
-#     else (date.today() - timedelta(days=1)).isoformat()
-# oeelist = oee((start_day, end_day, "day"))
 
 
 def generate_output_list(max_output):
@@ -75,22 +69,22 @@ layout = dbc.Container([
         [dcc.Store(id="list_of_wcs"),
          dcc.Store(id="max_output"),
          dcc.Store(id='oeelistw1',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        1]),
          dcc.Store(id='oeelistw2',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        2]),
          dcc.Store(id='oeelistw3',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        3]),
          dcc.Store(id='oeelistw4',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        4]),
          dcc.Store(id='oeelistw5',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        5]),
          dcc.Store(id='oeelistw7',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        7]),
          dcc.Store(id='store-costcenter1', storage_type='memory'),
          dcc.Store(id='store-report-type', data='wc', storage_type='memory'),
@@ -117,7 +111,7 @@ layout = dbc.Container([
 
          dcc.Store(id="work-dates1", storage_type="memory",
                    data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
-                         "workend": date.today().isoformat(),
+                         "workend": (date.today() - timedelta(days=kb-1)).isoformat(),
                          "interval": "day"}),
          html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="dash-empty-button",
                      style={"position": "absolute", "right": 175, "top": "3", "width": "150px", "height": "35px"}),
@@ -496,3 +490,5 @@ def generate_excel_baddatas(n_clicks, costcenter, oeelistw4):
     dff2 = oeelistw4[oeelistw4["COSTCENTER"] == costcenter]
 
     return dcc.send_data_frame(dff2.to_excel, "BADdata.xlsx", index=False)
+
+

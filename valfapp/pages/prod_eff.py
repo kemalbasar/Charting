@@ -54,13 +54,13 @@ def return_sparks(graph1="fig_prod", graph2="fig_scrap", margin_left=0):
 # Main Layout
 layout = dbc.Container([
     dcc.Store(id='oeelist0',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[0]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[0]),
     dcc.Store(id='oeelist1',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[1]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[1]),
     dcc.Store(id='oeelist2',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[2]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[2]),
     dcc.Store(id='oeelist6',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[6]),
+              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[6]),
     dcc.Store(id='device-info-store'),
         nav_bar,
 
@@ -84,8 +84,8 @@ layout = dbc.Container([
                 dcc.Store(
                     id="work-dates",
                     storage_type="memory",
-                    data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
-                          "workend": date.today().isoformat(),
+                    data={"workstart": (date.today() - timedelta(days=kb)).isoformat(),
+                          "workend": (date.today() - timedelta(days=kb-1)).isoformat(),
                           "interval": "day"},
                 ),
                 dcc.Location(id='location3', refresh=True),
