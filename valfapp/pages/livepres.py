@@ -10,7 +10,7 @@ from run.agent import ag
 from valfapp.app import app
 from config import project_directory
 
-costcenters = ["PRESHANE", "TAMBUR"]
+costcenters = ["PRESHANE","TAMBUR"]
 
 with open(project_directory + r"\Charting\queries\mesworkcenter_data.txt", 'r') as file:
     query = file.read()
@@ -59,19 +59,20 @@ topic5 = topcis_in["out/OpMode"]
 topic6 = topcis_in["out/GreenLight"]
 
 
-wclist = ["P-14", "P-26", "P-67", "P-68"]
+wclist = ["P-14", "P-24", "P-26", "P-73", "P-76","P-10","P-62", "P-63", "P-64", "P-65","P-66","P-67"]
 
 a = ()
 for w in wclist:
     a = a + (w,)
 a = "('" + "','".join(map(str, a)) + "')"
-print(f"{query} {a}")
 
-global dfff
 dfff = ag.run_query(query + ' ' + a)
+
+
 # dfff = dfff.to_json(date_format='iso', orient='split')
-dfff.loc[len(dfff.index)] = [0, 'P-77', 'TEST', 2, 300, 10000, 100000]
-dfff.loc[len(dfff.index)] = [0, 'P-75', 'TEST', 2, 300, 10000, 100000]
+
+
+# dfff.loc[len(dfff.index)] = [0, 'P-77', 'TEST', 2, 300, 10000, 100000]
 
 client = mqtt.Client()
 
@@ -80,7 +81,10 @@ try:
 except Exception as e:
     print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
 
+
 callbacks_strings = [Output(f"{wc}", "figure") for wc in wclist]
+
+
 
 
 def calculate_current_optimal_qty(optimalqty):
@@ -152,10 +156,13 @@ layout = html.Div(children=[
     Input(component_id='first_trigger', component_property='n_intervals'))
 def update_lists(costcenter,n):
     global callbacks_strings
-    callbacks_strings = [Output(f"{wc}", "figure") for wc in wclist]
+    if costcenter == 'PRESHANE':
+        callbacks_strings = [Output(f"{wc}", "figure") for wc in wclist]
+
     if costcenter == 'PRESHANE':
         list = wclist
         list_t = str(tuple(list))
+
     else:
         list = ["T-33", "T-34", "T-35", "T-36", "T-37", "T-38"]
         list_t = "('T-33', 'T-34', 'T-35', 'T-36', 'T-37', 'T-38')"
@@ -223,7 +230,11 @@ def generate_workcenter_layout(workcenters):
     """
 
     layout = []
-    workcenters.append
+
+    # print("************")
+    # print("burdaaaaa")
+    # print("************")
+
     for i in range(0, len(workcenters), 3):
         layout.append(dbc.Row([
             dbc.Col(
@@ -270,6 +281,8 @@ def update_graph(n, workcenter_list):
     global dfff
     # dfff = pd.read_json(dfff, orient='666')
     for workcenter in workcenters:
+        print("******")
+        print(dfff)
         x_data = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "PARTITION"]) * int(currentpiece[workcenter])
         ndevirhizi = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
         y_data = calculate_current_optimal_qty(int(dfff.loc[dfff["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"]))
