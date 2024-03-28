@@ -9,7 +9,7 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page
+    tvmonitor, uretimrapor, kapasite, prd_energy, gvt_page
 from flask import request,g
 
 ### Page container ###
@@ -27,23 +27,6 @@ page_container = dbc.Container([ html.Div(
 
 
 ### Login Page Layout ###
-login_layout = dbc.Container([
-    dbc.Row([
-        dbc.Col([
-            dbc.Form([
-                dbc.Label("Username:"),
-                dbc.Input(type="text", id="username", placeholder="Enter username"),
-            ]),
-            dbc.Form([
-                dbc.Label("Password:"),
-                dbc.Input(type="password", id="password", placeholder="Enter password"),
-            ]),
-            dbc.Button("Login", id="login-button", color="primary"),
-        ], width={"size": 6, "offset": 3}),
-    ], className="justify-content-center"),
-], fluid=True)
-
-
 
 ### Index Page Layout ###
 
@@ -150,8 +133,8 @@ def display_page(pathname,login_status_data):
             return kapasite.layout
         elif pathname == '/kameraayiklama':
             return kameraayıklama.layout
-        elif pathname == '/deneme_page':
-            return deneme_page.layout
+        elif pathname == '/gvt_page':
+            return gvt_page.layout
         else:
             print(f"adsadasd{pathname}")
             return '404'
@@ -185,10 +168,10 @@ app.validation_layout = html.Div(
         tvmonitor.layout,
         uretimrapor.layout,
         kapasite.layout,
-        deneme_page.layout
-        # ittools.layout
+        gvt_page.layout
     )
 )
+
 
 app.layout.interval = -1
 

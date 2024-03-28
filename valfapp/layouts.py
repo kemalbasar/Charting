@@ -77,38 +77,35 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                     ]),
                     html.Li(className="darkerli",children=[
                         html.A(href="/kapasite", children=[
-                            html.Img(src="../assets/kapasite-logo.png", className="nav-icon"),
+                            html.Img(src="../assets/kapaste-removebg-preview.png", className="nav-icon"),
                             html.Span(className="nav-text", children="Kapasite")
                         ])
                     ]),
-
-                    html.Ul(className="darkerlishadowdown", children=[
-                        html.Li(children=[
-                            html.A(href="/energy", children=[
-                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
-                                html.Span(className="nav-text", children="Energy")
-                            ])
-                        ]),
-                        html.Li(children=[
-                            html.A(href="/prdenergy", children=[
-                               html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
-                                html.Span(className="nav-text", children="Prod Energy")
-                            ])
-                        ]),
-                        html.Li(children=[
-                            html.A(href="/kameraayiklama", children=[
-                               html.Img(src="../assets/kamayik.png", className="nav-icon"),
-                                html.Span(className="nav-text", children="Kam. Ayıklama")
-                            ])
-
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/energy", children=[
+                            html.Img(src="../assets/enerji-removebg-preview.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Energy")
                         ])
                     ]),
-                    html.Li(className="darkerlishadowdown",children=[
+                    html.Li(className="darkerli",children=[
                         html.A(href="/prdenergy", children=[
-                            html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
+                            html.Img(src="../assets/prof-enrgy-removebg-preview.png", className="nav-icon"),
                             html.Span(className="nav-text", children="Prod Energy")
                         ])
-                    ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/kameraayiklama", children=[
+                            html.Img(src="../assets/k-ayıklama-removebg-preview.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Kam. Ayıklama")
+                        ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/gvt_page", children=[
+                            html.Img(src="../assets/cnctorna-removebg-preview.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="CncTo Aylık Ra.")
+                        ])
+                    ]),
+                    html.Label("Valfsan Engineers © 2024 ", id="signature-label", className="float-left signature-label-sb")
                 ]),
             ]),
         ]),
@@ -118,7 +115,7 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
 
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
-###### ###### ###### ###### ###### VALUATION LAYOUTS ###### ###### ###### ######
+###### ###### ###### ###### ######   VALUATION LAYOUTS  ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 
@@ -195,8 +192,7 @@ layout_27 = dbc.Container([
 
         ], style={"margin-top": 15}
     )
-
-], fluid=True
+], fluid=True  
 )
 
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
@@ -206,12 +202,6 @@ layout_27 = dbc.Container([
 layout_12 = dbc.Container([
     nav_bar,
 
-    dbc.Row(dcc.Link(
-        children='Main Page',
-        href='/',
-        style={"height": 40, "color": "black", "font-weight": "bold"}
-
-    )),
     dbc.Row(html.Div(html.Button(id='year', value="2022", children='Click me'), hidden=True)),
     dbc.Row(
         html.Div(
@@ -221,7 +211,7 @@ layout_12 = dbc.Container([
                 "padding": 50,
                 "fontSize": 30,
                 "text-align": "center",
-                "color": '#cd5c5c',
+                "color": 'white',
                 "font-weight": "bold",
                 # "background-color": "#FFEBCD",
                 "height": 120,
@@ -237,7 +227,7 @@ layout_12 = dbc.Container([
         }
     ),
     dbc.Row([
-        dbc.Col([html.Div(dcc.Graph(id="piec", figure={}, style={"margin-top": 20}))], width=5),
+        dbc.Col([html.Div(dcc.Graph(id="piec", figure={}, style={"margin-top": 20, "margin-left":"150px","background-color":"#FFEBCD"}))], width=5),
         dbc.Col(
             html.Div(children=[
                 html.Button(id='rawmat', n_clicks=0, children='Raw Material',
@@ -249,24 +239,32 @@ layout_12 = dbc.Container([
                 html.Button(id='main', n_clicks=0, children='General',
                             style={"margin-left": 0, "color": '#cd5c5c', "background-color": "#FFEBCD"}),
                 html.Br(),
-                dcc.Graph(id="linechart", figure={}, style={"margin-top": 1}),
+                dcc.Graph(id="linechart", figure={}, style={"margin-top": 1,"background-color":"#FFEBCD"}),
             ]),
             style={"height": 100},
-            width=7
+            width=6
         )
     ], style={"margin-top": 15}),  # Missing bracket was added here
     dbc.Row([
         dbc.Col(children=[html.Div(dcc.Graph(id="MAMÜL", figure={}))],
-                style={"background-color": "#FFEBCD", "margin-top": 9}, width=6),
+                style={"background-color": "#FFEBCD", "margin-top": 9}, width=5),
         dbc.Col(children=[html.Div(dcc.Graph(id="HAMMADDE", figure={}))],
-                style={"background-color": "#FFEBCD", "margin-top": 9}, width=6)
-    ]),
+                style={"background-color": "#FFEBCD", "margin-top": 9}, width=5)
+    ], style={"justify-content": "center", "align-items": "center", "margin-top":"10px"}),
     dbc.Row([
-        dbc.Col(children=[html.Div(dcc.Graph(id="YARI MAMÜL", figure={}))],
-                style={"background-color": "#FFEBCD"}, width=6),
-        dbc.Col(children=[html.Div(dcc.Graph(id="YARDIMCI MALZEME", figure={}))],
-                style={"background-color": "#FFEBCD"}, width=6)
-    ])
+    dbc.Col(
+        children=[html.Div(dcc.Graph(id="YARI MAMÜL", figure={})),
+                  ],
+        style={"background-color": "#FFEBCD"},
+        width=5
+    ),
+    dbc.Col(
+        children=[html.Div(dcc.Graph(id="YARDIMCI MALZEME", figure={}))],
+        style={"background-color": "#FFEBCD"},
+        width=5
+    )
+], style={"justify-content": "center", "align-items": "center", "margin-top":"10px"})
+
 ], fluid=True)
 
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
@@ -292,7 +290,7 @@ layout_12_loginpage_v2 = layout = html.Div(children=[
                                 "align-items": "center",
                                 "display": "flex",
                                 "background-color":"white"
-                            },
+                            }, className="deneme"
                         ),
                         href="/value", style={"text-decoration": "none", "color":"#2149b4", "font-size":"24px"},
                     ),className="mt-2 col-lg-3 col-md-7 col-sm-12",
@@ -339,7 +337,7 @@ layout_12_loginpage_v2 = layout = html.Div(children=[
                                 "justify-content": "center",
                                 "align-items": "center",
                                 "display": "flex",
-                                "background-color":"white"
+                                "background-color":"white",
                             },
                         ),
                         href="/tvmonitor", style={"text-decoration": "none", "color":"#2149b4", "font-size":"24px"},
@@ -694,7 +692,7 @@ layout_27_loginpage = dbc.Container([
                             'color': 'white',
                             'font-weight': 'bold',
                         })
-                    ], style={"position": "relative", "display": "inline-block"})
+                    ], style={"position": "relative", "display": "inline-block", "box-shadow":"5px 10px #ffffff","background": "linear-gradient(to bottom right, #cccccc, #323334)"})
                 ],
                 href='/pg1',
             ),
@@ -743,7 +741,6 @@ layout_27_loginpage = dbc.Container([
             ),
             width=4,  # Adjust the width of the column, you can use values from 1 to 12
             style={"padding-top": 30},
-
         ),
         dbc.Col(
             dcc.Link(
@@ -769,6 +766,10 @@ layout_27_loginpage = dbc.Container([
         href='/dragtester',
     )
 ], fluid=True)
+
+
+
+
 
 
 def sliding_indicator_container(livedata, selected_value, costcenter):

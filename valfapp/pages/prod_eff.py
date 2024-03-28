@@ -175,10 +175,10 @@ layout_12 = dbc.Container([
                 persistence=True,
                 persistence_type='memory'
             ),
-            dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button',style={"margin-left":120, "margin-top":60}),
-            dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button',style={"margin-left":120, "margin-top":60}),
-            dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button',style={"margin-left":226, "margin-top":7}),
-            dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button',style={"margin-left":226, "margin-top":7}),
+            dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button',),
+            dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button',),
+            dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button',),
+            dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button',),
             dcc.Store(
                 id="work-dates",
                 storage_type="memory",
@@ -202,11 +202,12 @@ layout_12 = dbc.Container([
     ]),
     
     html.Div(id='refresh3', style={'display': 'none'}),
-    
+
     dcc.Store(id='store-costcenter', storage_type='memory', data='CNC'),
+    
     dbc.Row(style={"text-align": "center", "justify-content": "center"}, children=[
     dbc.Col(children=[
-        dbc.Row(html.Div([dcc.Graph(id='sunburst')], style={"margin-left": 300})),
+        dbc.Row(html.Div([dcc.Graph(id='sunburst')], style={"margin-left": 250})),
         dbc.Row([
             dbc.Col(children=[
                 dbc.Row(html.H5("Üretim Özeti", style={
@@ -222,7 +223,7 @@ layout_12 = dbc.Container([
                     dbc.Col([return_sparks(graph1="fig_ppm", graph2="fig_scrap", margin_left=385)],
                             width={"size": 1},
                             style={"padding-right": 300})
-                ], style={"margin-left": 80})
+                ], style={"margin-right": 100})
             ], style={}, width={"size": 12})
         ]),
         dbc.Row([
