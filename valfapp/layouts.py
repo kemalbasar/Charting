@@ -41,7 +41,7 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
         dbc.Container([
             html.Div(className="logo-div resim-container", children=[
                 html.A(className="logo", href="/", children=[
-                    html.Img(src='./assets/valfsan-logo.png', className="logo")
+                    html.Img(src='./assets/valfsan_logo.jpg', className="logo")
                 ])
             ]),
             html.Div(className="settings"),
@@ -103,7 +103,7 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                     ]),
                     html.Li(className="darkerli",children=[
                         html.A(href="/gvt_page", children=[
-                            html.Img(src="../assets/cnctorna-removebg-preview.png", className="nav-icon"),
+                            html.Img(src="../assets/tornaremove.jpg", className="nav-icon"),
                             html.Span(className="nav-text", children="CncTo Aylık Ra.")
                         ])
                     ]),
