@@ -264,7 +264,6 @@ def generate_workcenter_layout(workcenters):
 def update_graph(n, workcenter_list):
     workcenters = workcenter_list
     bgcolor = {wc: "red" for wc in workcenters}
-    print(opspeed)
     for wc in workcenters:
 
         if greenlight[wc] == '1':

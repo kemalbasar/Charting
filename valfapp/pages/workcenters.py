@@ -278,12 +278,14 @@ def clear_cache(n_clicks, key):
     if n_clicks > 0:
         cache_key = json.dumps(key)
         print(cache_key)
-        cache.delete_memoized(prdconf, key["workstart"], key["workend"], key["interval"])
-        if not cache.get(prdconf, (key["workstart"], key["workend"], key["interval"])):
-            print("Cache successfully deleted.")
-            # Perform any other necessary operations after clearing the cache
-        else:
-            print("Cache not deleted.")
+        cache.delete_memoized(prdconf, (key["workstart"], key["workend"], key["interval"]))
+        composite_key = (key["workstart"], key["workend"], key["interval"])
+
+        # if not cache.get(composite_key,None):
+        #     print("Cache successfully deleted.")
+        #     # Perform any other necessary operations after clearing the cache
+        # else:
+        #     print("Cache not deleted.")
         # Perform any other necessary operations after clearing the cache
         return no_update  # Change the 'refresh' div when the button is clicked
     else:
