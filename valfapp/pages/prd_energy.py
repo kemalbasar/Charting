@@ -24,7 +24,7 @@ layout = [
     nav_bar,
 
     # Energy Search and Filter Components
-
+    
     dbc.Row(
         [
             dbc.Col(

@@ -12,11 +12,36 @@
     height: 50%;
 }
 
-
-.modebar{
-      display: none !important;
+.gvt-div-1, .gvt-div-3, .gvt-div-5{
+    background-color: #f0f0f0;
+    color: black;
+    font-weight: 600;
+    border-top-right-radius:50px;
 }
-/*Enes Sidenavbar CSS*/
+
+.gvt-div-2, .gvt-div-4, .gvt-div-6{
+    background-color: #e0e0e0;
+    color: black;
+    font-weight: 600;
+}
+
+.gvt-div-yazi{
+    position: absolute;
+}
+
+.signature-label{
+    margin-top: 120px;
+    color: rgba(128, 128, 128, 0.400);
+    z-index: 100000000;
+}
+
+.signature-label-sb{
+    color: rgba(128, 128, 128, 0.400);
+    z-index: 100000000;
+    font-size: 10px;
+    margin-top: 120px;
+    margin-left: 50px;
+}
 
 .email {
     background: hsl(0deg 0% 100%);
@@ -91,6 +116,10 @@ body {
     background-color: #b2b2b2b2;
     color: #fff;
     font-weight: 300;
+    overflow-x: hidden;
+    background: linear-gradient(to bottom right, #cccccc, #323334);
+    background-attachment: fixed;
+    
 }
 
 .link-hover a:hover {
@@ -125,6 +154,54 @@ body {
     justify-content: center;
     align-items: center;
     display: flex;
+}
+
+/*GVT PAGE*/
+.tablo-grafik{
+
+}
+
+.k-border{
+        border: 1px solid red;
+}
+.grafik-div{
+        height: 400px;
+}
+.grafik{
+        height: 600px;
+        margin-top: 50px;
+        border-radius: 10px;
+}
+.kart-baslik{
+        height: 75px;
+
+}
+.ic-yazilar{
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+.ic-yazilar-2{
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.grafik-div-2{
+        height: 400px;
+        float: right;
+
+}
+.alt-divler{
+    float: left;
+    height: 300px;
+    width: 350px !important;
+}
+.grafik-divler{
+    border-radius: 10px;
 }
 
 .footer {
@@ -196,7 +273,7 @@ body {
 #style-1::-webkit-scrollbar-thumb {
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: #BFBFBF;
+    background-color: #efefef;
 }
 
  Scrollbar End
@@ -293,7 +370,7 @@ nav.main-menu.expanded {
 }
 
 .nav-text-2 {
-    font-weight: 1000 !important;
+    font-weight: 600 !important;
 }
 
 a:hover,
@@ -372,7 +449,7 @@ nav.main-menu li.active>a,
     font-style: normal;
     font-weight: 300;
     src: local('Titillium WebLight'), local('TitilliumWeb-Light'),
-        url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2BTjF6FB5E.woff) format('woff');
+        url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2jF6FB5E.woff) format('woff');
 }
 
 Enes navbar bitis
@@ -454,8 +531,6 @@ Enes navbar bitis
     transition-duration: 0.4s;
     /* transition effect duration */
     cursor: pointer;
-  
-  
     border-radius: 0;
     /* square shape */
     overflow: hidden;
@@ -558,36 +633,18 @@ Enes navbar bitis
 
 .day-button {
     width: 50px;
-    /* width of the square button */
     height: 50px;
-    /* height of the square button */
     background-color: #2149b4;
-    /* button color */
     border: none;
-    /* no border */
     color: white;
-    /* text (icon) color */
-
     text-align: center;
     display: inline-block;
     font-size: 16px;
-    /* icon size */
     transition-duration: 0.4s;
-    /* transition effect duration */
     cursor: pointer;
-
     border-radius: 10px;
-    /* square shape */
     overflow: hidden;
-    /* in case of text exceeding button size */
-    padding: 0;
-    /* no padding */
-    position: absolute;
-    /* position relative to the closest positioned ancestor */
-    left: 178px;
-    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 30px;
-    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+    margin-left: 30px;
 }
 
 .day-button:hover {
@@ -615,19 +672,12 @@ Enes navbar bitis
     transition-duration: 0.4s;
     /* transition effect duration */
     cursor: pointer;
-    border-radius: 0;
+    border-radius: 10px;
     /* square shape */
     overflow: hidden;
     /* in case of text exceeding button size */
     padding: 0;
-    /* no padding */
-    position: absolute;
-    /* position relative to the closest positioned ancestor */
-    left: 231px;
-    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 30px;
-    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
-    border-radius: 10px;
+    margin-left: 20px;
 }
 
 .week-button:hover {
@@ -649,24 +699,17 @@ Enes navbar bitis
     /* text (icon) color */
 
     text-align: center;
-    display: inline-block;
     font-size: 16px;
     /* icon size */
     transition-duration: 0.4s;
     /* transition effect duration */
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 10px !important;
     /* square shape */
     overflow: hidden;
     /* in case of text exceeding button size */
+    margin-left: 20px;
     padding: 0;
-    /* no padding */
-    position: absolute;
-    /* position relative to the closest positioned ancestor */
-    left: 178px;
-    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 83px;
-    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
 }
 
 .month-button:hover {
@@ -699,13 +742,8 @@ Enes navbar bitis
     overflow: hidden;
     /* in case of text exceeding button size */
     padding: 0;
-    /* no padding */
-    position: absolute;
-    /* position relative to the closest positioned ancestor */
-    left: 231px;
-    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 83px;
-    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
+    margin-left: 20px;
+
 }
 
 .year-button:hover {
@@ -739,14 +777,7 @@ Enes navbar bitis
     overflow: hidden;
     /* in case of text exceeding button size */
     padding: 0;
-    /* no padding */
-    position: absolute;
-    /* position relative to the closest positioned ancestor */
-    left: 550px;
-    /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 75px;
-    /* top edge positioned at -1 units from the top edge of its nearest positioned ancestor */
-
+    margin-left: 500px;
 }
 
 .tarih-secim{

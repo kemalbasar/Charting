@@ -13,7 +13,10 @@ cur_week = (dt.datetime.now()).strftime('%Y-%U').zfill(6)
 df_val = ag.run_query(f"SELECT * FROM VLFVALUATION  WHERE ACIKLAMA != '' ")
 df_curval = df_val.loc[df_val["VALDATE"] == cur_week]
 
-layout = []
+layout = [
+]
+
+
 layout = layout_12
 
 color_map = {"HAMMADDE": px.colors.qualitative.Pastel[0],

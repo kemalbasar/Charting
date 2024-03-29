@@ -9,8 +9,8 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
-    adr_PRES1, adr_PRES2, adr_MONTAJ
+ tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
+    adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page
 from flask import request,g
 
 ### Page container ###
@@ -28,23 +28,6 @@ page_container = dbc.Container([ html.Div(
 
 
 ### Login Page Layout ###
-login_layout = dbc.Container([
-    dbc.Row([
-        dbc.Col([
-            dbc.Form([
-                dbc.Label("Username:"),
-                dbc.Input(type="text", id="username", placeholder="Enter username"),
-            ]),
-            dbc.Form([
-                dbc.Label("Password:"),
-                dbc.Input(type="password", id="password", placeholder="Enter password"),
-            ]),
-            dbc.Button("Login", id="login-button", color="primary"),
-        ], width={"size": 6, "offset": 3}),
-    ], className="justify-content-center"),
-], fluid=True)
-
-
 
 ### Index Page Layout ###
 
@@ -155,6 +138,8 @@ def display_page(pathname,login_status_data):
             return kapasite.layout
         elif pathname == '/kameraayiklama':
             return kameraayıklama.layout
+        elif pathname == '/gvt_page':
+            return gvt_page.layout
         elif pathname == '/camayikuretim':
             return camayikuretim.layout
         elif pathname == '/deneme_page':
@@ -205,6 +190,7 @@ app.validation_layout = html.Div(
         tvmonitor.layout,
         uretimrapor.layout,
         kapasite.layout,
+        gvt_page.layout
         deneme_page.layout,
         adr_CNC.layout,
         adr_CNCTORNA.layout,
@@ -214,6 +200,7 @@ app.validation_layout = html.Div(
         # ittools.layout
     )
 )
+
 
 app.layout.interval = -1
 

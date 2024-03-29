@@ -27,13 +27,13 @@ layout = [
                             html.Span(className="nav-text nav-text-2", children="MAIN")
                         ])
                     ]),
-                    html.Li(className="darkerlishadow", children=[
+                    html.Li(className="darkerlishadow",children=[
                         html.A(href="/value", children=[
                             html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
                             html.Span(className="nav-text", children="Tutarlama")
                         ])
                     ]),
-                    html.Li(className="darkerli", children=[
+                    html.Li(className="darkerli",children=[
                         html.A(href="/uretimrapor", children=[
                             html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
                             html.Span(className="nav-text", children="Üretim Raporları")
@@ -45,22 +45,39 @@ layout = [
                             html.Span(className="nav-text", children="Üretim Takip")
                         ])
                     ]),
-                    html.Li(className="darkerli", children=[
+                    html.Li(className="darkerli",children=[
                         html.A(href="/tvmonitor", children=[
                             html.Img(src="../assets/tvmonitor-ıcon.png", className="nav-icon"),
                             html.Span(className="nav-text", children="Tv Monitor")
                         ])
                     ]),
-                    html.Ul(className="darkerlishadowdown", children=[
-                        html.Li(children=[
-                            html.A(href="/energy", children=[
-                                html.Img(src="../assets/enerji-takibi.png", className="nav-icon"),
-                                html.Span(className="nav-text", children="Energy")
-                            ])
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/kapasite", children=[
+                            html.Img(src="../assets/kapaste-removebg-preview.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Kapasite")
                         ])
-                    ])
-                ])
-            ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/energy", children=[
+                            html.Img(src="../assets/enerji-removebg-preview.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Energy")
+                        ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/prdenergy", children=[
+                            html.Img(src="../assets/prof-enrgy-removebg-preview.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Prod Energy")
+                        ])
+                    ]),
+                    html.Li(className="darkerli",children=[
+                        html.A(href="/kameraayiklama", children=[
+                            html.Img(src="../assets/k-ayıklama-removebg-preview.png", className="nav-icon"),
+                            html.Span(className="nav-text", children="Kam. Ayıklama")
+                        ])
+                    ]),
+                    html.Label("Valfsan Engineers © 2024 ", id="signature-label", className="float-left signature-label-sb")
+                ]),
+            ]),
         ]),
     ]),
     html.Div(

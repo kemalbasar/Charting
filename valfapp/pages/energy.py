@@ -71,82 +71,94 @@ layout = [
     # Energy Search and Filter Components
 
     dbc.Row(
-        [
-            dbc.Col(
-                html.Div(
-                    [
-                        dcc.Dropdown(
-                            id='machine-type-dropdown',
-                            options=[
-                                {'label': k, 'value': k}
-                                for k in valftoreeg.keys()
-                            ],
-                            value=list(valftoreeg.keys())[0],
-                            style={
-                                'color': 'white',
-                                'width': 220,
-                            },
-                        )], style={"margin-top": 18}), width=1),
-            dbc.Col(
-                html.Div(
-                    [dcc.Dropdown(
-                        id='machine-dropdown',
-                        style={
-                            'color': 'white',
-                            'width': 220,
-                        },
-                        value='Analizörler'
-                    )], style={"margin-top": 18}), width=1),
-            dbc.Col(
-                html.Div(
-                    [dcc.Dropdown(
-                        id='date-dropdown',
+    [
+        dbc.Col(
+            html.Div(
+                [
+                    dcc.Dropdown(
+                        id='machine-type-dropdown',
                         options=[
-                            {'label': i, 'value': i}
-                            for i in ['Day', 'Month']
+                            {'label': k, 'value': k}
+                            for k in valftoreeg.keys()
                         ],
+                        value=list(valftoreeg.keys())[0],
                         style={
                             'color': 'white',
-                            'font': {'color': '#2149b4'},
                             'width': 220,
                         },
-                        value='month',
-                    ),
+                    )],
+                ), className="col-lg-2 col-md-1 col-sm-4",  # Adjust the classes as needed
+        ),
+        dbc.Col(
+            html.Div(
+                [dcc.Dropdown(
+                    id='machine-dropdown',
+                    style={
+                        'color': 'white',
+                    },
+                    value='Analizörler'
+                )],
+            ), className="col-lg-2 col-md-1 col-sm-4",  # Adjust the classes as needed
+        ),
+        dbc.Col(
+            html.Div(
+                [dcc.Dropdown(
+                    id='date-dropdown',
+                    options=[
+                        {'label': i, 'value': i}
+                        for i in ['Day', 'Month']
                     ],
-                    style={"margin-top": 18},
+                    style={
+                        'color': 'white',
+                        'font': {'color': '#2149b4'},
+                    },
+                    value='month',
                 ),
-                className="", width=1
+                ],
             ),
-            dbc.Col(
-                html.Div(
-                    [
-                        dcc.DatePickerRange(
-                            id='date-picker',
-                            className="dash-date-picker-multi",
-                            start_date=(date.today() - timedelta(weeks=1)).isoformat(),
-                            end_date=(date.today()).isoformat(),
-                            display_format='YYYY-MM-DD',
-                            style={'color': '#212121'},
-                            persistence=True,
-                            persistence_type='session',
-                        ),
-                        html.Button(
-                            'Search',
-                            id='search',
-                            className="dash-empty-button",
-                            n_clicks=0,
-                        ),
-                        html.Button(
-                            'Download',
-                            id='download',
-                            className="dash-empty-button",
-                            n_clicks=0,
-                        ),
-                    ],
-                ), style={"margin-left": 100, "margin-top": 15}
-            ),
-        ], style={"margin-top": 40, 'border': '3px dashed blue', "margin-left": 44}, className="g-0"
-    ),
+            className="col-lg-2 col-md-1 col-sm-4",  # Adjust the classes as needed
+        ),
+        
+        dbc.Col(
+            html.Div(
+                [
+                    dcc.DatePickerRange(
+                        id='date-picker',
+                        className="dash-date-picker-multi",
+                        start_date=(date.today() - timedelta(weeks=1)).isoformat(),
+                        end_date=(date.today()).isoformat(),
+                        display_format='YYYY-MM-DD',
+                        style={'color': '#212121'},
+                        persistence=True,
+                        persistence_type='session',
+                    ),
+                ]
+            ), className="col-lg-2 col-md-3 col-sm-4",
+        ),
+        
+        dbc.Col(
+            html.Div(
+                [
+                    html.Button(
+                        'Search',
+                        id='search',
+                        className="dash-empty-button",
+                        n_clicks=0,
+                    ),
+                    html.Button(
+                        'Download',
+                        id='download',
+                        className="dash-empty-button",
+                        n_clicks=0,
+                    ),
+                ],
+            ),style={"margin-left":100},className="col-lg-2 col-md-1 col-sm-4",
+        ),
+    ], style={"margin-top": 40, 'border': '3px dashed #2149b5', "margin-left": 75, "width": "1400px", "border-radius": "20px"},
+    className="g-0"
+),
+
+
     dbc.Row([
         dbc.Col([
             dbc.Row([
