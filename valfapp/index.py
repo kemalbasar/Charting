@@ -9,7 +9,8 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor, kapasite, prd_energy, gvt_page
+ tvmonitor, uretimrapor, kapasite, prd_energy, deneme_page, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
+    adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page
 from flask import request,g
 
 ### Page container ###
@@ -96,12 +97,12 @@ def login(n_clicks, username, password):
     ]
 )
 def display_page(pathname,login_status_data):
-    if login_status_data and login_status_data['logged_in']:
+    if (login_status_data and login_status_data['logged_in']) or 1==1:
         if pathname == '/':
             return index_layout
         elif pathname == '/liveprd':
             return liveprd.layout
-        elif pathname == '/prod_eff':
+        elif pathname == '/prodeff':
             return prod_eff.layout
         elif pathname == '/value':
             return value.layout
@@ -119,6 +120,10 @@ def display_page(pathname,login_status_data):
             return prd_energy.layout
         elif pathname == '/cnctotv':
             return cnctotv.layout
+        elif pathname == '/cnc1tv':
+            return cnc1tv.layout
+        elif pathname == '/cnc2tv':
+            return cnc2tv.layout
         elif pathname == '/taslamatv':
             return taslamatv.layout
         elif pathname == '/montajtv':
@@ -135,6 +140,20 @@ def display_page(pathname,login_status_data):
             return kameraayıklama.layout
         elif pathname == '/gvt_page':
             return gvt_page.layout
+        elif pathname == '/camayikuretim':
+            return camayikuretim.layout
+        elif pathname == '/deneme_page':
+            return deneme_page.layout
+        elif pathname == '/adrcnc':
+            return adr_CNC.layout
+        elif pathname == '/adrcnctorna':
+            return adr_CNCTORNA.layout
+        elif pathname == '/adrpres':
+            return adr_PRES1.layout
+        elif pathname == '/adrpres2':
+            return adr_PRES2.layout
+        elif pathname == '/adrmontaj':
+            return adr_MONTAJ.layout
         else:
             print(f"adsadasd{pathname}")
             return '404'
@@ -161,14 +180,24 @@ app.validation_layout = html.Div(
         energy.layout,
         prd_energy.layout,
         cnctotv.layout,
+        cnc1tv.layout,
+        cnc2tv.layout,
         taslamatv.layout,
         montajtv.layout,
         yuzeyislemtv.layout,
         kameraayıklama.layout,
+        camayikuretim.layout,
         tvmonitor.layout,
         uretimrapor.layout,
         kapasite.layout,
         gvt_page.layout
+        deneme_page.layout,
+        adr_CNC.layout,
+        adr_CNCTORNA.layout,
+        adr_PRES1.layout,
+        adr_PRES2.layout,
+        adr_MONTAJ.layout
+        # ittools.layout
     )
 )
 

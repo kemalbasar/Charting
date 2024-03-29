@@ -29,8 +29,6 @@
     position: absolute;
 }
 
-/*Enes Sidenavbar CSS*/
-
 .signature-label{
     margin-top: 120px;
     color: rgba(128, 128, 128, 0.400);
@@ -880,68 +878,104 @@ Enes navbar bitis
 #TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
 #TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE#TABLE TABLE TABLE TABLE
 
+/* Targets all cells in the DataTable */
+/*.dash-spreadsheet td.dash-cell {*/
+/*    color: black;*/
+/*    background-color: rgba(255, 255, 255, 0.8);*/
+/*    min-width: 80px;*/
+/*    width: 80px;*/
+/*    max-width: 100px;*/
+/*    text-align: center;*/
+/*    border: 1px solid black;*/
+/*}*/
+
+/*!* Targets the container of the DataTable *!*/
+/*.dash-table-container {*/
+/*    height: 150px;*/
+/*    width: 800px;*/
+/*    overflow-y: auto;*/
+/*    border-collapse: collapse;*/
+/*    border: 1px solid black;*/
+/*}*/
+
+/*!* Targets header cells in the DataTable *!*/
+/*.dash-spreadsheet th.dash-header {*/
+/*    font-weight: bold;*/
+/*    background-color: rgba(0, 0, 0, 0.1);*/
+/*    border-bottom: 1px solid black;*/
+/*    color: black;*/
+/*}*/
+
+/*!* Example of a conditionally styled cell *!*/
+/*.highlight-cell {*/
+/*    background-color: #25251d;*/
+/*    color: #00eaff;*/
+/*}*/
+
+
+
 /* custom.css */
 
-/* Style for the Dash DataTable overall layout */
-.my-datatable {
-    border: 1px solid black;
-    border-collapse: collapse;
-}
+/*!* Style for the Dash DataTable overall layout *!*/
+/*.my-datatable {*/
+/*    border: 1px solid black;*/
+/*    border-collapse: collapse;*/
+/*}*/
 
-/* Style for each cell in the Dash DataTable */
-.my-datatable .dash-cell {
-    color: black; /* Font color for the cells */
-    background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
-}
+/*!* Style for each cell in the Dash DataTable *!*/
+/*.my-datatable .dash-cell {*/
+/*    color: black; !* Font color for the cells *!*/
+/*    background-color: rgba(255, 255, 255, 0.8); !* Slightly transparent background *!*/
+/*}*/
 
-/* Style for the header cells in the Dash DataTable */
-.my-datatable .dash-header {
-    font-weight: bold; /* Make header text bold */
-    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
-    border-bottom: 1px solid black; /* Border for the header cells */
-}
+/*!* Style for the header cells in the Dash DataTable *!*/
+/*.my-datatable .dash-header {*/
+/*    font-weight: bold; !* Make header text bold *!*/
+/*    background-color: rgba(0, 0, 0, 0.1); !* Slightly darker background for the header for contrast *!*/
+/*    border-bottom: 1px solid black; !* Border for the header cells *!*/
+/*}*/
 
-/* Additional style for the header, in case the above doesn't apply */
-.my-datatable th {
-    font-weight: bold; /* Make header text bold */
-    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
-    border-bottom: 1px solid black; /* Border for the header cells */
-}
+/*!* Additional style for the header, in case the above doesn't apply *!*/
+/*.my-datatable th {*/
+/*    font-weight: bold; !* Make header text bold *!*/
+/*    background-color: rgba(0, 0, 0, 0.1); !* Slightly darker background for the header for contrast *!*/
+/*    border-bottom: 1px solid black; !* Border for the header cells *!*/
+/*}*/
 
-/* custom.css */
+/*!* custom.css *!*/
 
-/* Style for the Dash DataTable overall layout */
-.my-datatable {
-    border: 1px solid black;
-    border-collapse: collapse;
-    height: 150px; /* Fixed height */
-    width: 700px; /* Fixed width */
-    overflow-y: auto; /* Vertical scrollbar if content is larger than the container */
-}
+/*!* Style for the Dash DataTable overall layout *!*/
+/*.my-datatable {*/
+/*    border: 1px solid black;*/
+/*    border-collapse: collapse;*/
+/*    height: 150px; !* Fixed height *!*/
+/*    width: 700px; !* Fixed width *!*/
+/*    overflow-y: auto; !* Vertical scrollbar if content is larger than the container *!*/
+/*}*/
 
-/* Style for each cell in the Dash DataTable */
-.my-datatable .dash-cell {
-    color: black; /* Font color for the cells */
-    background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
-    min-width: 80px; /* Minimum width for each cell */
-    width: 80px; /* Fixed width for each cell */
-    max-width: 100px; /* Maximum width for each cell */
-    text-align: center; /* Center text alignment */
-}
+/*!* Style for each cell in the Dash DataTable *!*/
+/*.my-datatable .dash-cell {*/
+/*    color: black; !* Font color for the cells *!*/
+/*    background-color: rgba(255, 255, 255, 0.8); !* Slightly transparent background *!*/
+/*    min-width: 80px; !* Minimum width for each cell *!*/
+/*    width: 80px; !* Fixed width for each cell *!*/
+/*    max-width: 100px; !* Maximum width for each cell *!*/
+/*    text-align: center; !* Center text alignment *!*/
+/*}*/
 
-/* Style for the header cells in the Dash DataTable */
-.my-datatable .dash-header {
-    font-weight: bold; /* Make header text bold */
-    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
-    border-bottom: 1px solid black; /* Border for the header cells */
-}
+/*!* Style for the header cells in the Dash DataTable *!*/
+/*.my-datatable .dash-header {*/
+/*    font-weight: bold; !* Make header text bold *!*/
+/*    background-color: rgba(0, 0, 0, 0.1); !* Slightly darker background for the header for contrast *!*/
+/*    border-bottom: 1px solid black; !* Border for the header cells *!*/
+/*}*/
 
-/* Additional style for the header, in case the above doesn't apply */
-.my-datatable th {
-    font-weight: bold; /* Make header text bold */
-    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker background for the header for contrast */
-    border-bottom: 1px solid black; /* Border for the header cells */
-}
+/*!* Additional style for the header, in case the above doesn't apply *!*/
+/*.my-datatable th {*/
+/*    font-weight: bold; !* Make header text bold *!*/
+/*    background-color: rgba(0, 0, 0, 0.1); !* Slightly darker background for the header for contrast *!*/
+/*    border-bottom: 1px solid black; !* Border for the header cells *!*/
+/*}*/
 
 
 

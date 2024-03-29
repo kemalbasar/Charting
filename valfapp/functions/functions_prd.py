@@ -1,3 +1,5 @@
+from dash import html
+
 from valfapp.configuration import layout_color
 from config import project_directory
 import pandas as pd
@@ -56,7 +58,7 @@ def working_machinesf(working_machines=working_machines, costcenter='CNC'):
 
 def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shiftandmat=0, nontimes=pd.DataFrame()):
     df = df.loc[
-        df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "SHIFT", "CONFIRMATION", "CONFIRMPOS", "CONFTYPE",
+        df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL","MATCODE", "SHIFT", "CONFIRMATION", "CONFIRMPOS", "CONFTYPE",
                                        "QTY", "SCRAPQTY", "REWORKQTY",
                                        "WORKCENTER", "RUNTIME", "TOTALTIME", "DISPLAY",
                                        "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME", "STEXT", "SCRAPTEXT",
@@ -83,8 +85,11 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         }
         return pd.Series(agg_dict)
 
-    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "SHIFT", "WORKDAY"]).apply(custom_agg)
-    df_prdcount = df.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY", "count"))
+    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL","MATCODE", "SHIFT", "WORKDAY"]).apply(custom_agg)
+    print("******")
+    print(df)
+    print("******")
+    df_prdcount = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY", "count"))
     if len(df_metrics) > 1:
         df_prdcount.reset_index(inplace=True)
         df_metrics.reset_index(inplace=True)
@@ -116,10 +121,9 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df_metrics["OM_TIME"] = df_metrics["OM_TIME"].fillna(0)
 
     def calculate_nantime(workday, total_shift_time, om_time):
-        # Convert '03-07-2023' to a datetime.date object
+        # Convert '03-07-2023' to a datetime.date object, ÖNCEKİ VARDİYA KOŞULU
         comparison_date = datetime.strptime('03-07-2023', '%d-%m-%Y').date()
-        return (475 if workday > comparison_date else 400) - float(total_shift_time) - float(om_time)
-
+        return (510 if workday > comparison_date else 420) - float(total_shift_time) - float(om_time)
     # Applying the function to each row in the dataframe
     df_metrics["NANTIME"] = df_metrics.apply(
         lambda row: calculate_nantime(row["WORKDAY"], row["TOTAL_SHIFT_TIME"], row["OM_TIME"]), axis=1)
@@ -155,7 +159,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     # df_metrics["PERFORMANCEWITHWEIGHT"].sum() / df_metrics["VARD"].sum()
     weights = df_metrics.loc[df_metrics.index, "PLANNEDTIME"]
     weights[weights <= 0] = 1
-    df_metrics = df_metrics[df_metrics["TOTALTIME"] > 0]
+    # df_metrics = df_metrics[df_metrics["TOTALTIME"] > 0]
 
     def weighted_average(x):
         # Use the updated weights
@@ -273,48 +277,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
     df_metrics = pd.concat([df_metrics, nontimes])
-    print(df_metrics)
     return details,df_metrics, df_metrics_forwc, df_metrics_forpers
-
-
-# df_oee, df_metrics = calculate_oeemetrics()
-
-
-# def year_summary(dirof_prd=project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon.sql",
-#                  dirof_plan=project_directory + r"\Charting\queries\planned_hours_foryerar_calculation.sql"):
-#     df_final = pd.DataFrame(
-#         columns=['RUNTIME', 'TOTFAILURETIME', 'SETUPTIME', 'NANTIME', 'PERFORMANCE', 'AVAILABILITY', 'OEE',
-#                  'COSTCENTER', 'DATEOFY'])
-#     date_ofy_f = dt.date(2022, 1, 6)
-#     date_ofy_s = date_ofy_f - dt.timedelta(days=1)
-#     for i in range(364):
-#         # sorguları çektiğimiz yeri değiştirtik, burdaki verilere parametre olarak düzenlenecek
-#         df_prd = ag.editandrun_query(dirof_prd, ["xxxx-yy-zz", "aaaa-bb-cc"], [str(date_ofy_s), str(date_ofy_f)])
-#         df_plan = ag.editandrun_query(dirof_plan, ["xxxx-yy-zz", "aaaa-bb-cc"], [str(date_ofy_s), str(date_ofy_f)])
-#
-#         if len(df_prd) == 0 or len(df_plan) == 0:
-#             # print(date_ofy_s)
-#             date_ofy_s += dt.timedelta(days=1)
-#             date_ofy_f += dt.timedelta(days=1)
-#             continue
-#
-#         df_metrics = calculate_oeemetrics(df=df_prd, planned_hoursx=df_plan, piechart_data=0)
-#         if df_metrics is None:
-#             # print(date_ofy_s)
-#             date_ofy_s += dt.timedelta(days=1)
-#             date_ofy_f += dt.timedelta(days=1)
-#             continue
-#
-#         df_metrics["COSTCENTER"] = df_metrics.index
-#         df_metrics.reset_index(inplace=True, drop=True)
-#         df_metrics["DATEOFY"] = date_ofy_s
-#         df_final = df_final.append(df_metrics)
-#         date_ofy_s += dt.timedelta(days=1)
-#         date_ofy_f += dt.timedelta(days=1)
-#
-#     df_final.to_excel(project_directory + r"\Charting\outputs(xlsx)\2022_machine_performances.xlsx")
-#
-#     return df_final
 
 
 def generate_for_sparkline(data='', proses='CNC', type='TOPLAM', ppm=False):
@@ -443,6 +406,10 @@ def indicator_with_color(df_metrics=None, order=0,
     else:
         colorof2 = coloroftext
 
+    if colorof == 'black':
+        value = final_card[finalnum].values[0] * 100  # assuming this is your value for the gauge
+        colorof = "red" if 0 <= value <= 40 else ("yellow" if 40 < value <= 80 else "green")
+
     title_txt = final_card[title].values[0]
 
     fig = go.Figure()
@@ -453,7 +420,7 @@ def indicator_with_color(df_metrics=None, order=0,
             "text": f"<span style='font-size:1.5em;'>{title_txt}</span><br><br><br><br><br><br><span style='font-size:5em;color:gray'>"}
         ,
         gauge={
-            'axis': {'range': [None, 150]},
+            'axis': {'range': [None, 100]},
             'bar': {'color': colorof, "thickness": 1},
             'bgcolor': "white",
             'borderwidth': 2,
@@ -462,7 +429,6 @@ def indicator_with_color(df_metrics=None, order=0,
                 {'range': [0, 33], 'color': 'white'},
                 {'range': [33, 80], 'color': 'white'},
                 {'range': [81, 100], 'color': 'white'},
-                {'range': [100, 120], 'color': 'white'}
             ],
             'threshold': {
                 'line': {'color': "orange", 'width': 6},
@@ -558,7 +524,7 @@ def indicator_for_tvs(status='white', fullname='',
         'text': '(' + str(durus) + ')',
         # 'showarrow': True,
         # 'arrowhead': 3,
-        'font': {'size': 1 if durus is None else (30 if len(durus) > 20 else 40 * rate), 'color': 'white'}
+        'font': {'size': 1 if type(durus) is not str else (30 if len(durus) > 20 else 40 * rate), 'color': 'white'}
     }
 
     fig.update_layout({
@@ -574,6 +540,7 @@ def indicator_for_tvs(status='white', fullname='',
         ),
         "paper_bgcolor": status,
         "width": size["width"], "height": size["height"]})
+
 
     return fig
 
@@ -673,3 +640,37 @@ def indicator_for_yislem(status='white', fullname='',
 
 
     return fig
+
+
+def legend_generater(color_map,fontsize =12,margin_left=0):
+
+    legend_items = []
+    for label, color in color_map.items():
+        # Each legend item is a Div containing a colored square and the label text
+        legend_item = html.Div([
+            # Colored square
+            html.Div(style={
+                'display': 'inline-block',
+                'width': '35px',
+                'height': '20px',
+                'backgroundColor': color,
+                'marginRight': '5px',
+                'border': '1px solid black'  # Optionally add a border
+            }),
+            # Label text
+            html.Span(label, style={'verticalAlign': 'middle','color': 'black','fontSize':fontsize}),
+        ], style={'marginBottom': '5px'})  # Add space between items
+
+        legend_items.append(legend_item)
+
+    # Wrap all legend items in a single Div
+    legend_div = html.Div(legend_items, style={
+        'padding': '10px',  # Add padding around the legend
+        'border': '1px solid black',  # Optionally add a border around the entire legend
+        'display': 'inline-block',  # Use inline-block for tighter wrapping around the content
+        "margin-left":margin_left,
+        'max-height': '500px',  # Adjust the max height as needed
+        'overflow-y': 'auto'
+    })
+
+    return legend_div

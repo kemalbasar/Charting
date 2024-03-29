@@ -37,59 +37,34 @@ else:
 
 
 
-#get point hierarchy
 
-# ********************************************# ********************************************# ********************************************
-# ********************************************# ********************************************# ********************************************
-
-# Headers
-
-headers = {
-    'Content-Type': 'application/json',
-    'XConnectionId': connection_id,       # Replace with your connection id
-    'XLang': 'valfsan'               # Replace with your tenant name
-}
-
-# Payload for GetPointHierarchy
-payload = {
-    "$": "GetPointHierarchy"
-}
-
-# Make the POST request
-response = requests.post(url, data=json.dumps(payload), headers=headers)
-
-# Check if the request was successful
-if response.status_code == 200:
-    response_data = response.json()
-    print(json.dumps(response_data, indent=4))   # Pretty print the JSON response
-else:
-    print(f"HTTP Error: {response.status_code}")
-get_hierarchy = { "$": "GetPointHierarchy"}
-
-response = requests.post(url, data=json.dumps(auth_payload), headers=headers)
-
-
+# headers = {
+#     'Content-Type': 'application/json',
+#     'XConnectionId': connection_id,       # Replace with your connection id
+#     'XLang': 'valfsan'               # Replace with your tenant name
+# }
+#
+# # Payload for GetPointHierarchy
+# payload = {
+#     "$": "GetPointHierarchy"
+# }
+#
+# # Make the POST request
+# response = requests.post(url, data=json.dumps(payload), headers=headers)
+# 0
+# # Check if the request was successful
+# if response.status_code == 200:
+#     response_data = response.json()
+#     print(json.dumps(response_data, indent=4))   # Pretty print the JSON response
+# else:
+#     print(f"HTTP Error: {response.status_code}")
+# get_hierarchy = { "$": "GetPointHierarchy"}
+#
+# response = requests.post(url, data=json.dumps(auth_payload), headers=headers)
 #
 
-# ********************************************# ********************************************# ********************************************
-# ********************************************# ********************************************# ********************************************
 
-# s_date = '20231002'
-# f_date = '20231005'
-# with open(f"F:\pycarhm projects\Charting\queries\mest_test.sql", 'r') as file:
-#     filedata = file.read()
-# s_date = s_date.replace('-', '', 2)
-# f_date = f_date.replace('-', '', 2)
-# filedata = filedata.replace("xxxx-yy-zz", s_date)
-# filedata = filedata.replace("aaaa-bb-cc", f_date)
-# print(filedata)
-# df_works = ag.run_query(filedata)
-# df_works["CONSUMPTION"] = 0.00
-
-# for i in range(len(df_works)):
-#     workcenter = df_works.iloc[i]["WORKCENTER"]
-#     code_wc = valftoreeg[workcenter]
-
+1
 
 payload = {
     "$": "GetData",
@@ -104,15 +79,16 @@ payload = {
                 "decimalPoints": 3
             },
         ],
-        "point": ["valfsan_cnc_pano1"],
-        "start": "2024-01-01T00:00:00",
-        "end": "2024-01-30T00:00:00",
+        "point": ["valfsan_salter5"],
+        "start": "2023-10-04T07:20:39.000",
+        "end": "2023-10-04T23:40:58.000",
         "break": {
             "type": "point"
         },
-        "resolution": "day"
+        "resolution": "fifteenmin"
     }
 }
+
 
 # Make the POST request
 response = requests.post(url, data=json.dumps(payload), headers=headers)

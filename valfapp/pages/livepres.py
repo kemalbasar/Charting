@@ -1,5 +1,4 @@
 import datetime
-
 import pandas as pd
 import plotly.graph_objs as go
 import dash
@@ -10,7 +9,7 @@ from run.agent import ag
 from valfapp.app import app
 from config import project_directory
 
-costcenters = ["PRESHANE", "TAMBUR"]
+costcenters = ["PRESHANE","TAMBUR"]
 
 with open(project_directory + r"\Charting\queries\mesworkcenter_data.txt", 'r') as file:
     query = file.read()
@@ -44,31 +43,36 @@ failure_codes = {
     'D124_47': 'Communication Timeout',
 }
 
+
 broker_address = '172.30.134.22'
 port = 1883
 
-topcis_in = {"out/OpMode": "out/OpMode", "out/OpStatus": "out/OpStatus", "out/OpSpeed": "out/OpSpeed",
-             "out/CamAngle": "out/CamAngle", "out/GreenLight": "out/GreenLight", "out/CurrentPiece": "out/CurrentPiece"}
+topcis_in = {"out/opMode": "out/opMode", "out/opStatus": "out/ppStatus", "out/opSpeed": "out/opSpeed",
+             "out/camAngle": "out/camAngle", "out/GreenLight": "out/GreenLight", "out/totalPiece": "out/totalPiece"}
 topics_out = {"dur": "in/TDCStop", "hazır": "in/Start"}
 
-topic = topcis_in["out/OpSpeed"]
-topic2 = topcis_in["out/CurrentPiece"]
-topic3 = topcis_in["out/OpStatus"]
-topic4 = topcis_in["out/CamAngle"]
-topic5 = topcis_in["out/OpMode"]
+topic = topcis_in["out/opSpeed"]
+topic2 = topcis_in["out/totalPiece"]
+topic3 = topcis_in["out/opStatus"]
+topic4 = topcis_in["out/camAngle"]
+topic5 = topcis_in["out/opMode"]
 topic6 = topcis_in["out/GreenLight"]
 
+
+wclist = ["P-14", "P-24", "P-26", "P-73", "P-76","P-10","P-62", "P-63", "P-64", "P-65","P-66","P-67"]
+
 a = ()
-for w in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]:
+for w in wclist:
     a = a + (w,)
 a = "('" + "','".join(map(str, a)) + "')"
-print(f"{query} {a}")
 
-global dfff
 dfff = ag.run_query(query + ' ' + a)
+
+
 # dfff = dfff.to_json(date_format='iso', orient='split')
-dfff.loc[len(dfff.index)] = [0, 'P-77', 'TEST', 2, 300, 10000, 100000]
-dfff.loc[len(dfff.index)] = [0, 'P-75', 'TEST', 2, 300, 10000, 100000]
+
+
+# dfff.loc[len(dfff.index)] = [0, 'P-77', 'TEST', 2, 300, 10000, 100000]
 
 client = mqtt.Client()
 
@@ -77,7 +81,10 @@ try:
 except Exception as e:
     print(f"Failed to connect to MQTT broker. Exception: {str(e)}")
 
-callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]]
+
+callbacks_strings = [Output(f"{wc}", "figure") for wc in wclist]
+
+
 
 
 def calculate_current_optimal_qty(optimalqty):
@@ -108,9 +115,14 @@ layout = html.Div(children=[
     dcc.Store(id='nothing'),
     dcc.Store(id="store-bgcolor"),
     dcc.Store(id="df_infos_t"),
-    dcc.Store(id="workcenter_list", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
-    dcc.Store(id="workcenter_list_b", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
-    dcc.Store(id="workcenter_list_c", storage_type='memory', data=["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]),
+    dcc.Store(id="workcenter_list", storage_type='memory', data=wclist),
+    dcc.Store(id="workcenter_list_b", storage_type='memory', data=wclist),
+    dcc.Store(id="workcenter_list_c", storage_type='memory', data=wclist),
+    dcc.Interval(
+            id='interval-component',
+            interval=5000,  # in milliseconds
+            n_intervals=0,  # Start at 0
+        ),
     dcc.Interval(id="bgcolor-interval", interval=5000),
     dbc.Row(dcc.Link(
         children='Main Page',
@@ -127,9 +139,10 @@ layout = html.Div(children=[
             style={"color": "green", "background-color": "DimGray", 'width': 200}
         ),
         dcc.Interval(
-            id='interval-component',
+            id='first_trigger',
             interval=5000,  # Update interval in milliseconds
-            n_intervals=0
+            n_intervals=0,
+            max_intervals=1
         ),
         html.Div(id='main-layout-div-live')
     ]),
@@ -140,13 +153,16 @@ layout = html.Div(children=[
 @app.callback(
     Output(component_id='workcenter_list', component_property='data'),
     Input(component_id='costcenter', component_property='value'),
-)
-def update_lists(costcenter):
+    Input(component_id='first_trigger', component_property='n_intervals'))
+def update_lists(costcenter,n):
     global callbacks_strings
-    callbacks_strings = [Output(f"{wc}", "figure") for wc in ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]]
     if costcenter == 'PRESHANE':
-        list = ["P-64", "P-73", "P-74", "P-75", "P-76", "P-77"]
-        list_t = "('P-64', 'P-73', 'P-74', 'P-75', 'P-76', 'P-77')"
+        callbacks_strings = [Output(f"{wc}", "figure") for wc in wclist]
+
+    if costcenter == 'PRESHANE':
+        list = wclist
+        list_t = str(tuple(list))
+
     else:
         list = ["T-33", "T-34", "T-35", "T-36", "T-37", "T-38"]
         list_t = "('T-33', 'T-34', 'T-35', 'T-36', 'T-37', 'T-38')"
@@ -214,6 +230,11 @@ def generate_workcenter_layout(workcenters):
     """
 
     layout = []
+
+    # print("************")
+    # print("burdaaaaa")
+    # print("************")
+
     for i in range(0, len(workcenters), 3):
         layout.append(dbc.Row([
             dbc.Col(
@@ -222,12 +243,12 @@ def generate_workcenter_layout(workcenters):
                 style={'border': '1px solid white', 'padding': 0}
             ),
             dbc.Col(
-                dcc.Graph(id=f"{workcenters[i + 1]}"),
+                [] if i+2 > len(workcenters)  else dcc.Graph(id=f"{workcenters[i + 1]}"),
                 width=4,
                 style={'border': '1px solid white', 'padding': 0}
             ),
             dbc.Col(
-                dcc.Graph(id=f"{workcenters[i + 2]}"),
+                [] if i+2 > len(workcenters) else dcc.Graph(id=f"{workcenters[i + 2]}"),
                 width=4,
                 style={'border': '1px solid white', 'padding': 0}
             )],
@@ -243,7 +264,6 @@ def generate_workcenter_layout(workcenters):
 def update_graph(n, workcenter_list):
     workcenters = workcenter_list
     bgcolor = {wc: "red" for wc in workcenters}
-    print(currentpiece)
     for wc in workcenters:
 
         if greenlight[wc] == '1':
@@ -260,6 +280,7 @@ def update_graph(n, workcenter_list):
     global dfff
     # dfff = pd.read_json(dfff, orient='666')
     for workcenter in workcenters:
+
         x_data = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "PARTITION"]) * int(currentpiece[workcenter])
         ndevirhizi = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
         y_data = calculate_current_optimal_qty(int(dfff.loc[dfff["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"]))

@@ -16,15 +16,9 @@ MAX_OUTPUT = 25
 costcenters = ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]
 global work_dates_bk
 work_dates_bk = {"workstart": (date.today() - timedelta(days=1)).isoformat(),
-                 "workend": date.today().isoformat(),
+                 "workend": (date.today() - timedelta(days=kb-1)).isoformat(),
                  "interval": "day"}
 
-
-# start_day = (date.today() - timedelta(days=1)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
-#     else (date.today() - timedelta(days=2)).isoformat()
-# end_day = (date.today() - timedelta(days=0)).isoformat() if (date.today() - timedelta(days=1)).weekday() != 6 \
-#     else (date.today() - timedelta(days=1)).isoformat()
-# oeelist = oee((start_day, end_day, "day"))
 
 
 def generate_output_list(max_output):
@@ -43,7 +37,7 @@ def generate_output_list(max_output):
         [Output(f"wc{i + 1}", "style") for i in range(max_output)]
 
 
-def return_tops_with_visibility(graph_id, visible=True):
+def return_1indicator1data_div(graph_id, visible=True):
     """
     Creates a Dash HTML Div containing a Graph and DataTable with optional visibility.
 
@@ -55,36 +49,7 @@ def return_tops_with_visibility(graph_id, visible=True):
         html.Div: A Dash HTML Div containing the Graph and DataTable.
     """
     return html.Div(
-        children=[
-            dcc.Graph(id=f"{graph_id}_graph", figure={}, style={'margin-left': 120}),
-            dash_table.DataTable(id=f"{graph_id}_table", data=[], columns=[]
-                                 , style_cell={
-                    'color': 'black',  # Font color for the cells
-                    'backgroundColor': 'rgba(255, 255, 255, 0.8)',  # Slightly transparent background
-                    'minWidth': '80px', 'width': '80px', 'maxWidth': '100px',  # Cell width specifications
-                    'textAlign': 'center',  # Center text alignment
-                    'border': '1px solid black'  # Border for the cells
-                },
-                                 style_table={
-                                     'height': '150px',  # Fixed height for the virtualized table
-                                     'width': '800px',  # Fixed width for the table
-                                     'overflowY': 'auto',  # Enable vertical scroll
-                                     'borderCollapse': 'collapse',  # Collapse borders
-                                     'border': '1px solid black'  # Border around the table
-                                 },
-                                 style_header={
-                                     'fontWeight': 'bold',  # Make header text bold
-                                     'backgroundColor': 'rgba(0, 0, 0, 0.1)',
-                                     # Slightly darker background for the header
-                                     'borderBottom': '1px solid black',  # Bottom border for the header cells
-                                     'color': 'black'  # Font color for the header
-                                 },
-                                 style_data_conditional=[
-                                     # Here you can add any conditional styles you might have
-                                     # For example, styling for the active cell or conditional formatting based on cell values
-                                 ],
-                                 )
-        ],
+        children=[],
         id=graph_id,
         style={"display": "flex", "flex-direction": "column", "justify-content": "center", "width": 1000},
         hidden=not visible
@@ -104,26 +69,26 @@ layout = dbc.Container([
         [dcc.Store(id="list_of_wcs"),
          dcc.Store(id="max_output"),
          dcc.Store(id='oeelistw1',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        1]),
          dcc.Store(id='oeelistw2',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        2]),
          dcc.Store(id='oeelistw3',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        3]),
          dcc.Store(id='oeelistw4',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        4]),
          dcc.Store(id='oeelistw5',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        5]),
          dcc.Store(id='oeelistw7',
-                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"))[
+                   data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[
                        7]),
          dcc.Store(id='store-costcenter1', storage_type='memory'),
          dcc.Store(id='store-report-type', data='wc', storage_type='memory'),
-         dbc.Button("Day", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
+         dbc.Button("Günlük", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
          dcc.Dropdown(id="costcenter1",
                       className='dropdown-style',
                       options=[{"label": cc, "value": cc} for cc in costcenters],
@@ -134,9 +99,9 @@ layout = dbc.Container([
          dcc.DatePickerSingle(id='date-picker1', date=(date.today() - timedelta(days=kb)), className="dash-date-picker",
                                style={"color": "white"}),
 
-         dbc.Button("Week", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
-         dbc.Button("Month", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
-         dbc.Button("Year", id="btn-year1", n_clicks=0, color="primary", className='year-button'),
+         dbc.Button("Haftalık", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
+         dbc.Button("Aylık", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
+         dbc.Button("Yıllık", id="btn-year1", n_clicks=0, color="primary", className='year-button'),
 
          html.Button(html.Img(src='/assets/wc.jpg', style={'width': '100%', 'height': '100%'}),
                      id='wc-button', className='wc-button'),
@@ -146,7 +111,7 @@ layout = dbc.Container([
 
          dcc.Store(id="work-dates1", storage_type="memory",
                    data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
-                         "workend": date.today().isoformat(),
+                         "workend": (date.today() - timedelta(days=kb-1)).isoformat(),
                          "interval": "day"}),
          html.Button('Reset Cache', id='clear-cache-button', n_clicks=0, className="dash-empty-button",
                      style={"position": "absolute", "right": 175, "top": "3", "width": "150px", "height": "35px"}),
@@ -199,24 +164,20 @@ layout = dbc.Container([
          # Include this line in your app layout
          dcc.Location(id='location', refresh=True),
          dcc.Location(id='location2', refresh=True),
+        html.Button("Verimlilik Verileri", id="download-button", n_clicks=0, className="dash-empty-button",
+                    style={"position": "absolute", "right": "0px", "top": "0", "width": "150px", "height": "35px"}),
+        html.Button("Duruş Detayları İndir", id="download-button2", n_clicks=0, className="dash-empty-button",
+                    style={"position": "absolute", "right": "0px", "top": "45px", "width": "150px", "height": "35px"}),
+        html.Button("Bozuk Verileri İndir", id="download-button3", n_clicks=0, className="dash-empty-button",
+                    style={"position": "absolute", "right": "0px", "top": "90px", "width": "150px", "height": "35px"}),
 
-         html.Button("Oee Data", id="download-button", n_clicks=0, className="dash-empty-button",
-                     style={"position": "absolute", "right": "0", "top": "-1", "width": "100px", "height": "35px"}),
-         html.Button("Details Data", id="download-button2", n_clicks=0, className="dash-empty-button",
-                     style={"position": "absolute", "right": 100, "top": "-1", "width": "100px", "height": "35px"}),
-         html.Button("Bad Data", id="download-button3", n_clicks=0, className="dash-empty-button",
-                     style={"position": "absolute", "right": 100, "top": 98, "width": "100px", "height": "35px"}),
          dcc.Download(id="download-data"),
          dcc.Download(id="download-data2"),
          dcc.Download(id="download-data3")], ),
 
-    dbc.Row(id='flam', children=[dbc.Col(return_tops_with_visibility(f"wc{i + 1}"), width=5,
-                                         style={"height": 600, "margin-left": 100 if i % 2 == 0 else 180}) for i in
-                                 range(MAX_OUTPUT)],
-            )
+    html.Div(id = "generated_1graph1data")
 ], fluid=True)
 
-list_of_callbacks = generate_output_list(MAX_OUTPUT)
 
 
 @app.callback(Output('store-costcenter1', 'data'),
@@ -317,12 +278,14 @@ def clear_cache(n_clicks, key):
     if n_clicks > 0:
         cache_key = json.dumps(key)
         print(cache_key)
-        cache.delete_memoized(prdconf, key["workstart"], key["workend"], key["interval"])
-        if not cache.get(prdconf, (key["workstart"], key["workend"], key["interval"])):
-            print("Cache successfully deleted.")
-            # Perform any other necessary operations after clearing the cache
-        else:
-            print("Cache not deleted.")
+        cache.delete_memoized(prdconf, (key["workstart"], key["workend"], key["interval"]))
+        composite_key = (key["workstart"], key["workend"], key["interval"])
+
+        # if not cache.get(composite_key,None):
+        #     print("Cache successfully deleted.")
+        #     # Perform any other necessary operations after clearing the cache
+        # else:
+        #     print("Cache not deleted.")
         # Perform any other necessary operations after clearing the cache
         return no_update  # Change the 'refresh' div when the button is clicked
     else:
@@ -343,7 +306,6 @@ def page_refresh(n):
 # Callback for hiding/showing the first div
 @app.callback(
     Output("toggle_div", "style"),
-    Output('flam', 'style'),
     Input("toggle_button", "n_clicks"),
     prevent_initial_call=True
 )
@@ -378,7 +340,7 @@ def update_pie_chart(costcenter, oeelist5w):
 
 
 @app.callback(
-    [*list_of_callbacks],
+    [Output("generated_1graph1data","children")],
     [Input("costcenter1", "value"),
      Input("store-report-type", "data"),
      Input("work-dates1", "data"),
@@ -411,7 +373,54 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 
     list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters(option_slctd, report_type, params,
                                                                               oeelist1w, oeelist3w, oeelist7w)
-    return tuple(list_of_figs + list_of_data + list_of_columns + list_of_styles)
+
+    def create_column(fig, data, columns, margin_left):
+        return dbc.Col(
+            [
+                dcc.Graph(figure=fig, style={'margin-left': 150}),
+                dash_table.DataTable(
+                    data=data,
+                    columns=columns,
+                    style_cell={
+                        'color': 'black',
+                        'backgroundColor': 'rgba(255, 255, 255, 0.8)',
+                        'minWidth': '20px', 'width': '80px', 'maxWidth': '60px',
+                        'textAlign': 'center',
+                        'border': '1px solid black',
+                        'minWidth': '80px', 'maxWidth': '300px',
+                        'fontSize': '12px'
+                    },
+                    style_table={
+                        'height': '150px',
+                        'width': '800px',
+                        'overflowY': 'auto',
+                        'borderCollapse': 'collapse',
+                        'border': '1px solid black'
+                    },
+                    style_header={
+                        'fontWeight': 'bold',
+                        'backgroundColor': 'rgba(0, 0, 0, 0.1)',
+                        'borderBottom': '1px solid black',
+                        'color': 'black'
+                    },
+                    style_data_conditional=[]
+                )
+            ],
+            width=4,
+            style={"display": "flex", "flex-direction": "column", "justify-content": "center","margin-left":margin_left ,"width": 600}
+        )
+
+    # This list comprehension creates all columns needed for the layout
+    columns = [create_column(list_of_figs[i], list_of_data[i], list_of_columns[i], 50 if i % 2 == 0 else 400) for i
+               in range(len(list_of_figs))]
+
+    # This code groups the columns into rows of 3 columns each
+    rows = [dbc.Row(columns[i:i + 2]) for i in range(0, len(columns), 2)]
+
+    layout = html.Div(children=rows)
+
+    return [layout]
+
 
 
 @app.callback(
@@ -425,7 +434,7 @@ def update_ind_fig(option_slctd, report_type, params, oeelist1w, oeelist3w, oeel
 def generate_excel_oee(n_clicks, costcenter, oeelist3w):
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist3w = oeelist3w[oeelist3w["COSTCENTER"] == costcenter]
-    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME',
+    columns = ['WORKCENTER', 'COSTCENTER', 'MATERIAL','MATCODE', 'SHIFT', 'WORKDAY', 'QTY', 'SCRAPQTY', 'REWORKQTY', 'RUNTIME',
                'TOTALTIME',
                'TOTFAILURETIME', 'IDEALCYCLETIME', 'SETUPTIME', 'DISPLAY', 'SCRAPTEXT', 'OM_TIME', 'TOTAL_SHIFT_TIME',
                'NANTIME', 'PLANNEDTIME']
@@ -472,6 +481,7 @@ def generate_excel_breakdowns(n_clicks, costcenter, oeelist2w):
     prevent_initial_call=True
 )
 def generate_excel_baddatas(n_clicks, costcenter, oeelistw4):
+
     oeelistw4 = pd.read_json(oeelistw4, orient='split')
     # backup_df = oeelist2w.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"])["QTY", "SCRAPQTY", "REWORKQTY",
     #     "RUNTIME", "TOTALTIME", "TOTFAILURETIME", "IDEALCYCLETIME", "SETUPTIME", "DISPLAY", "SCRAPTEXT", "OMTIME",
@@ -482,3 +492,5 @@ def generate_excel_baddatas(n_clicks, costcenter, oeelistw4):
     dff2 = oeelistw4[oeelistw4["COSTCENTER"] == costcenter]
 
     return dcc.send_data_frame(dff2.to_excel, "BADdata.xlsx", index=False)
+
+

@@ -1,6 +1,7 @@
 import time
 from config import server, username, password, database, database_iot, directory, project_directory
 import pyodbc
+import seaborn as sns
 import pandas as pd
 import datetime as dt
 from dateutil.relativedelta import relativedelta
@@ -14,8 +15,9 @@ import plotly.io as pio
 
 def readquerry(queryx):
     queryy = queryx
+    print(queryy[0:2])
     if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH' \
-            or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT':
+            or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT' or queryy[0:6] == 'DELETE':
         return queryy
     else:
         if os.path.exists(queryy):
@@ -52,6 +54,8 @@ class Agent:
     # dont accept unvalid query
 
     def run_query(self, query='', params=None, isselect=1):
+        print(query)
+        print("*******")
         query = readquerry(query)
         max_retries = 10
         retry_count = 0
@@ -187,13 +191,28 @@ class Agent:
         for i in range(len(texttoput)):
             filedata = filedata.replace(texttofind[i], texttoput[i])
 
-        with open(project_directory + r"\Charting\queries\prdt_report_foryear_calculatıon_test.sql", 'w') as file:
+        ''''
+        with open(textfile, 'w') as file:
             file.write(filedata)
         file.close()
-
+        '''''
+        print(filedata)
+        retry_count = 0
         if return_string == 1:
             with self.connection.cursor() as cursor:
-                return cursor.execute(filedata)
+                while retry_count < 10:
+                    try:
+                        cursor.execute(filedata)
+                        results = cursor.fetchall()
+                        columns = [column[0] for column in cursor.description]
+                        return pd.DataFrame.from_records(results, columns=columns)
+                    except pyodbc.Error as e:
+                        if 'No results. Previous SQL was not a query.' in str(e):
+                            print("No Result from Query")
+                            break
+                        print(f"An error occurred ({retry_count + 1}/{10}): {e}")
+                        retry_count += 1
+                        time.sleep(1)
 
     def replace_and_insertinto(self, path=project_directory + r"\Charting\queries\HİSTORİCALSTOCKS.sql",
                                rapto=dt.date(2022, 9, 1), torep='xxxx-xx-xx'):

@@ -24,11 +24,13 @@ else:
 
 params_list = [(date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"]
 
-layout = layout_for_tvs(costcenter='CNCTORNA')
+layout = layout_for_tvs(costcenter='CNC2')
+
+
 @app.callback(
-    Output("animate_cnctorna", "disabled"),
+    Output("animate_cnc2", "disabled"),
     Input("play", "n_clicks"),
-    State("animate_cnctorna", "disabled"),
+    State("animate_cnc2", "disabled"),
 )
 def toggle(n, playing):
     print("****888*****")
@@ -39,15 +41,16 @@ def toggle(n, playing):
 
 
 @app.callback(
-    Output('slider-output-container_cnctorna', 'children'),
-    Output("wc-slider_cnctorna", "value"),
-    Output("livedata_cnctorna", "data"),
-    Output("wc-slider_cnctorna", "max"),
-    Input("animate_cnctorna", "n_intervals"),
-    Input("wc-slider_cnctorna", "value"),
-    State(component_id='oeelist1w_tv_cnctorna', component_property='data'),
-    State(component_id='oeelist3w_tv_cnctorna', component_property='data'),
-    State(component_id='oeelist7w_tv_cnctorna', component_property='data'),
+    Output('slider-output-container_cnc2', 'children'),
+    Output("wc-slider_cnc2", "value"),
+    Output("livedata_cnc2", "data"),
+    Output("wc-slider_cnc2", "max"),
+    Input("animate_cnc2", "n_intervals"),
+    Input("wc-slider_cnc2", "value"),
+
+    State(component_id='oeelist1w_tv_cnc2', component_property='data'),
+    State(component_id='oeelist3w_tv_cnc2', component_property='data'),
+    State(component_id='oeelist7w_tv_cnc2', component_property='data'),
     prevent_initial_call=True,
 )
 def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
@@ -55,21 +58,21 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                   "workend": date.today().isoformat(),
                   "interval": "day"}
 
+    list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters("CNC2", "pers", params_dic, oeelist1w,
+                                                                              oeelist3w, oeelist7w, 1)
 
-    list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters("CNCTORNA", "pers", params_dic, oeelist1w,
-                                                                              oeelist3w, oeelist7w,1)
     list_of_figs = [i for i in list_of_figs if i != {}]
     max_of_slider = len(list_of_figs)
 
     print("asdadasdasda")
-    print(list_of_data)
+    print(len(list_of_figs))
     print("asdadasdasda")
 
     if selected_value + 1 > len(list_of_figs):
         selected_value = -1
         return html.Div(
             children=[
-                dcc.Graph(figure=list_of_figs[selected_value],style={'margin-left':'107px'}),
+                dcc.Graph(figure=list_of_figs[selected_value], style={'margin-left': '107px'}),
                 dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
                                      style_cell={
                                          "minWidth": "80px",
@@ -89,8 +92,9 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
     else:
         return html.Div(
             children=[
-                dcc.Graph(figure=list_of_figs[selected_value],style={'margin-left':'107px'}),
+                dcc.Graph(figure=list_of_figs[selected_value], style={'margin-left': '107px'}),
                 dash_table.DataTable(data=list_of_data[selected_value], columns=list_of_columns[selected_value],
+
                                      style_cell={
                                          'color': 'black',  # Font color for the cells
                                          'backgroundColor': 'rgba(255, 255, 255, 0.8)',
@@ -117,19 +121,19 @@ def update_output(n, selected_value, oeelist1w, oeelist3w, oeelist7w):
                                      style_data_conditional=[
                                          # Here you can add any conditional styles you might have
                                          # For example, styling for the active cell or conditional formatting based on cell values
-                                     ]
+                                     ],
                                      )
             ], style={'margin-left': '-180px'}
         ), selected_value + 1, no_update, max_of_slider
 
 
 @app.callback(
-    Output('wc-output-container_cnctorna', 'children'),
-    Input("animate_cnctorna", "n_intervals"),
-    Input("wc-slider_cnctorna", "value"),
-    State("livedata_cnctorna", 'data')
+    Output('wc-output-container_cnc2', 'children'),
+    Input("animate_cnc2", "n_intervals"),
+    Input("wc-slider_cnc2", "value"),
+    State("livedata_cnc2", 'data')
 )
-def update_ind_fig(n, selected_value, livedata_cnctorna):
+def update_ind_fig(n, selected_value, livedata_cnc2):
     """
     Callback to update individual figures for each work center in the selected cost center.
 
@@ -140,15 +144,15 @@ def update_ind_fig(n, selected_value, livedata_cnctorna):
         tuple: A tuple containing lists of figures, data, columns, and styles for each work center.
     """
 
-    return sliding_indicator_container(livedata=livedata_cnctorna,
-                                       selected_value=selected_value, costcenter='CNCTORNA')
+    return sliding_indicator_container(livedata=livedata_cnc2,
+                                       selected_value=selected_value, costcenter='CNC2')
 
 
 @app.callback(
-    Output("oeelist1w_tv_cnctorna", "data"),
-    Output('oeelist3w_tv_cnctorna', 'data'),
-    Output('oeelist7w_tv_cnctorna', 'data'),
-    Output('oeelist0w_tv_cnctorna', 'data'),
+    Output("oeelist1w_tv_cnc2", "data"),
+    Output('oeelist3w_tv_cnc2', 'data'),
+    Output('oeelist7w_tv_cnc2', 'data'),
+    Output('oeelist0w_tv_cnc2', 'data'),
     Input("15min_update", "n_intervals"))
 def refresh_data(n):
     params_dic = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
@@ -162,16 +166,16 @@ def refresh_data(n):
     oeelist3w = prdconf(params_list)[3]
     oeelist7w = prdconf(params_list)[7]
     oeelist0w = prdconf(params_list)[0]
-    return  oeelist1w,oeelist3w,oeelist7w,oeelist0w
+    return oeelist1w, oeelist3w, oeelist7w, oeelist0w
     #
     # fig, data, columns, styles = workcenters("MONTAJ", "pers", params_dic, oeelist1w, oeelist3w, oeelist7w)
     # alt satırı app.workcennter metoduna taşımak gerek
 
 
 @app.callback(
-    Output('pie_of_yesterday_cnctorna', 'figure'),
-    Input("oeelist0w_tv_cnctorna", "data"),
+    Output('pie_of_yesterday_cnc2', 'figure'),
+    Input("oeelist0w_tv_cnc2", "data"),
     Input("play", "n_clicks"))
-def update_piechart(oeelist0w,n):
+def update_piechart(oeelist0w, n):
     print(oeelist0w)
     return return_piechart("CNCTORNA", oeelist0w)

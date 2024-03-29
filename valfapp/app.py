@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 from pandas.errors import IntCastingNaNError
-from dash import ClientsideFunction, Output, Input
+from dash import ClientsideFunction, Output, Input, html, dcc
 from flask_caching import Cache
 import dash
 import dash_bootstrap_components as dbc
@@ -167,19 +167,49 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
     oeelist3w = pd.read_json(oeelist3w, orient='split')
     oeelist7w = pd.read_json(oeelist7w, orient='split')
 
-    list_of_wcs = []
-    if report_type == 'wc':
-        max_output = len(oeelist1w)
-        for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
-            list_of_wcs.append(item)
-    else:
-        max_output = len(oeelist7w)
-        for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
-            list_of_wcs.append(item)
+    list_of_items = []
 
-    df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
-    df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
-    df_forpers = oeelist7w[oeelist7w["COSTCENTER"] == option_slctd]
+    if option_slctd == 'CNC1' or option_slctd == 'CNC2':
+
+        if  option_slctd == 'CNC1':
+            list_of_items = ["CNC-07", "CNC-19", "CNC-26", "CNC-28", "CNC-08", "CNC-29"]
+            list_of_wcs = ["CNC-07", "CNC-19", "CNC-26", "CNC-28", "CNC-08", "CNC-29"]
+
+
+        else:
+            list_of_items = ["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
+                       "CNC-17", "CNC-18",
+                       "CNC-20", "CNC-21", "CNC-22", "CNC-23"]
+            list_of_wcs = ["CNC-01", "CNC-03", "CNC-04", "CNC-11", "CNC-12", "CNC-13", "CNC-14", "CNC-15", "CNC-16",
+                       "CNC-17", "CNC-18",
+                       "CNC-20", "CNC-21", "CNC-22", "CNC-23"]
+
+
+        if report_type == 'wc':
+            max_output = len(oeelist1w)
+            for item in oeelist1w.loc[oeelist1w["WORKCENTER"].isin(list_of_items)]["WORKCENTER"].unique():
+                list_of_items.append(item)
+        else:
+            max_output = len(oeelist7w)
+            list_of_items =  oeelist3w.loc[oeelist3w["WORKCENTER"].isin(list_of_items)]["DISPLAY"].unique()
+
+        df = oeelist1w[oeelist1w["WORKCENTER"].isin(list_of_wcs)]
+        df_wclist = oeelist3w[oeelist3w["WORKCENTER"].isin(list_of_wcs)]
+        df_forpers = oeelist7w[oeelist7w["DISPLAY"].isin(list_of_items)]
+
+    else:
+        if report_type == 'wc':
+            max_output = len(oeelist1w)
+            for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
+                list_of_items.append(item)
+        else:
+            max_output = len(oeelist7w)
+            for item in oeelist7w.loc[oeelist7w["COSTCENTER"] == option_slctd]["DISPLAY"].unique():
+                list_of_items.append(item)
+
+        df = oeelist1w[oeelist1w["COSTCENTER"] == option_slctd]
+        df_wclist = oeelist3w[oeelist3w["COSTCENTER"] == option_slctd]
+        df_forpers = oeelist7w[oeelist7w["COSTCENTER"] == option_slctd]
 
     list_of_figs = []
     list_of_columns = []
@@ -207,16 +237,16 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
     for item in range(MAX_OUTPUT):
 
-        if item < len(list_of_wcs):
+        if item < len(list_of_items):
             if report_type == 'wc':
-                fig = indicator_with_color(df_metrics=df, order=list_of_wcs[item], colorof='black', height=420,
+                fig = indicator_with_color(df_metrics=df, order=list_of_items[item], colorof='black', height=420,
                                            width=450)
-                df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_wcs[item]),
+                df_details = df_wclist.loc[(df_wclist["WORKCENTER"] == list_of_items[item]),
                 wc_col[col_ind:]]
             else:
-                fig = indicator_with_color(df_metrics=df_forpers, order=list_of_wcs[item], colorof='black',
+                fig = indicator_with_color(df_metrics=df_forpers, order=list_of_items[item], colorof='black',
                                            title='DISPLAY', height=420, width=450)
-                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_wcs[item]), pers_col[col_ind:]]
+                df_details = df_wclist.loc[(df_wclist["DISPLAY"] == list_of_items[item]), pers_col[col_ind:]]
 
             aggregations = {
                 'MATERIAL': max,  # Sum of 'performance' column
@@ -279,37 +309,96 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
             df_details["OEE"] = df_details["OEE"].astype(str) + '%'
             df_details["PERFORMANCE"] = (df_details["PERFORMANCE"] * 100).round()
             df_details["PERFORMANCE"] = df_details["PERFORMANCE"].astype(str) + '%'
+
             if come_from_tvlayout == 1:
                 df_details = df_details[["MATERIAL","QTY","AVAILABILITY","QUALITY"]]
+                df_details.columns = ["Malzeme","Adet","Kullanb.","Klite"]
+
             else:
                 if col_ind == 0:
                     df_details["SHIFT"] = df_details["SHIFT"].astype(str)
                     df_details.sort_values(by='SHIFT', inplace=True)
+
+                    if report_type == 'wc':
+                        df_details.columns = ["Vard.", "Mal.", "Adet", "Opr.", "Kul.", "Perf.", "Klite", "OEE", 'Süre']
+                    else:
+                        df_details.columns = ["Vard.", "Adet", "Opr.", "Kul.", "Perf.", "Klite", "OEE", 'Süre']
+
+
+
+
             style = {}
             columns = [{"name": i, "id": i} for i in df_details.columns]
             data = df_details.to_dict("records")
+
         else:
-            fig = {}
-            columns = []
-            data = []
-            style = {"display": "none"}
+            continue
 
         list_of_figs.append(fig)
         list_of_data.append(data)
         list_of_columns.append(columns)
         list_of_styles.append(style)
+
     return list_of_figs,list_of_data,list_of_columns ,list_of_styles
 
 # @cache.memoize(timeout=TIMEOUT)
-def return_piechart(option_slctd,oeelist0):
+def return_piechart(option_slctd,oeelist0,forreports=0):
+
     oeelist0 = {k: pd.read_json(v, orient='split') for k, v in oeelist0.items()}
     df = oeelist0[option_slctd]
-    print(df)
     df["OEE"] = df["OEE"] * 100
     try:
         df["OEE"] = df["OEE"].astype(int)
     except pd.errors.IntCastingNaNError:
         df["OEE"] = 0
+
+    def sunburst_statusbar():
+        # Assuming 'df' and 'fig' are already defined and 'fig' is your sunburst chart
+
+        # Generate a list of color values from the color scale used in the sunburst chart
+
+        # rates_min = df["RATES"].min()
+        # rates_max = df["RATES"].max()
+
+        rates_min = 0
+        rates_max = 100
+
+        rates_range = np.linspace(rates_min, rates_max, num=10)  # Create 10 intervals for the example
+
+        if int(df["OEE"][0] * 100) > 38:
+            color_scale = px.colors.diverging.RdYlGn  # Replace with the color scale you used in your sunburst chart
+        else:
+            color_scale = px.colors.diverging.RRdYlGn_r
+
+        # Map each rate to a color
+        rate_to_color = {rate: color_scale[int((rate - rates_min) / (rates_max - rates_min) * (len(color_scale) - 1))]
+                         for rate in rates_range}
+
+        # Create custom color scale bar
+        color_scale_divs = [
+            html.Div(
+                style={
+                    'backgroundColor': rate_to_color[rate],
+                    'height': '20px',  # Fixed height for each color segment
+                    'color': 'black' if rate < (rates_max + rates_min) / 2 else 'white',
+                    # Adjust text color for contrast
+                    'textAlign': 'center',  # Center the text
+                    'fontWeight': 'bold'  # Optional: make the text bold
+                },
+                children=str(int(rate))  # Display the rate value
+            )
+            for rate in rates_range
+        ]
+
+        color_scale_legend = html.Div(color_scale_divs, style={
+            'display': 'flex',
+            'flexDirection': 'column',  # Stack divs vertically
+            'margin-left':30,
+            'margin-top':85
+        })
+
+        return color_scale_legend
+
     if int(df["OEE"][0]*100) > 38:
         print("if doğru ( app.py satır 283 ) ")
         fig = px.sunburst(df, path=["OEE", "MACHINE", "OPR"], values="RATES", width=425, height=425,
@@ -321,25 +410,14 @@ def return_piechart(option_slctd,oeelist0):
                           color="RATES", color_continuous_scale=px.colors.diverging.RdYlGn_r,
                           color_continuous_midpoint=50)
 
-    fig.update_traces(hovertemplate='<b>Actual Rate is %{value} </b>',
-                      textfont=dict(size=[15,15,15,15,15,60,60]))
-    fig.update_layout(showlegend=False,
+    fig.update_traces(hoverinfo='none')  # Disables hover information
+
+    fig.update_layout(showlegend=False,coloraxis_showscale=False if forreports == 1 else True,
                       paper_bgcolor='rgba(0, 0, 0, 0)', plot_bgcolor='rgba(0, 0, 0, 0)',
                       # width= 10, height= 10,
-                      title_x=0.5, title_xanchor="center",
-                      title_font_size=40,
-                      annotations=[
-                          dict(
-                              text="OEE - Kullanılabilirlik - Performans",
-                              showarrow=False,
-                              xref='paper', yref='paper',
-                              x=0.5, y=1,
-                              xanchor='center', yanchor='bottom',
-                              font=dict(size=18, color=summary_color),
-                              bgcolor='darkolivegreen',  # The desired background color for the title
-                          )]
                       )
-    return fig
+    return fig if forreports ==0 \
+        else dbc.Row([dbc.Col(dcc.Graph(figure=fig), width=8), dbc.Col(sunburst_statusbar(), width=4)])
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="make_draggable"),

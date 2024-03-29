@@ -21,7 +21,7 @@ layout = [
                         html.Div(
                             className="mt-2 justify-content-center",
                             style={
-                                'border':'1px solid red',
+                                'border': '1px solid red',
                                 'width': '300px',
                                 'height': '200px',
                                 'borderRadius': '10px',
@@ -29,24 +29,24 @@ layout = [
                                 'alignItems': 'center',
                                 'justifyContent': 'center',
                                 'background-color': 'lightgray',
-                                'margin-left':'30px'
+                                'margin-left': '30px'
                             },
                             children=[
                                 html.Div(
                                     style={
                                         'font-size': '18px',
                                         'color': 'White',
-                                        'position':'absolute',
-                                        "border-radius":"20px"
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
                                     },
                                     children=""
                                 ),
                                 html.Img(
-                                     src='/assets/Taslama.png',
+                                    src='/assets/Taslama.png',
                                 )
                             ],
                         ),
-                        href='/taslamatv', style={"width":"310px"},
+                        href='/taslamatv', style={"width": "310px"},
                     )
                 ]
             ),
@@ -60,7 +60,7 @@ layout = [
                         html.Div(
                             className="mt-2 justify-content-center",
                             style={
-                                'border':'1px solid red',
+                                'border': '1px solid red',
                                 'width': '300px',
                                 'height': '200px',
                                 'borderRadius': '10px',
@@ -68,24 +68,24 @@ layout = [
                                 'alignItems': 'center',
                                 'justifyContent': 'center',
                                 'background-color': 'lightgray',
-                                'margin-left':'30px'
+                                'margin-left': '30px'
                             },
                             children=[
                                 html.Div(
                                     style={
                                         'font-size': '18px',
                                         'color': 'White',
-                                        'position':'absolute',
-                                        "border-radius":"20px"
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
                                     },
                                     children=""
                                 ),
                                 html.Img(
-                                     src='/assets/Montaj.png',
+                                    src='/assets/Montaj.png',
                                 )
                             ],
                         ),
-                        href='/montajtv', style={"width":"310px"},
+                        href='/montajtv', style={"width": "310px"},
                     )
                 ]
             ),
@@ -99,7 +99,7 @@ layout = [
                         html.Div(
                             className="mt-2 justify-content-center",
                             style={
-                                'border':'1px solid red',
+                                'border': '1px solid red',
                                 'width': '300px',
                                 'height': '200px',
                                 'borderRadius': '10px',
@@ -107,15 +107,15 @@ layout = [
                                 'alignItems': 'center',
                                 'justifyContent': 'center',
                                 'background-color': 'lightgray',
-                                'margin-left':'30px'
+                                'margin-left': '30px'
                             },
                             children=[
                                 html.Div(
                                     style={
                                         'font-size': '18px',
                                         'color': 'White',
-                                        'position':'absolute',
-                                        "border-radius":"20px"
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
                                     },
                                     children=""
                                 ),
@@ -124,7 +124,7 @@ layout = [
                                 )
                             ],
                         ),
-                        href='/yislemtv', style={"width":"310px"},
+                        href='/yislemtv', style={"width": "310px"},
                     )
                 ]
             ),
@@ -138,7 +138,7 @@ layout = [
                         html.Div(
                             className="mt-2 justify-content-center",
                             style={
-                                'border':'1px solid red',
+                                'border': '1px solid red',
                                 'width': '300px',
                                 'height': '200px',
                                 'borderRadius': '200px',
@@ -146,23 +146,180 @@ layout = [
                                 'alignItems': 'center',
                                 'justifyContent': 'center',
                                 'background-color': 'lightgray',
-                                'margin-left':'30px'
+                                'margin-left': '30px'
                             },
                             children=[
                                 html.Div(
                                     style={
                                         'font-size': '18px',
                                         'color': 'White',
-                                        "border-radius":"200px"
+                                        "border-radius": "200px"
                                     },
                                     children=""
                                 ),
                                 html.Img(
-                                     src='/assets/Cnc-torna.png',
+                                    src='/assets/Cnc-torna.png',
                                 )
                             ],
                         ),
-                        href='/cnctotv', style={"width":"310px"},
+                        href='/cnctotv', style={"width": "310px"},
+                    )
+                ]
+            ),
+            className="mt-2 col-lg-3 col-md-6 col-sm-12",
+        ),
+    ], className="mt-5"),
+    dbc.Row([
+        dbc.Col(
+            html.Div(
+                className="row justify-content-center",
+                children=[
+                    dcc.Link(
+                        html.Div(
+                            className="mt-2 justify-content-center",
+                            style={
+                                'border': '1px solid red',
+                                'width': '300px',
+                                'height': '200px',
+                                'borderRadius': '10px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'background-color': 'lightgray',
+                                'margin-left': '30px'
+                            },
+                            children=[
+                                html.Div(
+                                    style={
+                                        'font-size': '18px',
+                                        'color': 'White',
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
+                                    },
+                                    children=""
+                                ),
+                                html.Img(
+                                    src='/assets/cnc1.png',
+                                )
+                            ],
+                        ),
+                        href='/cnc1tv', style={"width": "310px"},
+                    )
+                ]
+            ),
+            className="mt-2 col-lg-3 col-md-6 col-sm-12",
+        ),
+        dbc.Col(
+            html.Div(
+                className="row justify-content-center",
+                children=[
+                    dcc.Link(
+                        html.Div(
+                            className="mt-2 justify-content-center",
+                            style={
+                                'border': '1px solid red',
+                                'width': '300px',
+                                'height': '200px',
+                                'borderRadius': '10px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'background-color': 'lightgray',
+                                'margin-left': '30px'
+                            },
+                            children=[
+                                html.Div(
+                                    style={
+                                        'font-size': '18px',
+                                        'color': 'White',
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
+                                    },
+                                    children=""
+                                ),
+                                html.Img(
+                                    src='/assets/cnc2.png',
+                                )
+                            ],
+                        ),
+                        href='/cnc2tv', style={"width": "310px"},
+                    )
+                ]
+            ),
+            className="mt-2 col-lg-3 col-md-6 col-sm-12",
+        ),
+        dbc.Col(
+            html.Div(
+                className="row justify-content-center",
+                children=[
+                    dcc.Link(
+                        html.Div(
+                            className="mt-2 justify-content-center",
+                            style={
+                                'border': '1px solid red',
+                                'width': '300px',
+                                'height': '200px',
+                                'borderRadius': '10px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'background-color': 'lightgray',
+                                'margin-left': '30px'
+                            },
+                            children=[
+                                html.Div(
+                                    style={
+                                        'font-size': '18px',
+                                        'color': 'White',
+                                        'position': 'absolute',
+                                        "border-radius": "20px"
+                                    },
+                                    children=""
+                                ),
+                                html.Img(
+                                    src='',
+                                )
+                            ],
+                        ),
+                        href='/cnc3', style={"width": "310px"},
+                    )
+                ]
+            ),
+            className="mt-2 col-lg-3 col-md-6 col-sm-12",
+        ),
+        dbc.Col(
+            html.Div(
+                className="row justify-content-center",
+                children=[
+                    dcc.Link(
+                        html.Div(
+                            className="mt-2 justify-content-center",
+                            style={
+                                'border': '1px solid red',
+                                'width': '300px',
+                                'height': '200px',
+                                'borderRadius': '200px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'background-color': 'lightgray',
+                                'margin-left': '30px'
+                            },
+                            children=[
+                                html.Div(
+                                    style={
+                                        'font-size': '18px',
+                                        'color': 'White',
+                                        "border-radius": "200px"
+                                    },
+                                    children=""
+                                ),
+                                html.Img(
+                                    src='',
+                                )
+                            ],
+                        ),
+                        href='/cnc4', style={"width": "310px"},
                     )
                 ]
             ),
@@ -170,4 +327,3 @@ layout = [
         ),
     ], className="mt-5")
 ]
-
