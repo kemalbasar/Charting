@@ -1,5 +1,4 @@
 import datetime
-
 import pandas as pd
 import plotly.graph_objs as go
 import dash
@@ -47,15 +46,15 @@ failure_codes = {
 broker_address = '172.30.134.22'
 port = 1883
 
-topcis_in = {"out/OpMode": "out/OpMode", "out/OpStatus": "out/OpStatus", "out/OpSpeed": "out/OpSpeed",
-             "out/CamAngle": "out/CamAngle", "out/GreenLight": "out/GreenLight", "out/CurrentPiece": "out/CurrentPiece"}
+topcis_in = {"out/opMode": "out/opMode", "out/opStatus": "out/ppStatus", "out/opSpeed": "out/opSpeed",
+             "out/camAngle": "out/camAngle", "out/GreenLight": "out/GreenLight", "out/currentPiece": "out/currentPiece"}
 topics_out = {"dur": "in/TDCStop", "hazır": "in/Start"}
 
-topic = topcis_in["out/OpSpeed"]
-topic2 = topcis_in["out/CurrentPiece"]
-topic3 = topcis_in["out/OpStatus"]
-topic4 = topcis_in["out/CamAngle"]
-topic5 = topcis_in["out/OpMode"]
+topic = topcis_in["out/opSpeed"]
+topic2 = topcis_in["out/currentPiece"]
+topic3 = topcis_in["out/opStatus"]
+topic4 = topcis_in["out/camAngle"]
+topic5 = topcis_in["out/opMode"]
 topic6 = topcis_in["out/GreenLight"]
 
 
@@ -264,7 +263,7 @@ def generate_workcenter_layout(workcenters):
 def update_graph(n, workcenter_list):
     workcenters = workcenter_list
     bgcolor = {wc: "red" for wc in workcenters}
-    print(currentpiece)
+    print(opspeed)
     for wc in workcenters:
 
         if greenlight[wc] == '1':
@@ -281,8 +280,7 @@ def update_graph(n, workcenter_list):
     global dfff
     # dfff = pd.read_json(dfff, orient='666')
     for workcenter in workcenters:
-        print("******")
-        print(dfff)
+
         x_data = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "PARTITION"]) * int(currentpiece[workcenter])
         ndevirhizi = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
         y_data = calculate_current_optimal_qty(int(dfff.loc[dfff["WORKCENTER"] == workcenter, "OPTIMALMIKTAR"]))

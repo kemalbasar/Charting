@@ -8,6 +8,7 @@ import plotly.express as px  # (version 4.7.0 or higher)
 from dash import dcc, html, Input, Output, State, callback_context, \
     no_update, exceptions  # pip install dash (version 2.0.0 or higher)
 import dash_bootstrap_components as dbc
+from dash.exceptions import PreventUpdate
 
 from valfapp.configuration import layout_color
 from valfapp.functions.functions_prd import scatter_plot, get_daily_qty, \
@@ -39,6 +40,17 @@ pd.set_option('display.width', 500)
 pd.set_option('display.max_columns', None)
 
 
+def calculate_interval_to_target_hour(target_hour):
+    now = datetime.now()
+    # Calculate the next occurrence of the target hour
+    target = now.replace(hour=target_hour, minute=0, second=0, microsecond=0)
+    if target < now:
+        # If the target hour today is already past, move to the target hour tomorrow
+        target += timedelta(days=1)
+    # Calculate the interval in milliseconds
+    interval_ms = (target - now).total_seconds() * 1000
+    return interval_ms
+
 def return_tops(graph1="fig_up1_forreports", margin_top=0, graph2="fig_up2_forreports", graph3="fig_up3_forreports"):
     return html.Div(children=[dcc.Graph(id=graph1, figure={}, style={"margin-top": margin_top})])
 
@@ -54,23 +66,27 @@ def return_sparks(graph1="fig_prod_forreports", graph2="fig_scrap__forreports", 
 
 # Main Layout
 layout = dbc.Container([
-    dcc.Store(id='oeeelist0',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[0]),
-    dcc.Store(id='oeeelist1',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[1]),
-    dcc.Store(id='oeeelist2',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[2]),
-    dcc.Store(id='oeeelist3',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[3]),
-    dcc.Store(id='oeeelist6',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[6]),
-    dcc.Store(id='oeeelist7',
-              data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[7]),
+    dcc.Store(id='trigger-timestamp', data=None),  # Stores the timestamp of the initial trigger
+    dcc.Interval(
+            id='check-interval',
+            interval=60*1000,  # Check every minute
+            n_intervals=0
+        ),
+    dcc.Interval(
+        id='interval-trigger',
+        interval=1000,  # 1 second
+        n_intervals=0,
+        max_intervals=1  # Trigger once initially
+    ),
+    dcc.Store(id='oeeelist0'),
+    dcc.Store(id='oeeelist1'),
+    dcc.Store(id='oeeelist2'),
+    dcc.Store(id='oeeelist3'),
+    dcc.Store(id='oeeelist6'),
+    dcc.Store(id='oeeelist7'),
 
-    dcc.Store(id='work-datees', data={"workstart": (date.today() - timedelta(days=kb)).isoformat(),
-                                      'workend': (date.today() - timedelta(days=kb-1)).isoformat()}),
+    dcc.Store(id='work-datees'),
 
-    html.Div(id='refresh3_forreports', style={'display': 'none'}),
     html.H2("CNC Bölüm Raporu", style={
         "background-color": "#2149b4",
         "text-align": "center",
@@ -168,13 +184,65 @@ layout = dbc.Container([
 
 
 @app.callback(
-    Output('location3_forreports', 'href'),
-    Input('refresh3_forreports', 'children')
+    Output('interval-trigger', 'max_intervals'),
+    Input('check-interval', 'n_intervals'),
+    State('trigger-timestamp', 'data')
 )
-def page_refresh3_forreports(n3):
-    if n3:
-        return "/prodeff"
-    return no_update
+def check_elapsed_time(_, trigger_timestamp):
+    if trigger_timestamp is None:
+        # If there's no timestamp, it means the initial trigger hasn't happened yet
+        raise PreventUpdate
+
+    current_time = datetime.now().timestamp()
+    elapsed_time = current_time - trigger_timestamp
+
+    if elapsed_time >= 600:  # 600 seconds = 10 minutes
+        return no_update  # Or set to a specific number if you want to limit future triggers
+
+    raise PreventUpdate
+@app.callback(
+    Output('trigger-timestamp', 'data'),
+    Input('interval-trigger', 'n_intervals')
+)
+def set_trigger_timestamp(n):
+    if n == 1:  # Triggered once
+        return datetime.now().timestamp()
+    else:
+        raise PreventUpdate
+@app.callback(
+    [
+        Output('oeeelist0', 'data'),
+        Output('oeeelist1', 'data'),
+        Output('oeeelist2', 'data'),
+        Output('oeeelist3', 'data'),
+        Output('oeeelist6', 'data'),
+        Output('oeeelist7', 'data'),
+        Output('work-datees', 'data'),
+    ],
+    [Input('interval-trigger', 'n_intervals')]
+)
+def update_data_on_page_load(pathname):
+    # If there's no specific action tied to pathname, you could check for it here
+    # For now, we assume every load/refresh should trigger the data update
+    print(pathname)
+    print(" main here")
+    if not pathname:
+        print(" prevent here")
+
+        raise PreventUpdate
+
+    # Assuming kb is defined and prdconf is your data-fetching function
+    data_points = prdconf(((date.today() - timedelta(days=kb)).isoformat(),
+                           (date.today() - timedelta(days=kb - 1)).isoformat(), "day"))
+
+    # Prepare the data for each store
+    data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 6, 7]]
+    work_dates_data = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
+                       'workend': (date.today() - timedelta(days=kb - 1)).isoformat()}
+
+    # Return the data for each store
+    return *data_for_stores, work_dates_data
+# Connect the Plotly graphs with Dash Components
 
 
 ################################################################################################
@@ -192,7 +260,7 @@ def page_refresh3_forreports(n3):
 def return_summary_data(dates, oeeelist6):
     oeeelist6 = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                       , params=((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat()))
+                                       , params=(dates["workstart"], dates["workend"]))
     data1 = ["Production Volume", get_daily_qty(df=oeeelist6,costcenter='CNC')]
     data2 = ["Working Machines",working_machinesf(working_machines=df_working_machines,costcenter='CNC')[-1]]
     data3 = ["PPM", get_daily_qty(df=oeeelist6,costcenter='CNC', ppm=True)]
@@ -236,8 +304,6 @@ def return_summary_data(dates, oeeelist6):
 
 # ------------------------------------------------------------------------------
 
-
-# Connect the Plotly graphs with Dash Components
 @app.callback(
     Output(component_id='sunburst_forreports', component_property='children'),
     Input(component_id='oeeelist0', component_property='data')
@@ -380,7 +446,7 @@ def get_spark_line(data=pd.DataFrame(), range=list(range(24))):
 def update_spark_line(dates, oeeelist6):
     onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
     df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                       , params=((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat()))
+                                       , params=(dates["workstart"], dates["workend"]))
     fig_prod_forreports = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC'))
     fig_scrap__forreports = get_spark_line(
         data=generate_for_sparkline(data=onemonth_prdqty, proses='CNC', type='HURDA'))
