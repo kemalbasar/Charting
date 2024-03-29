@@ -48,7 +48,7 @@ broker_address = '172.30.134.22'
 port = 1883
 
 topcis_in = {"out/opMode": "out/opMode", "out/opStatus": "out/ppStatus", "out/opSpeed": "out/opSpeed",
-             "out/camAngle": "out/camAngle", "out/GreenLight": "out/GreenLight", "out/currentPiece": "out/currentPiece"}
+             "out/camAngle": "out/camAngle", "out/GreenLight": "out/GreenLight", "out/totalPiece": "out/totalPiece"}
 topics_out = {"dur": "in/TDCStop", "hazır": "in/Start"}
 
 topic = topcis_in["out/opSpeed"]
