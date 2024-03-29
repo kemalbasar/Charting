@@ -43,6 +43,7 @@ failure_codes = {
     'D124_47': 'Communication Timeout',
 }
 
+
 broker_address = '172.30.134.22'
 port = 1883
 
@@ -51,7 +52,7 @@ topcis_in = {"out/opMode": "out/opMode", "out/opStatus": "out/ppStatus", "out/op
 topics_out = {"dur": "in/TDCStop", "hazır": "in/Start"}
 
 topic = topcis_in["out/opSpeed"]
-topic2 = topcis_in["out/currentPiece"]
+topic2 = topcis_in["out/totalPiece"]
 topic3 = topcis_in["out/opStatus"]
 topic4 = topcis_in["out/camAngle"]
 topic5 = topcis_in["out/opMode"]
