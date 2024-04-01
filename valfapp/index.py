@@ -145,7 +145,7 @@ def display_page(pathname,login_status_data):
         return adr_CNC.layout
     elif pathname == '/adrcnctorna':
         return adr_CNCTORNA.layout
-    elif pathname == '/adrpres':
+    elif pathname == '/adrpres1':
         return adr_PRES1.layout
     elif pathname == '/adrpres2':
         return adr_PRES2.layout

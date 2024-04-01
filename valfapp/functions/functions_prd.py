@@ -1,5 +1,3 @@
-from dash import html
-
 from valfapp.configuration import layout_color
 from config import project_directory
 import pandas as pd
@@ -7,6 +5,9 @@ import numpy as np
 import warnings
 import plotly.graph_objs as go
 from datetime import datetime
+from dash import html
+
+summary_color = 'black'
 
 warnings.filterwarnings("ignore")
 
@@ -58,7 +59,8 @@ def working_machinesf(working_machines=working_machines, costcenter='CNC'):
 
 def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shiftandmat=0, nontimes=pd.DataFrame()):
     df = df.loc[
-        df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL","MATCODE", "SHIFT", "CONFIRMATION", "CONFIRMPOS", "CONFTYPE",
+        df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "MATCODE", "SHIFT", "CONFIRMATION", "CONFIRMPOS",
+                                       "CONFTYPE",
                                        "QTY", "SCRAPQTY", "REWORKQTY",
                                        "WORKCENTER", "RUNTIME", "TOTALTIME", "DISPLAY",
                                        "TOTFAILURETIME", "SETUPTIME", "IDEALCYCLETIME", "STEXT", "SCRAPTEXT",
@@ -68,7 +70,8 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df.reset_index(drop=True, inplace=True)
     df["SCRAPTEXT"] = df["SCRAPTEXT"].astype(str)
     df["DISPLAY"] = df["DISPLAY"].astype(str)
-    df = pd.concat([nontimes,df])
+    df = pd.concat([nontimes, df])
+
     def custom_agg(group):
         agg_dict = {
             "QTY": group['QTY'].sum(),
@@ -85,7 +88,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         }
         return pd.Series(agg_dict)
 
-    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL","MATCODE", "SHIFT", "WORKDAY"]).apply(custom_agg)
+    df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "MATCODE", "SHIFT", "WORKDAY"]).apply(custom_agg)
     print("******")
     print(df)
     print("******")
@@ -98,8 +101,6 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     # df_metrics = df_metrics_backup
     df_metrics["IDEALCYCLETIME"] = df_metrics["IDEALCYCLETIME"].astype(float)
     df_metrics["TOTFAILURETIME"] = df_metrics["TOTFAILURETIME"].astype(float)
-
-
 
     if len(df_prdcount) > 0:
         df_metrics = df_metrics.merge(df_prdcount, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'], how='left')
@@ -116,7 +117,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     nontimes.reset_index(inplace=True)
     df_metrics = df_metrics.merge(df_shifttotal, on=['COSTCENTER', 'WORKCENTER', 'WORKDAY', 'SHIFT'],
                                   how='left')
-    df_metrics = df_metrics.merge(nontimes, on=[ 'WORKCENTER', 'WORKDAY', 'SHIFT'],
+    df_metrics = df_metrics.merge(nontimes, on=['WORKCENTER', 'WORKDAY', 'SHIFT'],
                                   how='left')
     df_metrics["OM_TIME"] = df_metrics["OM_TIME"].fillna(0)
 
@@ -124,6 +125,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         # Convert '03-07-2023' to a datetime.date object, ÖNCEKİ VARDİYA KOŞULU
         comparison_date = datetime.strptime('03-07-2023', '%d-%m-%Y').date()
         return (510 if workday > comparison_date else 420) - float(total_shift_time) - float(om_time)
+
     # Applying the function to each row in the dataframe
     df_metrics["NANTIME"] = df_metrics.apply(
         lambda row: calculate_nantime(row["WORKDAY"], row["TOTAL_SHIFT_TIME"], row["OM_TIME"]), axis=1)
@@ -135,9 +137,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     #                          range(len(df_metrics))]
     df_metrics["PLANNEDTIME"] = df_metrics["TOTALTIME"] + df_metrics["NANTIME"]
 
-    #Shift Time Calculations.#Shift Time Calculations.#Shift Time Calculations.
-
-
+    # Shift Time Calculations.#Shift Time Calculations.#Shift Time Calculations.
 
     df_metrics.reset_index(inplace=True, drop=True)
     df_metrics["PERFORMANCE"] = [
@@ -159,6 +159,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     # df_metrics["PERFORMANCEWITHWEIGHT"].sum() / df_metrics["VARD"].sum()
     weights = df_metrics.loc[df_metrics.index, "PLANNEDTIME"]
     weights[weights <= 0] = 1
+
     # df_metrics = df_metrics[df_metrics["TOTALTIME"] > 0]
 
     def weighted_average(x):
@@ -277,7 +278,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         df_piechart_final.rename(index={'SESSIONTIME2': 'SESSIONTIME'}, inplace=True)
         details[costcenter] = df_piechart_final
     df_metrics = pd.concat([df_metrics, nontimes])
-    return details,df_metrics, df_metrics_forwc, df_metrics_forpers
+    return details, df_metrics, df_metrics_forwc, df_metrics_forpers
 
 
 def generate_for_sparkline(data='', proses='CNC', type='TOPLAM', ppm=False):
@@ -541,7 +542,6 @@ def indicator_for_tvs(status='white', fullname='',
         "paper_bgcolor": status,
         "width": size["width"], "height": size["height"]})
 
-
     return fig
 
 
@@ -575,8 +575,8 @@ def indicator_for_yislem(status='white', fullname='',
 
     colorof = 'white' if durus < 0 else 'black'
 
-    date_pos =-1.8 if rate == 8 / 20 else -0.3
-    mat_pos = -1.13if rate == 8 / 20 else -0.02
+    date_pos = -1.8 if rate == 8 / 20 else -0.3
+    mat_pos = -1.13 if rate == 8 / 20 else -0.02
     annotation = {
 
         'x': 0.5,  # If we consider the x-axis as 100%, we will place it on the x-axis with how many %
@@ -638,12 +638,10 @@ def indicator_for_yislem(status='white', fullname='',
     })
     fig.update_annotations(showarrow=False)
 
-
     return fig
 
 
-def legend_generater(color_map,fontsize =12,margin_left=0):
-
+def legend_generater(color_map, fontsize=12, margin_left=0):
     legend_items = []
     for label, color in color_map.items():
         # Each legend item is a Div containing a colored square and the label text
@@ -658,7 +656,7 @@ def legend_generater(color_map,fontsize =12,margin_left=0):
                 'border': '1px solid black'  # Optionally add a border
             }),
             # Label text
-            html.Span(label, style={'verticalAlign': 'middle','color': 'black','fontSize':fontsize}),
+            html.Span(label, style={'verticalAlign': 'middle', 'color': 'black', 'fontSize': fontsize}),
         ], style={'marginBottom': '5px'})  # Add space between items
 
         legend_items.append(legend_item)
@@ -668,7 +666,7 @@ def legend_generater(color_map,fontsize =12,margin_left=0):
         'padding': '10px',  # Add padding around the legend
         'border': '1px solid black',  # Optionally add a border around the entire legend
         'display': 'inline-block',  # Use inline-block for tighter wrapping around the content
-        "margin-left":margin_left,
+        "margin-left": margin_left,
         'max-height': '500px',  # Adjust the max height as needed
         'overflow-y': 'auto'
     })
