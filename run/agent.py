@@ -15,7 +15,6 @@ import plotly.io as pio
 
 def readquerry(queryx):
     queryy = queryx
-    print(queryy[0:2])
     if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH' \
             or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT' or queryy[0:6] == 'DELETE':
         return queryy
@@ -54,8 +53,6 @@ class Agent:
     # dont accept unvalid query
 
     def run_query(self, query='', params=None, isselect=1):
-        print(query)
-        print("*******")
         query = readquerry(query)
         max_retries = 10
         retry_count = 0
@@ -196,7 +193,6 @@ class Agent:
             file.write(filedata)
         file.close()
         '''''
-        print(filedata)
         retry_count = 0
         if return_string == 1:
             with self.connection.cursor() as cursor:

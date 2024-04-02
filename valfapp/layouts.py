@@ -1277,29 +1277,44 @@ def return_adr_callbacks(costcenter='cnc'):
         Input(component_id=f'work-dates_{costcenter}', component_property='data')
     )
     def create_scatterplot_for_scrapqty(dates):
+
+        print("*****")
+        print(dates)
+        print("*****")
+
+
         graphwidth = 900
         df_scrap = ag.run_query(query=r"EXEC VLFPRDSCRAPWITHPARAMS @WORKSTART=?, @WORKEND=?"
                                 , params=(dates["workstart"], dates["workend"]))
-        df_scrap = df_scrap[df_scrap["COSTCENTER"] == costcenter.upper()]
+
+        df_scrap = df_scrap[df_scrap["COSTCENTER"].str.contains(costcenter.upper(), na=False)]
+
+        print("*****")
+        print(df_scrap)
+        print("*****")
+
+
         cat_order_sumscrap = df_scrap.groupby("STEXT")["SCRAP"].sum().sort_values(ascending=False).index
         df_scrap["SCRAP"] = df_scrap["SCRAP"].astype("int")
         category_order = df_scrap["STEXT"].unique()
         color_map = {category: color for category, color in zip(category_order, px.colors.qualitative.Alphabet)}
 
-        fig = px.histogram(data_frame=df_scrap.loc[df_scrap["COSTCENTER"] == costcenter.upper()],
+        fig = px.histogram(data_frame=df_scrap,
                            x="WORKCENTER",
                            y="SCRAP",
                            color="STEXT",
                            color_discrete_map=color_map,
                            hover_data=["MTEXTX"],
                            width=1500, height=500,
+                           histfunc='sum',
                            category_orders={"STEXT": cat_order_sumscrap})
+
         # fig.update_traces(textfont=dict(family=['Arial Black']))
         fig.update_xaxes(type="category", tickangle=90, fixedrange=True, tickfont=dict(
             color='grey',  # Set tick label color to white
             size=13,  # Set font size (adjust as needed)
             family='Arial Black')),  # figs.update_yaxes(categoryorder="total descending")
-        fig.update_layout(margin=dict(l=100, r=70, t=100, b=100), barmode='overlay', paper_bgcolor=layout_color,
+        fig.update_layout(margin=dict(l=100, r=70, t=100, b=100), barmode='relative', paper_bgcolor=layout_color,
                           plot_bgcolor='rgba(0, 0, 0, 0)',
                           font_color=summary_color,
                           title_font_family="Times New Roman", title_font_color="red", width=graphwidth, height=400,
