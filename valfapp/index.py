@@ -7,10 +7,10 @@ import dash_bootstrap_components as dbc
 ### Import Dash Instance and Pages ###
 from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
-from valfapp.layouts import layout_27_loginpage, layout_12_loginpage, layout_12_loginpage_v2
+from valfapp.layouts import layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
- tvmonitor, uretimrapor, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
-    adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page
+    tvmonitor, uretimrapor, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
+    adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page, adr_CNC_week
 from flask import request,g
 
 ### Page container ###
@@ -143,6 +143,8 @@ def display_page(pathname,login_status_data):
         return camayikuretim.layout
     elif pathname == '/adrcnc':
         return adr_CNC.layout
+    elif pathname == '/adrcncweek':
+        return adr_CNC_week.layout
     elif pathname == '/adrcnctorna':
         return adr_CNCTORNA.layout
     elif pathname == '/adrpres1':
@@ -187,6 +189,7 @@ app.validation_layout = html.Div(
         kapasite.layout,
         gvt_page.layout,
         adr_CNC.layout,
+        adr_CNC_week.layout,
         adr_CNCTORNA.layout,
         adr_PRES1.layout,
         adr_PRES2.layout,

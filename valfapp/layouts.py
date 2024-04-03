@@ -18,7 +18,6 @@ import dash_table
 
 summary_color = 'black'
 
-
 cur_week = (dt.datetime.now() + relativedelta(months=-1)).strftime('%Y-%U').zfill(6)
 try:
     value = int(
@@ -942,30 +941,264 @@ def layout_for_tvs(costcenter='MONTAJ'):
         ], className="g-0")]
 
 
-def return_adr_layout(costcenter='cnc'):
+def return_adr_layout(costcenter='cnc', interval='day'):
     # Main Layout
     return dbc.Container([
-        dcc.Store(id=f'trigger-timestamp_{costcenter}', data=None),  # Stores the timestamp of the initial trigger
+
+        dcc.Store(id=f'trigger-timestamp_{costcenter}_{interval}', data=None),
+        # Stores the timestamp of the initial trigger
         dcc.Interval(
-            id=f'check-interval_{costcenter}',
+            id=f'check-interval_{costcenter}_{interval}',
             interval=60 * 1000,  # Check every minute
             n_intervals=0
         ),
         dcc.Interval(
-            id=f'interval-trigger_{costcenter}',
+            id=f'interval-trigger_{costcenter}_{interval}',
             interval=1000,  # 1 second
             n_intervals=0,
             max_intervals=1  # Trigger once initially
         ),
-        dcc.Store(id=f'oeeelist0_{costcenter}'),
-        dcc.Store(id=f'oeeelist1_{costcenter}'),
-        dcc.Store(id=f'oeeelist2_{costcenter}'),
-        dcc.Store(id=f'oeeelist3_{costcenter}'),
-        dcc.Store(id=f'oeeelist6_{costcenter}'),
-        dcc.Store(id=f'oeeelist7_{costcenter}'),
+        dcc.Store(id=f'oeeelist0_{costcenter}_{interval}'),
+        dcc.Store(id=f'oeeelist1_{costcenter}_{interval}'),
+        dcc.Store(id=f'oeeelist2_{costcenter}_{interval}'),
+        dcc.Store(id=f'oeeelist3_{costcenter}_{interval}'),
+        dcc.Store(id=f'oeeelist6_{costcenter}_{interval}'),
+        dcc.Store(id=f'oeeelist7_{costcenter}_{interval}'),
 
-        dcc.Store(id=f'work-dates_{costcenter}'),
+        dcc.Store(id=f'work-dates_{costcenter}_{interval}'),
+        dbc.Row([[] if interval == 'day' else
 
+                 html.Div([
+                     html.Div(
+                         className="container-fluid mt-5 grafik-div",
+                         children=[
+                             dbc.Row([
+                                 dbc.Col(html.H3("GENEL VERİMLİLİK TABLOSU", className="text-center"))
+                             ]),
+                             dbc.Row(
+                                 justify="center",
+                                 align="center",
+                                 children=[
+                                     dbc.Col(
+                                         dbc.Card(
+                                             [
+                                                 dbc.CardHeader(
+                                                     html.Div(
+                                                         className="row text-center text-light",
+                                                         children=[
+                                                             dbc.Col(html.H3("Genel Tezgah Verimliliği"),
+                                                                     className="bg-primary col-lg-7 ic-yazilar"),
+                                                             dbc.Col([
+                                                                 html.H3("%85,44"),
+                                                                 html.P("Hedef %80")
+                                                             ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
+                                                         ]
+                                                     )
+                                                 ),
+                                                 dbc.CardBody(
+                                                     dcc.Graph(id=f'fig_tezgah_{costcenter}_{interval}')
+                                                 ),
+                                             ],
+                                             className="grafik",
+                                         ),
+                                         className="col-lg-5 col-md-6 col-sm-12",
+                                     ),
+                                     dbc.Col(
+                                         dbc.Card(
+                                             [
+                                                 dbc.CardHeader(
+                                                     html.Div(
+                                                         className="row text-center text-light",
+                                                         children=[
+                                                             dbc.Col(html.H3("Genel Personel Verimliliği"),
+                                                                     className="bg-primary col-lg-7 ic-yazilar"),
+                                                             dbc.Col([
+                                                                 html.H3("%88,27"),
+                                                                 html.P("Hedef %90")
+                                                             ], className="bg-danger col-lg-5 ic-yazilar-2 p-2")
+                                                         ]
+                                                     )
+                                                 ),
+                                                 dbc.CardBody(
+                                                     dcc.Graph(id=f'fig_personal_{costcenter}_{interval}')
+                                                 ),
+                                             ],
+                                             className="grafik",
+                                         ),
+                                         className="col-lg-5 col-md-6 col-sm-12",
+                                     ),
+                                     dbc.Col(
+                                         dbc.Card(
+                                             [
+                                                 dbc.CardHeader(
+                                                     html.Div(
+                                                         className="row text-center text-light",
+                                                         children=[
+                                                             dbc.Col(html.H3("Genel OEE Verimliliği"),
+                                                                     className="bg-primary col-lg-7 ic-yazilar"),
+                                                             dbc.Col([
+                                                                 html.H3("%70,47"),
+                                                                 html.P("Hedef %65")
+                                                             ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
+                                                         ]
+                                                     )
+                                                 ),
+                                                 dbc.CardBody(
+                                                     dcc.Graph(id=f'fig_oee_{costcenter}_{interval}')
+                                                 ),
+                                             ],
+                                             className="grafik",
+                                         ),
+                                         className="col-lg-5 col-md-6 col-sm-12",
+                                     ),
+                                     dbc.Col(
+                                         dbc.Card(
+                                             [
+                                                 dbc.CardHeader(
+                                                     html.Div(
+                                                         className="row text-center text-light",
+                                                         children=[
+                                                             dbc.Col(html.H3("Genel Kapasite Verimliliği"),
+                                                                     className="bg-primary col-lg-7 ic-yazilar"),
+                                                             dbc.Col([
+                                                                 html.H3("%69,91"),
+                                                                 html.P("Hedef %80")
+                                                             ], className="bg-primary col-lg-5 ic-yazilar-2 p-2")
+                                                         ]
+                                                     )
+                                                 ),
+                                                 dbc.CardBody(
+                                                     dcc.Graph(id=f'fig_kapasite_{costcenter}_{interval}')
+                                                 ),
+                                             ],
+                                             className="grafik",
+                                         ),
+                                         className="col-lg-5 col-md-6 col-sm-12",
+                                     ),
+                                 ]
+                             ),
+                             dbc.Row(
+                                 children=[
+                                     dbc.Col(
+                                         html.Div(
+                                             className="col-lg-3 col-md-6 col-sm-12 me-5 mt-5",
+                                             children=[
+                                                 html.Div(
+                                                     style={"background-color": "#ffffff"},
+                                                     children=[
+                                                         html.Div(
+                                                             className="justify-content-center align-content-center gvt-div-1",
+                                                             style={"height": "50px"},
+                                                             children=[
+                                                                 html.P("Tezgah Çalışma Verimliliği",
+                                                                        className="d-flex gvt-div-yazi"),
+                                                                 html.P("%85,44", className="text-end"),
+                                                             ],
+                                                         )
+                                                     ],
+                                                 ),
+                                                 html.Div(
+                                                     style={"background-color": "#e0e0e0"},
+                                                     children=[
+                                                         html.Div(
+                                                             className="justify-content-center align-content-center p-1 gvt-div-2",
+                                                             style={"height": "50px"},
+                                                             children=[
+                                                                 html.P("Planlı Duruş(Kurulum Setup)",
+                                                                        className="d-flex gvt-div-yazi"),
+                                                                 html.P("%2,10", className="text-end"),
+                                                             ],
+                                                         )
+                                                     ],
+                                                 ),
+                                                 html.Div(
+                                                     style={"background-color": "#f0f0f0"},
+                                                     children=[
+                                                         html.Div(
+                                                             className="justify-content-center align-content-center p-1 gvt-div-3",
+                                                             style={"height": "50px"},
+                                                             children=[
+                                                                 html.P("Kalite Onay", className="d-flex gvt-div-yazi"),
+                                                                 html.P("%0,88", className="text-end"),
+                                                             ],
+                                                         )
+                                                     ],
+                                                 ),
+                                                 html.Div(
+                                                     style={"background-color": "#e0e0e0"},
+                                                     children=[
+                                                         html.Div(
+                                                             className="justify-content-center align-content-center p-1 gvt-div-4",
+                                                             style={"height": "50px"},
+                                                             children=[
+                                                                 html.P("Plansız Duruş",
+                                                                        className="d-flex gvt-div-yazi"),
+                                                                 html.P("%5,79", className="text-end"),
+                                                             ],
+                                                         )
+                                                     ],
+                                                 ),
+                                                 html.Div(
+                                                     style={"background-color": "#f0f0f0"},
+                                                     children=[
+                                                         html.Div(
+                                                             className="justify-content-center align-content-center p-1 gvt-div-5",
+                                                             style={"height": "50px"},
+                                                             children=[
+                                                                 html.P("Diğer", className="d-flex gvt-div-yazi"),
+                                                                 html.P("%5,79", className="text-end"),
+                                                             ],
+                                                         )
+                                                     ],
+                                                 ),
+                                                 html.Div(
+                                                     style={"background-color": "#e0e0e0"},
+                                                     children=[
+                                                         html.Div(
+                                                             className="justify-content-center align-content-center p-1 gvt-div-6",
+                                                             style={"height": "50px"},
+                                                             children=[
+                                                                 html.P("OPR Devamsızlığı",
+                                                                        className="d-flex gvt-div-yazi"),
+                                                                 html.P("%2,78", className="text-end"),
+                                                             ],
+                                                         )
+                                                     ],
+                                                 ),
+                                             ], style={"width": 300},
+                                         ), className="col-lg-2 me-5 mt-3"
+                                     ),
+                                     dbc.Col(
+                                         html.Div([
+                                             html.Div(
+                                                 className="card col-lg-3 col-md-6 col-sm-12 me-3 mt-sm-4 justify-content-center align-items-center grafik-divler",
+                                                 children=[
+                                                     html.Div(className="card-body alt-divler", children=[
+                                                         dcc.Graph(id='fig_planlı', style={"height": "280px"})
+                                                     ])
+                                                 ]),
+                                             html.Div(
+                                                 className="card col-lg-3 col-md-6 col-sm-12 me-3 mt-sm-4 justify-content-center align-items-center grafik-divler",
+                                                 children=[
+                                                     html.Div(className="card-body alt-divler", children=[
+                                                         dcc.Graph(id="fig_plansız", style={"height": "280px"})
+                                                     ])
+                                                 ]),
+                                             html.Div(
+                                                 className="card col-lg-3 col-md-6 col-sm-12 mt-sm-4 justify-content-center align-items-center grafik-divler",
+                                                 children=[
+                                                     html.Div(className="card-body alt-divler", children=[
+                                                         dcc.Graph(id='fig_kalite', style={"height": "280px"})
+                                                     ])
+                                                 ])
+                                         ], className="row mt-lg-5 justify-content-center aligns-item-center d-flex")
+                                     )
+                                 ], style={"margin-left": "150px"},
+                             ),
+                         ],
+                     ),
+                 ])
+                 ]),
         html.H2(f"{costcenter.upper()} Bölüm Raporu", style={
             "background-color": "#2149b4",
             "text-align": "center",
@@ -982,7 +1215,7 @@ def return_adr_layout(costcenter='cnc'):
             "color": "white",
         })),
         dbc.Row(
-            dbc.Col(html.Div(id=f'sunburst_forreports_{costcenter}'),
+            dbc.Col(html.Div(id=f'sunburst_forreports_{costcenter}_{interval}'),
                     width=12, className="d-flex justify-content-center", )
             , className="g-0"),
         dbc.Row([
@@ -994,12 +1227,16 @@ def return_adr_layout(costcenter='cnc'):
                 })),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Col(id=f"my-output_forreports_{costcenter}", width={"size": 2}, style={"margin-left": 0}),
-                        dbc.Col([return_sparks(graph1=f"fig_prod_{costcenter}", graph2=f"fig_working_machine_{costcenter}",
+                        dbc.Col(id=f"my-output_forreports_{costcenter}_{interval}", width={"size": 2},
+                                style={"margin-left": 0}),
+                        dbc.Col([return_sparks(graph1=f"fig_prod_{costcenter}_{interval}",
+                                               graph2=f"fig_working_machine_{costcenter}_{interval}",
                                                margin_left=0)],
                                 width={"size": 2}),
-                        dbc.Col(id=f"my-output_forreports_{costcenter}2", width={"size": 2}, style={"margin-left": 0}),
-                        dbc.Col([return_sparks(graph1=f"fig_ppm_{costcenter}", graph2=f"fig_scrap_{costcenter}",
+                        dbc.Col(id=f"my-output_forreports_{costcenter}2_{interval}", width={"size": 2},
+                                style={"margin-left": 0}),
+                        dbc.Col([return_sparks(graph1=f"fig_ppm_{costcenter}_{interval}",
+                                               graph2=f"fig_scrap_{costcenter}_{interval}",
                                                margin_left=0)],
                                 width={"size": 2})], className="d-flex justify-content-center", width=12)
                 ], className="g-0")
@@ -1015,7 +1252,7 @@ def return_adr_layout(costcenter='cnc'):
                 })),
                 dbc.Row(
                     dbc.Col([
-                        html.Div(id=f'gann_forreports_{costcenter}')],
+                        html.Div(id=f'gann_forreports_{costcenter}_{interval}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
                 style={}, width={"size": 12}
@@ -1030,7 +1267,7 @@ def return_adr_layout(costcenter='cnc'):
                 })),
                 dbc.Row(
                     dbc.Col([
-                        html.Div(id=f'bubble_forreports_{costcenter}')],
+                        html.Div(id=f'bubble_forreports_{costcenter}_{interval}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
                 style={}, width={"size": 12}
@@ -1047,17 +1284,15 @@ def return_adr_layout(costcenter='cnc'):
                 }),
                 dbc.Row(
                     dbc.Col([
-                        html.Div(id=f'fig_scatscrap_forreports_{costcenter}')],
+                        html.Div(id=f'fig_scatscrap_forreports_{costcenter}_{interval}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
                 style={}, width={"size": 12}
             ), ])
         ,
-        html.Div(id=f"generated_1graph1data_for_report_{costcenter}")]
+        html.Div(id=f"generated_1graph1data_for_report_{costcenter}_{interval}")]
 
         , style={"justify-content": "center", "align-items": "center"}, fluid=True)
-
-
 
 
 def return_sparks(graph1="fig_prod_forreports", graph2="fig_scrap_forreports", margin_left=0):
@@ -1069,14 +1304,44 @@ def return_sparks(graph1="fig_prod_forreports", graph2="fig_scrap_forreports", m
                                                "margin-left": margin_left})])
 
 
+def return_adr_callbacks(costcenter='cnc', interval='day'):
+    if interval == 'week':
+        @app.callback(
+            [Output(f'fig_oee_{costcenter}_{interval}', 'figure'),
+             Output(f'fig_personal_{costcenter}_{interval}', 'figure'),
+             Output(f'fig_tezgah_{costcenter}_{interval}', 'figure')],
+            Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data')
+        )
+        def historical_values(dates):
+
+            print("*********")
+            print(dates)
+            print("*********")
+
+            work_date = datetime.strptime(dates["workend"], '%Y-%m-%d')
+            day_of_week = work_date.weekday()
+            days_until_saturday = (5 - day_of_week) % 7
+            if days_until_saturday == 0:
+                saturday_date = work_date
+            else:
+                saturday_date = work_date + timedelta(days=days_until_saturday)
+
+            saturday_date_iso = saturday_date.date().isoformat()
+            df = ag.run_query(f"SELECT TOP 7 * FROM VLFOEE WHERE PERIOD = 'week' AND COSTCENTER = '{costcenter}'"
+                              f"AND OEEDATE <= '{dates['workend']}' ORDER BY OEEDATE DESC")
 
 
-def return_adr_callbacks(costcenter='cnc'):
+            fig = px.line(df, x="OEEDATE", y="OEE")
+            fig_personal = px.line(df, x="OEEDATE", y="PERFORMANCE")
+            fig_tezgah = px.line(df, x="OEEDATE", y="AVAILABILITY")
+
+            return [fig, fig_personal, fig_tezgah]
+
     @app.callback(
-        [Output(component_id=f'my-output_forreports_{costcenter}', component_property='children'),
-         Output(component_id=f'my-output_forreports_{costcenter}2', component_property='children')],
-        [Input(component_id=f'work-dates_{costcenter}', component_property='data'),
-         Input(component_id=f'oeeelist6_{costcenter}', component_property='data')]
+        [Output(component_id=f'my-output_forreports_{costcenter}_{interval}', component_property='children'),
+         Output(component_id=f'my-output_forreports_{costcenter}2_{interval}', component_property='children')],
+        [Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data'),
+         Input(component_id=f'oeeelist6_{costcenter}_{interval}', component_property='data')]
     )
     def return_summary_data(dates, oeeelist6):
         print("summary running")
@@ -1084,7 +1349,8 @@ def return_adr_callbacks(costcenter='cnc'):
         df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                                            , params=(dates["workstart"], dates["workend"]))
         data1 = ["Production Volume", get_daily_qty(df=oeeelist6, costcenter=costcenter.upper())]
-        data2 = ["Working Machines", working_machinesf(working_machines=df_working_machines, costcenter=costcenter.upper())[-1]]
+        data2 = ["Working Machines",
+                 working_machinesf(working_machines=df_working_machines, costcenter=costcenter.upper())[-1]]
         data3 = ["PPM", get_daily_qty(df=oeeelist6, costcenter=costcenter.upper(), ppm=True)]
         data4 = ["Scrap", get_daily_qty(df=oeeelist6, costcenter=costcenter.upper(), type='HURDA')]
 
@@ -1126,16 +1392,16 @@ def return_adr_callbacks(costcenter='cnc'):
     # ------------------------------------------------------------------------------
 
     @app.callback(
-        Output(component_id=f'sunburst_forreports_{costcenter}', component_property='children'),
-        Input(component_id=f'oeeelist0_{costcenter}', component_property='data')
+        Output(component_id=f'sunburst_forreports_{costcenter}_{interval}', component_property='children'),
+        Input(component_id=f'oeeelist0_{costcenter}_{interval}', component_property='data')
     )
     def update_graph_sunburst_forreports_(oeeelist0):
         print("pie running")
         return return_piechart(costcenter.upper(), oeeelist0, 1)
 
     @app.callback(
-        Output(component_id=f'bubble_forreports_{costcenter}', component_property='children'),
-        Input(component_id=f'oeeelist2_{costcenter}', component_property='data'))
+        Output(component_id=f'bubble_forreports_{costcenter}_{interval}', component_property='children'),
+        Input(component_id=f'oeeelist2_{costcenter}_{interval}', component_property='data'))
     def update_graph_bubble_forreports_(oeeelist2):
         graphwidth = 950
         oeeelist2 = pd.read_json(oeeelist2, orient='split')
@@ -1174,8 +1440,8 @@ def return_adr_callbacks(costcenter='cnc'):
                     dcc.Graph(figure=figs), width=10), dbc.Col(legend_generater(color_map, 10), width=2)])])
 
     @app.callback(
-        Output(component_id=f'gann_forreports_{costcenter}', component_property='children'),
-        Input(component_id=f'oeeelist2_{costcenter}', component_property='data')
+        Output(component_id=f'gann_forreports_{costcenter}_{interval}', component_property='children'),
+        Input(component_id=f'oeeelist2_{costcenter}_{interval}', component_property='data')
     )
     def update_chart_gann_forreports_(oeeelist2):
         graphwidth = 900
@@ -1252,18 +1518,19 @@ def return_adr_callbacks(costcenter='cnc'):
         )
 
     @app.callback(
-        [Output(component_id=f'fig_prod_{costcenter}', component_property='figure'),
-         Output(component_id=f'fig_scrap_{costcenter}', component_property='figure'),
-         Output(component_id=f'fig_working_machine_{costcenter}', component_property='figure'),
-         Output(component_id=f'fig_ppm_{costcenter}', component_property='figure')],
-        Input(component_id=f'work-dates_{costcenter}', component_property='data'),
-        Input(component_id=f'oeeelist6_{costcenter}', component_property='data')
+        [Output(component_id=f'fig_prod_{costcenter}_{interval}', component_property='figure'),
+         Output(component_id=f'fig_scrap_{costcenter}_{interval}', component_property='figure'),
+         Output(component_id=f'fig_working_machine_{costcenter}_{interval}', component_property='figure'),
+         Output(component_id=f'fig_ppm_{costcenter}_{interval}', component_property='figure')],
+        Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data'),
+        Input(component_id=f'oeeelist6_{costcenter}_{interval}', component_property='data')
     )
     def update_spark_line(dates, oeeelist6):
         onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
         df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
                                            , params=(dates["workstart"], dates["workend"]))
-        fig_prod_forreports = get_spark_line(data=generate_for_sparkline(data=onemonth_prdqty, proses=costcenter.upper()))
+        fig_prod_forreports = get_spark_line(
+            data=generate_for_sparkline(data=onemonth_prdqty, proses=costcenter.upper()))
         fig_scrap__forreports = get_spark_line(
             data=generate_for_sparkline(data=onemonth_prdqty, proses=costcenter.upper(), type='HURDA'))
         fig_working_machine_forreports = get_spark_line(
@@ -1273,15 +1540,14 @@ def return_adr_callbacks(costcenter='cnc'):
         return [fig_prod_forreports, fig_scrap__forreports, fig_working_machine_forreports, fig_ppm_forreports]
 
     @app.callback(
-        Output(component_id=f'fig_scatscrap_forreports_{costcenter}', component_property='children'),
-        Input(component_id=f'work-dates_{costcenter}', component_property='data')
+        Output(component_id=f'fig_scatscrap_forreports_{costcenter}_{interval}', component_property='children'),
+        Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data')
     )
     def create_scatterplot_for_scrapqty(dates):
 
         print("*****")
         print(dates)
         print("*****")
-
 
         graphwidth = 900
         df_scrap = ag.run_query(query=r"EXEC VLFPRDSCRAPWITHPARAMS @WORKSTART=?, @WORKEND=?"
@@ -1292,7 +1558,6 @@ def return_adr_callbacks(costcenter='cnc'):
         print("*****")
         print(df_scrap)
         print("*****")
-
 
         cat_order_sumscrap = df_scrap.groupby("STEXT")["SCRAP"].sum().sort_values(ascending=False).index
         df_scrap["SCRAP"] = df_scrap["SCRAP"].astype("int")
@@ -1326,11 +1591,11 @@ def return_adr_callbacks(costcenter='cnc'):
                                   dbc.Col(legend_generater(color_map, 12), width=2, style={'margin-left': 0})])])
 
     @app.callback(
-        [Output(f"generated_1graph1data_for_report_{costcenter}", "children")],
-        [Input(f"work-dates_{costcenter}", "data"),
-         Input(component_id=f'oeeelist1_{costcenter}', component_property='data'),
-         Input(component_id=f'oeeelist3_{costcenter}', component_property='data'),
-         Input(component_id=f'oeeelist7_{costcenter}', component_property='data')])
+        [Output(f"generated_1graph1data_for_report_{costcenter}_{interval}", "children")],
+        [Input(f"work-dates_{costcenter}_{interval}", "data"),
+         Input(component_id=f'oeeelist1_{costcenter}_{interval}', component_property='data'),
+         Input(component_id=f'oeeelist3_{costcenter}_{interval}', component_property='data'),
+         Input(component_id=f'oeeelist7_{costcenter}_{interval}', component_property='data')])
     def update_ind_fig(params, oeeelist1w, oeeelist3w, oeeelist7w):
         """
         Callback to update individual figures for each work center in the selected cost center.
@@ -1422,11 +1687,11 @@ def return_adr_callbacks(costcenter='cnc'):
         }), return_layout("pers")])]
 
 
-def return_adr_timecallbacks(costcenter):
+def return_adr_timecallbacks(costcenter, interval='day'):
     @app.callback(
-        Output(f'interval-trigger_{costcenter}', 'max_intervals'),
-        Input(f'check-interval_{costcenter}', 'n_intervals'),
-        State(f'trigger-timestamp_{costcenter}', 'data')
+        Output(f'interval-trigger_{costcenter}_{interval}', 'max_intervals'),
+        Input(f'check-interval_{costcenter}_{interval}', 'n_intervals'),
+        State(f'trigger-timestamp_{costcenter}_{interval}', 'data')
     )
     def check_elapsed_time(_, trigger_timestamp):
         if trigger_timestamp is None:
@@ -1442,8 +1707,8 @@ def return_adr_timecallbacks(costcenter):
         raise PreventUpdate
 
     @app.callback(
-        Output(f'trigger-timestamp_{costcenter}', 'data'),
-        Input(f'interval-trigger_{costcenter}', 'n_intervals')
+        Output(f'trigger-timestamp_{costcenter}_{interval}', 'data'),
+        Input(f'interval-trigger_{costcenter}_{interval}', 'n_intervals')
     )
     def set_trigger_timestamp(n):
         if n == 1:  # Triggered once
@@ -1453,15 +1718,15 @@ def return_adr_timecallbacks(costcenter):
 
     @app.callback(
         [
-            Output(f'oeeelist0_{costcenter}', 'data'),
-            Output(f'oeeelist1_{costcenter}', 'data'),
-            Output(f'oeeelist2_{costcenter}', 'data'),
-            Output(f'oeeelist3_{costcenter}', 'data'),
-            Output(f'oeeelist6_{costcenter}', 'data'),
-            Output(f'oeeelist7_{costcenter}', 'data'),
-            Output(f'work-dates_{costcenter}', 'data'),
+            Output(f'oeeelist0_{costcenter}_{interval}', 'data'),
+            Output(f'oeeelist1_{costcenter}_{interval}', 'data'),
+            Output(f'oeeelist2_{costcenter}_{interval}', 'data'),
+            Output(f'oeeelist3_{costcenter}_{interval}', 'data'),
+            Output(f'oeeelist6_{costcenter}_{interval}', 'data'),
+            Output(f'oeeelist7_{costcenter}_{interval}', 'data'),
+            Output(f'work-dates_{costcenter}_{interval}', 'data'),
         ],
-        [Input(f'interval-trigger_{costcenter}', 'n_intervals')]
+        [Input(f'interval-trigger_{costcenter}_{interval}', 'n_intervals')]
     )
     def update_data_on_page_load(pathname):
         # If there's no specific action tied to pathname, you could check for it here
@@ -1481,7 +1746,7 @@ def return_adr_timecallbacks(costcenter):
         # Prepare the data for each store
         data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 6, 7]]
         work_dates_data = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
-                           'workend': (date.today() - timedelta(days=kb - 1)).isoformat()}
+                           "workend": (date.today() - timedelta(days=kb - 1)).isoformat()}
 
         # Return the data for each store
         return *data_for_stores, work_dates_data
