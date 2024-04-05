@@ -12,9 +12,6 @@ from dash_table import DataTable
 
 from valfapp.layouts import nav_bar
 
-
-
-
 layout = [
     nav_bar,
     dcc.Store(id='ayıklama_data',
@@ -47,7 +44,7 @@ layout = [
     dbc.Row([
         dbc.Col([
             html.H3("PPM Değeri"),
-            html.H5(id='ppm_data'),
+            html.H5(id='ppm_data', style={'font-size': '100px', 'border': '2px solid white'})
         ], width=3),
 
         dbc.Col([
@@ -69,7 +66,7 @@ layout = [
                     'minWidth': '70%',  # Adjust this value to set the minimum width
                     'width': '80%',  # Adjust this value to set the width
                     'textAlign': 'center',
-                    'color':'black'
+                    'color': 'black'
                 },
                 style_header={
                     'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
@@ -87,154 +84,128 @@ layout = [
     ], style={"margin-left": 75}),
 
     dbc.Row([
-        dbc.Col([
-            html.H3("Ölçüm Bilgileri"),
-            html.Div(DataTable(
-                id='all_intervals_ic',
-                columns=[
-                    {'name': 'MATERIAL', 'id': 'MATERIAL'},
-                    {'name': 'CONFIRMATION', 'id': 'CONFIRMATION'},
-                    {'name': 'OK', 'id': 'OK'},
-                    {'name': 'NOTOKGORSEL', 'id': 'NOTOKGORSEL'},
-                    {'name': 'NOTOKOLCUSEL', 'id': 'NOTOKOLCUSEL'},
-                ],
-                style_table={
-                    'height': '300px',
-                    'overflowY': 'auto',
-                    'border': 'thin lightgrey solid',
-                    'fontFamily': 'Arial, sans-serif',
-                    'minWidth': '70%',  # Adjust this value to set the minimum width
-                    'width': '80%',  # Adjust this value to set the width
-                    'textAlign': 'center',
-                },
-                style_header={
-                    'backgroundColor': 'rgb(230, 230, 230)',  # Semi-transparent background
-                    'fontWeight': 'bold',  # Bold font
-                    'color': '#2F4F4F',  # Cool text color
-                    'fontFamily': 'Arial, sans-serif',  # Font family
-                    'fontSize': '16px',
-                    'border': '1px dotted brown',
-                    'borderRadius': '2px'
-                    # Font size
-                },
+                html.Div([
+                    html.H3("****** Ölçüm Bilgileri ******",
+                            style={'textAlign': 'center', 'padding': '23px', 'borderRadius': '5px',
+                                   'fontSize': '35px', 'margin-top': 30}),
+                    dbc.Row([
+                        dbc.Col(html.Div([
+                            html.H4("İç Çap"),
+                            DataTable(
+                                id='all_intervals_ic',
+                                style_table={
+                                    'height': '300px',
+                                    'overflowY': 'auto',
+                                    'border': 'thin lightgrey solid',
+                                    'fontFamily': 'Arial, sans-serif',
+                                    'minWidth': '100%',  # Adjusted to full width of the div
+                                    'width': '100%',
+                                    'textAlign': 'center',
+                                },
+                                style_header={
+                                    'backgroundColor': 'rgb(230, 230, 230)',
+                                    'fontWeight': 'bold',
+                                    'color': '#2F4F4F',
+                                    'fontFamily': 'Arial, sans-serif',
+                                    'fontSize': '16px',
+                                    'border': '1px dotted brown',
+                                    'borderRadius': '2px'
+                                },
+                                style_data_conditional=[
+                                    {'if': {'row_index': 'odd'},
+                                     'backgroundColor': 'rgb(248, 248, 248)'}
+                                ],
+                                style_cell={
+                                    "textAlign": "center",
+                                    "padding": "10px",
+                                    "color": "black",
+                                    'maxWidth': 70
+                                }
+                            )
+                        ], style={"margin-top": 50}),width=3),
+                        dbc.Col(dcc.Graph(id="dist_plot1", style={"margin-top": 50}))
+                    ], justify="around"),
 
-                style_data_conditional=[
-                    {
-                        'if': {'row_index': 'odd'},
-                        'backgroundColor': 'rgb(248, 248, 248)'
-                    }
-                ],
-                style_cell={
-                        "textAlign": "center",
-                        "padding": "10px",
-                        "color": "black",
-                        'max-width': 115
+                    dbc.Row([
+                        dbc.Col(html.Div([
+                            html.H4("Dış Çap"),
+                            DataTable(
+                                id='all_intervals_dis',
+                                style_table={
+                                    'height': '300px',
+                                    'overflowY': 'auto',
+                                    'border': 'thin lightgrey solid',
+                                    'fontFamily': 'Arial, sans-serif',
+                                    'minWidth': '100%',  # Adjusted to full width of the div
+                                    'width': '100%',
+                                    'textAlign': 'center',
+                                },
+                                style_header={
+                                    'backgroundColor': 'rgb(230, 230, 230)',
+                                    'fontWeight': 'bold',
+                                    'color': '#2F4F4F',
+                                    'fontFamily': 'Arial, sans-serif',
+                                    'fontSize': '16px',
+                                    'border': '1px dotted brown',
+                                    'borderRadius': '20px'
+                                },
+                                style_data_conditional=[
+                                    {'if': {'row_index': 'odd'},
+                                     'backgroundColor': 'rgb(248, 248, 248)'}
+                                ],
+                                style_cell={
+                                    "textAlign": "center",
+                                    "padding": "10px",
+                                    "color": "black",
+                                    'maxWidth': 115
+                                }
+                            )
+                        ], style={"margin-top": 50}),width=3),
+                        dbc.Col(dcc.Graph(id="dist_plot2", style={"margin-top": 50}))
+                    ], justify="around"),
 
-                    }
-
-
-            ), style={"margin-top": 100}),
-
-            html.Div(DataTable(
-                id='all_intervals_dis',
-                columns=[
-                    {'name': 'MATERIAL', 'id': 'MATERIAL'},
-                    {'name': 'CONFIRMATION', 'id': 'CONFIRMATION'},
-                    {'name': 'OK', 'id': 'OK'},
-                    {'name': 'NOTOKGORSEL', 'id': 'NOTOKGORSEL'},
-                    {'name': 'NOTOKOLCUSEL', 'id': 'NOTOKOLCUSEL'},
-                ],
-                style_table={
-                    'height': '300px',
-                    'overflowY': 'auto',
-                    'border': 'thin lightgrey solid',
-                    'fontFamily': 'Arial, sans-serif',
-                    'minWidth': '70%',  # Adjust this value to set the minimum width
-                    'width': '80%',  # Adjust this value to set the width
-                    'textAlign': 'center',
-                },
-                style_header={
-                    'backgroundColor': 'rgb(230, 230, 230)',  # Semi-transparent background
-                    'fontWeight': 'bold',  # Bold font
-                    'color': '#2F4F4F',  # Cool text color
-                    'fontFamily': 'Arial, sans-serif',  # Font family
-                    'fontSize': '16px',
-                    'border': '1px dotted brown',
-                    'borderRadius': '2px'
-                    # Font size
-                },
-
-                style_data_conditional=[
-                    {
-                        'if': {'row_index': 'odd'},
-                        'backgroundColor': 'rgb(248, 248, 248)'
-                    }
-                ],
-                style_cell={
-                    "textAlign": "center",
-                    "padding": "10px",
-                    "color": "black",
-                    'max-width': 115
-
-                }
-
-            ), style={"margin-top": 95}),
-
-            html.Div(DataTable(
-                id='all_intervals_es',
-                columns=[
-                    {'name': 'MATERIAL', 'id': 'MATERIAL'},
-                    {'name': 'CONFIRMATION', 'id': 'CONFIRMATION'},
-                    {'name': 'OK', 'id': 'OK'},
-                    {'name': 'NOTOKGORSEL', 'id': 'NOTOKGORSEL'},
-                    {'name': 'NOTOKOLCUSEL', 'id': 'NOTOKOLCUSEL'},
-                ],
-                style_table={
-                    'height': '300px',
-                    'overflowY': 'auto',
-                    'border': 'thin lightgrey solid',
-                    'fontFamily': 'Arial, sans-serif',
-                    'minWidth': '70%',  # Adjust this value to set the minimum width
-                    'width': '80%',  # Adjust this value to set the width
-                    'textAlign': 'center',
-                },
-                style_header={
-                    'backgroundColor': 'rgb(230, 230, 230)',  # Semi-transparent background
-                    'fontWeight': 'bold',  # Bold font
-                    'color': '#2F4F4F',  # Cool text color
-                    'fontFamily': 'Arial, sans-serif',  # Font family
-                    'fontSize': '16px',
-                    'border': '1px dotted brown',
-                    'borderRadius': '2px'
-                    # Font size
-                },
-
-                style_data_conditional=[
-                    {
-                        'if': {'row_index': 'odd'},
-                        'backgroundColor': 'rgb(248, 248, 248)'
-                    }
-                ],
-                style_cell={
-                    "textAlign": "center",
-                    "padding": "10px",
-                    "color": "black",
-                    'max-width': 115
-
-                }
-
-            ), style={"margin-top": 80})
-        ], width=3),
-
-        dbc.Col([dcc.Graph(id="dist_plot1", style={"margin-top": 70}),
-                 dcc.Graph(id="dist_plot2", style={"margin-top": 50}),
-                 dcc.Graph(id="dist_plot3", style={"margin-top": 20})], width=8)
-    ], style={"margin-left": 75}),
+                    dbc.Row([
+                        dbc.Col(html.Div([
+                            html.H4("Eş Merkezlilik"),
+                            DataTable(
+                                id='all_intervals_es',
+                                style_table={
+                                    'height': '300px',
+                                    'overflowY': 'auto',
+                                    'border': 'thin lightgrey solid',
+                                    'fontFamily': 'Arial, sans-serif',
+                                    'minWidth': '100%',  # Adjusted to full width of the div
+                                    'width': '100%',
+                                    'textAlign': 'center',
+                                },
+                                style_header={
+                                    'backgroundColor': 'rgb(230, 230, 230)',
+                                    'fontWeight': 'bold',
+                                    'color': '#2F4F4F',
+                                    'fontFamily': 'Arial, sans-serif',
+                                    'fontSize': '16px',
+                                    'border': '1px dotted brown',
+                                    'borderRadius': '2px'
+                                },
+                                style_data_conditional=[
+                                    {'if': {'row_index': 'odd'},
+                                     'backgroundColor': 'rgb(248, 248, 248)'}
+                                ],
+                                style_cell={
+                                    "textAlign": "center",
+                                    "padding": "10px",
+                                    "color": "black",
+                                    'maxWidth': 115
+                                }
+                            )
+                        ], style={"margin-top": 50}),width=3),
+                        dbc.Col(dcc.Graph(id="dist_plot3", style={"margin-top": 50}))
+                    ], justify="around")
+                ], style={"margin-left": 75}),
 
     dcc.Interval(id="data_refresh", interval=1000000)
 
-]
-
+])]
 
 
 @app.callback(
@@ -242,17 +213,16 @@ layout = [
     Output("ayıklama_data", 'data'),
     Input("machine_ayk", 'value'),
     State("date-picker_ayk", 'date'),
-    prevent_initial_call = True
+    prevent_initial_call=True
 )
-def material_data(n,date):
-
+def material_data(n, date):
     data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE CURDATETIME = '{date} 00:00:00.000'")
 
     if type(data) is not pd.DataFrame:
         return no_update, no_update
     else:
         if len(data) == 0:
-            return no_update,no_update
+            return no_update, no_update
 
     data['MINIMUM'] = data['MINIMUM'].astype(float)
     data['MAXIMUM'] = data['MAXIMUM'].astype(float)
@@ -264,8 +234,7 @@ def material_data(n,date):
     data["MACHINE"] = data["MACHINE"].astype(str)
     material_list = list(data["MATERIAL"].unique())
 
-
-    return material_list,data.to_json(date_format='iso', orient='split')
+    return material_list, data.to_json(date_format='iso', orient='split')
 
 
 @app.callback(
@@ -273,17 +242,17 @@ def material_data(n,date):
     Output('one_line_summary', 'columns'),
     Output("ppm_data", 'children'),
     State("machine_ayk", 'value'),
-    State("date-picker_ayk",'date'),
+    State("date-picker_ayk", 'date'),
     Input("material_ayk", 'value'),
     prevent_initial_call=True
 )
-def update_table_data(machine,selected_date,material):
+def update_table_data(machine, selected_date, material):
     print(f"burayım {material}")
     if not machine == 'Makinalar':
         data2 = ag.run_query(
             f"SELECT MATERIAL,CONFIRMATION,MAX(OK) AS OK , MAX(NOTOKGORSEL) AS NOTOKGORSEL ,"
             f" MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL FROM  [dbo].[{machine}] "
-            f" WHERE CURDATETIME = '{selected_date} 00:00:00.000' AND MATERIAL = '{material}'"
+            f" WHERE CAST(CURDATETIME AS DATE)  = '{selected_date}' AND MATERIAL = '{material}'"
             f" GROUP BY MATERIAL,CONFIRMATION")
 
         data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
@@ -293,11 +262,11 @@ def update_table_data(machine,selected_date,material):
         data2['NOTOKOLCUSEL'] = data2['NOTOKOLCUSEL'].astype(int)
         table_data = data2.to_dict('records')
 
-        return table_data,[{"name": i, "id": i} for i in data2.columns],\
-            1000000*((data2["NOTOKGORSEL"] + data2["NOTOKGORSEL"])/data2["OK"])
+        return table_data, [{"name": i, "id": i} for i in data2.columns], \
+            (1000000 * ((data2["NOTOKGORSEL"] + data2["NOTOKOLCUSEL"]) / (
+                        data2["OK"] + data2["NOTOKGORSEL"] + data2["NOTOKOLCUSEL"]))).astype(int)
     else:
         no_update
-
 
 
 ##### bubble chart
@@ -311,12 +280,13 @@ def update_table_data(machine,selected_date,material):
     Output("dist_plot1", "figure"),
     Output("dist_plot2", "figure"),
     Output("dist_plot3", "figure"),
-    Input("ppm_data_store", "data"),
+    Input("ppm_data", "children"),
     State("ayıklama_data", "data"),
+    State("material_ayk", 'value'),
     prevent_initial_call=True
 
 )
-def draw_dist_plot(material, data):
+def draw_dist_plot(ppm, data, material):
     # Function to scale the size of markers
     def scale_size(quantity, min_size=4, max_size=12):
         scaled_size = max(min_size, min(max_size, quantity))
@@ -352,36 +322,38 @@ def draw_dist_plot(material, data):
                                                 [fig1, data_es, df_es],
                                                 [fig2, data_dis, df_dis]]:
 
-        data_interval = data_interval.merge(data_summary, on=["MATERIAL"], how='left')
-        # data_es = data_es.merge(df_es,on=["MATERIAL"], how='left')
-        # data_dis = data_dis.merge(df_dis,on=["MATERIAL"], how='left')
-
-        data_interval['OKNOTOK'] = np.where(
-            (data_interval['MAXIMUM'] > data_interval['MTYPENOM'] * 1.01) | (
-                        data_interval['MINIMUM'] < data_interval['MTYPENOM'] * 0.99),
-            'RED',
-            'KABUL'
-        )
+        # data_interval = data_interval.merge(data_summary, on=["MATERIAL"], how='left')
+        # # data_es = data_es.merge(df_es,on=["MATERIAL"], how='left')
+        # # data_dis = data_dis.merge(df_dis,on=["MATERIAL"], how='left')
+        #
+        # data_interval['OKNOTOK'] = np.where(
+        #     (data_interval['MAXIMUM'] > data_interval['MTYPENOM'] * 1.01) | (
+        #                 data_interval['MINIMUM'] < data_interval['MTYPENOM'] * 0.99),
+        #     'RED',
+        #     'KABUL'
+        # )
 
         data_interval.sort_values(by="MINIMUM", inplace=True)
+        data_interval["MINIMUM"] = data_interval["MINIMUM"].astype(float).round(decimals=4)
+        data_interval["MAXIMUM"] = data_interval["MAXIMUM"].astype(float).round(decimals=4)
 
         # Loop through the data and add traces
         dtick_value = (data_interval["midpoints"].max() - data_interval["midpoints"].min()) / 20
 
+        print("********")
+        print(data_interval)
+        print("********")
+
         for i, row in data_interval.iterrows():
             if row["QUANTITY"] > 0:
-                marker_symbol = "circle" if row["OKNOTOK"] == "KABUL" else "circle-x"
-                row["QUANTITY"] = row["QUANTITY"] * 100 if row["OKNOTOK"] == 'RED' else row["QUANTITY"]
-                marker_size = scale_size(row["QUANTITY"])
-                figure.add_trace(go.Scatter(
+                # marker_symbol = "circle" if row["OKNOTOK"] == "KABUL" else "circle-x"
+                # row["QUANTITY"] = row["QUANTITY"] * 100 if row["OKNOTOK"] == 'RED' else row["QUANTITY"]
+                # marker_size = scale_size(row["QUANTITY"])
+                figure.add_trace(go.Bar(
                     x=[row["midpoints"]],
-                    y=[row["OKNOTOK"]],
-                    mode='markers',
+                    y=[row["QUANTITY"]],
                     marker=dict(
-                        size=marker_size,
-                        symbol=marker_symbol,
-                        sizemode='diameter',
-                        sizeref=0.3,
+                        color='DarkOrange',
                         opacity=0.7,
                     )
                 ))
@@ -390,10 +362,25 @@ def draw_dist_plot(material, data):
         figure.update_layout(
             showlegend=False,
             plot_bgcolor='FloralWhite',
-            xaxis=dict(autorange='reversed', title='Midpoints', title_font=dict(size=20, family='Arial'),
-                       dtick=dtick_value),
-            yaxis=dict(title='KABUL-RED', title_font=dict(size=20, family='Arial'), type='category'),
-            title=dict(text='İç Çap', y=0.95, font=dict(size=25, family='Arial')),
+            paper_bgcolor='FloralWhite',
+            xaxis=dict(
+                title='Midpoints',
+                title_font=dict(size=20, family='Arial'),
+                showgrid=True,  # Enable the x-axis grid
+                gridcolor='rgba(255, 140, 0, 0.7)',  # Customize the grid color
+                gridwidth=1,  # Customize the grid line width
+                dtick=dtick_value,  # Adjust this value to control x-axis tick frequency
+            ),
+            yaxis=dict(
+                title='KABUL-RED',
+                title_font=dict(size=20, family='Arial'),
+                type='log',
+                showgrid=True,  # Enable the y-axis grid
+                gridcolor='rgba(255, 140, 0, 0.7)',  # Customize the grid color
+                gridwidth=1,  # Customize the grid line width
+                # For logarithmic scale, you might leave dtick to auto-adjust or set it to a specific value
+            ),
+            # title=dict(text='İç Çap', y=0.95, font=dict(size=25, family='Arial')),
             legend=dict(x=0, y=1.1, traceorder="normal", orientation="h"),
             height=400,
             annotations=[
@@ -418,7 +405,8 @@ def draw_dist_plot(material, data):
             ]
         )
 
-        data_interval = data_interval[["MINIMUM", "MAXIMUM", "QUANTITY", "MTYPENOM", "MTYPETOL", "OKNOTOK"]]
+        data_interval = data_interval[["MINIMUM", "MAXIMUM", "QUANTITY"]]
+        data_interval["OKNOTOK"] = 'NAN'
         list_of_data.append(data_interval)
     return [{"name": i, "id": i} for i in list_of_data[0].columns], [{"name": i, "id": i} for i in
                                                                      list_of_data[1].columns], \

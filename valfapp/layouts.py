@@ -1694,6 +1694,7 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                     ])]
        
 
+
 def return_adr_timecallbacks(costcenter, interval='day'):
     @app.callback(      
         Output(f'interval-trigger_{costcenter}_{interval}', 'max_intervals'),
