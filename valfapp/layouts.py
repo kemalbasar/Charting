@@ -944,7 +944,7 @@ def layout_for_tvs(costcenter='MONTAJ'):
 def return_adr_layout(costcenter='cnc', interval='day'):
     # Main Layout
     return dbc.Container([
-
+        
         dcc.Store(id=f'trigger-timestamp_{costcenter}_{interval}', data=None),
         # Stores the timestamp of the initial trigger
         dcc.Interval(
@@ -966,239 +966,232 @@ def return_adr_layout(costcenter='cnc', interval='day'):
         dcc.Store(id=f'oeeelist7_{costcenter}_{interval}'),
 
         dcc.Store(id=f'work-dates_{costcenter}_{interval}'),
-        dbc.Row([[] if interval == 'day' else
-
-                 html.Div([
-                     html.Div(
-                         className="container-fluid mt-5 grafik-div",
-                         children=[
-                             dbc.Row([
+        
+        dbc.Row([
                                  dbc.Col(html.H3("GENEL VERİMLİLİK TABLOSU", className="text-center"))
                              ]),
-                             dbc.Row(
-                                 justify="center",
-                                 align="center",
-                                 children=[
-                                     dbc.Col(
-                                         dbc.Card(
-                                             [
-                                                 dbc.CardHeader(
-                                                     html.Div(
-                                                         className="row text-center text-light",
-                                                         children=[
-                                                             dbc.Col(html.H3("Genel Tezgah Verimliliği"),
-                                                                     className="bg-primary col-lg-7 ic-yazilar"),
-                                                             dbc.Col([
-                                                                 html.H3("%85,44"),
-                                                                 html.P("Hedef %80")
-                                                             ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
-                                                         ]
-                                                     )
-                                                 ),
-                                                 dbc.CardBody(
-                                                     dcc.Graph(id=f'fig_tezgah_{costcenter}_{interval}')
-                                                 ),
-                                             ],
-                                             className="grafik",
-                                         ),
-                                         className="col-lg-5 col-md-6 col-sm-12",
-                                     ),
-                                     dbc.Col(
-                                         dbc.Card(
-                                             [
-                                                 dbc.CardHeader(
-                                                     html.Div(
-                                                         className="row text-center text-light",
-                                                         children=[
-                                                             dbc.Col(html.H3("Genel Personel Verimliliği"),
-                                                                     className="bg-primary col-lg-7 ic-yazilar"),
-                                                             dbc.Col([
-                                                                 html.H3("%88,27"),
-                                                                 html.P("Hedef %90")
-                                                             ], className="bg-danger col-lg-5 ic-yazilar-2 p-2")
-                                                         ]
-                                                     )
-                                                 ),
-                                                 dbc.CardBody(
-                                                     dcc.Graph(id=f'fig_personal_{costcenter}_{interval}')
-                                                 ),
-                                             ],
-                                             className="grafik",
-                                         ),
-                                         className="col-lg-5 col-md-6 col-sm-12",
-                                     ),
-                                     dbc.Col(
-                                         dbc.Card(
-                                             [
-                                                 dbc.CardHeader(
-                                                     html.Div(
-                                                         className="row text-center text-light",
-                                                         children=[
-                                                             dbc.Col(html.H3("Genel OEE Verimliliği"),
-                                                                     className="bg-primary col-lg-7 ic-yazilar"),
-                                                             dbc.Col([
-                                                                 html.H3("%70,47"),
-                                                                 html.P("Hedef %65")
-                                                             ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
-                                                         ]
-                                                     )
-                                                 ),
-                                                 dbc.CardBody(
-                                                     dcc.Graph(id=f'fig_oee_{costcenter}_{interval}')
-                                                 ),
-                                             ],
-                                             className="grafik",
-                                         ),
-                                         className="col-lg-5 col-md-6 col-sm-12",
-                                     ),
-                                     dbc.Col(
-                                         dbc.Card(
-                                             [
-                                                 dbc.CardHeader(
-                                                     html.Div(
-                                                         className="row text-center text-light",
-                                                         children=[
-                                                             dbc.Col(html.H3("Genel Kapasite Verimliliği"),
-                                                                     className="bg-primary col-lg-7 ic-yazilar"),
-                                                             dbc.Col([
-                                                                 html.H3("%69,91"),
-                                                                 html.P("Hedef %80")
-                                                             ], className="bg-primary col-lg-5 ic-yazilar-2 p-2")
-                                                         ]
-                                                     )
-                                                 ),
-                                                 dbc.CardBody(
-                                                     dcc.Graph(id=f'fig_kapasite_{costcenter}_{interval}')
-                                                 ),
-                                             ],
-                                             className="grafik",
-                                         ),
-                                         className="col-lg-5 col-md-6 col-sm-12",
-                                     ),
-                                 ]
-                             ),
-                             dbc.Row(
-                                 children=[
-                                     dbc.Col(
-                                         html.Div(
-                                             className="col-lg-3 col-md-6 col-sm-12 me-5 mt-5",
-                                             children=[
-                                                 html.Div(
-                                                     style={"background-color": "#ffffff"},
-                                                     children=[
-                                                         html.Div(
-                                                             className="justify-content-center align-content-center gvt-div-1",
-                                                             style={"height": "50px"},
-                                                             children=[
-                                                                 html.P("Tezgah Çalışma Verimliliği",
-                                                                        className="d-flex gvt-div-yazi"),
-                                                                 html.P("%85,44", className="text-end"),
-                                                             ],
-                                                         )
-                                                     ],
-                                                 ),
-                                                 html.Div(
-                                                     style={"background-color": "#e0e0e0"},
-                                                     children=[
-                                                         html.Div(
-                                                             className="justify-content-center align-content-center p-1 gvt-div-2",
-                                                             style={"height": "50px"},
-                                                             children=[
-                                                                 html.P("Planlı Duruş(Kurulum Setup)",
-                                                                        className="d-flex gvt-div-yazi"),
-                                                                 html.P("%2,10", className="text-end"),
-                                                             ],
-                                                         )
-                                                     ],
-                                                 ),
-                                                 html.Div(
-                                                     style={"background-color": "#f0f0f0"},
-                                                     children=[
-                                                         html.Div(
-                                                             className="justify-content-center align-content-center p-1 gvt-div-3",
-                                                             style={"height": "50px"},
-                                                             children=[
-                                                                 html.P("Kalite Onay", className="d-flex gvt-div-yazi"),
-                                                                 html.P("%0,88", className="text-end"),
-                                                             ],
-                                                         )
-                                                     ],
-                                                 ),
-                                                 html.Div(
-                                                     style={"background-color": "#e0e0e0"},
-                                                     children=[
-                                                         html.Div(
-                                                             className="justify-content-center align-content-center p-1 gvt-div-4",
-                                                             style={"height": "50px"},
-                                                             children=[
-                                                                 html.P("Plansız Duruş",
-                                                                        className="d-flex gvt-div-yazi"),
-                                                                 html.P("%5,79", className="text-end"),
-                                                             ],
-                                                         )
-                                                     ],
-                                                 ),
-                                                 html.Div(
-                                                     style={"background-color": "#f0f0f0"},
-                                                     children=[
-                                                         html.Div(
-                                                             className="justify-content-center align-content-center p-1 gvt-div-5",
-                                                             style={"height": "50px"},
-                                                             children=[
-                                                                 html.P("Diğer", className="d-flex gvt-div-yazi"),
-                                                                 html.P("%5,79", className="text-end"),
-                                                             ],
-                                                         )
-                                                     ],
-                                                 ),
-                                                 html.Div(
-                                                     style={"background-color": "#e0e0e0"},
-                                                     children=[
-                                                         html.Div(
-                                                             className="justify-content-center align-content-center p-1 gvt-div-6",
-                                                             style={"height": "50px"},
-                                                             children=[
-                                                                 html.P("OPR Devamsızlığı",
-                                                                        className="d-flex gvt-div-yazi"),
-                                                                 html.P("%2,78", className="text-end"),
-                                                             ],
-                                                         )
-                                                     ],
-                                                 ),
-                                             ], style={"width": 300},
-                                         ), className="col-lg-2 me-5 mt-3"
-                                     ),
-                                     dbc.Col(
-                                         html.Div([
-                                             html.Div(
-                                                 className="card col-lg-3 col-md-6 col-sm-12 me-3 mt-sm-4 justify-content-center align-items-center grafik-divler",
-                                                 children=[
-                                                     html.Div(className="card-body alt-divler", children=[
-                                                         dcc.Graph(id='fig_planlı', style={"height": "280px"})
-                                                     ])
-                                                 ]),
-                                             html.Div(
-                                                 className="card col-lg-3 col-md-6 col-sm-12 me-3 mt-sm-4 justify-content-center align-items-center grafik-divler",
-                                                 children=[
-                                                     html.Div(className="card-body alt-divler", children=[
-                                                         dcc.Graph(id="fig_plansız", style={"height": "280px"})
-                                                     ])
-                                                 ]),
-                                             html.Div(
-                                                 className="card col-lg-3 col-md-6 col-sm-12 mt-sm-4 justify-content-center align-items-center grafik-divler",
-                                                 children=[
-                                                     html.Div(className="card-body alt-divler", children=[
-                                                         dcc.Graph(id='fig_kalite', style={"height": "280px"})
-                                                     ])
-                                                 ])
-                                         ], className="row mt-lg-5 justify-content-center aligns-item-center d-flex")
-                                     )
-                                 ], style={"margin-left": "150px"},
-                             ),
-                         ],
-                     ),
-                 ])
-                 ]),
+        
+        dbc.Row(
+                            justify="center",
+                            align="center",
+                            children=[
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader(
+                                                html.Div(
+                                                    className="row text-center text-light",
+                                                    children=[
+                                                        dbc.Col(html.H3("Genel Tezgah Verimliliği"),
+                                                                className="bg-primary col-lg-7 ic-yazilar"),
+                                                        dbc.Col([
+                                                            html.H3("%85,44"),
+                                                            html.P("Hedef %80")
+                                                        ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
+                                                    ]
+                                                )
+                                            ),
+                                            dbc.CardBody(
+                                                dcc.Graph(id=f'fig_tezgah_{costcenter}_{interval}')
+                                            ),
+                                        ],
+                                        className="grafik",
+                                    ),
+                                    className="col-lg-5 col-md-6 col-sm-12",
+                                ),
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader(
+                                                html.Div(
+                                                    className="row text-center text-light",
+                                                    children=[
+                                                        dbc.Col(html.H3("Genel Personel Verimliliği"),
+                                                                className="bg-primary col-lg-7 ic-yazilar"),
+                                                        dbc.Col([
+                                                            html.H3("%88,27"),
+                                                            html.P("Hedef %90")
+                                                        ], className="bg-danger col-lg-5 ic-yazilar-2 p-2")
+                                                    ]
+                                                )
+                                            ),
+                                            dbc.CardBody(
+                                                dcc.Graph(id=f'fig_personal_{costcenter}_{interval}')
+                                            ),
+                                        ],
+                                        className="grafik",
+                                    ),
+                                    className="col-lg-5 col-md-6 col-sm-12",
+                                ),
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader(
+                                                html.Div(
+                                                    className="row text-center text-light",
+                                                    children=[
+                                                        dbc.Col(html.H3("Genel OEE Verimliliği"),
+                                                                className="bg-primary col-lg-7 ic-yazilar"),
+                                                        dbc.Col([
+                                                            html.H3("%70,47"),
+                                                            html.P("Hedef %65")
+                                                        ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
+                                                    ]
+                                                )
+                                            ),
+                                            dbc.CardBody(
+                                                dcc.Graph(id=f'fig_oee_{costcenter}_{interval}')
+                                            ),
+                                        ],
+                                        className="grafik",
+                                    ),
+                                    className="col-lg-5 col-md-6 col-sm-12",
+                                ),
+                                dbc.Col(
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader(
+                                                html.Div(
+                                                    className="row text-center text-light",
+                                                    children=[
+                                                        dbc.Col(html.H3("Genel Kapasite Verimliliği"),
+                                                                className="bg-primary col-lg-7 ic-yazilar"),
+                                                        dbc.Col([
+                                                            html.H3("%69,91"),
+                                                            html.P("Hedef %80")
+                                                        ], className="bg-primary col-lg-5 ic-yazilar-2 p-2")
+                                                    ]
+                                                )
+                                            ),
+                                            dbc.CardBody(
+                                                dcc.Graph(id=f'fig_kapasite_{costcenter}_{interval}')
+                                            ),
+                                        ],
+                                        className="grafik",
+                                    ),
+                                    className="col-lg-5 col-md-6 col-sm-12",
+                                ),
+                            ]
+                        ),
+                        dbc.Row(
+                            children=[
+                                dbc.Col(
+                                    html.Div(
+                                        className="col-lg-3 col-md-6 col-sm-12 me-5 mt-5",
+                                        children=[
+                                            html.Div(
+                                                style={"background-color": "#ffffff"},
+                                                children=[
+                                                    html.Div(
+                                                        className="justify-content-center align-content-center gvt-div-1",
+                                                        style={"height": "50px"},
+                                                        children=[
+                                                            html.P("Tezgah Çalışma Verimliliği",
+                                                                   className="d-flex gvt-div-yazi"),
+                                                            html.P("%85,44", className="text-end"),
+                                                        ],
+                                                    )
+                                                ],
+                                            ),
+                                            html.Div(
+                                                style={"background-color": "#e0e0e0"},
+                                                children=[
+                                                    html.Div(
+                                                        className="justify-content-center align-content-center p-1 gvt-div-2",
+                                                        style={"height": "50px"},
+                                                        children=[
+                                                            html.P("Planlı Duruş(Kurulum Setup)",
+                                                                   className="d-flex gvt-div-yazi"),
+                                                            html.P("%2,10", className="text-end"),
+                                                        ],
+                                                    )
+                                                ],
+                                            ),
+                                            html.Div(
+                                                style={"background-color": "#f0f0f0"},
+                                                children=[
+                                                    html.Div(
+                                                        className="justify-content-center align-content-center p-1 gvt-div-3",
+                                                        style={"height": "50px"},
+                                                        children=[
+                                                            html.P("Kalite Onay", className="d-flex gvt-div-yazi"),
+                                                            html.P("%0,88", className="text-end"),
+                                                        ],
+                                                    )
+                                                ],
+                                            ),
+                                            html.Div(
+                                                style={"background-color": "#e0e0e0"},
+                                                children=[
+                                                    html.Div(
+                                                        className="justify-content-center align-content-center p-1 gvt-div-4",
+                                                        style={"height": "50px"},
+                                                        children=[
+                                                            html.P("Plansız Duruş",
+                                                                   className="d-flex gvt-div-yazi"),
+                                                            html.P("%5,79", className="text-end"),
+                                                        ],
+                                                    )
+                                                ],
+                                            ),
+                                            html.Div(
+                                                style={"background-color": "#f0f0f0"},
+                                                children=[
+                                                    html.Div(
+                                                        className="justify-content-center align-content-center p-1 gvt-div-5",
+                                                        style={"height": "50px"},
+                                                        children=[
+                                                            html.P("Diğer", className="d-flex gvt-div-yazi"),
+                                                            html.P("%5,79", className="text-end"),
+                                                        ],
+                                                    )
+                                                ],
+                                            ),
+                                            html.Div(
+                                                style={"background-color": "#e0e0e0"},
+                                                children=[
+                                                    html.Div(
+                                                        className="justify-content-center align-content-center p-1 gvt-div-6",
+                                                        style={"height": "50px"},
+                                                        children=[
+                                                            html.P("OPR Devamsızlığı",
+                                                                   className="d-flex gvt-div-yazi"),
+                                                            html.P("%2,78", className="text-end"),
+                                                        ],
+                                                    )
+                                                ],
+                                            ),
+                                        ], style={"width": 300},
+                                    ), className="col-lg-2 me-5 mt-3"
+                                ),
+                                dbc.Col(
+                                    html.Div([
+                                        html.Div(
+                                            className="card col-lg-3 col-md-6 col-sm-12 me-3 mt-sm-4 justify-content-center align-items-center grafik-divler",
+                                            children=[
+                                                html.Div(className="card-body alt-divler", children=[
+                                                    dcc.Graph(id='fig_planlı', style={"height": "280px"})
+                                                ])
+                                            ]),
+                                        html.Div(
+                                            className="card col-lg-3 col-md-6 col-sm-12 me-3 mt-sm-4 justify-content-center align-items-center grafik-divler",
+                                            children=[
+                                                html.Div(className="card-body alt-divler", children=[
+                                                    dcc.Graph(id="fig_plansız", style={"height": "280px"})
+                                                ])
+                                            ]),
+                                        html.Div(
+                                            className="card col-lg-3 col-md-6 col-sm-12 mt-sm-4 justify-content-center align-items-center grafik-divler",
+                                            children=[
+                                                html.Div(className="card-body alt-divler", children=[
+                                                    dcc.Graph(id='fig_kalite', style={"height": "280px"})
+                                                ])
+                                            ])
+                                    ], className="row mt-lg-5 justify-content-center aligns-item-center d-flex")
+                                )
+                            ], style={"margin-left": "150px","margin-bottom":"50px"},
+                        ),
+        
         html.H2(f"{costcenter.upper()} Bölüm Raporu", style={
             "background-color": "#2149b4",
             "text-align": "center",
@@ -1213,6 +1206,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
             "background-color": "#2149b4",
             "text-align": "center",
             "color": "white",
+            "padding":6,
         })),
         dbc.Row(
             dbc.Col(html.Div(id=f'sunburst_forreports_{costcenter}_{interval}'),
@@ -1224,6 +1218,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                     "background-color": "#2149b4",
                     "text-align": "center",
                     "color": "white",
+                    "padding":6,
                 })),
                 dbc.Row([
                     dbc.Col([
@@ -1249,13 +1244,15 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                     "background-color": "#2149b4",
                     "text-align": "center",
                     "color": "white",
+                    "padding":6,
+                    "margin-bottom":"60px",
                 })),
                 dbc.Row(
                     dbc.Col([
                         html.Div(id=f'gann_forreports_{costcenter}_{interval}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
-                style={}, width={"size": 12}
+                style={"margin-bottom":"30px"}, width={"size": 12}
             ), ]),
         dbc.Row([
             dbc.Col(children=[
@@ -1264,13 +1261,15 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                     "background-color": "#2149b4",
                     "text-align": "center",
                     "color": "white",
+                    "padding":6,
+                    "margin-bottom":"60px",
                 })),
                 dbc.Row(
                     dbc.Col([
                         html.Div(id=f'bubble_forreports_{costcenter}_{interval}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
-                style={}, width={"size": 12}
+                style={"margin-bottom":"60px",}, width={"size": 12}
             ), ]),
         dbc.Row([
             dbc.Col(children=[
@@ -1280,14 +1279,16 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                     "text-align": "center",
                     "background-color": "#2149b4",
                     "color": "white",
-                    "margin-top": "50px"
+                    "margin-top": "50px",
+                    "padding":6,
+                    "margin-bottom":"60px",
                 }),
                 dbc.Row(
                     dbc.Col([
                         html.Div(id=f'fig_scatscrap_forreports_{costcenter}_{interval}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
-                style={}, width={"size": 12}
+                style={"margin-bottom":"60px",}, width={"size": 12}
             ), ])
         ,
         html.Div(id=f"generated_1graph1data_for_report_{costcenter}_{interval}")]
@@ -1629,7 +1630,7 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
             def create_column(fig, data, columns, margin_left):
                 return dbc.Col(
                     [dbc.Row(
-                        dcc.Graph(figure=fig, style={'margin-left': 150, 'margin-bottom': 300})),
+                        dcc.Graph(figure=fig, style={'margin-left': 220})),
                         dbc.Row(
                             dash_table.DataTable(
                                 data=data,
@@ -1641,27 +1642,28 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                                     'textAlign': 'center',
                                     'border': '1px solid black',
                                     'minWidth': '80px', 'maxWidth': '300px',
-                                    'fontSize': '12px'
+                                    'fontSize': '12px',
                                 },
                                 style_table={
                                     'height': '150px',
                                     'width': '800px',
                                     'overflowY': 'auto',
                                     'borderCollapse': 'collapse',
-                                    'border': '1px solid black'
+                                    'border': '1px solid black',
+                                    'margin-left': 40,
                                 },
                                 style_header={
                                     'fontWeight': 'bold',
                                     'backgroundColor': 'rgba(0, 0, 0, 0.1)',
                                     'borderBottom': '1px solid black',
-                                    'color': 'black'
+                                    'color': 'black',
                                 },
                                 style_data_conditional=[]
-                            ), style={'margin-top': 70})
+                            ), style={'margin-top': 7 })
                     ],
                     width=4,
-                    style={"justify-content": "center",
-                           "margin-left": margin_left, "width": 600}
+                    style={"justify-content": "center", "align-items":"center",
+                           "margin-left": 70,"height": "700px" , "width": "900px","background-color":"rgba(255, 255, 255, 0.314)","margin-top":50, "border-radius":"10px"}
                 )
 
             # This list comprehension creates all columns needed for the layout
@@ -1670,25 +1672,30 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                        in range(len(list_of_figs))]
 
             # This code groups the columns into rows of 3 columns each
-            rows = [dbc.Row(columns[i:i + 2], style={"margin-bot": 150}) for i in range(0, len(columns), 2)]
+            rows = [dbc.Row(columns[i:i + 1], style={"margin-bot": 0}) for i in range(2, len(columns), 1)]
 
-            layout = html.Div(children=rows, style={"margin-bot": 400})
-
+            layout = html.Div(children=rows, style={"margin-bot": 0})
             return layout
 
-        return [html.Div(children=[html.H5("İş Merkezi Göstergeleri", style={
-            "background-color": "#2149b4",
-            "text-align": "center",
-            "color": "white",
-        }), return_layout("wc"), html.Br(), html.H5("Personel Göstergeleri", style={
-            "background-color": "#2149b4",
-            "text-align": "center",
-            "color": "white",
-        }), return_layout("pers")])]
-
+        return [html.Div([
+            dbc.Row([
+                dbc.Col([
+                html.H5("İş Merkezi Göstergeleri", style={
+                "background-color": "#2149b4",
+                "text-align": "center",
+                "color": "white",
+            }), return_layout("wc")]),
+                dbc.Col([
+               html.H5("Personel Göstergeleri", style={
+                "background-color": "#2149b4",
+                "text-align": "center",
+                "color": "white",
+            }), return_layout("pers")],className="text-center per-gosterge"),])
+                    ])]
+       
 
 def return_adr_timecallbacks(costcenter, interval='day'):
-    @app.callback(
+    @app.callback(      
         Output(f'interval-trigger_{costcenter}_{interval}', 'max_intervals'),
         Input(f'check-interval_{costcenter}_{interval}', 'n_intervals'),
         State(f'trigger-timestamp_{costcenter}_{interval}', 'data')
@@ -1705,7 +1712,7 @@ def return_adr_timecallbacks(costcenter, interval='day'):
             return no_update  # Or set to a specific number if you want to limit future triggers
 
         raise PreventUpdate
-
+ 
     @app.callback(
         Output(f'trigger-timestamp_{costcenter}_{interval}', 'data'),
         Input(f'interval-trigger_{costcenter}_{interval}', 'n_intervals')
