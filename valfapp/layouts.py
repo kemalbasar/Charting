@@ -1676,15 +1676,21 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
 
             return layout
 
-        return [html.Div(children=[html.H5("İş Merkezi Göstergeleri", style={
-            "background-color": "#2149b4",
-            "text-align": "center",
-            "color": "white",
-        }), return_layout("wc"), html.Br(), html.H5("Personel Göstergeleri", style={
-            "background-color": "#2149b4",
-            "text-align": "center",
-            "color": "white",
-        }), return_layout("pers")])]
+        return [html.Div([
+            dbc.Row([
+                dbc.Col([
+                html.H5("İş Merkezi Göstergeleri", style={
+                "background-color": "#2149b4",
+                "text-align": "center",
+                "color": "white",
+            }), return_layout("wc")]),
+                dbc.Col([
+               html.H5("Personel Göstergeleri", style={
+                "background-color": "#2149b4",
+                "text-align": "center",
+                "color": "white",
+            }), return_layout("pers")])])
+                    ])]
 
 
 def return_adr_timecallbacks(costcenter, interval='day'):
