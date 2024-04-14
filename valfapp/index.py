@@ -10,7 +10,8 @@ from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
     tvmonitor, uretimrapor, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
-    adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page, adr_CNC_week
+    adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page, adr_CNC_week, adr_PRES1_week, adr_PRES2_week, adr_CNCTORNA_week, \
+    adr_MONTAJ_week, adr_CNC_month, adr_CNCTORNA_month, adr_MONTAJ_month, adr_PRES1_month, adr_PRES2_month
 from flask import request,g
 
 ### Page container ###
@@ -143,8 +144,6 @@ def display_page(pathname,login_status_data):
         return camayikuretim.layout
     elif pathname == '/adrcnc':
         return adr_CNC.layout
-    elif pathname == '/adrcncweek':
-        return adr_CNC_week.layout
     elif pathname == '/adrcnctorna':
         return adr_CNCTORNA.layout
     elif pathname == '/adrpres1':
@@ -153,6 +152,26 @@ def display_page(pathname,login_status_data):
         return adr_PRES2.layout
     elif pathname == '/adrmontaj':
         return adr_MONTAJ.layout
+    elif pathname == '/adrcncweek':
+        return adr_CNC_week.layout
+    elif pathname == '/adrcnctornaweek':
+        return adr_CNCTORNA_week.layout
+    elif pathname == '/adrmontajweek':
+        return adr_MONTAJ_week.layout
+    elif pathname == '/adrpres1week':
+        return adr_PRES1_week.layout
+    elif pathname == '/adrpres2week':
+        return adr_PRES2_week.layout
+    elif pathname == '/adrcnctornamonth':
+        return adr_CNCTORNA_month.layout
+    elif pathname == '/adrmontajmonth':
+        return adr_MONTAJ_month.layout
+    elif pathname == '/adrpres1month':
+        return adr_PRES1_month.layout
+    elif pathname == '/adrpres2month':
+        return adr_PRES2_month.layout
+    elif pathname == '/adrcncmonth':
+        return adr_CNC_month.layout
     else:
         print(f"adsadasd{pathname}")
         return '404'
@@ -189,11 +208,21 @@ app.validation_layout = html.Div(
         kapasite.layout,
         gvt_page.layout,
         adr_CNC.layout,
-        adr_CNC_week.layout,
         adr_CNCTORNA.layout,
         adr_PRES1.layout,
         adr_PRES2.layout,
-        adr_MONTAJ.layout
+        adr_MONTAJ.layout,
+        adr_PRES1_week.layout,
+        adr_PRES2_week.layout,
+        adr_CNC_week.layout,
+        adr_CNCTORNA_week.layout,
+        adr_MONTAJ_week.layout,
+        adr_CNC_month.layout,
+        adr_CNCTORNA_month.layout,
+        adr_MONTAJ_month.layout,
+        adr_PRES1_month.layout,
+        adr_PRES2_month.layout,
+
         # ittools.layout
     )
 )

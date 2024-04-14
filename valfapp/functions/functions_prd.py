@@ -89,9 +89,6 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
         return pd.Series(agg_dict)
 
     df_metrics = df.groupby(["WORKCENTER", "COSTCENTER", "MATERIAL", "MATCODE", "SHIFT", "WORKDAY"]).apply(custom_agg)
-    print("******")
-    print(df)
-    print("******")
     df_prdcount = df_metrics.groupby(["WORKCENTER", "COSTCENTER", "SHIFT", "WORKDAY"]).agg(QTY_y=("QTY", "count"))
     if len(df_metrics) > 1:
         df_prdcount.reset_index(inplace=True)

@@ -52,6 +52,9 @@ TIMEOUT = 1200000
 @cache.memoize(timeout=TIMEOUT)
 def prdconf(params=None):
     paramswith = params[0:2]
+    print("*****")
+    print(params)
+    print("*****")
     prd_conf = ag.run_query(query=r"EXEC VLFPRODALLINONEWPARAMS @WORKSTART=?, @WORKEND=?", params=paramswith)
 
     if os.path.isfile(r"F:\pycarhm projects\Charting\outputs(xlsx)\bul.xlsx"):
@@ -116,6 +119,9 @@ def prdconf(params=None):
     #         continue
 
     gann_data = get_gann_data(df=pd.concat([prd_conf,non_times]))
+    if params[2] in ['week','month']:
+        gann_data['WORKEND'] = gann_data['WORKEND'].apply(
+            lambda x: pd.to_datetime(params[1]) if x > pd.to_datetime(params[1]) else x)
 
     df_baddatas = prd_conf.loc[prd_conf["BADDATA_FLAG"] != 0, ["COSTCENTER","WORKCENTER", "MATERIAL", "QTY", "CONFIRMATION"
         , "CONFIRMPOS", "WORKSTART", "WORKEND","RUNTIME", "IDEALCYCLETIME", "BADDATA_FLAG"]]

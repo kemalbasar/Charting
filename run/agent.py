@@ -1,5 +1,5 @@
 import time
-from config import server, username, password, database, database_iot, directory, project_directory
+from config import server, username, password, database, database_iot, directory, project_directory,sleep_time
 import pyodbc
 import seaborn as sns
 import pandas as pd
@@ -76,7 +76,7 @@ class Agent:
                             except pyodbc.Error as e:
                                 print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
                                 retry_count += 1
-                                time.sleep(1)  # wait for 1 second before trying again
+                                time.sleep(sleep_time)  # wait for 1 second before trying again
 
                         else:
                             try:
@@ -91,7 +91,7 @@ class Agent:
                                     return
                                 print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
                                 retry_count += 1
-                                time.sleep(1)  # wait for 1 second before trying again
+                                time.sleep(sleep_time)  # wait for 1 second before trying again
                             self.connection.commit()
 
                         self.connection.commit()  # Make sure changes are committed if not a select query.
@@ -99,7 +99,7 @@ class Agent:
             except pyodbc.Error as e:
                 print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
                 retry_count += 1
-                time.sleep(1)  # wait for 1 second before trying again
+                time.sleep(sleep_time)  # wait for 1 second before trying again
 
         if retry_count == max_retries:
             print("Maximum number of retries reached. Could not connect to database.")
@@ -208,7 +208,7 @@ class Agent:
                             break
                         print(f"An error occurred ({retry_count + 1}/{10}): {e}")
                         retry_count += 1
-                        time.sleep(1)
+                        time.sleep(sleep_time)
 
     def replace_and_insertinto(self, path=project_directory + r"\Charting\queries\HİSTORİCALSTOCKS.sql",
                                rapto=dt.date(2022, 9, 1), torep='xxxx-xx-xx'):
