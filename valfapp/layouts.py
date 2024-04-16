@@ -1254,6 +1254,11 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
 
             if costcenter == 'cnc':
                 df_downs = df_downs[df_downs["COSTCENTER"] == 'CNC']
+            elif costcenter == 'preshane1':
+                df_downs = df_downs[df_downs["COSTCENTER"] == costcenter.upper()]
+            elif costcenter == 'preshane2':
+                df_downs = df_downs[df_downs["COSTCENTER"] == costcenter.upper()]
+
 
             fig = px.line(df_oees, x="OEEDATE", y="OEE")
             fig_personal = px.line(df_oees, x="OEEDATE", y="PERFORMANCE")
