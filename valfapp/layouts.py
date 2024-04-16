@@ -1689,7 +1689,7 @@ def return_adr_timecallbacks(costcenter, interval='day'):
                 last_day =  current_date +(timedelta(days=current_date.weekday()-1))
             else:
                 first_day = current_date + (timedelta(days=current_date.weekday() ))
-                last_day =  current_date
+                last_day =  first_day + timedelta(days=7)
 
             print(f"***************!!!!!!! {first_day} - {last_day} Tarihleri Arası Haftalık Rapor Verileri Çekiliyor.***************!!!!!!!")
             # Assuming kb is defined and prdconf is your data-fetching function
