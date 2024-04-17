@@ -74,13 +74,13 @@ layout = dbc.Container([
                     persistence_type='memory'
                 ),
                 dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button',
-                           style={"margin-left": 120, "margin-top": 60}),
+                           style={}),
                 dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button',
-                           style={"margin-left": 120, "margin-top": 60}),
+                           style={}),
                 dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button',
-                           style={"margin-left": 226, "margin-top": 7}),
+                           style={}),
                 dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button',
-                           style={"margin-left": 226, "margin-top": 7}),
+                           style={}),
                 dcc.Store(
                     id="work-dates",
                     storage_type="memory",

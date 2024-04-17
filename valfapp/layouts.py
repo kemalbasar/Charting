@@ -998,7 +998,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                         dbc.Col([
                                             html.H3(id=f'availability_{costcenter}_{interval}'),
                                             html.P("Hedef %80")
-                                        ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
+                                        ], className="bg-warning col-lg-5 ic-yazilar-2 p-2")
                                     ]
                                 )
                             ),
@@ -1022,7 +1022,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                         dbc.Col([
                                             html.H3(id=f'performance_{costcenter}_{interval}'),
                                             html.P("Hedef %90")
-                                        ], className="bg-danger col-lg-5 ic-yazilar-2 p-2")
+                                        ], className="bg-warning col-lg-5 ic-yazilar-2 p-2")
                                     ]
                                 )
                             ),
@@ -1046,7 +1046,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                         dbc.Col([
                                             html.H3(id=f'oee_{costcenter}_{interval}'),
                                             html.P("Hedef %65")
-                                        ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
+                                        ], className="bg-warning col-lg-5 ic-yazilar-2 p-2")
                                     ]
                                 )
                             ),
@@ -1070,7 +1070,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                         dbc.Col([
                                             html.H3("nan"),
                                             html.P("nan")
-                                        ], className="bg-primary col-lg-5 ic-yazilar-2 p-2")
+                                        ], className="bg-warning col-lg-5 ic-yazilar-2 p-2")
                                     ]
                                 )
                             ),

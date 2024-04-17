@@ -60,12 +60,6 @@ def return_1indicator1data_div(graph_id, visible=True):
 layout = dbc.Container([
     nav_bar,
     dbc.Row(
-        dcc.Link(
-            children='Main Page',
-            href='/',
-            style={"color": "black", "font-weight": "bold"}
-        )),
-    dbc.Row(
         [dcc.Store(id="list_of_wcs"),
          dcc.Store(id="max_output"),
          dcc.Store(id='oeelistw1',
@@ -105,10 +99,10 @@ layout = dbc.Container([
 
          html.Button(html.Img(src='/assets/wc.jpg', style={'width': '100%', 'height': '100%'}),
                      id='wc-button', className='wc-button'),
+         
          html.Button(html.Img(src='/assets/pers.png', style={'width': '100%', 'height': '100%'}),
                      id='pers-button', className='pers-button'),
-         dbc.Button("Hataları Gizle/Göster", id="toggle_button", n_clicks=2, className="toggle-button"),
-
+         
          dcc.Store(id="work-dates1", storage_type="memory",
                    data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
                          "workend": (date.today() - timedelta(days=kb-1)).isoformat(),
@@ -173,10 +167,10 @@ layout = dbc.Container([
 
          dcc.Download(id="download-data"),
          dcc.Download(id="download-data2"),
-         dcc.Download(id="download-data3")], ),
+         dcc.Download(id="download-data3")], style={"margin-left":50} ),
 
     html.Div(id = "generated_1graph1data")
-], fluid=True)
+], fluid=True,)
 
 
 
