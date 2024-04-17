@@ -1554,7 +1554,7 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
             def create_column(fig, data, columns, margin_left):
                 return dbc.Col(
                     [dbc.Row(
-                        dcc.Graph(figure=fig, style={'margin-left': 200})),
+                        dcc.Graph(figure=fig, style={'margin-left': 200,'position':'relative', 'bottom':'475px',})),
                         dbc.Row(
                             dash_table.DataTable(
                                 data=data,
@@ -1588,7 +1588,7 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                     width=4,
                     style={'margin-left': 45, "justify-content": "center", "align-items": "center",
                            "height": "700px", "width": "850px",
-                           "background-color": "rgba(255, 255, 255, 0.314)", "margin-top": 50, "border-radius": "10px"}
+                           "background-color": "rgba(255, 255, 255, 0.314)","margin-top": 50, "border-radius": "10px"}
                 )
 
             # This list comprehension creates all columns needed for the layout
@@ -1609,13 +1609,14 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                         "background-color": "#2149b4",
                         "text-align": "center",
                         "color": "white",
-                    }), return_layout("wc")]),
+                    }), return_layout("wc")], style={"border": "5px solid black","background-color":"gray"},),
                 dbc.Col([
                     html.H5("Personel Göstergeleri", style={
                         "background-color": "#2149b4",
                         "text-align": "center",
-                        "color": "white",
-                    }), return_layout("pers")], className="text-center per-gosterge"), ])
+                        "color": "cyan",
+                        "border-left": "5px solid black",
+                    }), return_layout("pers")], style={"border": "5px solid black","background-color":"gray"},),])
         ])]
 
 
