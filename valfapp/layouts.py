@@ -981,8 +981,8 @@ def return_adr_layout(costcenter='cnc', interval='day'):
             "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
         }))
         ]),
-
-        dbc.Row(
+        dbc.Row( dbc.Row() if interval == 'day' else
+        [dbc.Row(
             justify="center",
             align="center",
             children=[
@@ -1123,7 +1123,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                     ], className="justify-content-center aligns-item-center d-flex")
                 ])
             ], style={"margin-left": "20px", "margin-bottom": "50px"},
-        ),
+        )] ),
         dbc.Row(html.H5("Performans(( Kullanılabilirlik(( OEE", style={
             "background-color": "#2149b4",
             "text-align": "center",
