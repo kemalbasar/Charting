@@ -82,7 +82,6 @@ layout = dbc.Container([
                        7]),
          dcc.Store(id='store-costcenter1', storage_type='memory'),
          dcc.Store(id='store-report-type', data='wc', storage_type='memory'),
-         dbc.Button("Günlük", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
          dcc.Dropdown(id="costcenter1",
                       className='dropdown-style',
                       options=[{"label": cc, "value": cc} for cc in costcenters],
@@ -93,6 +92,7 @@ layout = dbc.Container([
          dcc.DatePickerSingle(id='date-picker1', date=(date.today() - timedelta(days=kb)), className="dash-date-picker",
                                style={"color": "white"}),
 
+        dbc.Button("Günlük", id="btn-day1", n_clicks=0, color="primary", className='day-button', style={"margin-left":300}),
          dbc.Button("Haftalık", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
          dbc.Button("Aylık", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
          dbc.Button("Yıllık", id="btn-year1", n_clicks=0, color="primary", className='year-button'),
