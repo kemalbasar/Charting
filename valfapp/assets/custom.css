@@ -585,7 +585,7 @@ Enes navbar bitis
     /* no padding */
     left: 300px;
     /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 2px;
+    top: 10px;
 
 }
 
@@ -626,7 +626,7 @@ Enes navbar bitis
     /* no padding */
     left: 408px;
     /* right edge positioned at 0 units from the right edge of its nearest positioned ancestor */
-    top: 2px;
+    top: 10px;
     
 }
 
@@ -650,7 +650,6 @@ Enes navbar bitis
     cursor: pointer;
     border-radius: 10px;
     overflow: hidden;
-    margin-left: 30px;
 }
 
 .day-button:hover {

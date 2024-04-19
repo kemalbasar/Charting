@@ -71,7 +71,7 @@ layout = dbc.Container([
                     className="dash-date-picker mt-2",
                     date=(date.today() - timedelta(days=kb)),
                     persistence=True,
-                    persistence_type='memory'
+                    persistence_type='memory',
                 ),
                 dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button',
                            style={}),
@@ -98,7 +98,7 @@ layout = dbc.Container([
                                  ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]],
                         multi=False,
                         value='CNC',
-                    ), style={"position": "relative", "left": 475, "bottom": 50}
+                    ), style={"position": "relative", "left": 700, "bottom": 55}
                 ),
             ], style={"border": "3px dashed #2149b5", "height": "70px", "border-radius": "20px",
                       "margin-top": "5rem"}, ),
