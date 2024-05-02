@@ -17,9 +17,7 @@ layout = [
     dcc.Store(id='ayıklama_data',
               data=[]),
     dbc.Row([html.H1("Ayıklama Robotu Kalite Sonuçları",
-                     style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,
-                            'backgroundColor': '#f0f0f0'})])
-    ,
+                     style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,'color': 'rgba(255, 171, 76, 0.8)', 'background-color':'white'  })]),
 
     dbc.Row(html.Div(children=[
         dcc.DatePickerSingle(id='date-picker_ayk', className="dash-date-picker",
@@ -43,12 +41,12 @@ layout = [
     ),
     dbc.Row([
         dbc.Col([
-            html.H3("PPM Değeri"),
-            html.H5(id='ppm_data', style={'font-size': '100px', 'border': '2px solid white'})
+            html.H3("PPM Değeri",style={'color': 'rgba(255, 141, 11, 0.8)'}),
+            html.H3(id='ppm_data', style={'font-size': '72px', 'border': '2px solid white','color': 'rgba(255, 141, 11, 0.8)','text-align':'center','background-color':'white'})
         ], width=3),
 
         dbc.Col([
-            html.H3("Özet", style={"align": "center"}),
+            html.H3("Özet", style={"align": "center",'color': 'rgba(255, 141, 11, 0.8)'}),
             DataTable(
                 id='one_line_summary',
                 columns=[
@@ -66,12 +64,12 @@ layout = [
                     'minWidth': '70%',  # Adjust this value to set the minimum width
                     'width': '80%',  # Adjust this value to set the width
                     'textAlign': 'center',
-                    'color': 'black'
+                    'color': 'rgba(255, 141, 11, 0.8)'
                 },
                 style_header={
                     'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
                     'fontWeight': 'bold',  # Bold font
-                    'color': '#2F4F4F',  # Cool text color
+                    'color': 'rgba(255, 141, 11, 0.8)',
                     'fontFamily': 'Arial, sans-serif',  # Font family
                     'fontSize': '16px',
                     'border': '1px dotted brown',
@@ -85,16 +83,16 @@ layout = [
 
     dbc.Row([
                 html.Div([
-                    html.H3("****** Ölçüm Bilgileri ******",
+                    html.H1("ÖLÇÜM BİLGİLERİ",
                             style={'textAlign': 'center', 'padding': '23px', 'borderRadius': '5px',
-                                   'fontSize': '35px', 'margin-top': 30}),
+                                   'fontSize': '35px', 'margin-top': 75, 'color': 'rgba(255, 141, 11, 0.8)','background-color':'white','margin-right':100}),
                     dbc.Row([
+                        html.H1("İç Çap:", style={'color': 'rgba(255, 141, 11, 0.8)'}),
                         dbc.Col(html.Div([
-                            html.H4("İç Çap"),
                             DataTable(
                                 id='all_intervals_ic',
                                 style_table={
-                                    'height': '300px',
+                                    'height': '437px',
                                     'overflowY': 'auto',
                                     'border': 'thin lightgrey solid',
                                     'fontFamily': 'Arial, sans-serif',
@@ -105,7 +103,7 @@ layout = [
                                 style_header={
                                     'backgroundColor': 'rgb(230, 230, 230)',
                                     'fontWeight': 'bold',
-                                    'color': '#2F4F4F',
+                                    'color': 'rgba(255, 141, 11, 0.8)',
                                     'fontFamily': 'Arial, sans-serif',
                                     'fontSize': '16px',
                                     'border': '1px dotted brown',
@@ -124,15 +122,15 @@ layout = [
                             )
                         ], style={"margin-top": 50}),width=3),
                         dbc.Col(dcc.Graph(id="dist_plot1", style={"margin-top": 50}))
-                    ], justify="around"),
+                    ],className="mt-5", justify="around"),
 
                     dbc.Row([
+                        html.H1("Dış Çap:", style={'color': 'rgba(255, 141, 11, 0.8)'}),
                         dbc.Col(html.Div([
-                            html.H4("Dış Çap"),
                             DataTable(
                                 id='all_intervals_dis',
                                 style_table={
-                                    'height': '300px',
+                                    'height': '430px',
                                     'overflowY': 'auto',
                                     'border': 'thin lightgrey solid',
                                     'fontFamily': 'Arial, sans-serif',
@@ -143,7 +141,7 @@ layout = [
                                 style_header={
                                     'backgroundColor': 'rgb(230, 230, 230)',
                                     'fontWeight': 'bold',
-                                    'color': '#2F4F4F',
+                                    'color': 'rgba(255, 141, 11, 0.8)',
                                     'fontFamily': 'Arial, sans-serif',
                                     'fontSize': '16px',
                                     'border': '1px dotted brown',
@@ -162,15 +160,15 @@ layout = [
                             )
                         ], style={"margin-top": 50}),width=3),
                         dbc.Col(dcc.Graph(id="dist_plot2", style={"margin-top": 50}))
-                    ], justify="around"),
+                    ],className="mt-5", justify="around"),
 
                     dbc.Row([
+                        html.H1("Eş Merkezlilik:", style={'color': 'rgba(255, 141, 11, 0.8)'}),
                         dbc.Col(html.Div([
-                            html.H4("Eş Merkezlilik"),
                             DataTable(
                                 id='all_intervals_es',
                                 style_table={
-                                    'height': '300px',
+                                    'height': '430px',
                                     'overflowY': 'auto',
                                     'border': 'thin lightgrey solid',
                                     'fontFamily': 'Arial, sans-serif',
@@ -181,7 +179,7 @@ layout = [
                                 style_header={
                                     'backgroundColor': 'rgb(230, 230, 230)',
                                     'fontWeight': 'bold',
-                                    'color': '#2F4F4F',
+                                    'color': 'rgba(255, 141, 11, 0.8)',
                                     'fontFamily': 'Arial, sans-serif',
                                     'fontSize': '16px',
                                     'border': '1px dotted brown',
@@ -200,7 +198,7 @@ layout = [
                             )
                         ], style={"margin-top": 50}),width=3),
                         dbc.Col(dcc.Graph(id="dist_plot3", style={"margin-top": 50}))
-                    ], justify="around")
+                    ],className="mt-5", justify="around")
                 ], style={"margin-left": 75}),
 
     dcc.Interval(id="data_refresh", interval=1000000)
