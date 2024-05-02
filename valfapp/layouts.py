@@ -4,7 +4,7 @@ from dash.exceptions import PreventUpdate
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta, date
 from config import project_directory
-import dash_table
+import json
 from valfapp.functions.functions_prd import indicator_for_tvs, get_daily_qty, working_machinesf, scatter_plot, \
     legend_generater, indicator_with_color, generate_for_sparkline
 from dash import dcc, html, Input, Output, State, no_update
@@ -964,6 +964,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
         dcc.Store(id=f'oeeelist1_{costcenter}_{interval}'),
         dcc.Store(id=f'oeeelist2_{costcenter}_{interval}'),
         dcc.Store(id=f'oeeelist3_{costcenter}_{interval}'),
+        dcc.Store(id=f'oeeelist5_{costcenter}_{interval}'),
         dcc.Store(id=f'oeeelist6_{costcenter}_{interval}'),
         dcc.Store(id=f'oeeelist7_{costcenter}_{interval}'),
 
@@ -981,6 +982,10 @@ def return_adr_layout(costcenter='cnc', interval='day'):
             "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
         }))
         ]),
+        dbc.Row([
+            dbc.Col(html.H5(id=f'valid_data_{costcenter}_{interval}'))
+        ]),
+
         dbc.Row( dbc.Row() if interval == 'day' else
         [dbc.Row(
             justify="center",
@@ -1272,6 +1277,35 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                     df_oees["AVAILABILITY"][0], df_oees["PERFORMANCE"][0], df_oees["OEE"][0]]
 
     @app.callback(
+        Output(f'valid_data_{costcenter}_{interval}', 'children'),
+        [Input(component_id=f'oeeelist5_{costcenter}_{interval}', component_property='data')]
+    )
+    def update_data(oeelist6):
+        oeelist6=json.loads(oeelist6)
+        oeelist6 = pd.DataFrame(oeelist6['data'], columns=oeelist6['columns'])
+
+        print(oeelist6)
+        print("*********")
+
+        oeelist6 = oeelist6[oeelist6["COSTCENTER"] == costcenter.upper()]
+        # Filtering data based on BADDATA_FLAG
+        data1 = oeelist6[oeelist6['BADDATA_FLAG'] == 0]
+        data1['SUMS'].iloc[-1]
+
+        # Alternatively, if you need the value at a specific dynamic index, say stored in a variable 'index':
+        index = data1['SUMS'].index[-1]  # This sets 'index' to the last index dynamically
+        value = data1['SUMS'][index]
+        data2 = oeelist6[oeelist6['BADDATA_FLAG'] != 0]['SUMS'].sum()
+
+        print("*****")
+        print(data2)
+        print("*****")
+
+        # Preparing the text for output
+        text = f"{costcenter}  {data1['SUMS'].iloc[-1]} adet geçerli ve  {data2} adet geçersiz data noktasına sahip."
+        return text
+
+    @app.callback(
         [Output(component_id=f'my-output_forreports_{costcenter}_{interval}', component_property='children'),
          Output(component_id=f'my-output_forreports_{costcenter}2_{interval}', component_property='children')],
         [Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data'),
@@ -1280,8 +1314,8 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
     def return_summary_data(dates, oeeelist6):
         print("summary running")
         oeeelist6 = pd.read_json(oeeelist6, orient='split')
-        df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                           , params=(dates["workstart"], dates["workend"]))
+        df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?, @INTERVAL=?"
+                                           , params=(dates["workstart"], dates["workend"],interval))
         data1 = ["Production Volume", get_daily_qty(df=oeeelist6, costcenter=costcenter.upper())]
         data2 = ["Working Machines",
                  working_machinesf(working_machines=df_working_machines, costcenter=costcenter.upper())[-1]]
@@ -1461,8 +1495,8 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
     )
     def update_spark_line(dates, oeeelist6):
         onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
-        df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                           , params=(dates["workstart"], dates["workend"]))
+        df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?, @INTERVAL=?"
+                                           , params=(dates["workstart"], dates["workend"],interval))
         fig_prod_forreports = get_spark_line(
             data=generate_for_sparkline(data=onemonth_prdqty, proses=costcenter.upper()))
         fig_scrap__forreports = get_spark_line(
@@ -1545,7 +1579,7 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
 
         params["interval"] = 'day'
 
-        def return_layout(report_type='wc'):
+        def return_layout(report_type='wc',position = '475px'):
             list_of_figs, list_of_data, list_of_columns, list_of_styles = workcenters(costcenter.upper(), report_type,
                                                                                       params,
                                                                                       oeeelist1w, oeeelist3w,
@@ -1554,7 +1588,7 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
             def create_column(fig, data, columns, margin_left):
                 return dbc.Col(
                     [dbc.Row(
-                        dcc.Graph(figure=fig, style={'margin-left': 200,'position':'relative', 'bottom':'475px',})),
+                        dcc.Graph(figure=fig, style={'margin-left': 200,'position':'relative', 'bottom':position,})),
                         dbc.Row(
                             dash_table.DataTable(
                                 data=data,
@@ -1655,6 +1689,7 @@ def return_adr_timecallbacks(costcenter, interval='day'):
             Output(f'oeeelist1_{costcenter}_{interval}', 'data'),
             Output(f'oeeelist2_{costcenter}_{interval}', 'data'),
             Output(f'oeeelist3_{costcenter}_{interval}', 'data'),
+            Output(f'oeeelist5_{costcenter}_{interval}', 'data'),
             Output(f'oeeelist6_{costcenter}_{interval}', 'data'),
             Output(f'oeeelist7_{costcenter}_{interval}', 'data'),
             Output(f'work-dates_{costcenter}_{interval}', 'data'),
@@ -1669,22 +1704,26 @@ def return_adr_timecallbacks(costcenter, interval='day'):
         if not pathname:
             print(" prevent here")
 
+
             raise PreventUpdate
 
         print("running")
 
         if interval == 'day':
+            print("***********")
+            print(f"kb is {kb} and date is {date.today() - timedelta(days=kb)}")
+            print("***********")
             data_points = prdconf(((date.today() - timedelta(days=kb)).isoformat(),
                                    (date.today() - timedelta(days=kb - 1)).isoformat(), interval))
             # Prepare the data for each store
-            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 6, 7]]
+            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 5,6, 7]]
             work_dates_data = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
                                "workend": (date.today() - timedelta(days=kb - 1)).isoformat()}
         elif interval == 'week':
 
             #Bir önceki haftanın başlangıç ve bitiş günlerini getirir.
 
-            current_date = datetime.now().date() - timedelta(days=5)
+            current_date = datetime.now().date()
             if current_date.weekday() in (0,1,2,3):
                 first_day = current_date - (timedelta(days=current_date.weekday() + 7))
                 last_day =  current_date +(timedelta(days=current_date.weekday()-1))
@@ -1699,7 +1738,7 @@ def return_adr_timecallbacks(costcenter, interval='day'):
 
 
             # Prepare the data for each store
-            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 6, 7]]
+            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3,5, 6, 7]]
             work_dates_data = {"workstart": first_day.isoformat(),
                                "workend": last_day.isoformat()}
 
@@ -1707,7 +1746,7 @@ def return_adr_timecallbacks(costcenter, interval='day'):
 
             #Bir önceki haftanın başlangıç ve bitiş günlerini getirir.
 
-            current_date = datetime.now().date() - timedelta(days=5)
+            current_date = datetime.now().date()
 
 
             if current_date.day <= 17:
@@ -1727,9 +1766,10 @@ def return_adr_timecallbacks(costcenter, interval='day'):
             data_points = prdconf((first_day.isoformat(), last_day.isoformat(), interval))
 
             # Prepare the data for each store
-            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 6, 7]]
+            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3,5, 6, 7]]
             work_dates_data = {"workstart": first_day.isoformat(), "workend": last_day.isoformat()}
 
         # Return the data for each store
+        print("********")
         return *data_for_stores, work_dates_data
     # Connect the Plotly graphs with Dash Components

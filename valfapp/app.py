@@ -94,12 +94,12 @@ def prdconf(params=None):
 
     summary_helper.reset_index(inplace=True)
     summary_helper["RATER"] = summary_helper["IDEALCYCLETIME"] / summary_helper["RUNTIME"]
-    summary_helper["BADDATA_FLAG"] = [3 if summary_helper["RATER"][row] > 1.2 else 0 for row in
-                                      range(len(summary_helper))]
+    summary_helper["BADDATA_FLAG"] = [3 if summary_helper["RATER"][row] > 1.2
+                                      else 0 for row in range(len(summary_helper))]
     summary_helper = summary_helper[["WORKCENTER", "SHIFT", "MATERIAL", "BADDATA_FLAG"]]
     prd_conf = pd.merge(prd_conf, summary_helper, on=['MATERIAL', 'SHIFT', 'WORKCENTER'], how='left')
     prd_conf["BADDATA_FLAG"] = [
-        0 if "PRES" in prd_conf["COSTCENTER"][row] else
+        0 if "PrRES" in prd_conf["COSTCENTER"][row] else
         (1 if prd_conf["MACHINE"][row] == 0 else
          2 if ((prd_conf["TOTALTIME"][row] != 0) and (prd_conf["TOTALTIME"][row] <= 3) and prd_conf["QTY"][row] > 3)
          else 3 if prd_conf["BADDATA_FLAG"][row] == 3

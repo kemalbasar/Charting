@@ -85,9 +85,11 @@ class Agent:
                             except pyodbc.Error as e:
                                 if e == "No results.  Previous SQL was not a query.":
                                     print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
+                                    self.connection.commit()  # Make sure changes are committed if not a select query.
                                     return pd.DataFrame()
                                 elif 'UNIQUE KEY constraint' in str(e):
                                     print("unique constraint")
+                                    self.connection.commit()  # Make sure changes are committed if not a select query.
                                     return
                                 print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
                                 retry_count += 1
