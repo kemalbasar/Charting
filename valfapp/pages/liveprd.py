@@ -123,6 +123,22 @@ layout = [
                                     href="liveprd/livepres", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
                                 ), className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
                             ),
+                            dbc.Col(
+                                html.A(
+                                    html.Div(
+                                        "Tablo",
+                                        style={
+                                            "height": "200px",
+                                            "border-radius": "10px",
+                                            "justify-content": "center",
+                                            "align-items": "center",
+                                            "display": "flex",
+                                            "background-color": "white"
+                                        },
+                                    ),
+                                    href="/yonlendirmepagee", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                                ), className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
+                            ),
                         ], style={"justify-content": "center", "align-items": "center", }
                     )
                 ])

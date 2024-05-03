@@ -43,9 +43,9 @@ def calculate_interval_to_target_hour(target_hour):
 
 
 
-layout = return_adr_layout('montaj')
+layout = return_adr_layout('montaj',position = '475px')
 
-return_adr_timecallbacks('montaj')
+return_adr_timecallbacks('montaj',position = '475px')
 
-return_adr_callbacks('montaj')
+return_adr_callbacks('montaj',position = '475px')
 
