@@ -13,8 +13,10 @@ from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajt
     adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page, adr_CNC_week, adr_PRES1_week, adr_PRES2_week, adr_CNCTORNA_week, \
     adr_MONTAJ_week, adr_CNC_month, adr_CNCTORNA_month, adr_MONTAJ_month, adr_PRES1_month, adr_PRES2_month, \
     adr_CNCreal, adr_CNCTORNAreal, \
-    adr_PRES1real, adr_PRES2real, adr_MONTAJreal, adr_CNC_weekreal, adr_PRES1_weekreal, adr_PRES2_weekreal, adr_CNCTORNA_weekreal, \
-    adr_MONTAJ_weekreal, adr_CNC_monthreal, adr_CNCTORNA_monthreal, adr_MONTAJ_monthreal, adr_PRES1_monthreal, adr_PRES2_monthreal,yonlendirme_pagee
+    adr_PRES1real, adr_PRES2real, adr_MONTAJreal, adr_CNC_weekreal, adr_PRES1_weekreal, adr_PRES2_weekreal, \
+    adr_CNCTORNA_weekreal, \
+    adr_MONTAJ_weekreal, adr_CNC_monthreal, adr_CNCTORNA_monthreal, adr_MONTAJ_monthreal, adr_PRES1_monthreal, \
+    adr_PRES2_monthreal, yonlendirme_pagee, costing
 from flask import request,g
 
 ### Page container ###
@@ -25,8 +27,8 @@ page_container = dbc.Container([ html.Div(
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='login-status-store', data={'logged_in': False}, storage_type='local'),
         dcc.Store(id='device-info-store'),
-        html.Div(id='page-content') ]),
-                           html.Div(id='touch-support-output', style={'display': 'none'})
+        html.Div(id='page-content')]),
+        html.Div(id='touch-support-output', style={'display': 'none'})
     ], fluid=True)
 
 
@@ -145,6 +147,10 @@ def display_page(pathname,login_status_data):
         return gvt_page.layout
     elif pathname == '/camayikuretim':
         return camayikuretim.layout
+    elif pathname == '/costing':
+        return costing.layout
+
+    #Buradan Sonrası Periyodik Üretim Raporları Endpointler
     elif pathname == '/yonlendirmepagee':
         return yonlendirme_pagee.layout
     elif pathname == '/adrcnc':
@@ -177,7 +183,6 @@ def display_page(pathname,login_status_data):
         return adr_PRES2_month.layout
     elif pathname == '/adrcncmonth':
         return adr_CNC_month.layout
-    
     elif pathname == '/adrcncreal':
         return adr_CNCreal.layout
     elif pathname == '/adrcnctornareal':
@@ -243,6 +248,7 @@ app.validation_layout = html.Div(
         uretimrapor.layout,
         kapasite.layout,
         gvt_page.layout,
+        costing.layout,
         yonlendirme_pagee.layout,
         adr_CNC.layout,
         adr_CNCTORNA.layout,
@@ -259,7 +265,6 @@ app.validation_layout = html.Div(
         adr_MONTAJ_month.layout,
         adr_PRES1_month.layout,
         adr_PRES2_month.layout,
-        
         adr_CNCreal.layout,
         adr_CNCTORNAreal.layout,
         adr_PRES1real.layout,

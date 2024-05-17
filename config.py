@@ -5,13 +5,13 @@ server = '172.30.134.12'
 database = 'VALFSAN604'
 database_iot = 'VALFAN_IOT_001'
 username = 'pythonreporter'
-password = '1212casecase..'
+password = '1212casecase,,'
 
 reengen_username = "takgun@valfsan.com.tr"
 reengen_password = '1234Ta1234'
 reengen_company = 'valfsan'
 
-project_directory = r"F:\pycarhm projects"
+project_directory = r"C:\Users\kereviz\Python Project"
 
 directory = project_directory + r'\Charting\queries'
 dirofquery = project_directory + r'\Charting\queries\query2.txt'
@@ -26,6 +26,8 @@ elif today.weekday() == 0:
     kb = 3
 else:
     kb = 1
+    
+sleep_time = 2
 
 
 def set_df_size(maxrow, maxcolumn, maxwidth, maxcolwidth):

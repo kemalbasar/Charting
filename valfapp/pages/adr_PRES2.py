@@ -1,13 +1,8 @@
 import warnings
 from datetime import date, timedelta, datetime
 import pandas as pd
-from dash import Input, Output, State, callback_context, \
-    no_update  # pip install dash (version 2.0.0 or higher)
-from dash.exceptions import PreventUpdate
 from run.agent import ag
-from valfapp.app import app, prdconf
 from valfapp.layouts import return_adr_layout, return_adr_callbacks, return_adr_timecallbacks
-from config import kb
 
 summary_color = 'black'
 

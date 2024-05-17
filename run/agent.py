@@ -190,12 +190,10 @@ class Agent:
         for i in range(len(texttoput)):
             filedata = filedata.replace(texttofind[i], texttoput[i])
 
-        ''''
-        with open(textfile, 'w') as file:
-            file.write(filedata)
-        file.close()
-        '''''
         retry_count = 0
+
+        print(filedata)
+
         if return_string == 1:
             with self.connection.cursor() as cursor:
                 while retry_count < 10:
@@ -221,6 +219,44 @@ class Agent:
             with self.connection.cursor() as cursor:
                 cursor.execute(query)
             rapto += relativedelta(months=-1)
+
+    def drop_table_if_exists(self, table_name):
+        drop_stmt = f"IF OBJECT_ID('{table_name}', 'U') IS NOT NULL DROP TABLE {table_name};"
+        with self.connection.cursor() as cursor:
+            cursor.execute(drop_stmt)
+            self.connection.commit()
+
+    def create_table_from_df(self, df, table_name):
+        self.drop_table_if_exists(table_name)  # Ensure the table doesn't exist
+        sql_type_mapping = {
+            'int64': 'INT',
+            'float64': 'FLOAT',
+            'object': 'VARCHAR(MAX)',  # Default for other types like strings
+            'bool': 'BIT',
+            'datetime64[ns]': 'DATETIME'
+        }
+
+        # Generate the column definitions using the mapping
+        columns = []
+        for col, dtype in df.dtypes.iteritems():
+            sql_type = sql_type_mapping.get(str(dtype), 'VARCHAR(MAX)')
+            columns.append(f"[{col}] {sql_type}")
+
+        columns = ", ".join(columns)
+        create_stmt = f"CREATE TABLE {table_name} ({columns});"
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(create_stmt)
+            self.connection.commit()
+
+    def insert_data_from_df(self, df, table_name):
+        placeholders = ", ".join("?" * len(df.columns))
+        columns = ", ".join([f"[{col}]" for col in df.columns])
+        insert_stmt = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+        with self.connection.cursor() as cursor:
+            for index, row in df.iterrows():
+                cursor.execute(insert_stmt, tuple(row))
+            self.connection.commit()
 
     # def correlation_matrix(self):
     #

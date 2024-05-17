@@ -26,9 +26,14 @@ app = dash.Dash(
     __name__,
     meta_tags=[{'name': 'viewport',
                 'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}],
-    external_scripts=["https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js","/website/css/uicons-outline-rounded.css","https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"],
+    external_scripts=[r"assets\ag_grid_custom_renderers.js",
+                      "https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js",
+                      "/website/css/uicons-outline-rounded.css",
+                      "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css",
+                      "https://cdn.jsdelivr.net/npm/sparkline@1.0.0/sparkline.min.js"],
     external_stylesheets=[dbc.themes.PULSE],
-    suppress_callback_exceptions=True)
+    suppress_callback_exceptions=True,
+)
 
 app.css.append_css({
     "external_url": (
@@ -94,17 +99,19 @@ def prdconf(params=None):
 
     summary_helper.reset_index(inplace=True)
     summary_helper["RATER"] = summary_helper["IDEALCYCLETIME"] / summary_helper["RUNTIME"]
-    summary_helper["BADDATA_FLAG"] = [3 if summary_helper["RATER"][row] > 1.2
-                                      else 0 for row in range(len(summary_helper))]
+    summary_helper["BADDATA_FLAG"] = 0
+        # [3 if summary_helper["RATER"][row] > 1.3
+        #                               else 0 for row in range(len(summary_helper))]
     summary_helper = summary_helper[["WORKCENTER", "SHIFT", "MATERIAL", "BADDATA_FLAG"]]
     prd_conf = pd.merge(prd_conf, summary_helper, on=['MATERIAL', 'SHIFT', 'WORKCENTER'], how='left')
-    prd_conf["BADDATA_FLAG"] = [
-        0 if "PrRES" in prd_conf["COSTCENTER"][row] else
-        (1 if prd_conf["MACHINE"][row] == 0 else
-         2 if ((prd_conf["TOTALTIME"][row] != 0) and (prd_conf["TOTALTIME"][row] <= 3) and prd_conf["QTY"][row] > 3)
-         else 3 if prd_conf["BADDATA_FLAG"][row] == 3
-         else 0)
-        for row in range(len(prd_conf))]
+
+    # prd_conf["BADDATA_FLAG"] = [
+    #     0 if "PrRES" in prd_conf["COSTCENTER"][row] else
+    #     (1 if prd_conf["MACHINE"][row] == 0 else
+    #      2 if ((prd_conf["TOTALTIME"][row] != 0) and (prd_conf["TOTALTIME"][row] <= 3) and prd_conf["QTY"][row] > 3)
+    #      else 3 if prd_conf["BADDATA_FLAG"][row] == 3
+    #      else 0)
+    #     for row in range(len(prd_conf))]
 
     # details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
     #     df=prd_conf[prd_conf["BADDATA_FLAG"] == 0], nontimes=non_times)
@@ -134,7 +141,7 @@ def prdconf(params=None):
     # cache_key = json.dumps(params)
 
     details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
-        df=prd_conf[prd_conf["BADDATA_FLAG"] == 0], nontimes=non_times)
+        df=prd_conf, nontimes=non_times)
     result = [{item: details[item].to_json(date_format='iso', orient='split')
                for item in details.keys()},
               df_metrics.to_json(date_format='iso', orient='split'),

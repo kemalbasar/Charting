@@ -1,3 +1,28 @@
+
+/*################################*/
+/*Multi Level Index Table */
+/*################################*/
+
+
+.custom-table th, .custom-table td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #e2bc91;
+    background-color: #fff1f1;
+    color: #5a4949;
+
+}
+
+.top-header {
+    background-color: #b83030!important;
+}
+
+.sub-header {
+    background-color: rgba(234, 79, 5, 0.47)!important;
+}
+
+/*################################*/
+
 /* img {
     border-radius: 10px;
 } */

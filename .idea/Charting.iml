@@ -5,9 +5,10 @@
       <excludeFolder url="file://$MODULE_DIR$/valfsan_mes" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.9 (Charting)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (Charting)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Exercise Files" />
+    <orderEntry type="module" module-name="manufacturing_data_etl" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="NUMPY" />

@@ -9,6 +9,7 @@ from valfapp.app import app
 from datetime import date, timedelta, datetime
 from config import kb
 from dash_table import DataTable
+import time
 
 from valfapp.layouts import nav_bar
 
@@ -20,44 +21,34 @@ layout = [
                      style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,'color': 'rgba(255, 171, 76, 0.8)', 'background-color':'white'  })]),
 
     dbc.Row(html.Div(children=[
-        dcc.DatePickerSingle(id='date-picker_ayk', className="dash-date-picker",
-                             date=date.today() + timedelta(days=-kb),
+        dcc.DatePickerRange(id='date-picker-range',
+                             start_date=date.today() + timedelta(days=-kb),
+                             end_date = date.today(),
                              persistence=True,
                              persistence_type='memory'
                              ),
 
-        dcc.Dropdown(id="machine_ayk",
-                     className='dropdown-style',
-                     options=['KMR-01', 'KMR-02', 'KMR-03', 'KMR-04', 'KMR-05', 'KMR-06'],
-                     multi=False,
-                     value='Makinalar',
-                     ),
-        dcc.Dropdown(id="material_ayk",
-                     className='dropdown-style',
-                     multi=False,
-                     ),
 
-    ], style={'display': 'flex', 'flexDirection': 'row', "margin-left": 75})
+    ], style={'display': 'flex', 'flexDirection': 'row', "margin-left": 74})
     ),
+
     dbc.Row([
-        dbc.Col([
-            html.H3("PPM Değeri",style={'color': 'rgba(255, 141, 11, 0.8)'}),
-            html.H3(id='ppm_data', style={'font-size': '72px', 'border': '2px solid white','color': 'rgba(255, 141, 11, 0.8)','text-align':'center','background-color':'white'})
-        ], width=3),
 
         dbc.Col([
-            html.H3("Özet", style={"align": "center",'color': 'rgba(255, 141, 11, 0.8)'}),
+            html.H3("Hata Oranlarına Göre Azalan Parça Listesi", style={"align": "center",'color': 'rgba(255, 141, 11, 0.8)'}),
             DataTable(
                 id='one_line_summary',
                 columns=[
+                    {'name': 'MACHINE', 'id': 'MACHINE'},
                     {'name': 'MATERIAL', 'id': 'MATERIAL'},
                     {'name': 'CONFIRMATION', 'id': 'CONFIRMATION'},
                     {'name': 'OK', 'id': 'OK'},
-                    {'name': 'NOTOKGORSEL', 'id': 'NOTOKGORSEL'},
+                    {'name': 'TOTALNOTOK', 'id': 'TOTALNOTOK'},
                     {'name': 'NOTOKOLCUSEL', 'id': 'NOTOKOLCUSEL'},
+                    {'name': 'NOTOKGORSEL', 'id': 'NOTOKGORSEL'},
                 ],
                 style_table={
-                    'height': '100px',
+                    'height': '300px',
                     'overflowY': 'auto',
                     'border': 'thin lightgrey solid',
                     'fontFamily': 'Arial, sans-serif',
@@ -79,6 +70,43 @@ layout = [
 
             ),
         ], width=8),
+
+        dbc.Col([
+            html.H3("Üretim Detayları",
+                    style={"align": "center", 'color': 'rgba(255, 141, 11, 0.8)'}),
+            DataTable(
+                id='production',
+                columns=[
+                    {'name': 'WORKCENTER', 'id': 'WORKCENTER'},
+                    {'name': 'NAME', 'id': 'NAME'},
+                    {'name': 'CONFDATE', 'id': 'CONFDATE'},
+                    {'name': 'OUTPUT', 'id': 'OUTPUT'},
+                    {'name': 'WORKIINGTIME', 'id': 'WORKIINGTIME'},
+                ],
+                style_table={
+                    'height': '300px',
+                    'overflowY': 'auto',
+                    'border': 'thin lightgrey solid',
+                    'fontFamily': 'Arial, sans-serif',
+                    'minWidth': '70%',  # Adjust this value to set the minimum width
+                    'width': '80%',  # Adjust this value to set the width
+                    'textAlign': 'center',
+                    'color': 'rgba(255, 141, 11, 0.8)'
+                },
+                style_header={
+                    'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
+                    'fontWeight': 'bold',  # Bold font
+                    'color': 'rgba(255, 141, 11, 0.8)',
+                    'fontFamily': 'Arial, sans-serif',  # Font family
+                    'fontSize': '16px',
+                    'border': '1px dotted brown',
+                    'borderRadius': '2px'
+                    # Font size
+                }
+
+            ),
+        ], width=4),
+
     ], style={"margin-left": 75}),
 
     dbc.Row([
@@ -210,10 +238,11 @@ layout = [
     Output("material_ayk", 'options'),
     Output("ayıklama_data", 'data'),
     Input("machine_ayk", 'value'),
-    State("date-picker_ayk", 'date'),
+    State("date-picker-range", 'start_date'),
+    State("date-picker-range", 'end_date'),
     prevent_initial_call=True
 )
-def material_data(n, date):
+def material_data(n, start_date,end_date):
     data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE CURDATETIME = '{date} 00:00:00.000'")
 
     if type(data) is not pd.DataFrame:
@@ -238,33 +267,41 @@ def material_data(n, date):
 @app.callback(
     Output("one_line_summary", 'data'),
     Output('one_line_summary', 'columns'),
-    Output("ppm_data", 'children'),
-    State("machine_ayk", 'value'),
-    State("date-picker_ayk", 'date'),
-    Input("material_ayk", 'value'),
+    Input("date-picker-range", 'start_date'),
+    Input("date-picker-range", 'end_date'),
     prevent_initial_call=True
 )
-def update_table_data(machine, selected_date, material):
-    print(f"burayım {material}")
-    if not machine == 'Makinalar':
-        data2 = ag.run_query(
-            f"SELECT MATERIAL,CONFIRMATION,MAX(OK) AS OK , MAX(NOTOKGORSEL) AS NOTOKGORSEL ,"
-            f" MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL FROM  [dbo].[{machine}] "
-            f" WHERE CAST(CURDATETIME AS DATE)  = '{selected_date}' AND MATERIAL = '{material}'"
-            f" GROUP BY MATERIAL,CONFIRMATION")
+def update_table_data(start_date, end_date):
+    material_list = []
 
-        data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
+    for x in range(1, 7):
+        machine = f"KMR-0{x}"
+        time.sleep(1)
+
+        data2 = ag.run_query(
+            f"SELECT '{machine}' as MACHINE,MATERIAL,CONFIRMATION,MAX(OK) AS OK , (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) AS TOTALNOTOK,MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL ,"
+            f" MAX(NOTOKGORSEL) AS NOTOKGORSEL FROM  [dbo].[{machine}] "
+            f" WHERE CAST(CURDATETIME AS DATE)  >= '{start_date}' AND CAST(CURDATETIME AS DATE)  < '{end_date}' "
+            f" GROUP BY MATERIAL,CONFIRMATION"
+            f" ORDER BY (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) DESC")
+        data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
         data2["CONFIRMATION"] = data2["CONFIRMATION"].astype(str)
+        data2["MACHINE"] = data2["MACHINE"].astype(str)
         data2['OK'] = data2['OK'].astype(int)
+        data2['TOTALNOTOK'] = data2['TOTALNOTOK'].astype(int)
         data2['NOTOKGORSEL'] = data2['NOTOKGORSEL'].astype(int)
         data2['NOTOKOLCUSEL'] = data2['NOTOKOLCUSEL'].astype(int)
-        table_data = data2.to_dict('records')
 
-        return table_data, [{"name": i, "id": i} for i in data2.columns], \
-            (1000000 * ((data2["NOTOKGORSEL"] + data2["NOTOKOLCUSEL"]) / (
-                        data2["OK"] + data2["NOTOKGORSEL"] + data2["NOTOKOLCUSEL"]))).astype(int)
-    else:
-        no_update
+        material_list.append(data2)
+
+    final_result = pd.concat(material_list, ignore_index=True)
+    final_result = final_result.sort_values(by=['TOTALNOTOK'], ascending=False)
+
+    data = final_result.to_dict('records')
+    columns = [{"name": i, "id": i} for i in final_result.columns]
+
+    return data, columns
+
 
 
 ##### bubble chart
