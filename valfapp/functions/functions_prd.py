@@ -355,7 +355,6 @@ def get_gann_data(df=prd_conf):
     df_final.reset_index(inplace=True)
     df_final.drop("index", inplace=True, axis=1)
     df_final.sort_values(by="WORKCENTER", inplace=True)
-    df_final.to_excel(f"{project_directory}/Charting/outputs(xlsx)/qty.xlsx")
     return df_final
 
 

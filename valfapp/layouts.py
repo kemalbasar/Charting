@@ -669,7 +669,11 @@ layout_12_loginpage = dbc.Container([
     dcc.Link(
         children='Kamera Ayıklama Üretim Raporu',
         href='/camayikuretim',
-    )
+    ),
+    dcc.Link(
+        children='Kamera Ayıklama Üretim Takip ',
+        href='/livekamera',
+    ),
 ], style={"height": "100vh", "position": "relative"}, fluid=True)
 
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
