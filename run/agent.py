@@ -80,7 +80,13 @@ class Agent:
 
                         else:
                             try:
+                                print(query)
+                                print(params)
                                 cursor.execute(query, params)
+                                print("buradayızalamak")
+                                results = cursor.fetchall()
+                                columns = [column[0] for column in cursor.description]
+                                self.connection.commit()
                                 return pd.DataFrame()
                             except pyodbc.Error as e:
                                 if e == "No results.  Previous SQL was not a query.":
