@@ -85,7 +85,10 @@ def generate_machine_layout(machine_id):
                     "Bu kısma önceki kontrol edilen parçanın bilgileri koyulabilir.",
                     style={'background-color': '#3C78D8', 'color': 'black', 'padding': '20px', 'margin-top': '10px', 'text-align': 'center', 'border': '1px solid black'}
                 ),
-            ]
+
+
+            ],
+
         )
     ]
     return machine_layout
@@ -101,8 +104,12 @@ layout = html.Div(
         ),
         dcc.Interval(
             id='interval-component',
-            interval=100000  # in milliseconds
-        )
+            interval=100000, # in milliseconds
+            n_intervals=0
+
+        ),
+
+
     ]
 )
 
@@ -147,6 +154,8 @@ def update_machine_table(n):
             stop_time = 0
             checked_product_count = 0
             oee_value = 0
+
+
         else:
             operator_name = data["NAME"].iloc[0]
             part_number = f"{data['MATERIAL'].iloc[0]} / {data['PRDORDER'].iloc[0]}"
@@ -160,68 +169,89 @@ def update_machine_table(n):
             checked_product_count = data['SANIYE_DENETLENEN'].iloc[0]
             oee_value = data['OEE'].iloc[0]
 
-        ppm_rate_style = {'background-color': 'red', 'font-weight': 'bold'} if ppm_rate > 2500 else {}
-        checked_product_count_style = {'background-color': 'red', 'font-weight': 'bold'} if checked_product_count < 6.5 else {}
 
-        updated_machine_layout = [
-            html.H3(f"Kamera - 0{machine_id} Üretim Takip Sistemi", style={'text-align': 'center', 'background-color': '#F0F0F0', 'padding': '10px', 'border-bottom': '2px solid black', 'color': 'black', 'font-weight': 'bold'}),
-            html.Table(
-                style={'width': '100%', 'border-collapse': 'collapse', 'color': 'black'},
-                children=[
-                    html.Tr(id=f'operator-row-{machine_id}', children=[
-                        html.Td("Operatör Adı", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(operator_name, id=f'operator-name-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'part-number-row-{machine_id}', children=[
-                        html.Td("Parça Numarası / İzleme Numarası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(part_number, id=f'part-number-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'total-production-row-{machine_id}', children=[
-                        html.Td("Toplam Üretim", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(total_production, id=f'total-production-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'ret-count-row-{machine_id}', children=[
-                        html.Td("Ret Adeti", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(ret_count, id=f'ret-count-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'measurement-camera-row-{machine_id}', children=[
-                        html.Td("Ölçüm Kamerası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold', 'padding-left': '20px'}),
-                        html.Td(measurement_camera, id=f'measurement-camera-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'image-camera-row-{machine_id}', children=[
-                        html.Td("Görüntü Kamerası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold', 'padding-left': '20px'}),
-                        html.Td(image_camera, id=f'image-camera-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'ppm-rate-row-{machine_id}', children=[
-                        html.Td("PPM Oranı", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(ppm_rate, id=f'ppm-rate-{machine_id}', style={**ppm_rate_style, 'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'working-time-row-{machine_id}', children=[
-                        html.Td("Çalışma Süresi", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(working_time, id=f'working-time-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'stop-time-row-{machine_id}', children=[
-                        html.Td("Duruş Süresi", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(stop_time, id=f'stop-time-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'checked-product-count-row-{machine_id}', children=[
-                        html.Td("Sn de Denetlenen Ürün Adeti", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(checked_product_count, id=f'checked-product-count-{machine_id}', style={**checked_product_count_style, 'border': '1px solid black', 'color': 'black'})
-                    ]),
-                    html.Tr(id=f'oee-value-row-{machine_id}', children=[
-                        html.Td("OEE Değeri", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                        html.Td(oee_value, id=f'oee-value-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                    ]),
-                ]
-            ),
-            html.Div(
-                "Bu kısma önceki kontrol edilen parçanın bilgileri koyulabilir.",
-                style={'background-color': '#3C78D8', 'color': 'black', 'padding': '20px', 'margin-top': '10px', 'text-align': 'center', 'border': '1px solid black'}
-            ),
-        ]
+
+        ppm_rate_style = {'background-color': 'red', 'font-weight': 'bold'} if ppm_rate > 2500 else {'background-color': 'green', 'font-weight': 'bold'}
+        checked_product_count_style = {'background-color': 'red', 'font-weight': 'bold'} if checked_product_count < 6.5 else {'background-color': 'green', 'font-weight': 'bold'}
+
+        if part_number == "No Data":
+
+            updated_machine_layout = [
+                html.H3(f"Kamera - 0{machine_id} Üretim Takip Sistemi",
+                        style={'text-align': 'center', 'background-color': '#F0F0F0', 'padding': '10px',
+                               'border-bottom': '2px solid black', 'color': 'black', 'font-weight': 'bold'}),
+
+                html.Table(
+                    style={'width': '100%', 'border-collapse': 'collapse', 'color': 'black', 'background-color': 'red',
+                           'font-weight': 'bold'},
+                    children=[
+                        html.Tr([
+                            html.Td("NO DATA", colSpan=20,
+                                    style={'text-align': 'center', 'font-size': '100px', 'font-weight': 'bold',
+                                           'color': 'white'})
+                        ])
+                    ]
+                )
+            ]
+        else:
+            updated_machine_layout = [
+                html.H3(f"Kamera - 0{machine_id} Üretim Takip Sistemi", style={'text-align': 'center', 'background-color': '#F0F0F0', 'padding': '10px', 'border-bottom': '2px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                html.Table(
+                    style={'width': '100%', 'border-collapse': 'collapse', 'color': 'black'},
+                    children=[
+                        html.Tr(id=f'operator-row-{machine_id}', children=[
+                            html.Td("Operatör Adı", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(operator_name, id=f'operator-name-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'part-number-row-{machine_id}', children=[
+                            html.Td("Parça Numarası / İzleme Numarası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(part_number, id=f'part-number-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'total-production-row-{machine_id}', children=[
+                            html.Td("Toplam Üretim", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(total_production, id=f'total-production-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'ret-count-row-{machine_id}', children=[
+                            html.Td("Ret Adeti", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(ret_count, id=f'ret-count-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'measurement-camera-row-{machine_id}', children=[
+                            html.Td("Ölçüm Kamerası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold', 'padding-left': '20px'}),
+                            html.Td(measurement_camera, id=f'measurement-camera-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'image-camera-row-{machine_id}', children=[
+                            html.Td("Görüntü Kamerası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold', 'padding-left': '20px'}),
+                            html.Td(image_camera, id=f'image-camera-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'ppm-rate-row-{machine_id}', children=[
+                            html.Td("PPM Oranı", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(ppm_rate, id=f'ppm-rate-{machine_id}', style={**ppm_rate_style, 'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'working-time-row-{machine_id}', children=[
+                            html.Td("Çalışma Süresi", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(working_time, id=f'working-time-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'stop-time-row-{machine_id}', children=[
+                            html.Td("Duruş Süresi", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(stop_time, id=f'stop-time-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'checked-product-count-row-{machine_id}', children=[
+                            html.Td("Sn de Denetlenen Ürün Adeti", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(checked_product_count, id=f'checked-product-count-{machine_id}', style={**checked_product_count_style, 'border': '1px solid black', 'color': 'black'})
+                        ]),
+                        html.Tr(id=f'oee-value-row-{machine_id}', children=[
+                            html.Td("OEE Değeri", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
+                            html.Td(oee_value, id=f'oee-value-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
+                        ]),
+                    ]
+                ),
+                html.Div(
+                    "Bu kısma önceki kontrol edilen parçanın bilgileri koyulabilir.",
+                    style={'background-color': '#3C78D8', 'color': 'black', 'padding': '20px', 'margin-top': '10px', 'text-align': 'center', 'border': '1px solid black'}
+                ),
+            ]
         updated_layout.append(updated_machine_layout)
     return updated_layout
-
 if __name__ == '__main__':
     app.layout = layout
     app.run_server(debug=True)

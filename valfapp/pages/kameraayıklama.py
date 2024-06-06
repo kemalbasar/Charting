@@ -17,13 +17,16 @@ layout = [
     nav_bar,
     dcc.Store(id='ayıklama_data',
               data=[]),
+    dcc.Store(id='selected_material', data=None),  # Add this line
+    dcc.Store(id='selected_confirmation', data=None),  # Add this line
+
     dbc.Row([html.H1("Ayıklama Robotu Kalite Sonuçları",
                      style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,'color': 'rgba(255, 171, 76, 0.8)', 'background-color':'white'  })]),
 
     dbc.Row(html.Div(children=[
         dcc.DatePickerRange(id='date-picker-range',
                              start_date=date.today() + timedelta(days=-kb),
-                             end_date = date.today(),
+                             end_date = date.today() + timedelta(days=-kb),
                              persistence=True,
                              persistence_type='memory'
                              ),
@@ -35,7 +38,8 @@ layout = [
     dbc.Row([
 
         dbc.Col([
-            html.H3("Hata Oranlarına Göre Azalan Parça Listesi", style={"align": "center",'color': 'rgba(255, 141, 11, 0.8)'}),
+            html.H3("Hata Oranlarına Göre Azalan Parça Listesi",
+                    style={"align": "center", 'color': 'rgba(255, 141, 11, 0.8)', 'padding': '10px'}),
             DataTable(
                 id='one_line_summary',
                 columns=[
@@ -52,28 +56,27 @@ layout = [
                     'overflowY': 'auto',
                     'border': 'thin lightgrey solid',
                     'fontFamily': 'Arial, sans-serif',
-                    'minWidth': '70%',  # Adjust this value to set the minimum width
-                    'width': '80%',  # Adjust this value to set the width
+                    'minWidth': '70%',
+                    'width': '100%',
                     'textAlign': 'center',
-                    'color': 'rgba(255, 141, 11, 0.8)'
+                    'color': 'rgba(255, 141, 11, 0.8)',
                 },
                 style_header={
-                    'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
-                    'fontWeight': 'bold',  # Bold font
+                    'backgroundColor': 'rgba(0, 0, 0, 0)',
+                    'fontWeight': 'bold',
                     'color': 'rgba(255, 141, 11, 0.8)',
-                    'fontFamily': 'Arial, sans-serif',  # Font family
+                    'fontFamily': 'Arial, sans-serif',
                     'fontSize': '16px',
                     'border': '1px dotted brown',
                     'borderRadius': '2px'
-                    # Font size
-                }
-
+                },
+                row_selectable='single',
+                selected_rows=[],
             ),
-        ], width=8),
+        ], width=7, style={'paddingRight': '5px'}),
 
         dbc.Col([
-            html.H3("Üretim Detayları",
-                    style={"align": "center", 'color': 'rgba(255, 141, 11, 0.8)'}),
+            html.H3("Üretim Detayları", style={"align": "center", 'color': 'rgba(255, 141, 11, 0.8)',  'padding': '10px'}),
             DataTable(
                 id='production',
                 columns=[
@@ -81,31 +84,30 @@ layout = [
                     {'name': 'NAME', 'id': 'NAME'},
                     {'name': 'CONFDATE', 'id': 'CONFDATE'},
                     {'name': 'OUTPUT', 'id': 'OUTPUT'},
-                    {'name': 'WORKIINGTIME', 'id': 'WORKIINGTIME'},
+                    {'name': 'WORKINGTIME', 'id': 'WORKINGTIME'},
+                    {'name': 'TOOLNUM', 'id': 'TOOLNUM'},
                 ],
                 style_table={
                     'height': '300px',
                     'overflowY': 'auto',
                     'border': 'thin lightgrey solid',
                     'fontFamily': 'Arial, sans-serif',
-                    'minWidth': '70%',  # Adjust this value to set the minimum width
-                    'width': '80%',  # Adjust this value to set the width
+                    'minWidth': '100%',
+                    'width': '100%',
                     'textAlign': 'center',
-                    'color': 'rgba(255, 141, 11, 0.8)'
+                    'color': 'rgba(255, 141, 11, 0.8)',
                 },
                 style_header={
-                    'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
-                    'fontWeight': 'bold',  # Bold font
+                    'backgroundColor': 'rgba(0, 0, 0, 0)',
+                    'fontWeight': 'bold',
                     'color': 'rgba(255, 141, 11, 0.8)',
-                    'fontFamily': 'Arial, sans-serif',  # Font family
+                    'fontFamily': 'Arial, sans-serif',
                     'fontSize': '16px',
                     'border': '1px dotted brown',
                     'borderRadius': '2px'
-                    # Font size
                 }
-
             ),
-        ], width=4),
+        ], width=5, style={'paddingLeft': '5px'}),
 
     ], style={"margin-left": 75}),
 
@@ -243,7 +245,7 @@ layout = [
     prevent_initial_call=True
 )
 def material_data(n, start_date,end_date):
-    data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE CURDATETIME = '{date} 00:00:00.000'")
+    data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE CURDATETIME >= '{start_date}' AND CURDATETIME < '{end_date}'")
 
     if type(data) is not pd.DataFrame:
         return no_update, no_update
@@ -267,11 +269,15 @@ def material_data(n, start_date,end_date):
 @app.callback(
     Output("one_line_summary", 'data'),
     Output('one_line_summary', 'columns'),
+    Output('selected_material', 'data'),  # Add this line
+    Output('selected_confirmation', 'data'),  # Add this line
     Input("date-picker-range", 'start_date'),
     Input("date-picker-range", 'end_date'),
+    Input('one_line_summary', 'selected_rows'),  # Add this line
+    State('one_line_summary', 'data'),  # Add this line
     prevent_initial_call=True
 )
-def update_table_data(start_date, end_date):
+def update_table_data(start_date, end_date, selected_rows, table_data):
     material_list = []
 
     for x in range(1, 7):
@@ -300,7 +306,16 @@ def update_table_data(start_date, end_date):
     data = final_result.to_dict('records')
     columns = [{"name": i, "id": i} for i in final_result.columns]
 
-    return data, columns
+    if selected_rows is not None and len(selected_rows) > 0:
+
+        selected_material = table_data[selected_rows[0]]['MATERIAL']
+        selected_confirmation = table_data[selected_rows[0]]['CONFIRMATION']
+
+    else:
+        selected_material = None
+        selected_confirmation = None
+
+    return data, columns, selected_material, selected_confirmation
 
 
 
@@ -315,25 +330,26 @@ def update_table_data(start_date, end_date):
     Output("dist_plot1", "figure"),
     Output("dist_plot2", "figure"),
     Output("dist_plot3", "figure"),
-    Input("ppm_data", "children"),
-    State("ayıklama_data", "data"),
-    State("material_ayk", 'value'),
+    Input("selected_material", 'data'),  # Modify this line
+    State("date-picker-range", 'start_date'),
+    State("date-picker-range", 'end_date'),
     prevent_initial_call=True
 
 )
-def draw_dist_plot(ppm, data, material):
+def draw_dist_plot(material, start_date, end_date):
     # Function to scale the size of markers
     def scale_size(quantity, min_size=4, max_size=12):
         scaled_size = max(min_size, min(max_size, quantity))
         return scaled_size
 
-    print("*******")
-    print(material)
-    print("*******")
 
-    data = pd.read_json(data, orient='split')
-    data = data.loc[data["MATERIAL"] == material]
+    data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE MATERIAL = '{material}' AND CURDATETIME >= '{start_date}' AND CURDATETIME < '{end_date}'")
     data["MATERIAL"] = data["MATERIAL"].astype(str)
+    data["MATERIAL"] = data["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
+
+    data = data.loc[data["MATERIAL"] == material]
+
+
     df_nom = ag.run_query(
         f"SELECT MATERIAL,[MTYPE],[MTYPENOM],[MTYPETOL] FROM [VLFKMRAYKTOL] WHERE MATERIAL = '{material}'")
 
@@ -347,15 +363,18 @@ def draw_dist_plot(ppm, data, material):
     data_es = data.loc[data["MTYPE"] == 'ESMERKEZLILIK']
     data_dis = data.loc[data["MTYPE"] == 'DISCAP']
 
+
     fig = go.Figure()
     fig1 = go.Figure()
     fig2 = go.Figure()
 
+
     list_of_data = []
 
-    for figure, data_interval, data_summary in [[fig, data_ic, df_ic],
-                                                [fig1, data_es, df_es],
-                                                [fig2, data_dis, df_dis]]:
+
+    for figure, data_interval in [[fig, data_ic],
+                                                [fig1, data_es],
+                                                [fig2, data_dis]]:
 
         # data_interval = data_interval.merge(data_summary, on=["MATERIAL"], how='left')
         # # data_es = data_es.merge(df_es,on=["MATERIAL"], how='left')
@@ -367,17 +386,17 @@ def draw_dist_plot(ppm, data, material):
         #     'RED',
         #     'KABUL'
         # )
-
         data_interval.sort_values(by="MINIMUM", inplace=True)
         data_interval["MINIMUM"] = data_interval["MINIMUM"].astype(float).round(decimals=4)
         data_interval["MAXIMUM"] = data_interval["MAXIMUM"].astype(float).round(decimals=4)
 
+
+
+        data_interval["midpoints"] = (data_interval["MINIMUM"] + data_interval["MAXIMUM"]) / 2
+
         # Loop through the data and add traces
         dtick_value = (data_interval["midpoints"].max() - data_interval["midpoints"].min()) / 20
 
-        print("********")
-        print(data_interval)
-        print("********")
 
         for i, row in data_interval.iterrows():
             if row["QUANTITY"] > 0:
@@ -448,3 +467,42 @@ def draw_dist_plot(ppm, data, material):
         [{"name": i, "id": i} for i in list_of_data[2].columns], list_of_data[0].to_dict("records"), list_of_data[
         1].to_dict("records"), \
         list_of_data[2].to_dict("records"), fig, fig1, fig2
+
+
+@app.callback(
+    Output('production', 'data'),
+    Output('production', 'columns'),
+    Input('selected_confirmation', 'data'),
+    prevent_initial_call=True
+)
+def update_production_data(confirmation):
+    if not confirmation:
+        return no_update, no_update
+
+    print(f"DENEME2")
+    print(confirmation)
+
+
+    data4 = ag.run_query(
+        f"SELECT C.WORKCENTER, (H.NAME + ' ' + H.SURNAME) AS NAME, CAST(C.CONFIRMDATE AS DATE) AS CONFDATE, C.OUTPUT," 
+        f"(C.WORKINGTIME * 60) AS WORKINGTIME, I.TOOLNUM FROM [VALFSAN604].[dbo].IASPRDCONF C "
+        f"LEFT JOIN [VALFSAN604].[dbo].IASHCMPERS H ON C.CLIENT = H.CLIENT AND C.PERSONELNUM = H.PERSID "
+        f"LEFT JOIN [VALFSAN604].[dbo].IASPRDRST I ON C.CLIENT = I.CLIENT AND C.COMPANY = I.COMPANY AND C.PRDORDER = I.PRDORDER AND C.POTYPE = I.POTYPE "
+        f"WHERE C.OUTPUT > 0 AND I.SEC = 1 AND C.COSTCENTER != 'SKURUTMA' AND C.PRDORDER = '{confirmation }'  ORDER BY C.CONFIRMATION, C.CONFIRMPOS")
+
+    print(f"DENEME3")
+    print(data4)
+
+    data4["WORKCENTER"] = data4["WORKCENTER"].astype(str)
+    data4["NAME"] = data4["NAME"].astype(str)
+    data4['CONFDATE'] = pd.to_datetime(data4['CONFDATE']).dt.strftime('%Y-%m-%d')
+    data4['OUTPUT'] = data4['OUTPUT'].astype(int)
+    data4['WORKINGTIME'] = data4['WORKINGTIME'].astype(float)
+    data4['TOOLNUM'] = data4['TOOLNUM'].astype(str)
+
+
+    print(f"DENEME4")
+    print(data4)
+
+    columns = [{"name": i, "id": i} for i in data4.columns]
+    return data4.to_dict('records'), columns
