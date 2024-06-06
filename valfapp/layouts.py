@@ -276,7 +276,7 @@ layout_12 = dbc.Container([
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 
-layout_12_loginpage_v2 = layout = html.Div(children=[
+layout_12_loginpage_v2 = html.Div(children=[
     nav_bar,
 
     dbc.Container(children=[
