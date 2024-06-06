@@ -40,3 +40,19 @@ dagcomponentfuncs.Button = function (props) {
     );
 };
 
+// Define customValueGetter function
+function customValueGetter(params) {
+    return params.node.rowIndex + 1;
+}
+
+// Define rowPinningBottom function
+function rowPinningBottom(params) {
+    if (params.node.rowPinned) {
+        return { color: 'blue', fontWeight: 'bold' };
+    }
+    return null;
+}
+
+function valueFormatterFunction(params) {
+    return d3.format(",.1f")(params.value);
+}

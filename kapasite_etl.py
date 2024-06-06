@@ -1,8 +1,23 @@
+from config import project_directory
 from run.agent import ag
 from datetime import datetime, timedelta
 import math
 from dash_table.Format import Format, Scheme
 import pandas as pd
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+import pendulum
+
+local_tz = pendulum.timezone("Asia/Istanbul")
+
+
+dag = DAG(
+    'sent_mail',
+    schedule_interval='0 9 * * 2-6',  # Set your desired schedule interval
+    start_date=datetime(2024, 4, 16, tzinfo=local_tz)
+    ,  # Set the start date
+    catchup=False  # Set to True if you want to backfill historical runs
+)
 
 
 def create_weeks_dict():
@@ -81,7 +96,7 @@ def update_graph_method():
     df2 = df2[weeks_first]
 
 
-    df3 = ag.run_query(r"C:\Users\kereviz\Python Project\Charting\queries\prescapacity.sql")
+    df3 = ag.run_query(f"{project_directory}\queries\prescapacity.sql")
 
     df3 = df3[weeks_first]
     df3.loc[df3['MATERIAL'] == 'YUZEY ISLEM-OTEC', 'COSTCENTER'] = 'YUZEY ISLEM-OTEC'
@@ -119,132 +134,122 @@ def update_graph_method():
 
 
 
-    def pivotting_table():
-        today = datetime.today()
-        one_week_ago = today - timedelta(days=7)
-        year_ago, week_num_ago, week_day_ago = one_week_ago.isocalendar()
-        formatted_date_one_week_ago = f"{year_ago}-{week_num_ago}"
+    # def pivotting_table():
+    #     today = datetime.today()
+    #     one_week_ago = today - timedelta(days=7)
+    #     year_ago, week_num_ago, week_day_ago = one_week_ago.isocalendar()
+    #     formatted_date_one_week_ago = f"{year_ago}-{week_num_ago}"
+    #
+    #     df_sade = df[formatted_weeks()]
+    #
+    #     pivot_columns = df_sade.columns.difference(
+    #         ['ANAMAMUL', 'MATERIAL', 'COSTCENTER', 'CAPWORK', 'SURE_HESAPLAMA_KODU', 'MACHINE', 'LABOUR', 'SETUP',
+    #          'BASEQUAN', 'WORKCUNT', 'CAPGRUP'])
+    #
+    #     # Pivot the data
+    #     pivoted_df = df.melt(
+    #         id_vars=['ANAMAMUL', 'MATERIAL', 'COSTCENTER', 'CAPWORK', 'WORKCUNT', 'CAPGRUP', 'SURE_HESAPLAMA_KODU',
+    #                  'MACHINE', 'LABOUR', 'SETUP',
+    #                  'BASEQUAN'], value_vars=pivot_columns, var_name='current_week', value_name='value')
+    #
+    #     pivoted_df["BASEQUAN"] = pivoted_df["BASEQUAN"].astype(int)
+    #     pivoted_df["MACHINE"] = pivoted_df["MACHINE"].astype(float)
+    #     pivoted_df["LABOUR"] = pivoted_df["LABOUR"].astype(float)
+    #     pivoted_df["SETUP"] = pivoted_df["SETUP"].astype(float)
+    #     pivoted_df["value"] = pivoted_df["value"].astype(float)
+    #     pivoted_df['value_min'] = pivoted_df.apply(lambda row: calculate_maxtime(row, row['WORKCUNT']), axis=1)
+    #     pivoted_df['current_week'] = pivoted_df['current_week'].apply(
+    #         lambda x: formatted_date_one_week_ago if x == 'IHT0' else x[4:].replace('_', '-'))
+    #     pivoted_df['current_week'] = pivoted_df['current_week'].apply(
+    #         lambda x: '-'.join([x.split('-')[0], x.split('-')[1].zfill(2)]) if len(x.split('-')) > 1 else x)
+    #
+    #     return pivoted_df
 
-        df_sade = df[formatted_weeks()]
-
-        pivot_columns = df_sade.columns.difference(
-            ['ANAMAMUL', 'MATERIAL', 'COSTCENTER', 'CAPWORK', 'SURE_HESAPLAMA_KODU', 'MACHINE', 'LABOUR', 'SETUP',
-             'BASEQUAN', 'WORKCUNT', 'CAPGRUP'])
-
-        # Pivot the data
-        pivoted_df = df.melt(
-            id_vars=['ANAMAMUL', 'MATERIAL', 'COSTCENTER', 'CAPWORK', 'WORKCUNT', 'CAPGRUP', 'SURE_HESAPLAMA_KODU',
-                     'MACHINE', 'LABOUR', 'SETUP',
-                     'BASEQUAN'], value_vars=pivot_columns, var_name='current_week', value_name='value')
-
-        pivoted_df["BASEQUAN"] = pivoted_df["BASEQUAN"].astype(int)
-        pivoted_df["MACHINE"] = pivoted_df["MACHINE"].astype(float)
-        pivoted_df["LABOUR"] = pivoted_df["LABOUR"].astype(float)
-        pivoted_df["SETUP"] = pivoted_df["SETUP"].astype(float)
-        pivoted_df["value"] = pivoted_df["value"].astype(float)
-        pivoted_df['value_min'] = pivoted_df.apply(lambda row: calculate_maxtime(row, row['WORKCUNT']), axis=1)
-        pivoted_df['current_week'] = pivoted_df['current_week'].apply(
-            lambda x: formatted_date_one_week_ago if x == 'IHT0' else x[4:].replace('_', '-'))
-        pivoted_df['current_week'] = pivoted_df['current_week'].apply(
-            lambda x: '-'.join([x.split('-')[0], x.split('-')[1].zfill(2)]) if len(x.split('-')) > 1 else x)
-
-        return pivoted_df
-
-    def formatted_weeks():
-        # Current date
-        current_date = datetime.now()
-
-        # Calculate the start of the current week (assuming weeks start on Monday)
-        current_week_start = current_date - timedelta(days=current_date.weekday())
-
-        # Generate the current week and the next 17 weeks
-        weeks = [current_week_start + timedelta(weeks=i) for i in range(18)]  # Generating the weeks
-
-        # Formatting weeks as 'Year_WeekNumber' using ISO week date
-        # Adjusting to remove leading zeros and ensuring no week "00"
-        formatted_weeks = [f"{week.strftime('%G')}_{int(week.strftime('%V'))}" for week in weeks]
-
-        # Removing the first week if it is week 00 and prefixing with "IHT_"
-        formatted_weeks = ["IHT_" + week for week in formatted_weeks if not week.endswith("_0")]
-
-        formatted_weeks.insert(0, 'IHT0')
-        formatted_weeks.insert(0, 'MATERIAL')
-        formatted_weeks.insert(0, 'ANAMAMUL')
-        formatted_weeks.insert(0, 'COSTCENTER')
-        formatted_weeks.insert(0, 'CAPWORK')
-        formatted_weeks.insert(0, 'CAPGRUP')
-        formatted_weeks.insert(0, 'WORKCUNT')
-        formatted_weeks.insert(0, 'SURE_HESAPLAMA_KODU')
-        formatted_weeks.insert(0, 'MACHINE')
-        formatted_weeks.insert(0, 'LABOUR')
-        formatted_weeks.insert(0, 'SETUP')
-        formatted_weeks.insert(0, 'BASEQUAN')
-
-        return formatted_weeks
-
-    def calculate_maxtime(row, work_count):
-        code = row['SURE_HESAPLAMA_KODU']
-        machine = row['MACHINE']
-        labour = row['LABOUR']
-        setup = row['SETUP']
-        total_need = row['value']
-        base_quan = row['BASEQUAN']
-
-        if total_need > 0 and work_count > 0:  # work_count sıfır olmamalıdır, bölen sıfır olursa hata verir
-            calculated_value = 0
-            if code == 'A':
-                calculated_value = machine + labour + setup
-            elif code == 'B':
-                calculated_value = (machine * total_need) + (labour * total_need) + setup
-            elif code == 'C':
-                calculated_value = (machine * total_need) + labour + setup
-            elif code == 'D':
-                calculated_value = machine + (labour * total_need) + setup
-            elif code == 'E':
-                calculated_value = math.ceil(total_need / base_quan) * machine + labour + setup
-            elif code == 'F':
-                calculated_value = machine + math.ceil(total_need / base_quan) * labour + setup
-            elif code == 'G':
-                calculated_value = math.ceil(total_need / base_quan) * (machine + labour) + setup
-            elif code == 'H':
-                calculated_value = math.ceil(total_need / base_quan) * machine + (labour * total_need) + setup
-            elif code == 'I':
-                calculated_value = (machine * total_need) + (labour * (total_need / base_quan)) + setup
-            elif code == 'J':
-                calculated_value = 0
-
-            return calculated_value / work_count  # Bölme işlemi burada yapılır
-        else:
-            return 0
-
+    # def formatted_weeks():
+    #     # Current date
+    #     current_date = datetime.now()
+    #
+    #     # Calculate the start of the current week (assuming weeks start on Monday)
+    #     current_week_start = current_date - timedelta(days=current_date.weekday())
+    #
+    #     # Generate the current week and the next 17 weeks
+    #     weeks = [current_week_start + timedelta(weeks=i) for i in range(18)]  # Generating the weeks
+    #
+    #     # Formatting weeks as 'Year_WeekNumber' using ISO week date
+    #     # Adjusting to remove leading zeros and ensuring no week "00"
+    #     formatted_weeks = [f"{week.strftime('%G')}_{int(week.strftime('%V'))}" for week in weeks]
+    #
+    #     # Removing the first week if it is week 00 and prefixing with "IHT_"
+    #     formatted_weeks = ["IHT_" + week for week in formatted_weeks if not week.endswith("_0")]
+    #
+    #     formatted_weeks.insert(0, 'IHT0')
+    #     formatted_weeks.insert(0, 'MATERIAL')
+    #     formatted_weeks.insert(0, 'ANAMAMUL')
+    #     formatted_weeks.insert(0, 'COSTCENTER')
+    #     formatted_weeks.insert(0, 'CAPWORK')
+    #     formatted_weeks.insert(0, 'CAPGRUP')
+    #     formatted_weeks.insert(0, 'WORKCUNT')
+    #     formatted_weeks.insert(0, 'SURE_HESAPLAMA_KODU')
+    #     formatted_weeks.insert(0, 'MACHINE')
+    #     formatted_weeks.insert(0, 'LABOUR')
+    #     formatted_weeks.insert(0, 'SETUP')
+    #     formatted_weeks.insert(0, 'BASEQUAN')
+    #
+    #     return formatted_weeks
+    #
+    # def calculate_maxtime(row, work_count):
+    #     code = row['SURE_HESAPLAMA_KODU']
+    #     machine = row['MACHINE']
+    #     labour = row['LABOUR']
+    #     setup = row['SETUP']
+    #     total_need = row['value']
+    #     base_quan = row['BASEQUAN']
+    #
+    #     if total_need > 0 and work_count > 0:  # work_count sıfır olmamalıdır, bölen sıfır olursa hata verir
+    #         calculated_value = 0
+    #         if code == 'A':
+    #             calculated_value = machine + labour + setup
+    #         elif code == 'B':
+    #             calculated_value = (machine * total_need) + (labour * total_need) + setup
+    #         elif code == 'C':
+    #             calculated_value = (machine * total_need) + labour + setup
+    #         elif code == 'D':
+    #             calculated_value = machine + (labour * total_need) + setup
+    #         elif code == 'E':
+    #             calculated_value = math.ceil(total_need / base_quan) * machine + labour + setup
+    #         elif code == 'F':
+    #             calculated_value = machine + math.ceil(total_need / base_quan) * labour + setup
+    #         elif code == 'G':
+    #             calculated_value = math.ceil(total_need / base_quan) * (machine + labour) + setup
+    #         elif code == 'H':
+    #             calculated_value = math.ceil(total_need / base_quan) * machine + (labour * total_need) + setup
+    #         elif code == 'I':
+    #             calculated_value = (machine * total_need) + (labour * (total_need / base_quan)) + setup
+    #         elif code == 'J':
+    #             calculated_value = 0
+    #
+    #         return calculated_value / work_count  # Bölme işlemi burada yapılır
+    #     else:
+    #         return 0
 
 
     print(datetime.now())
-    df_prepared = pivotting_table()
-    print(datetime.now())
-
-    print("******")
-    print(df_prepared)
-    print("******")
 
 
     # Sonra, 'current_week' ve diğer tüm sütunlar için gruplandırma yaparak 'value_min' toplamını hesaplayın
-    df_grouped = df_prepared.groupby(
-        ['MATERIAL', 'COSTCENTER', 'CAPWORK', 'SURE_HESAPLAMA_KODU', 'MACHINE', 'LABOUR', 'SETUP', 'BASEQUAN',
-         'WORKCUNT', 'CAPGRUP',
-         'current_week']).agg({'value_min': 'sum', 'ANAMAMUL': 'max'}).reset_index()
+    # df_grouped = df_prepared.groupby(
+    #     ['MATERIAL', 'COSTCENTER', 'CAPWORK', 'SURE_HESAPLAMA_KODU', 'MACHINE', 'LABOUR', 'SETUP', 'BASEQUAN',
+    #      'WORKCUNT', 'CAPGRUP',
+    #      'current_week']).agg({'value_min': 'sum', 'ANAMAMUL': 'max'}).reset_index()
 
-    print("******")
-    print(df_grouped)
-    print("******")
 
 
     # Son olarak, pivot işlemini gerçekleştirin
-    pivot_result = df_grouped.pivot(
-        index=['ANAMAMUL', 'MATERIAL', 'COSTCENTER', 'CAPWORK', 'SURE_HESAPLAMA_KODU', 'MACHINE', 'LABOUR', 'SETUP',
-               'BASEQUAN', 'WORKCUNT', 'CAPGRUP'],
-        columns='current_week', values='value_min').reset_index()
-
+    # pivot_result = df_grouped.pivot(
+    #     index=['ANAMAMUL', 'MATERIAL', 'COSTCENTER', 'CAPWORK', 'SURE_HESAPLAMA_KODU', 'MACHINE', 'LABOUR', 'SETUP',
+    #            'BASEQUAN', 'WORKCUNT', 'CAPGRUP'],
+    #     columns='current_week', values='value_min').reset_index()
+    #
 
     def create_weeks_dict():
         start_date = datetime.now() - timedelta(weeks=1)
@@ -315,29 +320,22 @@ def update_graph_method():
                 "format": Format(precision=0, scheme=Scheme.fixed)
             })
 
+
     print("first metod end")
     print(datetime.now())
-    return df_prepared, pivot_result
+    return pivot_result
 
 
 df,pivot_result = update_graph_method()
 
-print("*****")
-print("*****")
-print("*****")
-print(pivot_result)
-print("*****")
-print("*****")
-print("*****")
 
 
 
-
-ag.drop_table_if_exists("VLFCAPFINAL")
-
-ag.create_table_from_df(df, "VLFCAPFINAL")
-
-ag.insert_data_from_df(df, 'VLFCAPFINAL')
+# ag.drop_table_if_exists("VLFCAPFINAL")
+#
+# ag.create_table_from_df(df, "VLFCAPFINAL")
+#
+# ag.insert_data_from_df(df, 'VLFCAPFINAL')
 
 
 
@@ -346,3 +344,15 @@ ag.drop_table_if_exists("VLFCAPFINALPIVOT")
 ag.create_table_from_df(pivot_result, "VLFCAPFINALPIVOT")
 
 ag.insert_data_from_df(pivot_result, 'VLFCAPFINALPIVOT')
+
+
+
+send_report_as_email_montaj = PythonOperator(
+    task_id='send_report_as_email_montaj',
+    python_callable=send_email_via_exchange,
+    provide_context=True,
+    dag=dag,
+    retries=5,  # Görev için maksimum deneme sayısı
+    retry_delay=timedelta(minutes=5),
+    op_args = ["kbbudak@valfsan.com.tr;tturali@valfsan.com.tr;montajhatti@valfsan.com.tr;odurmaz@valfsan.com.tr",'MONTAJ']
+)

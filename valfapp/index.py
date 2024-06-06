@@ -9,7 +9,7 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, livekamera, \
+    tvmonitor, uretimrapor, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
     adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page, adr_CNC_week, adr_PRES1_week, adr_PRES2_week, adr_CNCTORNA_week, \
     adr_MONTAJ_week, adr_CNC_month, adr_CNCTORNA_month, adr_MONTAJ_month, adr_PRES1_month, adr_PRES2_month, \
     adr_CNCreal, adr_CNCTORNAreal, \
@@ -147,8 +147,6 @@ def display_page(pathname,login_status_data):
         return gvt_page.layout
     elif pathname == '/camayikuretim':
         return camayikuretim.layout
-    elif pathname == '/livekamera':
-        return livekamera.layout
     elif pathname == '/costing':
         return costing.layout
 
@@ -246,7 +244,6 @@ app.validation_layout = html.Div(
         yuzeyislemtv.layout,
         kameraayıklama.layout,
         camayikuretim.layout,
-        livekamera.layout,
         tvmonitor.layout,
         uretimrapor.layout,
         kapasite.layout,

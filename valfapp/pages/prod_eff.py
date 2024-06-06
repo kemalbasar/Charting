@@ -61,7 +61,7 @@ layout = dbc.Container([
               data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[2]),
     dcc.Store(id='oeelist6',
               data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[6]),
-    dcc.Store(id='device-info-store'),
+    # dcc.Store(id='device-info-store'),
         nav_bar,
 
         dbc.Row([
@@ -335,8 +335,8 @@ def update_graph_sunburst(option_slctd, oeelist0):
 @app.callback(
     [Output(component_id='bubble', component_property='figure')],
     [Input(component_id='costcenter', component_property='value'),
-     Input(component_id='oeelist2', component_property='data'),
-     Input('device-info-store', 'data')]
+     Input(component_id='oeelist2', component_property='data')]
+     # Input('device-info-store', 'data')]
 )
 def update_graph_bubble(option_slctd, oeelist2, dev_type):
     graphwidth = 1100

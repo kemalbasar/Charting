@@ -1,13 +1,15 @@
-SELECT MATGRP2,[3],[4],[5] -- Replace these years with the actual year values relevant to your data
+SELECT MATGRP2,[a],[b],[c] -- Replace these years with the actual year values relevant to your data
 FROM
 (
-    SELECT MATGRP2, PMONTH, ROWBALANCE
+    SELECT MATGRP2, (CAST(PMONTH AS varchar(10))  + '-' + CAST(PYEAR AS VARCHAR(10)) ) AS PMONTH, ROWBALANCE
     FROM VLFCOMPONENT
-    WHERE PMONTH > MONTH(DATEADD(MONTH, -3, GETDATE())) AND
-		PYEAR = YEAR(DATEADD(MONTH, -3, GETDATE()))
+    WHERE PMONTH > MONTH(DATEADD(MONTH, -4, GETDATE())) AND
+		PYEAR = YEAR(DATEADD(MONTH, -4, GETDATE()))
 ) AS SourceTable
 PIVOT
 (
     SUM(ROWBALANCE)
-    FOR PMONTH IN ([3],[4],[5])  -- This should match the years in the SELECT clause
+    FOR PMONTH IN ([a],[b],[c])  -- This should match the years in the SELECT clause
 ) AS PivotTable;
+
+
