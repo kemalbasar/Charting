@@ -16,7 +16,7 @@ import plotly.io as pio
 def readquerry(queryx):
     queryy = queryx
     if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH' \
-            or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT' or queryy[0:6] == 'DELETE':
+            or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT' or queryy[0:6] == 'DELETE' or queryy[0:2] == 'IF' or queryy[0:6] == 'CREATE':
         return queryy
     else:
         if os.path.exists(queryy):
