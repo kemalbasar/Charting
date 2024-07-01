@@ -15,6 +15,13 @@ from matgrp2dic import matgrp2dic
 
 # Layout of the Dash app
 
+# Get the first day of the previous month
+first_day_prev_month = datetime.today().replace(day=1) - timedelta(days=1)
+start_date = first_day_prev_month.replace(day=1).strftime('%Y-%m-%d')
+
+# Get the last day of the previous month
+end_date = first_day_prev_month.strftime('%Y-%m-%d')
+
 defaultColDef = {
     "filter": True,
     "floatingFilter": True,
@@ -27,7 +34,10 @@ defaultColDef = {
 
 
 def generate_month_year_list(start_date, end_date):
+
     date_range = pd.date_range(start=start_date, end=end_date, freq='MS')
+
+
     month_year_list = [f"{date.month}-{date.year}" for date in date_range]
     return ', '.join([f"[{item}]" for item in month_year_list]), month_year_list
 
@@ -63,7 +73,7 @@ def fix_table(df_sales, df_costing, df_quantity, iscomponent=0, date_columnlist=
 
     if iscomponent == 1:
         combined_columns = ([('MATGRP2', 'Dönem')] + [('COMPONENT', 'Dönem')] + [('CATEGORY', 'Dönem')]
-                            + [('QTY', 'Dönem')] + price_columns + sales_columns + quantity_columns)
+                            + [('Kullanım Ad.', 'Dönem')] + price_columns + sales_columns + quantity_columns)
     else:
         combined_columns = ([('MATGRP2', 'Dönem')] + price_columns + sales_columns)
 
@@ -74,13 +84,12 @@ def fix_table(df_sales, df_costing, df_quantity, iscomponent=0, date_columnlist=
             # Apply a function to check if any element in the column is a Decimal
             if any(df[column].apply(lambda x: isinstance(x, Decimal))):
                 # Convert all Decimal to float, safely ignoring None values
-                if column == ('QTY', 'Dönem'):
+                if column == ('Kullanım Ad.', 'Dönem'):
                     continue
-                print(f" bak  {column} burada bakbak")
                 df[column] = df[column].apply(lambda x: int(x) if isinstance(x, Decimal) else x)
             if df[column].dtype == 'object':
                 if column not in [('MATGRP2', 'Dönem'), ('COMPONENT', 'Dönem'),
-                                  ('CATEGORY', 'Dönem'), ('PRICE', 'Dönem'), ('QTY', 'Dönem')]:
+                                  ('CATEGORY', 'Dönem'), ('PRICE', 'Dönem'), ('Kullanım Ad.', 'Dönem')]:
                     try:
                         df[column] = df[column].fillna(0).astype(int)
                     except ValueError:
@@ -100,16 +109,21 @@ def fix_table(df_sales, df_costing, df_quantity, iscomponent=0, date_columnlist=
 
     if iscomponent == 1:
         combined_columns = (["MATGRP2"] + ["COMPONENT"] + ["CATEGORY"]
-                            + ["QTY"] + [str(item) for item in last_three_months])
+                            + ["Kullanım Ad."] + [str(item) for item in last_three_months])
     else:
         combined_columns = ["MATGRP2"] + [str(item) for item in last_three_months]
 
     merged_df = merged_df[combined_columns]
 
+    breaker = 0
     for item in last_three_months:
+
         merged_df = merged_df.rename(
             columns={f'pay_{item}': 'Pay', f'price_{item}': 'Maliyet', f'sales_{item}': 'Ciro',
                      f'quantity_{item}': 'Adet'})
+        # if breaker == 0:
+        #     merged_df.sort_values(by= f'pay_{item}', inplace=True)
+        #     breaker = 1
 
     # merged_df.reindex(columns=['Ciro', 'Maliyet', 'Pay'], level='Dönem')
 
@@ -131,6 +145,7 @@ def fix_table(df_sales, df_costing, df_quantity, iscomponent=0, date_columnlist=
     merged_df = create_combined_trend_data(merged_df)
     merged_df['Back'] = merged_df[('MATGRP2', 'Dönem')]
     merged_df.insert(1, 'Detay', 'Detay')
+    merged_df.sort_values(by= ( last_three_months[-1],'Pay'), inplace=True,ascending=False)
 
     def flatten_columns(df):
         """
@@ -221,6 +236,7 @@ def return_sum_column(merged_df):
 layout = [
     # Stores the timestamp of the initial trigger
     dcc.Store(id='df-store'),
+    dcc.Store(id='df-store-first'),
     dcc.Store(id='position', data=0),
     dcc.Interval(
         id=f'check-interval_costing',
@@ -235,8 +251,8 @@ layout = [
     ),
     dcc.DatePickerRange(
         id='date-picker-costing',
-        start_date=(datetime.today() - timedelta(days=100)).strftime('%Y-%m-%d'),
-        end_date=datetime.today().strftime('%Y-%m-%d')
+        start_date=start_date,
+        end_date=end_date
     ),
     html.Div(id="costing_table"),
     html.Div(id="component_table")]
@@ -247,7 +263,6 @@ layout = [
     Input(f'check-interval_costing', 'n_intervals'),
 )
 def check_elapsed_time(trigger_timestamp):
-    print("burdayım")
     if trigger_timestamp is None:
         # If there's no timestamp, it means the initial trigger hasn't happened yet
         raise PreventUpdate
@@ -264,6 +279,8 @@ def check_elapsed_time(trigger_timestamp):
 @app.callback(
     [
         Output(f'costing_table', 'children'),
+        Output("df-store-first", "data"),
+
         # Output('df-store', 'data')
     ],
     [Input(f'interval-trigger_costing', 'n_intervals'),
@@ -276,15 +293,10 @@ def update_data_on_page_load(pathname, start_date, end_date):
     # For now, we assume every load/refresh should trigger the data update
 
     # Last three months by number
-    print("*********")
-    print(generate_month_year_list)
-    print("*********")
+
     last_three_months, last_three_months_real = generate_month_year_list(start_date, end_date)
     # generate_month_year_list(start_date, end_date).reverse()
 
-    print("*********")
-    print(last_three_months)
-    print("*********")
 
     print(f"***************!!!!!!! Maliyetlendirme Rapor Verileri Çekiliyor.***************!!!!!!!")
 
@@ -300,6 +312,7 @@ def update_data_on_page_load(pathname, start_date, end_date):
     merged_df = fix_table(df_costing, df_sales, None, 0, last_three_months_real)
 
     merged_df.iloc[-1] = return_sum_column(merged_df)
+
     # for col in merged_df.columns:
     #     if (('Ciro' in col) | ('Maliyet' in col)):
     #         print(col)
@@ -321,7 +334,7 @@ def update_data_on_page_load(pathname, start_date, end_date):
             className="ag-theme-alpine-dark",
             columnSize="sizeToFit",
         )
-    ])]
+    ])],merged_df.to_dict('records')
 
 
 # Connect the Plotly graphs with Dash Components
@@ -334,14 +347,12 @@ def update_data_on_page_load(pathname, start_date, end_date):
     Input("costing_rtable", "cellRendererData"),
     State("position", "data"),
     State('df-store', 'data'),
+    State("df-store-first", "data"),
     State('date-picker-costing', 'start_date'),
     State('date-picker-costing', 'end_date')
 )
-def showChange(n, position, json_data, start_date, end_date):
+def showChange(n, position, json_data,json_data_first, start_date, end_date):
     last_three_months, last_three_months_real = generate_month_year_list(start_date, end_date)
-    print("********")
-    print(position)
-    print("********")
 
     if n:
         row_id_sold = int(n['rowId'])
@@ -351,14 +362,16 @@ def showChange(n, position, json_data, start_date, end_date):
 
                 print("****** Detaya Tıklandı Ve  İndex=0********")
 
-                matgrp2dic[row_id_sold]
+                print(json_data_first)
+                key = json_data_first[row_id_sold]['MATGRP2_Dönem']
+                print(key)
 
                 df_sales = ag.editandrun_query(f"{project_directory}/Charting/queries/costing_queries/"
                                                f"costing_month_material.sql", ['XXX', '[a],[b],[c]'],
-                                               [matgrp2dic[row_id_sold], last_three_months])
+                                               [key, last_three_months])
                 df_costing = ag.editandrun_query(f"{project_directory}/Charting/queries/costing_queries/"
                                                  f"sales_month_material.sql", ['XXX', '[a],[b],[c]'],
-                                                 [matgrp2dic[row_id_sold], last_three_months])
+                                                 [key, last_three_months])
 
                 merged_df = fix_table(df_costing, df_sales, None, 0, last_three_months_real)
                 merged_df.iloc[-1] = return_sum_column(merged_df)

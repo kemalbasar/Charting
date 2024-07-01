@@ -388,7 +388,8 @@ def update_costcenter_table(selected_costcenter, selected_capgrp):#,df_json_pivo
     State('isfirst_trigger', 'data'),
     State('iscapacity_trigger', 'data')
 )
-def update_workcenter_table(selected_workcenter,selected_capgrp,selected_costcenter,isfirst,is_capasity):
+def update_workcenter_table(selected_workcenter,selected_capgrp,selected_costcenter,isfirst,is_capasity,
+                            table_name):
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     print(button_id)
     print("here5")
@@ -404,10 +405,10 @@ def update_workcenter_table(selected_workcenter,selected_capgrp,selected_costcen
 
         if (button_id == 'workcenter-dropdown') | (isfirst == 0):
              if is_capasity == 1:
-                filtered_df_pivot_cap_list = f"SELECT * FROM VLFCAPFINALPIVOT WHERE COSTCENTER = '{selected_costcenter}'"
+                filtered_df_pivot_cap_list = f"SELECT * FROM {table_name} WHERE COSTCENTER = '{selected_costcenter}'"
                 filtered_df_pivot_cap_list = ag.run_query(filtered_df_pivot_cap_list)
              elif is_capasity == 2:
-                 filtered_df_pivot_cap_list = f"SELECT * FROM VLFCAPFINALPIVOT WHERE CAPGRUP = '{selected_capgrp}'"
+                 filtered_df_pivot_cap_list = f"SELECT * FROM {table_name}PIVOT WHERE CAPGRUP = '{selected_capgrp}'"
                  filtered_df_pivot_cap_list = ag.run_query(filtered_df_pivot_cap_list)
              print(filtered_df_pivot_cap_list)
              print("workhere2")

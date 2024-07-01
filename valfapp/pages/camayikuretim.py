@@ -17,7 +17,6 @@ from valfapp.functions.functions_prd import indicator_for_tvs
 import statistics
 from dash.dependencies import Input, Output
 
-
 layout = [
     dcc.Store(id='filtered-data'),
 
@@ -33,6 +32,7 @@ layout = [
                              persistence=True,
                              persistence_type='memory'
                              ),
+        dbc.Button("Raporu İndir", id="btn-download-excel", color="primary", className="mr-1")
     ], style={'display': 'flex', 'flexDirection': 'row'})
     ),
 
@@ -51,6 +51,7 @@ layout = [
                     'minWidth': '85%',  # Adjust this value to set the minimum width
                     'width': '95%',  # Adjust this value to set the width
                     'textAlign': 'left',
+                    'color':'black'
                     ##'margin': 'auto'  # Center the table horizontally
 
                 },
@@ -82,7 +83,8 @@ layout = [
             html.H3("Gantt Chart", style={"text-align": "center", "margin-top": 10}),
             dcc.Graph(id="gantt_chart"),
         ], width=8)
-    ])
+    ]),
+    dcc.Download(id="download-excel")
 ]
 
 @app.callback(
@@ -293,7 +295,15 @@ def update_summary_table(start_date, end_date):
 
     return columns, table_data.to_dict("records"), fig_container , fig_container2
 
-
+@app.callback(
+    Output("download-excel", "data"),
+    Input("btn-download-excel", "n_clicks"),
+    State("uretim_data", "data"),
+    prevent_initial_call=True,
+)
+def download_as_excel(n_clicks, table_data):
+    df= pd.DataFrame(table_data)
+    return dcc.send_data_frame(df.to_excel,"uretim_raporu.xlsx", sheet_name="Kamere Ayıklama Raporu", index=False)
 @app.callback(
 
     Output("gantt_chart", "figure"),

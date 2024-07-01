@@ -16,7 +16,7 @@ from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajt
     adr_PRES1real, adr_PRES2real, adr_MONTAJreal, adr_CNC_weekreal, adr_PRES1_weekreal, adr_PRES2_weekreal, \
     adr_CNCTORNA_weekreal, \
     adr_MONTAJ_weekreal, adr_CNC_monthreal, adr_CNCTORNA_monthreal, adr_MONTAJ_monthreal, adr_PRES1_monthreal, \
-    adr_PRES2_monthreal, yonlendirme_pagee, costing
+    adr_PRES2_monthreal, yonlendirme_pagee, costing, livekamera
 from flask import request,g
 
 ### Page container ###
@@ -149,6 +149,8 @@ def display_page(pathname,login_status_data):
         return camayikuretim.layout
     elif pathname == '/costing':
         return costing.layout
+    elif pathname == '/livekamera':
+        return livekamera.layout
 
     #Buradan Sonrası Periyodik Üretim Raporları Endpointler
     elif pathname == '/yonlendirmepagee':
@@ -250,6 +252,7 @@ app.validation_layout = html.Div(
         gvt_page.layout,
         costing.layout,
         yonlendirme_pagee.layout,
+        livekamera.layout,
         adr_CNC.layout,
         adr_CNCTORNA.layout,
         adr_PRES1.layout,
