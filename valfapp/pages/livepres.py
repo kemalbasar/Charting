@@ -1,7 +1,7 @@
 import datetime
+
 import pandas as pd
 import plotly.graph_objs as go
-import dash
 from dash import dcc, html, Input, Output, State, exceptions
 import dash_bootstrap_components as dbc
 from paho.mqtt import client as mqtt
@@ -66,7 +66,6 @@ for w in wclist:
     a = a + (w,)
 a = "('" + "','".join(map(str, a)) + "')"
 
-dfff = ag.run_query(query + ' ' + a)
 
 
 # dfff = dfff.to_json(date_format='iso', orient='split')
@@ -112,6 +111,7 @@ def calculate_current_optimal_qty(optimalqty):
 #          style={"height": 800})
 
 layout = html.Div(children=[
+    dcc.Store(id='erpdata',data=ag.run_query(query + ' ' + a).to_dict(orient='split')),
     dcc.Store(id='nothing'),
     dcc.Store(id="store-bgcolor"),
     dcc.Store(id="df_infos_t"),
@@ -124,6 +124,7 @@ layout = html.Div(children=[
             n_intervals=0,  # Start at 0
         ),
     dcc.Interval(id="bgcolor-interval", interval=5000),
+    dcc.Interval(id="erpdata_trigger", interval=30000),
     dbc.Row(dcc.Link(
         children='Main Page',
         href='/',
@@ -148,6 +149,19 @@ layout = html.Div(children=[
     ]),
     # set margin to zero to omit empty spaces at the right and the left
 ])
+
+
+@app.callback(
+    Output(component_id='erpdata', component_property='data'),
+    Input(component_id='erpdata_trigger', component_property='n_intervals'))
+def update_erp_data(n):
+    erpdata_json = ag.run_query(query + ' ' + a).to_json(date_format='iso', orient='split')
+
+    print('*****')
+    print(erpdata_json)
+    print('*****')
+
+    return erpdata_json
 
 
 @app.callback(
@@ -231,10 +245,6 @@ def generate_workcenter_layout(workcenters):
 
     layout = []
 
-    # print("************")
-    # print("burdaaaaa")
-    # print("************")
-
     for i in range(0, len(workcenters), 3):
         layout.append(dbc.Row([
             dbc.Col(
@@ -259,9 +269,10 @@ def generate_workcenter_layout(workcenters):
 
 @app.callback(callbacks_strings,
               [Input(component_id='bgcolor-interval', component_property='n_intervals'),
-               Input("workcenter_list_c", "data")
+               Input("workcenter_list_c", "data"),
+               State(component_id='erpdata',component_property='data')
                ])
-def update_graph(n, workcenter_list):
+def update_graph(n, workcenter_list,erpdata):
     workcenters = workcenter_list
     bgcolor = {wc: "red" for wc in workcenters}
     for wc in workcenters:
@@ -277,9 +288,13 @@ def update_graph(n, workcenter_list):
 
     # Process the message data and create the plot
     figs = []
-    global dfff
-    # dfff = pd.read_json(dfff, orient='666')
+    dfff = pd.read_json(erpdata, orient='split')
+
     for workcenter in workcenters:
+
+        print("****")
+        print(currentpiece)
+        print("****")
 
         x_data = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "PARTITION"]) * int(currentpiece[workcenter])
         ndevirhizi = int(dfff.loc[dfff["WORKCENTER"] == workcenter, "NDEVIRHIZI"])
@@ -358,8 +373,8 @@ def update_graph(n, workcenter_list):
 
     return figs
 
-
-@app.callback(Output('nothing', 'value'),
-              Input('emg_stop', 'n_clicks'))
-def emergency_stop(n):
-    client.publish("P-76/in/EMGStop", 0, qos=0)
+#
+# @app.callback(Output('nothing', 'value'),
+#               Input('emg_stop', 'n_clicks'))
+# def emergency_stop(n):
+#     client.publish("P-76/in/EMGStop", 0, qos=0)

@@ -345,14 +345,14 @@ ag.create_table_from_df(pivot_result, "VLFCAPFINALPIVOT")
 
 ag.insert_data_from_df(pivot_result, 'VLFCAPFINALPIVOT')
 
-
-
-send_report_as_email_montaj = PythonOperator(
-    task_id='send_report_as_email_montaj',
-    python_callable=send_email_via_exchange,
-    provide_context=True,
-    dag=dag,
-    retries=5,  # Görev için maksimum deneme sayısı
-    retry_delay=timedelta(minutes=5),
-    op_args = ["kbbudak@valfsan.com.tr;tturali@valfsan.com.tr;montajhatti@valfsan.com.tr;odurmaz@valfsan.com.tr",'MONTAJ']
-)
+#
+#
+# send_report_as_email_montaj = PythonOperator(
+#     task_id='send_report_as_email_montaj',
+#     python_callable=send_email_via_exchange,
+#     provide_context=True,
+#     dag=dag,
+#     retries=5,  # Görev için maksimum deneme sayısı
+#     retry_delay=timedelta(minutes=5),
+#     op_args = ["kbbudak@valfsan.com.tr;tturali@valfsan.com.tr;montajhatti@valfsan.com.tr;odurmaz@valfsan.com.tr",'MONTAJ']
+# )

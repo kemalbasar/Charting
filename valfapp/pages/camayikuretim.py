@@ -17,7 +17,6 @@ from valfapp.functions.functions_prd import indicator_for_tvs
 import statistics
 from dash.dependencies import Input, Output
 
-
 layout = [
     dcc.Store(id='filtered-data'),
 
@@ -53,7 +52,8 @@ layout = [
                     'minWidth': '85%',  # Adjust this value to set the minimum width
                     'width': '95%',  # Adjust this value to set the width
                     'textAlign': 'left',
-                    'color': 'black'
+                    'color':'black'
+
                     ##'margin': 'auto'  # Center the table horizontally
 
                 },
@@ -305,10 +305,11 @@ def update_summary_table(start_date, end_date):
     prevent_initial_call=True,
 )
 def download_as_excel(n_clicks, table_data):
+
     df = pd.DataFrame(table_data)
     return dcc.send_data_frame(df.to_excel, "uretim_raporu.xlsx", sheet_name="Kamera Ayıklama Raporu", index=False)
+  
 @app.callback(
-
     Output("gantt_chart", "figure"),
     Input("uretim_data", 'data'),
     Input("date-picker-range", 'start_date'),
