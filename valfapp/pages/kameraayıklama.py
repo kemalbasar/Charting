@@ -369,7 +369,7 @@ def draw_dist_plot(material, start_date, end_date):
 
 
     data = ag.run_query(
-        f"SELECT A.* ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAP2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAP2 ELSE '0' END AS NOM ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAPTOL2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAPTOL2 ELSE '0' END AS TOL FROM VLFAYIKLAMA A "
+        f"SELECT A.* ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAP2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAP2 ELSE  C.ESMERKEZLILIK2 END AS NOM ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAPTOL2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAPTOL2 ELSE '0' END AS TOL FROM VLFAYIKLAMA A "
         f"LEFT JOIN [VALFSAN604].[dbo].IASPRDORDER B ON A.CONFIRMATION = B.PRDORDER "
         f"LEFT JOIN [VALFSAN604].[dbo].IASMATBASIC C ON B.CLIENT = C.CLIENT AND B.COMPANY = C.COMPANY AND B.MATERIAL = C.MATERIAL "
         f"WHERE A.MATERIAL = '{material}' AND B.ISDELETE = 0 AND C.COMPANY = '01' AND A.CURDATETIME >= '{start_date}' AND A.CURDATETIME < '{end_date}'")
@@ -433,7 +433,7 @@ def draw_dist_plot(material, start_date, end_date):
                 # marker_symbol = "circle" if row["OKNOTOK"] == "KABUL" else "circle-x"
                 # row["QUANTITY"] = row["QUANTITY"] * 100 if row["OKNOTOK"] == 'RED' else row["QUANTITY"]
                 # marker_size = scale_size(row["QUANTITY"])
-                if  row["MTYPE"] != 'ESMERKEZLILIK' and (row["MINIMUM"] < row["NOM"] or row["MINIMUM"] > (row["TOL"] + row["NOM"])):
+                if  (row["MTYPE"] != 'ESMERKEZLILIK' and (row["MINIMUM"] < row["NOM"] or row["MINIMUM"] > (row["TOL"] + row["NOM"])))   or (row["MTYPE"] == 'ESMERKEZLILIK' and row["MINIMUM"] > row["NOM"]) :
                     color = 'red'
                 else:
                     color = 'DarkOrange'
@@ -611,6 +611,7 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
         data5['IB'] = data5['IB'].astype(float)
         data5['DK'] = data5['DK'].astype(float)
         data5['DB'] = data5['DB'].astype(float)
+        data5['EB'] = data5['EB'].astype(float)
 
         print(f"DATAMMMMMMMMMMM")
         print(data5)
@@ -625,13 +626,13 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
         print(confirmation)
 
         detail_data = [
-            {"İÇÇAP_K": data5['IK'], "İÇÇAP_B":  data5['IB'] ,"DIŞÇAP_K":  data5['DK'], "DIŞÇAP_B": data5['DB']  },  # Example data
+            {"İÇÇAP_K": data5['IK'], "İÇÇAP_B":  data5['IB'] ,"DIŞÇAP_K":  data5['DK'], "DIŞÇAP_B": data5['DB'], "ESMERKEZ_B" : data5['EB']  },  # Example data
         ]
 
         detail_table = html.Table([
-            html.Thead(html.Tr([html.Th(col) for col in ["İÇÇAP_K", "İÇÇAP_B", "DIŞÇAP_K", "DIŞÇAP_B" ]])),
+            html.Thead(html.Tr([html.Th(col) for col in ["İÇÇAP_K", "İÇÇAP_B", "DIŞÇAP_K", "DIŞÇAP_B", "ESMERKEZ_B" ]])),
             html.Tbody([
-                html.Tr([html.Td(detail[col]) for col in ["İÇÇAP_K", "İÇÇAP_B", "DIŞÇAP_K", "DIŞÇAP_B"]])
+                html.Tr([html.Td(detail[col]) for col in ["İÇÇAP_K", "İÇÇAP_B", "DIŞÇAP_K", "DIŞÇAP_B", "ESMERKEZ_B"]])
                 for detail in detail_data
             ])
         ], style={'width': '100%', 'textAlign': 'center' , 'color' : 'rgba(255, 141, 11, 0.8)'})
