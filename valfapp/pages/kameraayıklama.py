@@ -4,14 +4,20 @@ from dash import dcc, html, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import plotly.express as px
+from dash.exceptions import PreventUpdate
+from dash_extensions import EventListener
+
 from run.agent import agiot as ag
 from valfapp.app import app
 from datetime import date, timedelta, datetime
 from config import kb
 from dash_table import DataTable
 import time
+import dash
+from dash.exceptions import PreventUpdate
 
 from valfapp.layouts import nav_bar
+
 
 layout = [
     nav_bar,
@@ -19,6 +25,8 @@ layout = [
               data=[]),
     dcc.Store(id='selected_material', data=None),  # Add this line
     dcc.Store(id='selected_confirmation', data=None),  # Add this line
+    dcc.Store(id='selected_cell_data', data=None),
+    dcc.Store(id='cell_position', data=None),  # Store for cell position
 
     dbc.Row([html.H1("Ayıklama Robotu Kalite Sonuçları",
                      style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,'color': 'rgba(255, 171, 76, 0.8)', 'background-color':'white'  })]),
@@ -70,6 +78,7 @@ layout = [
                     'border': '1px dotted brown',
                     'borderRadius': '2px'
                 },
+                fixed_rows={'headers': True},
                 row_selectable='single',
                 selected_rows=[],
             ),
@@ -105,11 +114,27 @@ layout = [
                     'fontSize': '16px',
                     'border': '1px dotted brown',
                     'borderRadius': '2px'
-                }
+                },
+                fixed_rows={'headers': True},
+
             ),
         ], width=5, style={'paddingLeft': '5px'}),
 
     ], style={"margin-left": 75}),
+
+    dbc.Popover(
+        [
+            html.H3("Hata Detayı", style={'textAlign': 'center','fontSize': '20px','color': 'rgba(255, 141, 11, 0.8)', 'fontWeight': 'bold', 'margin-top': '12px'}),
+            dbc.PopoverBody(html.Div(id='popover-content'))
+        ],
+        id="popover",
+        target="dummy",  # Dummy target
+        placement="top",
+        is_open=False,
+    ),
+
+    html.Div(id='dummy', style={'display': 'none'}),
+
 
     dbc.Row([
                 html.Div([
@@ -231,7 +256,7 @@ layout = [
                     ],className="mt-5", justify="around")
                 ], style={"margin-left": 75}),
 
-    dcc.Interval(id="data_refresh", interval=1000000)
+    dcc.Interval(id="data_refresh", interval=10000000)
 
 ])]
 
@@ -287,7 +312,7 @@ def update_table_data(start_date, end_date, selected_rows, table_data):
         data2 = ag.run_query(
             f"SELECT '{machine}' as MACHINE,MATERIAL,CONFIRMATION,MAX(OK) AS OK , (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) AS TOTALNOTOK,MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL ,"
             f" MAX(NOTOKGORSEL) AS NOTOKGORSEL FROM  [dbo].[{machine}] "
-            f" WHERE CAST(CURDATETIME AS DATE)  >= '{start_date}' AND CAST(CURDATETIME AS DATE)  < '{end_date}' "
+            f" WHERE CURDATETIME  >= '{start_date} 07:00' AND CURDATETIME < '{end_date} 07:00' "
             f" GROUP BY MATERIAL,CONFIRMATION"
             f" ORDER BY (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) DESC")
         data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
@@ -343,12 +368,16 @@ def draw_dist_plot(material, start_date, end_date):
         return scaled_size
 
 
-    data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE MATERIAL = '{material}' AND CURDATETIME >= '{start_date}' AND CURDATETIME < '{end_date}'")
+    data = ag.run_query(
+        f"SELECT A.* ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAP2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAP2 ELSE '0' END AS NOM ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAPTOL2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAPTOL2 ELSE '0' END AS TOL FROM VLFAYIKLAMA A "
+        f"LEFT JOIN [VALFSAN604].[dbo].IASPRDORDER B ON A.CONFIRMATION = B.PRDORDER "
+        f"LEFT JOIN [VALFSAN604].[dbo].IASMATBASIC C ON B.CLIENT = C.CLIENT AND B.COMPANY = C.COMPANY AND B.MATERIAL = C.MATERIAL "
+        f"WHERE A.MATERIAL = '{material}' AND B.ISDELETE = 0 AND C.COMPANY = '01' AND A.CURDATETIME >= '{start_date}' AND A.CURDATETIME < '{end_date}'")
+
     data["MATERIAL"] = data["MATERIAL"].astype(str)
     data["MATERIAL"] = data["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
 
     data = data.loc[data["MATERIAL"] == material]
-
 
     df_nom = ag.run_query(
         f"SELECT MATERIAL,[MTYPE],[MTYPENOM],[MTYPETOL] FROM [VLFKMRAYKTOL] WHERE MATERIAL = '{material}'")
@@ -356,12 +385,12 @@ def draw_dist_plot(material, start_date, end_date):
     df_nom['MTYPENOM'] = df_nom['MTYPENOM'].astype(float)
 
     df_ic = df_nom.loc[df_nom["MTYPE"] == 'ICCAP']
-    df_es = df_nom.loc[df_nom["MTYPE"] == 'ESMERKEZLILIK']
     df_dis = df_nom.loc[df_nom["MTYPE"] == 'DISCAP']
+    df_es = df_nom.loc[df_nom["MTYPE"] == 'ESMERKEZLILIK']
 
     data_ic = data.loc[data["MTYPE"] == 'ICCAP']
-    data_es = data.loc[data["MTYPE"] == 'ESMERKEZLILIK']
     data_dis = data.loc[data["MTYPE"] == 'DISCAP']
+    data_es = data.loc[data["MTYPE"] == 'ESMERKEZLILIK']
 
 
     fig = go.Figure()
@@ -373,8 +402,8 @@ def draw_dist_plot(material, start_date, end_date):
 
 
     for figure, data_interval in [[fig, data_ic],
-                                                [fig1, data_es],
-                                                [fig2, data_dis]]:
+                                                [fig1, data_dis],
+                                                [fig2, data_es]]:
 
         # data_interval = data_interval.merge(data_summary, on=["MATERIAL"], how='left')
         # # data_es = data_es.merge(df_es,on=["MATERIAL"], how='left')
@@ -390,7 +419,8 @@ def draw_dist_plot(material, start_date, end_date):
         data_interval["MINIMUM"] = data_interval["MINIMUM"].astype(float).round(decimals=4)
         data_interval["MAXIMUM"] = data_interval["MAXIMUM"].astype(float).round(decimals=4)
 
-
+        print(f"DENEME3")
+        print(data_interval)
 
         data_interval["midpoints"] = (data_interval["MINIMUM"] + data_interval["MAXIMUM"]) / 2
 
@@ -403,14 +433,21 @@ def draw_dist_plot(material, start_date, end_date):
                 # marker_symbol = "circle" if row["OKNOTOK"] == "KABUL" else "circle-x"
                 # row["QUANTITY"] = row["QUANTITY"] * 100 if row["OKNOTOK"] == 'RED' else row["QUANTITY"]
                 # marker_size = scale_size(row["QUANTITY"])
+                if  row["MTYPE"] != 'ESMERKEZLILIK' and (row["MINIMUM"] < row["NOM"] or row["MINIMUM"] > (row["TOL"] + row["NOM"])):
+                    color = 'red'
+                else:
+                    color = 'DarkOrange'
+
                 figure.add_trace(go.Bar(
                     x=[row["midpoints"]],
                     y=[row["QUANTITY"]],
                     marker=dict(
-                        color='DarkOrange',
+                        color=color,
                         opacity=0.7,
                     )
                 ))
+        unique_TOL = data_interval['TOL'].iloc[0]
+        unique_NOM = data_interval['NOM'].iloc[0]
 
         # Update layout and annotations as before
         figure.update_layout(
@@ -448,7 +485,7 @@ def draw_dist_plot(material, start_date, end_date):
                     font=dict(size=16, family='Arial'),
                 ),
                 dict(
-                    text="Tolerans Değeri : ?",  # Update with actual value if needed
+                    text=f"Tolerans Değeri : {unique_TOL}<br>Nominal Değer : {unique_NOM}",
                     showarrow=False,
                     xref="paper",
                     yref="paper",
@@ -456,7 +493,7 @@ def draw_dist_plot(material, start_date, end_date):
                     y=1.15,
                     font=dict(size=16, family='Arial'),
                 )
-            ]
+            ],
         )
 
         data_interval = data_interval[["MINIMUM", "MAXIMUM", "QUANTITY"]]
@@ -473,9 +510,10 @@ def draw_dist_plot(material, start_date, end_date):
     Output('production', 'data'),
     Output('production', 'columns'),
     Input('selected_confirmation', 'data'),
+    State("date-picker-range", 'start_date'),
     prevent_initial_call=True
 )
-def update_production_data(confirmation):
+def update_production_data(confirmation,start_date):
     if not confirmation:
         return no_update, no_update
 
@@ -488,10 +526,9 @@ def update_production_data(confirmation):
         f"(C.WORKINGTIME * 60) AS WORKINGTIME, I.TOOLNUM FROM [VALFSAN604].[dbo].IASPRDCONF C "
         f"LEFT JOIN [VALFSAN604].[dbo].IASHCMPERS H ON C.CLIENT = H.CLIENT AND C.PERSONELNUM = H.PERSID "
         f"LEFT JOIN [VALFSAN604].[dbo].IASPRDRST I ON C.CLIENT = I.CLIENT AND C.COMPANY = I.COMPANY AND C.PRDORDER = I.PRDORDER AND C.POTYPE = I.POTYPE "
-        f"WHERE C.OUTPUT > 0 AND I.SEC = 1 AND C.COSTCENTER != 'SKURUTMA' AND C.PRDORDER = '{confirmation }'  ORDER BY C.CONFIRMATION, C.CONFIRMPOS")
+        f"WHERE C.OUTPUT > 0 AND I.SEC = 1 AND C.COSTCENTER != 'SKURUTMA' AND C.PRDORDER = '{confirmation }'  AND C.CONFIRMDATE < '{start_date}' ORDER BY C.CONFIRMATION, C.CONFIRMPOS")
 
-    print(f"DENEME3")
-    print(data4)
+
 
     data4["WORKCENTER"] = data4["WORKCENTER"].astype(str)
     data4["NAME"] = data4["NAME"].astype(str)
@@ -506,3 +543,119 @@ def update_production_data(confirmation):
 
     columns = [{"name": i, "id": i} for i in data4.columns]
     return data4.to_dict('records'), columns
+
+app.clientside_callback(
+    """
+    function(active_cell) {
+        if (active_cell) {
+            var row = active_cell.row;
+            var column = active_cell.column_id;
+            if (column === 'TOTALNOTOK') {
+                var cellId = `one_line_summary-${row}-${column}`;
+                var cellElement = document.querySelector(`[data-dash-row='${row}'][data-dash-column='${column}']`);
+                if (cellElement) {
+                    var cellPosition = cellElement.getBoundingClientRect();
+                    return {row: row, column: column, x: cellPosition.x, y: cellPosition.y};
+                }
+            }
+        }
+        return null;
+    }
+    """,
+    Output('cell_position', 'data'),
+    Input('one_line_summary', 'active_cell')
+)
+
+@app.callback(
+    Output('selected_cell_data', 'data'),
+    Input('cell_position', 'data')
+)
+def store_selected_cell(cell_position):
+    if cell_position:
+        return {'row': cell_position['row'], 'column': cell_position['column']}
+    return None
+
+@app.callback(
+    [Output('popover', 'is_open'),
+     Output('popover', 'target'),
+     Output('popover-content', 'children'),
+     Output('popover-content', 'className')],
+    [Input('selected_cell_data', 'data')],
+    [State('one_line_summary', 'data'),
+     State('cell_position', 'data')],
+    State("date-picker-range", 'start_date'),
+    State("date-picker-range", 'end_date'),
+)
+def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
+    if not selected_cell_data or not cell_position:
+        return False, no_update, no_update, ""
+
+    row_idx = selected_cell_data['row']
+    col_id = selected_cell_data['column']
+
+    if col_id == 'TOTALNOTOK':
+
+        selected_row_data = rows[row_idx]
+        material = selected_row_data.get('MATERIAL')
+        machine = selected_row_data.get('MACHINE')
+        confirmation = selected_row_data.get('CONFIRMATION')
+
+        query_path = r"C:\Users\fozturk\Documents\GitHub\Charting\queries\kamera_ayıklama_notokdetail.sql"
+        text_to_find = ['XYZ', 'XXXX-XX-XX', 'YYYY-YY-YY', 'MATX', 'CONFX']
+
+        text_to_put = [machine, start_date, end_date, material, confirmation]
+        data5 = ag.editandrun_query(query_path, text_to_find, text_to_put)
+
+
+        data5['IK'] = data5['IK'].astype(float)
+        data5['IB'] = data5['IB'].astype(float)
+        data5['DK'] = data5['DK'].astype(float)
+        data5['DB'] = data5['DB'].astype(float)
+
+        print(f"DATAMMMMMMMMMMM")
+        print(data5)
+
+        print(f"MALZEMEM")
+        print(material)
+
+        print(f"MAKİNA")
+        print(machine)
+
+        print(f"CONFIRMATION")
+        print(confirmation)
+
+        detail_data = [
+            {"İÇÇAP_K": data5['IK'], "İÇÇAP_B":  data5['IB'] ,"DIŞÇAP_K":  data5['DK'], "DIŞÇAP_B": data5['DB']  },  # Example data
+        ]
+
+        detail_table = html.Table([
+            html.Thead(html.Tr([html.Th(col) for col in ["İÇÇAP_K", "İÇÇAP_B", "DIŞÇAP_K", "DIŞÇAP_B" ]])),
+            html.Tbody([
+                html.Tr([html.Td(detail[col]) for col in ["İÇÇAP_K", "İÇÇAP_B", "DIŞÇAP_K", "DIŞÇAP_B"]])
+                for detail in detail_data
+            ])
+        ], style={'width': '100%', 'textAlign': 'center' , 'color' : 'rgba(255, 141, 11, 0.8)'})
+
+        return True, "dummy", detail_table, "large-popover"  # Target the dummy div for positioning
+
+    return False, "", "", ""
+
+@app.callback(
+    Output('dummy', 'style'),
+    Input('popover', 'is_open'),
+    State('cell_position', 'data')
+)
+def update_dummy_position(is_open, cell_position):
+    if is_open and cell_position:
+        return {
+            'position': 'absolute',
+            'top': f'{cell_position["y"]}px',  # Adjust for scroll position
+            'left': f'{cell_position["x"]}px',  # Adjust for scroll position
+            'height': '0px',
+            'width': '0px',
+            'zIndex': 1000
+        }
+    return {'display': 'none'}
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
