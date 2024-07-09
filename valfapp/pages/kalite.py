@@ -10,7 +10,7 @@ layout = [
                 dbc.Col(
                     html.A(
                         html.Div(
-                            "OEE RAPORU",
+                            "Ölçüm Raporları",
                             style={
                                 "height": "200px",
                                 "border-radius": "10px",
@@ -20,7 +20,7 @@ layout = [
                                 "background-color": "white"
                             },
                         ),
-                        href="/prodeff",
+                        href="/kameraayiklama",
                         style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
                     ),
                     className="mt-2 col-lg-4 col-md-6 col-sm-12",
@@ -28,7 +28,7 @@ layout = [
                 dbc.Col(
                     html.A(
                         html.Div(
-                            "İŞ MERKEZİ RAPORU",
+                            "Günlük Raporlama",
                             style={
                                 "height": "200px",
                                 "border-radius": "10px",
@@ -38,17 +38,18 @@ layout = [
                                 "background-color": "white"
                             },
                         ),
-                        href="/wcreport",
+                        href="/camayikuretim",
                         style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
                     ),
                     className="mt-2 col-lg-4 col-md-6 col-sm-12",
                 ),
-            ], className="justify-content-center align-items-center"),
+            ],
+                className="justify-content-center align-items-center"),
             dbc.Row([
                 dbc.Col(
                     html.A(
                         html.Div(
-                            "Periyodik Raporlar",
+                            "Canlı Üretim Ekranı",
                             style={
                                 "height": "200px",
                                 "border-radius": "10px",
@@ -58,7 +59,7 @@ layout = [
                                 "background-color": "white"
                             },
                         ),
-                        href="/yonlendirmepagee",
+                        href="/livekamera",
                         style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
                     ),
                     className="mt-2 col-lg-4 col-md-6 col-sm-12",
@@ -66,6 +67,7 @@ layout = [
             ],
                 className="justify-content-center align-items-center"
             ),
+
         ],
         fluid=True,  # Set to True for a fluid layout that fills the available space
     )

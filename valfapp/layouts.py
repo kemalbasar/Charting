@@ -48,7 +48,7 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
     dbc.Container([
         html.Div(className="logo-div resim-container", children=[
             html.A(className="logo", href="/", children=[
-                html.Img(src='./assets/valfsan_logo.jpg', className="logo")
+                html.Img(src='./assets/valflogo.png', className="logo")
             ])
         ]),
         html.Div(className="settings"),
@@ -60,12 +60,12 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                         html.Span(className="nav-text nav-text-2", children="MAIN")
                     ])
                 ]),
-                html.Li(className="darkerlishadow", children=[
-                    html.A(href="/value", children=[
-                        html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
-                        html.Span(className="nav-text", children="Tutarlama")
-                    ])
-                ]),
+                #html.Li(className="darkerlishadow", children=[
+                  #  html.A(href="/value", children=[
+                  #      html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
+                  #      html.Span(className="nav-text", children="Tutarlama")
+                  #  ])
+               # ]),
                 html.Li(className="darkerli", children=[
                     html.A(href="/uretimrapor", children=[
                         html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
@@ -102,10 +102,22 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                         html.Span(className="nav-text", children="Prod Energy")
                     ])
                 ]),
+                #html.Li(className="darkerli", children=[
+                  #  html.A(href="/kameraayiklama", children=[
+                  #      html.Img(src="../assets/k-ayıklama-removebg-preview.png", className="nav-icon"),
+                  #      html.Span(className="nav-text", children="Kam. Ayıklama")
+                  #  ])
+                #]),
                 html.Li(className="darkerli", children=[
-                    html.A(href="/kameraayiklama", children=[
-                        html.Img(src="../assets/k-ayıklama-removebg-preview.png", className="nav-icon"),
-                        html.Span(className="nav-text", children="Kam. Ayıklama")
+                    html.A(href="/kalite", children=[
+                        html.Img(src="../assets/kaliteikon.png", className="nav-icon"),
+                        html.Span(className="nav-text", children="kalite")
+                    ])
+                ]),
+                html.Li(className="darkerli", children=[
+                    html.A(href="/satismuhasebe", children=[
+                        html.Img(src="../assets/muhasebeikon.png", className="nav-icon"),
+                        html.Span(className="nav-text", children="satismuhasebe")
                     ])
                 ]),
                 html.Label("Valfsan Engineers © 2024 ", id="signature-label", className="float-left signature-label-sb")
@@ -282,22 +294,22 @@ layout_12_loginpage_v2 = html.Div(children=[
     dbc.Container(children=[
         dbc.Row(
             [
-                dbc.Col(
-                    html.A(
-                        html.Div(
-                            "Tutarlama",
-                            style={
-                                "height": "200px",
-                                "border-radius": "10px",
-                                "justify-content": "center",
-                                "align-items": "center",
-                                "display": "flex",
-                                "background-color": "white"
-                            }, className="deneme"
-                        ),
-                        href="/value", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
-                    ), className="mt-2 col-lg-3 col-md-7 col-sm-12",
-                ),
+              #  dbc.Col(
+               #     html.A(
+                 #       html.Div(
+                 #           "Tutarlama",
+                 ##           style={
+                  #              "height": "200px",
+                  #              "border-radius": "10px",
+                  #              "justify-content": "center",
+                  #              "align-items": "center",
+                  #              "display": "flex",
+                   #             "background-color": "white"
+                   #         }, className="deneme"
+                   #     ),
+                   #     href="/value", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                  #  ), className="mt-2 col-lg-3 col-md-7 col-sm-12",
+               # ),
                 dbc.Col(
                     html.A(
                         html.Div(
@@ -349,6 +361,22 @@ layout_12_loginpage_v2 = html.Div(children=[
                 dbc.Col(
                     html.A(
                         html.Div(
+                            "Satış-Muhasebe",
+                            style={
+                                "height": "200px",
+                                "border-radius": "10px",
+                                "justify-content": "center",
+                                "align-items": "center",
+                                "display": "flex",
+                                "background-color": "white"
+                            }, className="deneme"
+                        ),
+                        href="/satismuhasebe", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                    ), className="mt-2 col-lg-3 col-md-7 col-sm-12",
+                ),
+                dbc.Col(
+                    html.A(
+                        html.Div(
                             "Enerji Ölçüm",
                             style={
                                 "height": "200px",
@@ -378,8 +406,30 @@ layout_12_loginpage_v2 = html.Div(children=[
                         href="/kapasite", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
                     ), className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
                 ),
+                dbc.Col(
+                    html.A(
+                        html.Div(
+                            "Kalite",
+                            style={
+                                "height": "200px",
+                                "border-radius": "10px",
+                                "justify-content": "center",
+                                "align-items": "center",
+                                "display": "flex",
+                                "background-color": "white"
+                            }, className="deneme"
+                        ),
+                        href="/kalite", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                    ), className="mt-2 col-lg-3 col-md-7 col-sm-12",
+                ),
+
+
+
+
+
             ], style={"justify-content": "center", "align-items": "center", }
-        )
+
+ )
     ], )
 ])
 
