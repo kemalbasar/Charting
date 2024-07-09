@@ -17,14 +17,15 @@ from valfapp.functions.functions_prd import indicator_for_tvs
 import statistics
 from dash.dependencies import Input, Output
 
+
+
+
 layout = [
     dcc.Store(id='filtered-data'),
 
-    dbc.Row([html.H1("Günlük Üretim Raporu",
-                     style={'text-align': 'center', "fontFamily": 'Arial Black', 'fontSize': 30,
-                            'backgroundColor': '#f0f0f0'})])
-    ,
-
+    dbc.Row([html.H1("Günlük Üretim Raporu", #başlık görünmüyordu onu görünür kıldım
+                     style={'text-align': 'center', "fontFamily": 'Arial Black',
+                            'backgroundColor': 'rgba(33, 73, 180, 1)', 'color':'white'})]),
     dbc.Row(html.Div(children=[
         dcc.DatePickerRange(id='date-picker-range',
                              start_date=date.today() + timedelta(days=-kb),
@@ -34,12 +35,40 @@ layout = [
                              ),
         dbc.Button("Raporu İndir", id="btn-download-excel", color="primary", className="mr-1")
 
-    ], style={'display': 'flex', 'flexDirection': 'row'})
-    ),
+    ], style={'display': 'flex', 'flexDirection': 'row'})),
+
+
+
+    dbc.Row([
+        html.H2("Saniye Başına Denetlenen Adet", style={"text-align": "center", "color":"white",
+                                                        'fontWeight':'bold',"background-color":"rgba(33, 73, 180, 1)",
+                                                        'margin-left':12,'margin-top':8}),
+        dbc.Col([
+            html.Div(id='indicator-figures-container', style={'width': 6000,'height': '100%', 'display':'flex',
+                                                              "background-color":"rgba(255, 250, 209, 1)"})
+        ], width=1)
+    ], style={'margin': '10'}),
 
     dbc.Row([
         dbc.Col([
-            html.H3("Rapor",style={"text-align":"center"}),
+            html.Div(id='indicator-figures-container2',
+                     style={'width': 6000, 'display': 'flex','height': '100%',"color":"white","background-color":"rgba(255, 250, 209, 1)"})
+        ], width=1)
+    ], style={'margin': '10'}),
+
+    dbc.Row([
+        dbc.Col([
+            html.H2("Gantt Chart", style={"text-align": "center", "margin-top": 10,"color":"white",
+                                                        'fontWeight':'bold',"background-color":"rgba(33, 73, 180, 1)"}),
+            dcc.Graph(id="gantt_chart"),
+        ], width=12),
+
+        ], style={'margin': '10'}),
+
+    dbc.Row([
+        dbc.Col([
+            html.H2("Rapor",style={"text-align":"center",'fontWeight':'bold',
+                                   "color":"white",'margin-top':'8px',"background-color":"rgba(33, 73, 180, 1)"}),
             DataTable(
                 id='uretim_data',
                 columns=[],
@@ -50,7 +79,7 @@ layout = [
                     'border': 'thin lightgrey solid',
                     'fontFamily': 'Arial, sans-serif',
                     'minWidth': '85%',  # Adjust this value to set the minimum width
-                    'width': '95%',  # Adjust this value to set the width
+                    'width': '100%',  # Adjust this value to set the width
                     'textAlign': 'left',
                     'color':'black'
 
@@ -69,26 +98,15 @@ layout = [
                 },
 
             ),
-        ],width=8),
-
-        dbc.Col([html.H3("Saniye Başına", style={"text-align": "right"}),
-                 html.Div(id='indicator-figures-container', style={'width': '75%', 'margin': 'auto'}),
-                 ], width=2),
-        dbc.Col([ html.H3("Denetlenen Adet", style={"text-align": "left"}),
-                html.Div(id='indicator-figures-container2', style={'width': '75%', 'margin': 'auto'})
-                 ], width=2),
+        ],width=15),
 
     ]),
+    dcc.Download(id="download-excel"),
 
-   dbc.Row([
-        dbc.Col([
-            html.H3("Gantt Chart", style={"text-align": "center", "margin-top": 10}),
-            dcc.Graph(id="gantt_chart"),
-        ], width=8)
-    ]),
-    dcc.Download(id="download-excel")
 
-]
+
+
+             ]
 
 @app.callback(
     Output('uretim_data', 'columns'),
@@ -222,38 +240,50 @@ def update_summary_table(start_date, end_date):
         if counter <=3:
 
 
-            fig2 = go.Figure()
+            fig2 = go.Figure()  #grafiklerin arkaplanlarını şeffaf yaptım. Sonrasında da arka planda renkten dolayı çok görünmeyen yazıların renklerini ve grafik çerçevesinin renklerini beyaz yaptım.
             fig2.add_trace(go.Indicator(
                 value= (indicator_data['OEE'] / indicator_data['QUANTITY']) * 100,
-                title={'text': f'{machine_index}'},
+                title={'text': f'{machine_index}','font': {'color': 'darkgreen', 'size': 20}},
                 delta={'reference': 80},
-                gauge={'axis': {'visible': False}},)
+                gauge={
+                    'axis': {'visible': False},
+                    'bordercolor': 'darkgreen',
+                    'bar': {'thickness': 1, 'color': 'green'}
+                },
+                number={'font': {'color': 'darkgreen'}}
+                ,)
                 )
 
             fig2.add_trace(go.Indicator(
                 value=indicator_data['PPM'],
-                title={'text': "PPM",'font': {'size': 15}},
+                title={'text': "PPM",'font': {'color':'darkgreen','size': 20}},
                 gauge={
                     'shape': "bullet",
                     'axis': {'visible': False},
-                    'bar': {'thickness': 0.4}  # Adjust the thickness to make it bigger
+                    'bar': {'thickness': 1, 'color':'green'},
+                    'bordercolor':'darkgreen'
                 },
-                domain={'x': [0.05, 0.45], 'y': [0.35, 0.55]},
-                number={'font': {'size': 12}} )
+                domain={'x': [0.10, 0.45], 'y': [0.39, 0.49]},
+
+                number={'font': {'size': 20, 'color':'darkgreen'}})
             )
 
             fig2.update_layout(
+                plot_bgcolor='rgba(255, 250, 209, 1)',
+
                 grid={'rows': 2, 'columns': 2, 'pattern': "independent"},
                 template={'data': {'indicator': [{
                     'mode': "number+delta+gauge",
                     'delta': {'reference': 5000}}]
                 }}, height=300,
-                width=400,
-               ##margin=dict(l=55, r=75, t=55, b=15)  # Adjust margin values to decrease distance
+                width=550,
+                paper_bgcolor='rgba(255, 250, 209, 1)',
+                margin=dict(l=5, r=10, t=55, b=15),
+                ##margin=dict(l=55, r=75, t=55, b=15)  # Adjust margin values to decrease distance
 
-            )
+            ),
 
-            fig_container.append(dcc.Graph(figure=fig2, id=f'indicator-figures-container'))
+            fig_container.append(dcc.Graph(figure=fig2, id=f'indicator-figures-container',className='main-svg'))
 
 
 
@@ -262,30 +292,41 @@ def update_summary_table(start_date, end_date):
             fig3 = go.Figure()
             fig3.add_trace(go.Indicator(
                 value= (indicator_data['OEE'] / indicator_data['QUANTITY']) * 100,
-                title={'text': f'{machine_index}'},
-                delta={'reference': 80},
-                gauge={'axis': {'visible': False}}, )
+                title={'text': f'{machine_index}','font': {'color': 'darkgreen', 'size': 20}},
+                delta={'reference': 80, 'font':{'color':'darkgreen'}},
+                gauge={
+                    'axis': {'visible': False},
+                    'bar': {'thickness': 1, 'color':'green'},
+                    'bordercolor':'darkgreen'
+                },
+                number={'font': {'color': 'darkgreen'}})
             )
 
             fig3.add_trace(go.Indicator(
                 value=indicator_data['PPM'],
-                title={'text': "PPM",'font': {'size': 15}},
+                title={'text': "PPM",'font': {'color':'darkgreen','size': 20}},
                 gauge={
                     'shape': "bullet",
                     'axis': {'visible': False},
-                    'bar': {'thickness': 0.4} ,
+                    'bar': {'thickness': 1, 'color':'green'},
+                    'bordercolor':'darkgreen'
                 },
-                domain={'x': [0.10, 0.45], 'y': [0.35, 0.55]},
-                number={'font': {'size': 12}} )
+                domain={'x': [0.10, 0.45], 'y': [0.39, 0.49]},
+                number={'font': {'size': 20, 'color':'darkgreen'}})
             )
+
 
             fig3.update_layout(
                 grid={'rows': 2, 'columns': 2, 'pattern': "independent"},
                 template={'data': {'indicator': [{
                     'mode': "number+delta+gauge",
                     'delta': {'reference': 5000}}]
-                }}, height=300,
-                width=400,
+                }}, height=300
+                ,
+                plot_bgcolor='rgba(255, 250, 209, 1)',
+                paper_bgcolor='rgba(255, 250, 209, 1)',
+                width=550,
+                margin=dict(l=5, r=10, t=55, b=15)
                 ##margin=dict(l=55, r=75, t=55, b=15)  # Adjust margin values to decrease distance
 
             )
@@ -333,6 +374,10 @@ def draw_gann_chart(data, start_date, end_date):
                    x_end="MAX_WORKEND",
                    y='MACHINEAYK', color="TYPE",
                    color_discrete_map={"CALISIYOR": "forestgreen" , "BEKLEME DURUSU" : "red" , "MALZEME DURUSU" : "brown"})
+
+
+
+
 
     return fig
 
