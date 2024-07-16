@@ -305,25 +305,25 @@ def material_data(n, start_date,end_date):
 def update_table_data(start_date, end_date, selected_rows, table_data):
     material_list = []
 
+    for x in range(1,7):
+        machine = f"KMR-0{x}"
+        time.sleep(1)
 
-    machine = f"KMR-05"
-    time.sleep(1)
+        data2 = ag.run_query(
+            f"SELECT '{machine}' as MACHINE,MATERIAL,CONFIRMATION,MAX(OK) AS OK , (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) AS TOTALNOTOK,MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL ,"
+            f" MAX(NOTOKGORSEL) AS NOTOKGORSEL FROM  [dbo].[{machine}] "
+            f" WHERE CURDATETIME  >= '{start_date} 07:00' "
+            f" GROUP BY MATERIAL,CONFIRMATION"
+            f" ORDER BY (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) DESC")
+        data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
+        data2["CONFIRMATION"] = data2["CONFIRMATION"].astype(str)
+        data2["MACHINE"] = data2["MACHINE"].astype(str)
+        data2['OK'] = data2['OK'].astype(int)
+        data2['TOTALNOTOK'] = data2['TOTALNOTOK'].astype(int)
+        data2['NOTOKGORSEL'] = data2['NOTOKGORSEL'].astype(int)
+        data2['NOTOKOLCUSEL'] = data2['NOTOKOLCUSEL'].astype(int)
 
-    data2 = ag.run_query(
-        f"SELECT '{machine}' as MACHINE,MATERIAL,CONFIRMATION,MAX(OK) AS OK , (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) AS TOTALNOTOK,MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL ,"
-        f" MAX(NOTOKGORSEL) AS NOTOKGORSEL FROM  [dbo].[{machine}] "
-        f" WHERE CURDATETIME  >= '{start_date} 07:00' AND CURDATETIME < '{end_date} 00:00' "
-        f" GROUP BY MATERIAL,CONFIRMATION"
-        f" ORDER BY (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) DESC")
-    data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
-    data2["CONFIRMATION"] = data2["CONFIRMATION"].astype(str)
-    data2["MACHINE"] = data2["MACHINE"].astype(str)
-    data2['OK'] = data2['OK'].astype(int)
-    data2['TOTALNOTOK'] = data2['TOTALNOTOK'].astype(int)
-    data2['NOTOKGORSEL'] = data2['NOTOKGORSEL'].astype(int)
-    data2['NOTOKOLCUSEL'] = data2['NOTOKOLCUSEL'].astype(int)
-
-    material_list.append(data2)
+        material_list.append(data2)
 
     final_result = pd.concat(material_list, ignore_index=True)
     final_result = final_result.sort_values(by=['TOTALNOTOK'], ascending=False)
@@ -611,6 +611,7 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
         data5['IB'] = data5['IB'].astype(float)
         data5['DK'] = data5['DK'].astype(float)
         data5['DB'] = data5['DB'].astype(float)
+        data5['EB'] = data5['EB'].astype(float)
 
         print(f"DATAMMMMMMMMMMM")
         print(data5)
@@ -625,13 +626,13 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
         print(confirmation)
 
         detail_data = [
-            {"İÇÇAP_K": data5['IK'], "İÇÇAP_B":  data5['IB'] ,"DIŞÇAP_K":  data5['DK'], "DIŞÇAP_B": data5['DB']  },  # Example data
+            {"İÇÇAP_K": data5['IK'], "İÇÇAP_B":  data5['IB'] ,"DIŞÇAP_K":  data5['DK'], "DIŞÇAP_B": data5['DB'] , "ESMERKEZ_B": data5['EB']  },  # Example data
         ]
 
         detail_table = html.Table([
             html.Thead(html.Tr([
                 html.Th(col, style={'padding': '10px', 'borderBottom': '2px solid rgba(255, 141, 11, 0.8)','width':'350px'})
-                for col in ["İÇÇAP_K", "İÇÇAP_B", "DIŞÇAP_K", "DIŞÇAP_B", "Eşmerkezlilik"]
+                for col in ["İÇÇAP_K", "İÇÇAP_B", "DIŞÇAP_K", "DIŞÇAP_B", "ESMERKEZ_B"]
             ])),
             html.Tbody([
                 html.Tr([
@@ -641,7 +642,9 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
                             style={'padding': '10px', 'borderRight': '1px solid rgba(255, 141, 11, 0.8)'}),
                     html.Td(detail["DIŞÇAP_K"],
                             style={'padding': '10px', 'borderRight': '1px solid rgba(255, 141, 11, 0.8)'}),
-                    html.Td(detail["DIŞÇAP_B"], style={'padding': '10px'}),
+                    html.Td(detail["DIŞÇAP_B"],
+                            style={'padding': '10px', 'borderRight': '1px solid rgba(255, 141, 11, 0.8)'}),
+                    html.Td(detail["ESMERKEZ_B"], style={'padding': '10px'}),
                 ], style={'borderBottom': '1px solid rgba(255, 141, 11, 0.8)'})
                 for detail in detail_data
             ])
