@@ -379,15 +379,6 @@ def draw_dist_plot(material, start_date, end_date):
 
     data = data.loc[data["MATERIAL"] == material]
 
-    df_nom = ag.run_query(
-        f"SELECT MATERIAL,[MTYPE],[MTYPENOM],[MTYPETOL] FROM [VLFKMRAYKTOL] WHERE MATERIAL = '{material}'")
-
-    df_nom['MTYPENOM'] = df_nom['MTYPENOM'].astype(float)
-
-    df_ic = df_nom.loc[df_nom["MTYPE"] == 'ICCAP']
-    df_dis = df_nom.loc[df_nom["MTYPE"] == 'DISCAP']
-    df_es = df_nom.loc[df_nom["MTYPE"] == 'ESMERKEZLILIK']
-
     data_ic = data.loc[data["MTYPE"] == 'ICCAP']
     data_dis = data.loc[data["MTYPE"] == 'DISCAP']
     data_es = data.loc[data["MTYPE"] == 'ESMERKEZLILIK']
