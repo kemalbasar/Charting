@@ -41,20 +41,32 @@ layout = [
 
     dbc.Row([
         html.H2("Saniye Başına Denetlenen Adet", style={"text-align": "center", "color":"white",
-                                                        'fontWeight':'bold',"background-color":"rgba(33, 73, 180, 1)",
-                                                        'margin-left':12,'margin-top':8}),
+                                                        'fontWeight':'bold',
+                                                        "background-color":"rgba(33, 73, 180, 1)",
+                                                        'margin-top':8}),
         dbc.Col([
-            html.Div(id='indicator-figures-container', style={'width': 6000,'height': '100%', 'display':'flex',
-                                                              "background-color":"rgba(255, 250, 209, 1)"})
+            html.Div(id='indicator-figures-container',
+                     style={'width': '1700%',
+                            #'height': '100vh',
+                            'display':'flex',
+                            'justifyContent': 'center',
+                            #'align-item':'center',
+                            "background-color":"rgba(255, 250, 209, 1)"})
         ], width=1)
-    ], style={'margin': '10'}),
+    ], style={'margin':'10'}),
 
     dbc.Row([
         dbc.Col([
             html.Div(id='indicator-figures-container2',
-                     style={'width': 6000, 'display': 'flex','height': '100%',"color":"white","background-color":"rgba(255, 250, 209, 1)"})
+                     style={'width': '1700%',
+                            #'height':'100vh',
+                            #'align-item':'center',
+                            'display': 'flex',
+                            'padding-right':0,
+                            'justifyContent': 'center',
+                            "color":"white","background-color":"rgba(255, 250, 209, 1)"})
         ], width=1)
-    ], style={'margin': '10'}),
+    ], style={'margin':'10'}),
 
     dbc.Row([
         dbc.Col([
@@ -276,14 +288,18 @@ def update_summary_table(start_date, end_date):
                     'mode': "number+delta+gauge",
                     'delta': {'reference': 5000}}]
                 }}, height=300,
+                #responsive=True,
                 width=550,
                 paper_bgcolor='rgba(255, 250, 209, 1)',
-                margin=dict(l=5, r=10, t=55, b=15),
+                margin=dict(l=5, r=10, t=55, b=15)
                 ##margin=dict(l=55, r=75, t=55, b=15)  # Adjust margin values to decrease distance
 
-            ),
+            )
 
-            fig_container.append(dcc.Graph(figure=fig2, id=f'indicator-figures-container',className='main-svg'))
+            fig_container.append(dcc.Graph(figure=fig2, id=f'indicator-figures-container',className='main-svg',
+                                           style={'padding-right':'0%','margin-right':'0%','max-width':'1500%','padding':'30px',
+                                                  'min-width':'20%'}
+                                 ))
 
 
 
@@ -331,7 +347,10 @@ def update_summary_table(start_date, end_date):
 
             )
 
-            fig_container2.append(dcc.Graph(figure=fig3, id=f'indicator-figures-container2'))
+            fig_container2.append(dcc.Graph(figure=fig3, id=f'indicator-figures-container2',
+                                            style={'padding-right':'0%','margin-right':'0%','max-width':'60%','padding':'30px',
+                                                   'min-width': '20%'
+                                                   }))
 
 
 
