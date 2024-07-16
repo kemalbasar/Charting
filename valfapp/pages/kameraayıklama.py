@@ -626,7 +626,8 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
         print(confirmation)
 
         detail_data = [
-            {"İÇÇAP_K": data5['IK'], "İÇÇAP_B":  data5['IB'] ,"DIŞÇAP_K":  data5['DK'], "DIŞÇAP_B": data5['DB'], "ESMERKEZ_B" : data5['EB']  },  # Example data
+
+            {"İÇÇAP_K": data5['IK'], "İÇÇAP_B":  data5['IB'] ,"DIŞÇAP_K":  data5['DK'], "DIŞÇAP_B": data5['DB'] , "ESMERKEZ_B": data5['EB']  },  # Example data
         ]
 
         detail_table = html.Table([
@@ -644,8 +645,8 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
                             style={'padding': '10px', 'borderRight': '1px solid rgba(255, 141, 11, 0.8)'}),
                     html.Td(detail["DIŞÇAP_B"],
                             style={'padding': '10px', 'borderRight': '1px solid rgba(255, 141, 11, 0.8)'}),
-                    html.Td(detail["ESMERKEZ_B"],
-                            style={'padding': '10px', 'borderRight': '1px solid rgba(255, 141, 11, 0.8)'}),
+
+                    html.Td(detail["ESMERKEZ_B"], style={'padding': '10px'}),
                 ], style={'borderBottom': '1px solid rgba(255, 141, 11, 0.8)'})
                 for detail in detail_data
             ])

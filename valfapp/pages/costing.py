@@ -3,7 +3,7 @@ from decimal import Decimal
 import numpy as np
 from dash import html, dcc
 from dash import Input, Output, State, callback_context, \
-    no_update, Patch  # pip install dash (version 2.0.0 or higher)
+    no_update# pip install dash (version 2.0.0 or higher)
 from dash.exceptions import PreventUpdate
 import pandas as pd
 from dash_ag_grid import AgGrid
