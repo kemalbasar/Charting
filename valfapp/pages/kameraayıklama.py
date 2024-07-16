@@ -4,7 +4,7 @@ from dash import dcc, html, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import plotly.express as px
-
+from config import project_directory
 
 from run.agent import agiot as ag
 from valfapp.app import app
@@ -270,7 +270,7 @@ layout = [
     prevent_initial_call=True
 )
 def material_data(n, start_date,end_date):
-    data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE MACHINE = 'KMR-05' AND CURDATETIME >= '{start_date}' AND CURDATETIME < '{end_date}'")
+    data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE CURDATETIME >= '{start_date}' AND CURDATETIME < '{end_date}'")
 
     if type(data) is not pd.DataFrame:
         return no_update, no_update
@@ -312,7 +312,7 @@ def update_table_data(start_date, end_date, selected_rows, table_data):
         data2 = ag.run_query(
             f"SELECT '{machine}' as MACHINE,MATERIAL,CONFIRMATION,MAX(OK) AS OK , (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) AS TOTALNOTOK,MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL ,"
             f" MAX(NOTOKGORSEL) AS NOTOKGORSEL FROM  [dbo].[{machine}] "
-            f" WHERE CURDATETIME  >= '{start_date} 07:00' "
+            f" WHERE CURDATETIME  >= '{start_date} 07:00' AND CURDATETIME <= '{end_date}'"
             f" GROUP BY MATERIAL,CONFIRMATION"
             f" ORDER BY (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) DESC")
         data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
@@ -379,6 +379,9 @@ def draw_dist_plot(material, start_date, end_date):
 
     data = data.loc[data["MATERIAL"] == material]
 
+    print(f"ÖLÇÜM BİLGİLERİ")
+    print(data)
+
     data_ic = data.loc[data["MTYPE"] == 'ICCAP']
     data_dis = data.loc[data["MTYPE"] == 'DISCAP']
     data_es = data.loc[data["MTYPE"] == 'ESMERKEZLILIK']
@@ -410,7 +413,7 @@ def draw_dist_plot(material, start_date, end_date):
         data_interval["MINIMUM"] = data_interval["MINIMUM"].astype(float).round(decimals=4)
         data_interval["MAXIMUM"] = data_interval["MAXIMUM"].astype(float).round(decimals=4)
 
-        print(f"DENEME3")
+        print(f"ÇAP BİLGİLERİ")
         print(data_interval)
 
         data_interval["midpoints"] = (data_interval["MINIMUM"] + data_interval["MAXIMUM"]) / 2
@@ -501,15 +504,13 @@ def draw_dist_plot(material, start_date, end_date):
     Output('production', 'data'),
     Output('production', 'columns'),
     Input('selected_confirmation', 'data'),
-    State("date-picker-range", 'start_date'),
+    State("date-picker-range", 'end_date'),
     prevent_initial_call=True
 )
-def update_production_data(confirmation,start_date):
+def update_production_data(confirmation,end_date):
     if not confirmation:
         return no_update, no_update
 
-    print(f"DENEME2")
-    print(confirmation)
 
 
     data4 = ag.run_query(
@@ -517,7 +518,7 @@ def update_production_data(confirmation,start_date):
         f"(C.WORKINGTIME * 60) AS WORKINGTIME, I.TOOLNUM FROM [VALFSAN604].[dbo].IASPRDCONF C "
         f"LEFT JOIN [VALFSAN604].[dbo].IASHCMPERS H ON C.CLIENT = H.CLIENT AND C.PERSONELNUM = H.PERSID "
         f"LEFT JOIN [VALFSAN604].[dbo].IASPRDRST I ON C.CLIENT = I.CLIENT AND C.COMPANY = I.COMPANY AND C.PRDORDER = I.PRDORDER AND C.POTYPE = I.POTYPE "
-        f"WHERE C.OUTPUT > 0 AND I.SEC = 1 AND C.COSTCENTER != 'SKURUTMA' AND C.PRDORDER = '{confirmation }'  AND C.CONFIRMDATE < '{start_date}' ORDER BY C.CONFIRMATION, C.CONFIRMPOS")
+        f"WHERE C.OUTPUT > 0 AND I.SEC = 1 AND C.COSTCENTER != 'SKURUTMA' AND C.PRDORDER = '{confirmation }'  AND C.CONFIRMDATE <= '{end_date}' ORDER BY C.CONFIRMATION, C.CONFIRMPOS")
 
 
 
@@ -529,8 +530,7 @@ def update_production_data(confirmation,start_date):
     data4['TOOLNUM'] = data4['TOOLNUM'].astype(str)
 
 
-    print(f"DENEME4")
-    print(data4)
+
 
     columns = [{"name": i, "id": i} for i in data4.columns]
     return data4.to_dict('records'), columns
@@ -584,15 +584,19 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
     row_idx = selected_cell_data['row']
     col_id = selected_cell_data['column']
 
+
     if col_id == 'TOTALNOTOK':
+
 
         selected_row_data = rows[row_idx]
         material = selected_row_data.get('MATERIAL')
         machine = selected_row_data.get('MACHINE')
         confirmation = selected_row_data.get('CONFIRMATION')
 
-        query_path = r"C:\Users\tolga\Desktop\Charting\queries\kamera_ayıklama_notokdetail.sql"
+        ##query_path = project_directory + r'queries\kamera_ayıklama_notokdetail.sql'
         text_to_find = ['XYZ', 'XXXX-XX-XX', 'YYYY-YY-YY', 'MATX', 'CONFX']
+
+        query_path = r"C:\Users\fozturk\Documents\GitHub\Charting\queries\kamera_ayıklama_notokdetail.sql"
 
         text_to_put = [machine, start_date, end_date, material, confirmation]
         data5 = ag.editandrun_query(query_path, text_to_find, text_to_put)
@@ -604,17 +608,7 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
         data5['DB'] = data5['DB'].astype(float)
         data5['EB'] = data5['EB'].astype(float)
 
-        print(f"DATAMMMMMMMMMMM")
-        print(data5)
 
-        print(f"MALZEMEM")
-        print(material)
-
-        print(f"MAKİNA")
-        print(machine)
-
-        print(f"CONFIRMATION")
-        print(confirmation)
 
         detail_data = [
 
