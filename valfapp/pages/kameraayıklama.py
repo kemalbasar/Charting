@@ -49,6 +49,8 @@ layout = [
                     style={"align": "center", 'color': 'rgba(255, 141, 11, 0.8)', 'padding': '10px'}),
             DataTable(
                 id='one_line_summary',
+                filter_action = 'native',
+                sort_action = 'native',
                 columns=[
                     {'name': 'MACHINE', 'id': 'MACHINE'},
                     {'name': 'MATERIAL', 'id': 'MATERIAL'},
@@ -593,10 +595,10 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
         machine = selected_row_data.get('MACHINE')
         confirmation = selected_row_data.get('CONFIRMATION')
 
-        ##query_path = project_directory + r'queries\kamera_ayıklama_notokdetail.sql'
+        query_path = project_directory + r'\Charting\queries\kamera_ayıklama_notokdetail.sql'
         text_to_find = ['XYZ', 'XXXX-XX-XX', 'YYYY-YY-YY', 'MATX', 'CONFX']
 
-        query_path = r"C:\Users\fozturk\Documents\GitHub\Charting\queries\kamera_ayıklama_notokdetail.sql"
+        ##query_path = r"C:\Users\fozturk\Documents\GitHub\Charting\queries\kamera_ayıklama_notokdetail.sql"
 
         text_to_put = [machine, start_date, end_date, material, confirmation]
         data5 = ag.editandrun_query(query_path, text_to_find, text_to_put)
