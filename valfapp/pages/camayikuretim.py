@@ -148,12 +148,26 @@ def update_summary_table(start_date, end_date):
         text_to_put2 = [f'KMR-0{x}', start_date, end_date]
         data2 = ag.editandrun_query(query_path2, text_to_find2, text_to_put2)
 
-        data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
-        print(f"DATAAAAAAAAA");
-        print(data);
 
-        print(f"DATA222222222");
-        print(data2);
+
+        data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
+
+        data['NAME_LENGTH'] = data['NAME'].apply(lambda x: len(x))
+
+
+
+        # Sort by NAME_LENGTH in descending order
+        data_sorted = data.sort_values('NAME_LENGTH', ascending=False)
+
+        # Drop duplicates, keeping the first occurrence (which has the max NAME_LENGTH due to sorting)
+        data_unique = data_sorted.drop_duplicates(subset=['PRDORDER', 'MATERIAL','SHIFTURETIM'], keep='first')
+
+        # Sort the dataframe back to the original order if necessary (optional)
+        data_unique = data_unique.sort_index()
+        data = data_unique
+
+        print(f"UZUNLUK")
+        print(data_unique)
 
         merged_data = pd.merge(data, data2, left_on=['PRDORDER', 'AYKDATE', 'SHIFTURETIM'],
                                right_on=['CONFIRMATION', 'MACHINEDATE', 'SHIFTAYK'], how='inner')
