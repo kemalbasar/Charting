@@ -188,8 +188,6 @@ def update_summary_table(start_date, end_date):
 
     final_result = pd.concat(result_data, ignore_index=True)
 
-
-
     table_data = final_result.groupby(['MACHINE', 'SHIFTAYK', 'NAME', 'PRDORDER', 'MATERIAL_x']).agg(
         {'MIN_WORKSTART': 'min', 'MAX_WORKEND': 'max' ,'QUANTITY': 'first', 'NOTOK': 'first',
          'CALISIYOR': 'sum',
