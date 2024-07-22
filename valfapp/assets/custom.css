@@ -858,8 +858,9 @@ Enes navbar bitis
 
 
 }
-
-
+.svg-container {
+    width: 200px;         /*burası grafiğin bulunduğu div'in boyunu kısaltıyor*/
+}
 .dash-date-picker-multi input {
     background-color: #2149b4;
     color: white;

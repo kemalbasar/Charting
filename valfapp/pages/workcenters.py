@@ -225,6 +225,11 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
     if n1 or date_picker or n2 or n3 or n4:
         data = update_date('1', date_picker, callback_context)
         if data != {}:
+
+            print("burası onemli")
+            print("burası onemli")
+            print("burası onemli")
+
             oeelist = prdconf(params=(data["workstart"], data["workend"], data["interval"]))
             a = update_date_output(n1, date_picker, n2, n3, n4, data)
             return (a[0], 0) + (oeelist[1], oeelist[2], oeelist[3], oeelist[4], oeelist[5], oeelist[7])
@@ -271,7 +276,9 @@ def page_refresh2(n2):
 def clear_cache(n_clicks, key):
     if n_clicks > 0:
         cache_key = json.dumps(key)
-        print(cache_key)
+        print(key)
+        # print(type(key))
+        # print(type(cache_key))
         cache.delete_memoized(prdconf, (key["workstart"], key["workend"], key["interval"]))
         composite_key = (key["workstart"], key["workend"], key["interval"])
 

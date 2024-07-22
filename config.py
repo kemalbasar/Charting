@@ -5,6 +5,7 @@ from datetime import datetime
 
 project_directory = r"C:\Users\kereviz\Python Project"
 
+
 directory = project_directory + r'\Charting\queries'
 dirofquery = project_directory + r'\Charting\queries\query2.txt'
 dirofnewline = project_directory + r'\Charting\queries\dateofstart.txt'
