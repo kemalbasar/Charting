@@ -3,7 +3,8 @@ from datetime import datetime
 
 """passwords"""
 
-project_directory = r"C:\Users\fozturk\Documents\GitHub"
+project_directory = r"C:\Users\kereviz\Python Project"
+
 
 directory = project_directory + r'\Charting\queries'
 dirofquery = project_directory + r'\Charting\queries\query2.txt'
