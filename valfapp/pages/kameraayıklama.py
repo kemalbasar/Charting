@@ -307,6 +307,7 @@ def material_data(n, start_date,end_date):
 def update_table_data(start_date, end_date, selected_rows, table_data):
     material_list = []
 
+    print(f"MALZEME TABLOSU")
     for x in range(1,7):
         machine = f"KMR-0{x}"
         time.sleep(1)
@@ -357,13 +358,14 @@ def update_table_data(start_date, end_date, selected_rows, table_data):
     Output("dist_plot1", "figure"),
     Output("dist_plot2", "figure"),
     Output("dist_plot3", "figure"),
-    Input("selected_material", 'data'),  # Modify this line
+    Input("selected_material", 'data'),
+    Input("selected_confirmation", 'data'),
     State("date-picker-range", 'start_date'),
     State("date-picker-range", 'end_date'),
     prevent_initial_call=True
 
 )
-def draw_dist_plot(material, start_date, end_date):
+def draw_dist_plot(material,confirmation, start_date, end_date):
     # Function to scale the size of markers
     def scale_size(quantity, min_size=4, max_size=12):
         scaled_size = max(min_size, min(max_size, quantity))
@@ -374,12 +376,12 @@ def draw_dist_plot(material, start_date, end_date):
         f"SELECT A.* ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAP2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAP2 ELSE '0' END AS NOM ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAPTOL2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAPTOL2 ELSE '0' END AS TOL FROM VLFAYIKLAMA A "
         f"LEFT JOIN [VALFSAN604].[dbo].IASPRDORDER B ON A.CONFIRMATION = B.PRDORDER "
         f"LEFT JOIN [VALFSAN604].[dbo].IASMATBASIC C ON B.CLIENT = C.CLIENT AND B.COMPANY = C.COMPANY AND B.MATERIAL = C.MATERIAL "
-        f"WHERE A.MATERIAL = '{material}' AND B.ISDELETE = 0 AND C.COMPANY = '01' AND A.CURDATETIME >= '{start_date}' AND A.CURDATETIME < '{end_date}'")
+        f"WHERE A.MATERIAL = '{material}' AND A.CONFIRMATION = '{confirmation}' AND B.ISDELETE = 0 AND C.COMPANY = '01' AND A.CURDATETIME >= '{start_date}' AND A.CURDATETIME < '{end_date} 07:00'")
 
     data["MATERIAL"] = data["MATERIAL"].astype(str)
     data["MATERIAL"] = data["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
 
-    data = data.loc[data["MATERIAL"] == material]
+    data = data.loc[(data["MATERIAL"] == material) ]
 
     print(f"ÖLÇÜM BİLGİLERİ")
     print(data)
