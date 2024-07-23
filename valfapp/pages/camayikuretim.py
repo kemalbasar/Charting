@@ -19,6 +19,47 @@ from dash.dependencies import Input, Output
 
 
 
+def generate_styles(data):
+    styles = []
+    for index, row in data.iterrows():
+        val = row['SANIYE_DENETLENEN']
+        ref_val = row['MACHINETIME']
+        diff = val - ref_val
+        absdif=abs(diff)/10
+        if diff > 0:
+            if absdif <= 0.10:
+                color = f'rgba(0, 255, 0, 0.10)'
+            else: color = f'rgba(0, 255, 0, {min(1, abs(diff) / 10)})'
+        else:
+            if absdif <= 0.10:
+                color = f'rgba(255, 0, 0, 0.10)'
+            else: color = f'rgba(255, 0, 0, {min(1, abs(diff) / 10)})'
+        styles.append({
+            'if': {'row_index': index, 'column_id': 'SANIYE_DENETLENEN'},
+            'backgroundColor': color
+        })
+
+        ppm_val = row['PPM']
+        diff = ppm_val - 10000
+        absdif = abs(diff) / 10
+        if diff > 0:
+            if absdif <= 0.10:
+                color = f'rgba(255, 0, 0, 0.10)'
+            else:
+                color = f'rgba(255, 0, 0, {min(1, absdif/1000)})'
+        else:
+            if absdif <= 0.10:
+                color = f'rgba(0, 255, 0, 0.10)'
+            else:
+                color = f'rgba(0, 255, 0, {min(1, absdif/1000)})'
+        styles.append({
+            'if': {'row_index': index, 'column_id': 'PPM'},
+            'backgroundColor': color
+        })
+    return styles
+
+
+
 
 layout = [
     dcc.Store(id='filtered-data'),
@@ -46,7 +87,7 @@ layout = [
                                                         'margin-top':8}),
         dbc.Col([
             html.Div(id='indicator-figures-container',
-                     style={'width': '1700%',
+                     style={'width': '1500%',
                             #'height': '100vh',
                             'display':'flex',
                             'justifyContent': 'center',
@@ -58,7 +99,7 @@ layout = [
     dbc.Row([
         dbc.Col([
             html.Div(id='indicator-figures-container2',
-                     style={'width': '1700%',
+                     style={'width': '1500%',
                             #'height':'100vh',
                             #'align-item':'center',
                             'display': 'flex',
@@ -93,7 +134,8 @@ layout = [
                     'minWidth': '85%',  # Adjust this value to set the minimum width
                     'width': '100%',  # Adjust this value to set the width
                     'textAlign': 'left',
-                    'color':'black'
+                    'color':'black',
+                    'background-color':'white'
 
                     ##'margin': 'auto'  # Center the table horizontally
 
@@ -109,15 +151,14 @@ layout = [
                     # Font size
                 },
 
+                style_data_conditional=[]
+
+
             ),
         ],width=15),
 
     ]),
     dcc.Download(id="download-excel"),
-
-
-
-
              ]
 
 @app.callback(
@@ -125,6 +166,7 @@ layout = [
     Output("uretim_data", 'data'),
     Output('indicator-figures-container', 'children'),
     Output('indicator-figures-container2', 'children'),
+    Output('uretim_data', 'style_data_conditional'),
     Input("date-picker-range", 'start_date'),
     Input("date-picker-range", 'end_date')
 )
@@ -152,6 +194,7 @@ def update_summary_table(start_date, end_date):
         print(f"DATAAAAAAAAA");
         print(data);
 
+
         print(f"DATA222222222");
         print(data2);
 
@@ -174,6 +217,9 @@ def update_summary_table(start_date, end_date):
 
     final_result = pd.concat(result_data, ignore_index=True)
 
+    print(final_result)
+    print(type(final_result))
+    print('zzzzzzzzzz')
 
 
     table_data = final_result.groupby(['MACHINE', 'SHIFTAYK', 'NAME', 'PRDORDER', 'MATERIAL_x']).agg(
@@ -184,11 +230,15 @@ def update_summary_table(start_date, end_date):
     print(f"TABLEE DATA:AAAAAAAAAAA");
     print(table_data);
 
+    styles = generate_styles(table_data)
+
     oee_data = final_result.groupby(['MACHINE' , 'MATERIAL_x', 'PRDORDER']).agg(
-        {'QUANTITY': 'sum', 'MACHINETIME': 'first', 'CALISIYOR': 'sum', 'NOTOK': 'sum', 'PPM': 'first'})
+        {'QUANTITY': 'sum', 'MACHINETIME': 'first', 'CALISIYOR': 'sum', 'NOTOK': 'sum', 'PPM': 'first', 'SANIYE_DENETLENEN': 'first'})
 
     oee_data['OEE'] = '0'
     oee_data['PPM'] = '0'
+
+
 
     print(oee_data)
 
@@ -209,6 +259,7 @@ def update_summary_table(start_date, end_date):
     oee_data['PPM'] = ((oee_data['NOTOK'] * 1000000) / oee_data['QUANTITY'])
 
     print(oee_data)
+
 
 
     print(oee_data)
@@ -242,17 +293,59 @@ def update_summary_table(start_date, end_date):
     machine_data = oee_data.groupby(['MACHINE']).agg(
         {'QUANTITY': 'sum', 'OEE': 'sum', 'PPM': 'first'})
 
+    avg_mtime=table_data.groupby(['MACHINE']).agg({'MACHINETIME':'mean'})
+    print('+++++++++-----------------')
+    print(avg_mtime)
+
+    print('+++++++++-----------------')
+    avg_sn=table_data.groupby(['MACHINE']).agg({'SANIYE_DENETLENEN':'mean'})
+    print('+++++++++-----------------')
+    print(avg_sn)
+    print('+++++++++-----------------')
+
+    merged_df2=pd.merge(avg_mtime, avg_sn, on='MACHINE')
+    merged_df3=pd.merge(merged_df2, machine_data, on='MACHINE')
+    print(merged_df2)
+    print('xxxxxxxxxxxxxxxxxxxxxxx')
+    print(merged_df3)
+    print('xxxxxxxxxxxxxxxxxxxxxxx')
+
+
+    merged_df3['SANIYE_DENETLENEN'] = merged_df3['SANIYE_DENETLENEN'].astype(float)
+    merged_df3['SANIYE_DENETLENEN'] = merged_df3['SANIYE_DENETLENEN'].round(3)
+    merged_df3['MACHINETIME'] = merged_df3['MACHINETIME'].astype(float)
+    merged_df3['MACHINETIME'] = merged_df3['MACHINETIME'].round(3)
+
+
+
+
+
+
     print(f"MACHINE DATAM :BBBBBBBBBBBBB");
     print(machine_data);
 
-    for machine_index, indicator_data in machine_data.iterrows():
 
+    for machine_index, indicator_data in merged_df3.iterrows():
+        print(indicator_data)
+        print(machine_index)
+        print('eeeeeeeeeeeee')
+        print(machine_data)
+        print('eeeeeeeeeeeee')
+        print(type(machine_index))
+        print(type(indicator_data))
+        print(type(avg_sn))
+        print('++++++++++++++++++++++++')
+        print('xxxxxxxxxxxxxxxxxxxxxxx')
+        print(merged_df3)
+        print('xxxxxxxxxxxxxxxxxxxxxxx')
+        print(indicator_data['PPM'])
+        print(indicator_data['MACHINETIME'])
         counter += 1
 
         if counter <=3:
 
 
-            fig2 = go.Figure()  #grafiklerin arkaplanlarını şeffaf yaptım. Sonrasında da arka planda renkten dolayı çok görünmeyen yazıların renklerini ve grafik çerçevesinin renklerini beyaz yaptım.
+            fig2 = go.Figure()
             fig2.add_trace(go.Indicator(
                 value= (indicator_data['OEE'] / indicator_data['QUANTITY']) * 100,
                 title={'text': f'{machine_index}','font': {'color': 'darkgreen', 'size': 20}},
@@ -279,10 +372,29 @@ def update_summary_table(start_date, end_date):
 
                 number={'font': {'size': 20, 'color':'darkgreen'}})
             )
+            print('ccccccccccccccccc')
+            print(type(indicator_data['OEE']))
+            print('ccccccccccccccccc')
+            fig2.add_trace(go.Indicator(
+                value=indicator_data['MACHINETIME'],
+                mode="number",
+                title={'text': "Tanımlı Süre", 'font': {'color': 'darkgreen', 'size': 18}},
+                domain={'x': [0.50, 0.75], 'y': [0.39, 0.49]},
+                number={'font': {'size': 18, 'color': 'darkgreen'}}
+
+            ))
+
+            fig2.add_trace(go.Indicator(
+                value=indicator_data['SANIYE_DENETLENEN'],
+                mode="number",
+                title={'text': "Adet/Saniye", 'font': {'color': 'darkgreen', 'size': 18}},
+                domain={'x': [0.50, 0.75], 'y': [0.39, 0.39]},
+                number={'font': {'size': 18, 'color': 'darkgreen'}}
+            ))
+
 
             fig2.update_layout(
                 plot_bgcolor='rgba(255, 250, 209, 1)',
-
                 grid={'rows': 2, 'columns': 2, 'pattern': "independent"},
                 template={'data': {'indicator': [{
                     'mode': "number+delta+gauge",
@@ -330,6 +442,21 @@ def update_summary_table(start_date, end_date):
                 domain={'x': [0.10, 0.45], 'y': [0.39, 0.49]},
                 number={'font': {'size': 20, 'color':'darkgreen'}})
             )
+            fig3.add_trace(go.Indicator(
+                value=indicator_data['MACHINETIME'],
+                mode="number",
+                title={'text': "Tanımlı Süre", 'font': {'color': 'darkgreen', 'size': 18}},
+                domain={'x': [0.50, 0.75], 'y': [0.39, 0.49]},
+                number={'font': {'size': 18, 'color': 'darkgreen'}}
+            ))
+
+            fig3.add_trace(go.Indicator(
+                value=indicator_data['SANIYE_DENETLENEN'],
+                mode="number",
+                title={'text': "Adet/Saniye", 'font': {'color': 'darkgreen', 'size': 18,}},
+                domain={'x': [0.50, 0.75], 'y': [0.39, 0.39]},
+                number={'font': {'size': 18, 'color': 'darkgreen'}}
+            ))
 
 
             fig3.update_layout(
@@ -355,8 +482,9 @@ def update_summary_table(start_date, end_date):
 
 
     columns = [{"name": i, "id": i} for i in table_data.columns]
+    styles = generate_styles(table_data)
 
-    return columns, table_data.to_dict("records"), fig_container , fig_container2
+    return columns, table_data.to_dict("records"), fig_container , fig_container2, styles
 
 @app.callback(
     Output("download-excel", "data"),
