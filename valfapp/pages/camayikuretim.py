@@ -190,13 +190,22 @@ def update_summary_table(start_date, end_date):
         text_to_put2 = [f'KMR-0{x}', start_date, end_date]
         data2 = ag.editandrun_query(query_path2, text_to_find2, text_to_put2)
 
+
+
         data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
-        print(f"DATAAAAAAAAA");
-        print(data);
+
+        data['NAME_LENGTH'] = data['NAME'].apply(lambda x: len(x))
 
 
-        print(f"DATA222222222");
-        print(data2);
+
+        # Sort by NAME_LENGTH in descending order
+        data_sorted = data.sort_values('NAME_LENGTH', ascending=False)
+
+        # Drop duplicates, keeping the first occurrence (which has the max NAME_LENGTH due to sorting)
+        data_unique = data_sorted.drop_duplicates(subset=['PRDORDER', 'MATERIAL','SHIFTURETIM'], keep='first')
+
+        # Sort the dataframe back to the original order if necessary (optional)
+        data_unique = data_unique.sort_index()
 
         merged_data = pd.merge(data, data2, left_on=['PRDORDER', 'AYKDATE', 'SHIFTURETIM'],
                                right_on=['CONFIRMATION', 'MACHINEDATE', 'SHIFTAYK'], how='inner')
@@ -216,11 +225,6 @@ def update_summary_table(start_date, end_date):
 
 
     final_result = pd.concat(result_data, ignore_index=True)
-
-    print(final_result)
-    print(type(final_result))
-    print('zzzzzzzzzz')
-
 
     table_data = final_result.groupby(['MACHINE', 'SHIFTAYK', 'NAME', 'PRDORDER', 'MATERIAL_x']).agg(
         {'MIN_WORKSTART': 'min', 'MAX_WORKEND': 'max' ,'QUANTITY': 'first', 'NOTOK': 'first',
@@ -258,12 +262,6 @@ def update_summary_table(start_date, end_date):
 
     oee_data['PPM'] = ((oee_data['NOTOK'] * 1000000) / oee_data['QUANTITY'])
 
-    print(oee_data)
-
-
-
-    print(oee_data)
-    print(f"OEE DATA")
 
     denominator = table_data['CALISIYOR']
     denominator_nonzero = denominator.replace(0, np.nan)
@@ -294,21 +292,12 @@ def update_summary_table(start_date, end_date):
         {'QUANTITY': 'sum', 'OEE': 'sum', 'PPM': 'first'})
 
     avg_mtime=table_data.groupby(['MACHINE']).agg({'MACHINETIME':'mean'})
-    print('+++++++++-----------------')
     print(avg_mtime)
 
-    print('+++++++++-----------------')
     avg_sn=table_data.groupby(['MACHINE']).agg({'SANIYE_DENETLENEN':'mean'})
-    print('+++++++++-----------------')
-    print(avg_sn)
-    print('+++++++++-----------------')
-
+ 
     merged_df2=pd.merge(avg_mtime, avg_sn, on='MACHINE')
     merged_df3=pd.merge(merged_df2, machine_data, on='MACHINE')
-    print(merged_df2)
-    print('xxxxxxxxxxxxxxxxxxxxxxx')
-    print(merged_df3)
-    print('xxxxxxxxxxxxxxxxxxxxxxx')
 
 
     merged_df3['SANIYE_DENETLENEN'] = merged_df3['SANIYE_DENETLENEN'].astype(float)
@@ -317,29 +306,8 @@ def update_summary_table(start_date, end_date):
     merged_df3['MACHINETIME'] = merged_df3['MACHINETIME'].round(3)
 
 
-
-
-
-
-    print(f"MACHINE DATAM :BBBBBBBBBBBBB");
-    print(machine_data);
-
-
     for machine_index, indicator_data in merged_df3.iterrows():
-        print(indicator_data)
-        print(machine_index)
-        print('eeeeeeeeeeeee')
-        print(machine_data)
-        print('eeeeeeeeeeeee')
-        print(type(machine_index))
-        print(type(indicator_data))
-        print(type(avg_sn))
-        print('++++++++++++++++++++++++')
-        print('xxxxxxxxxxxxxxxxxxxxxxx')
-        print(merged_df3)
-        print('xxxxxxxxxxxxxxxxxxxxxxx')
-        print(indicator_data['PPM'])
-        print(indicator_data['MACHINETIME'])
+
         counter += 1
 
         if counter <=3:
