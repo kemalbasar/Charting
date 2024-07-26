@@ -1,6 +1,6 @@
 import pandas as pd
 
-
+"""passwords"""
 
 directory = r'C:\Users\kereviz\PycharmProjects\Charting\queries'
 dirofquery = r'C:\Users\kereviz\PycharmProjects\Charting\queries\query2.txt'
