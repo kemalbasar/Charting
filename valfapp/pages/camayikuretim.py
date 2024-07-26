@@ -340,6 +340,7 @@ def update_summary_table(start_date, end_date):
     print(machine_data);
 
 
+
     for machine_index, indicator_data in merged_df3.iterrows():
 
         counter += 1
@@ -355,6 +356,7 @@ def update_summary_table(start_date, end_date):
                     'axis': {'visible': False, 'range': [None, 100]},
                     'bordercolor': 'darkgreen',
                     'bar': {'thickness': 1, 'color': 'green'}
+
                 },
                 number={'font': {'color': 'darkgreen'}}
                 ,)

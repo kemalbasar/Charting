@@ -58,6 +58,7 @@ layout = [
                                 "display": "flex",
                                 "background-color": "white"
                             },
+
                         ),
                         href="/livekamera",
                         style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
