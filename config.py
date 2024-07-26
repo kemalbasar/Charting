@@ -1,13 +1,6 @@
 import pandas as pd
 
-server = '*****'
-database = '******'
-username = '******'
-password = '*****.'
-
-reengen_username = "takgun@valfsan.com.tr"
-reengen_password = '1234Ta1234'
-reengen_company = 'valfsan'
+"""passwords"""
 
 
 project_directory = r"F:\pycarhm projects"
