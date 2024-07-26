@@ -341,25 +341,10 @@ def update_summary_table(start_date, end_date):
 
 
     for machine_index, indicator_data in merged_df3.iterrows():
-        print(indicator_data)
-        print(machine_index)
-        print('eeeeeeeeeeeee')
-        print(machine_data)
-        print('eeeeeeeeeeeee')
-        print(type(machine_index))
-        print(type(indicator_data))
-        print(type(avg_sn))
-        print('++++++++++++++++++++++++')
-        print('xxxxxxxxxxxxxxxxxxxxxxx')
-        print(merged_df3)
-        print('xxxxxxxxxxxttttttxxxxxxxxxxxx')
-        print(indicator_data['PPM'])
-        print(indicator_data['OEE'])
-        print((indicator_data['OEE'] / indicator_data['QUANTITY']) * 100)
+
         counter += 1
 
         if counter <=3:
-
 
             fig2 = go.Figure()
             fig2.add_trace(go.Indicator(
@@ -367,7 +352,7 @@ def update_summary_table(start_date, end_date):
                 title={'text': f'{machine_index}','font': {'color': 'darkgreen', 'size': 20}},
                 delta={'reference': 80},
                 gauge={
-                    'axis': {'visible': False},
+                    'axis': {'visible': False, 'range': [None, 100]},
                     'bordercolor': 'darkgreen',
                     'bar': {'thickness': 1, 'color': 'green'}
                 },
@@ -440,7 +425,7 @@ def update_summary_table(start_date, end_date):
                 title={'text': f'{machine_index}','font': {'color': 'darkgreen', 'size': 20}},
                 delta={'reference': 80, 'font':{'color':'darkgreen'}},
                 gauge={
-                    'axis': {'visible': False},
+                    'axis': {'visible': False,'range': [None, 100]},
                     'bar': {'thickness': 1, 'color':'green'},
                     'bordercolor':'darkgreen'
                 },
