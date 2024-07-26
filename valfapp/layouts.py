@@ -1711,7 +1711,7 @@ def return_adr_timecallbacks(costcenter, interval='day',position= '200px'):
     def check_elapsed_time(_, trigger_timestamp):
         if trigger_timestamp is None:
             # If there's no timestamp, it means the initial trigger hasn't happened yet
-            raise PreventUpdate
+            return no_update
 
         current_time = datetime.now().timestamp()
         elapsed_time = current_time - trigger_timestamp
@@ -1719,7 +1719,7 @@ def return_adr_timecallbacks(costcenter, interval='day',position= '200px'):
         if elapsed_time >= 600:  # 600 seconds = 10 minutes
             return no_update  # Or set to a specific number if you want to limit future triggers
 
-        raise PreventUpdate
+        return no_update
 
     @app.callback(
         Output(f'trigger-timestamp_{costcenter}_{interval}_{position}', 'data'),

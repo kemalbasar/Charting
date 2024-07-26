@@ -4,7 +4,7 @@ from dash import dcc, html, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import plotly.express as px
-
+from config import project_directory
 
 from run.agent import agiot as ag
 from valfapp.app import app
@@ -49,6 +49,8 @@ layout = [
                     style={"align": "center", 'color': 'rgba(255, 141, 11, 0.8)', 'padding': '10px'}),
             DataTable(
                 id='one_line_summary',
+                filter_action = 'native',
+                sort_action = 'native',
                 columns=[
                     {'name': 'MACHINE', 'id': 'MACHINE'},
                     {'name': 'MATERIAL', 'id': 'MATERIAL'},
@@ -269,7 +271,7 @@ layout = [
     prevent_initial_call=True
 )
 def material_data(n, start_date,end_date):
-    data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE MACHINE = 'KMR-05' AND CURDATETIME >= '{start_date}' AND CURDATETIME < '{end_date}'")
+    data = ag.run_query(f"SELECT * FROM VLFAYIKLAMA WHERE CURDATETIME >= '{start_date}' AND CURDATETIME < '{end_date}'")
 
     if type(data) is not pd.DataFrame:
         return no_update, no_update
@@ -304,6 +306,7 @@ def material_data(n, start_date,end_date):
 def update_table_data(start_date, end_date, selected_rows, table_data):
     material_list = []
 
+    print(f"MALZEME TABLOSU")
     for x in range(1,7):
         machine = f"KMR-0{x}"
         time.sleep(1)
@@ -311,7 +314,7 @@ def update_table_data(start_date, end_date, selected_rows, table_data):
         data2 = ag.run_query(
             f"SELECT '{machine}' as MACHINE,MATERIAL,CONFIRMATION,MAX(OK) AS OK , (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) AS TOTALNOTOK,MAX(NOTOKOLCUSEL) AS NOTOKOLCUSEL ,"
             f" MAX(NOTOKGORSEL) AS NOTOKGORSEL FROM  [dbo].[{machine}] "
-            f" WHERE CURDATETIME  >= '{start_date} 07:00' "
+            f" WHERE CURDATETIME  >= '{start_date} 07:00' AND CURDATETIME <= '{end_date}'"
             f" GROUP BY MATERIAL,CONFIRMATION"
             f" ORDER BY (MAX(NOTOKGORSEL) +  MAX(NOTOKOLCUSEL)) DESC")
         data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
@@ -354,13 +357,14 @@ def update_table_data(start_date, end_date, selected_rows, table_data):
     Output("dist_plot1", "figure"),
     Output("dist_plot2", "figure"),
     Output("dist_plot3", "figure"),
-    Input("selected_material", 'data'),  # Modify this line
+    Input("selected_material", 'data'),
+    Input("selected_confirmation", 'data'),
     State("date-picker-range", 'start_date'),
     State("date-picker-range", 'end_date'),
     prevent_initial_call=True
 
 )
-def draw_dist_plot(material, start_date, end_date):
+def draw_dist_plot(material,confirmation, start_date, end_date):
     # Function to scale the size of markers
     def scale_size(quantity, min_size=4, max_size=12):
         scaled_size = max(min_size, min(max_size, quantity))
@@ -371,21 +375,15 @@ def draw_dist_plot(material, start_date, end_date):
         f"SELECT A.* ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAP2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAP2 ELSE '0' END AS NOM ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAPTOL2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAPTOL2 ELSE '0' END AS TOL FROM VLFAYIKLAMA A "
         f"LEFT JOIN [VALFSAN604].[dbo].IASPRDORDER B ON A.CONFIRMATION = B.PRDORDER "
         f"LEFT JOIN [VALFSAN604].[dbo].IASMATBASIC C ON B.CLIENT = C.CLIENT AND B.COMPANY = C.COMPANY AND B.MATERIAL = C.MATERIAL "
-        f"WHERE A.MATERIAL = '{material}' AND B.ISDELETE = 0 AND C.COMPANY = '01' AND A.CURDATETIME >= '{start_date}' AND A.CURDATETIME < '{end_date}'")
+        f"WHERE A.MATERIAL = '{material}' AND A.CONFIRMATION = '{confirmation}' AND B.ISDELETE = 0 AND C.COMPANY = '01' AND A.CURDATETIME >= '{start_date}' AND A.CURDATETIME < '{end_date} 07:00'")
 
     data["MATERIAL"] = data["MATERIAL"].astype(str)
     data["MATERIAL"] = data["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
 
-    data = data.loc[data["MATERIAL"] == material]
+    data = data.loc[(data["MATERIAL"] == material) ]
 
-    df_nom = ag.run_query(
-        f"SELECT MATERIAL,[MTYPE],[MTYPENOM],[MTYPETOL] FROM [VLFKMRAYKTOL] WHERE MATERIAL = '{material}'")
-
-    df_nom['MTYPENOM'] = df_nom['MTYPENOM'].astype(float)
-
-    df_ic = df_nom.loc[df_nom["MTYPE"] == 'ICCAP']
-    df_dis = df_nom.loc[df_nom["MTYPE"] == 'DISCAP']
-    df_es = df_nom.loc[df_nom["MTYPE"] == 'ESMERKEZLILIK']
+    print(f"ÖLÇÜM BİLGİLERİ")
+    print(data)
 
     data_ic = data.loc[data["MTYPE"] == 'ICCAP']
     data_dis = data.loc[data["MTYPE"] == 'DISCAP']
@@ -418,7 +416,7 @@ def draw_dist_plot(material, start_date, end_date):
         data_interval["MINIMUM"] = data_interval["MINIMUM"].astype(float).round(decimals=4)
         data_interval["MAXIMUM"] = data_interval["MAXIMUM"].astype(float).round(decimals=4)
 
-        print(f"DENEME3")
+        print(f"ÇAP BİLGİLERİ")
         print(data_interval)
 
         data_interval["midpoints"] = (data_interval["MINIMUM"] + data_interval["MAXIMUM"]) / 2
@@ -509,15 +507,13 @@ def draw_dist_plot(material, start_date, end_date):
     Output('production', 'data'),
     Output('production', 'columns'),
     Input('selected_confirmation', 'data'),
-    State("date-picker-range", 'start_date'),
+    State("date-picker-range", 'end_date'),
     prevent_initial_call=True
 )
-def update_production_data(confirmation,start_date):
+def update_production_data(confirmation,end_date):
     if not confirmation:
         return no_update, no_update
 
-    print(f"DENEME2")
-    print(confirmation)
 
 
     data4 = ag.run_query(
@@ -525,7 +521,7 @@ def update_production_data(confirmation,start_date):
         f"(C.WORKINGTIME * 60) AS WORKINGTIME, I.TOOLNUM FROM [VALFSAN604].[dbo].IASPRDCONF C "
         f"LEFT JOIN [VALFSAN604].[dbo].IASHCMPERS H ON C.CLIENT = H.CLIENT AND C.PERSONELNUM = H.PERSID "
         f"LEFT JOIN [VALFSAN604].[dbo].IASPRDRST I ON C.CLIENT = I.CLIENT AND C.COMPANY = I.COMPANY AND C.PRDORDER = I.PRDORDER AND C.POTYPE = I.POTYPE "
-        f"WHERE C.OUTPUT > 0 AND I.SEC = 1 AND C.COSTCENTER != 'SKURUTMA' AND C.PRDORDER = '{confirmation }'  AND C.CONFIRMDATE < '{start_date}' ORDER BY C.CONFIRMATION, C.CONFIRMPOS")
+        f"WHERE C.OUTPUT > 0 AND I.SEC = 1 AND C.COSTCENTER != 'SKURUTMA' AND C.PRDORDER = '{confirmation }'  AND C.CONFIRMDATE <= '{end_date}' ORDER BY C.CONFIRMATION, C.CONFIRMPOS")
 
 
 
@@ -537,8 +533,7 @@ def update_production_data(confirmation,start_date):
     data4['TOOLNUM'] = data4['TOOLNUM'].astype(str)
 
 
-    print(f"DENEME4")
-    print(data4)
+
 
     columns = [{"name": i, "id": i} for i in data4.columns]
     return data4.to_dict('records'), columns
@@ -592,15 +587,19 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
     row_idx = selected_cell_data['row']
     col_id = selected_cell_data['column']
 
+
     if col_id == 'TOTALNOTOK':
+
 
         selected_row_data = rows[row_idx]
         material = selected_row_data.get('MATERIAL')
         machine = selected_row_data.get('MACHINE')
         confirmation = selected_row_data.get('CONFIRMATION')
 
-        query_path = r"C:\Users\tolga\Desktop\Charting\queries\kamera_ayıklama_notokdetail.sql"
+        query_path = project_directory + r'\Charting\queries\kamera_ayıklama_notokdetail.sql'
         text_to_find = ['XYZ', 'XXXX-XX-XX', 'YYYY-YY-YY', 'MATX', 'CONFX']
+
+        ##query_path = r"C:\Users\fozturk\Documents\GitHub\Charting\queries\kamera_ayıklama_notokdetail.sql"
 
         text_to_put = [machine, start_date, end_date, material, confirmation]
         data5 = ag.editandrun_query(query_path, text_to_find, text_to_put)
@@ -612,19 +611,10 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
         data5['DB'] = data5['DB'].astype(float)
         data5['EB'] = data5['EB'].astype(float)
 
-        print(f"DATAMMMMMMMMMMM")
-        print(data5)
 
-        print(f"MALZEMEM")
-        print(material)
-
-        print(f"MAKİNA")
-        print(machine)
-
-        print(f"CONFIRMATION")
-        print(confirmation)
 
         detail_data = [
+
             {"İÇÇAP_K": data5['IK'], "İÇÇAP_B":  data5['IB'] ,"DIŞÇAP_K":  data5['DK'], "DIŞÇAP_B": data5['DB'] , "ESMERKEZ_B": data5['EB']  },  # Example data
         ]
 
@@ -643,6 +633,7 @@ def toggle_popover(selected_cell_data, rows, cell_position,start_date,end_date):
                             style={'padding': '10px', 'borderRight': '1px solid rgba(255, 141, 11, 0.8)'}),
                     html.Td(detail["DIŞÇAP_B"],
                             style={'padding': '10px', 'borderRight': '1px solid rgba(255, 141, 11, 0.8)'}),
+
                     html.Td(detail["ESMERKEZ_B"], style={'padding': '10px'}),
                 ], style={'borderBottom': '1px solid rgba(255, 141, 11, 0.8)'})
                 for detail in detail_data
