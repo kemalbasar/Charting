@@ -16,13 +16,12 @@ from valfapp.functions.functions_prd import indicator_for_tvs
 import statistics
 from dash.dependencies import Input, Output
 
-
-length_camera= f'SELECT COUNT(DISTINCT MACHINE) as Lenght FROM VLFAYIKLAMAMONTHLY'
+length_camera = f'SELECT COUNT(DISTINCT MACHINE) as Lenght FROM VLFAYIKLAMAMONTHLY'
 lengthc = ag.run_query(length_camera)
 num_cameras = lengthc["Lenght"].iloc[0]
 current_year = datetime.now().year
-months = [{'label': datetime(current_year, i, 1).strftime('%B'), 'value': i}for i in range(1, 13)]
-
+months = [{'label': datetime(current_year, i, 1).strftime('%B'), 'value': i} for i in range(1, 13)]
+years = [{'label': str(year), 'value': year} for year in range(current_year-1, current_year + 1)]
 
 camera_layouts = []
 
@@ -89,11 +88,6 @@ for i in range(1, num_cameras + 1):
                                     html.Td(id=f'saniyede_denetlenen-{i}',
                                             style={'border': '1px solid black', 'font-weight': 'bold', 'color': 'black'})
                                 ]),
-                                dcc.Interval(
-                                    id=f'interval-component-{i}',
-                                    interval=10000,
-                                    n_intervals=0
-                                )
                             ]
                         )
                     ], style={'background-color': 'white', 'width': '100%'}
@@ -121,8 +115,8 @@ for i in range(1, num_cameras + 1):
 
 today = datetime.now()
 last_month = today - relativedelta(months=1)
-selectedmonth=last_month
-print(selectedmonth.month)
+selected_month = last_month
+print(selected_month.month)
 print('jjjjjjjjjjjj')
 
 rows = []
@@ -132,18 +126,28 @@ for i in range(0, len(camera_layouts), 3):
 
 layout = [
     dbc.Row([html.H1('Aylık Makine Verileri', style={'text-align': 'center', "fontFamily": 'Arial Black',
-                                                     'backgroundColor': 'rgba(33, 73, 180, 1)', 'color': 'white','padding-bottom':'5px'})]),
+                                                     'backgroundColor': 'rgba(33, 73, 180, 1)', 'color': 'white', 'padding-bottom': '5px'})]),
     dbc.Row([
         dbc.Col([
             dcc.Dropdown(
                 id='month-dropdown',
                 options=months,
                 value=last_month.month,
-                style={'margin-bottom':'15px'},
-                className='mounth-dropdown-container'),
-        ], width=3)
+                style={'margin-bottom': '15px'},
+                className='month-dropdown-container'),
+        ], width=3),
+        dbc.Col([
+            dcc.Dropdown(
+                id='year-dropdown',
+                options=years,
+                value=current_year,
+                style={'margin-bottom': '15px'},
+                className='year-dropdown-container'),
+        ], width=1),
     ]),
+
     dcc.Store(id='selected-month-store'),
+    dcc.Store(id='selected-year-store'),
     *rows
 ]
 
@@ -156,6 +160,14 @@ def store_selected_month(selected_month):
     return selected_month
 
 
+@app.callback(
+    Output('selected-year-store', 'data'),
+    Input('year-dropdown', 'value')
+)
+def store_selected_year(selected_year):
+    return selected_year
+
+
 for i in range(1, num_cameras + 1):
     @app.callback(
         [Output(f'matnum-{i}', 'children'),
@@ -165,17 +177,17 @@ for i in range(1, num_cameras + 1):
          Output(f'notok-gorsel-{i}', 'children'),
          Output(f'notok-olcusel-{i}', 'children'),
          Output(f'saniyede_denetlenen-{i}', 'children')],
-        [Input(f'interval-component-{i}', 'n_intervals'),
-         Input('selected-month-store', 'data')]  # Use the selected month from the store
+        [Input('selected-month-store', 'data'),
+         Input('selected-year-store', 'data')]  # Use the selected month and year from the stores
     )
-    def update_table(n, selected_month, i=i):
+    def update_table(n, selected_month, selected_year, i=i):
         query_path = (project_directory + r"\Charting\queries\vlf_ayıklamakmr_monthlydata.sql")
-        text_to_find = ["XYZ", "{month1}"]
-        text_to_put = [f"KMR-0{i}", f"{selected_month}"]
+        text_to_find = ["XYZ", "{month1}", "{year1}"]
+        text_to_put = [f"KMR-0{i}", f"{selected_month}", f"{selected_year}"]
         df = ag.editandrun_query(query_path, text_to_find, text_to_put)
 
         if df.empty:
-            return "N/A", "N/A", "N/A", "N/A", "N/A"
+            return "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"
 
         print(df)
         print('qqqqqqqqqqqq')
@@ -183,24 +195,24 @@ for i in range(1, num_cameras + 1):
         totalquan = df['TOTALQUAN'].iloc[0]
         ok = df['OK'].iloc[0]
         notok = df['NOTOK'].iloc[0]
-        notokgolsel=df['NOTOKGORSEL'].iloc[0]
+        notokgolsel = df['NOTOKGORSEL'].iloc[0]
         notokolcusel = df['NOTOKOLCUSEL'].iloc[0]
         saniyede_denetlenen = df['SANIYE_DENETLENEN'].iloc[0]
 
-
-        return matnum, totalquan, ok, notok,notokgolsel,notokolcusel, saniyede_denetlenen
+        return matnum, totalquan, ok, notok, notokgolsel, notokolcusel, saniyede_denetlenen
 
 
 
     @app.callback(
         Output(f'line-graph1-{i}', 'figure'),
-        [Input(f'interval-component-{i}', 'n_intervals')]
+        [Input('selected-month-store', 'data'),
+         Input('selected-year-store', 'data')]
     )
-    def update_graph1(n, i=i):
+    def update_graph1(n, selected_month, selected_year, i=i):
         kmr = f"KMR-0{i}"
-        query = f'SELECT MONTH, SANIYE_DENETLENEN FROM VLFAYIKLAMAMONTHLY WHERE MACHINE = \'{kmr}\''
+        query = f'SELECT MONTH, SANIYE_DENETLENEN FROM VLFAYIKLAMAMONTHLY WHERE MACHINE = \'{kmr}\' AND YEAR = {selected_year}'
         df1 = ag.run_query(query)
-        lengtquery =  f'SELECT COUNT(MONTH) as Lenght  FROM VLFAYIKLAMAMONTHLY WHERE MACHINE = \'{kmr}\''
+        lengtquery = f'SELECT COUNT(MONTH) as Lenght FROM VLFAYIKLAMAMONTHLY WHERE MACHINE = \'{kmr}\' AND YEAR = {selected_year}'
         length = ag.run_query(lengtquery)
         print(df1)
         print('yyyyyy')
@@ -240,13 +252,14 @@ for i in range(1, num_cameras + 1):
 
     @app.callback(
         Output(f'line-graph2-{i}', 'figure'),
-        [Input(f'interval-component-{i}', 'n_intervals')]
+        [Input('selected-month-store', 'data'),
+         Input('selected-year-store', 'data')]
     )
-    def update_graph2(n, i=i):
-        kmr=f"KMR-0{i}"
-        query = f'SELECT MONTH, TOTALQUAN FROM VLFAYIKLAMAMONTHLY WHERE MACHINE = \'{kmr}\''
+    def update_graph2(n, selected_month, selected_year, i=i):
+        kmr = f"KMR-0{i}"
+        query = f'SELECT MONTH, TOTALQUAN FROM VLFAYIKLAMAMONTHLY WHERE MACHINE = \'{kmr}\' AND YEAR = {selected_year}'
         df1 = ag.run_query(query)
-        lengtquery =  f'SELECT COUNT(MONTH) as Lenght  FROM VLFAYIKLAMAMONTHLY WHERE MACHINE = \'{kmr}\''
+        lengtquery = f'SELECT COUNT(MONTH) as Lenght FROM VLFAYIKLAMAMONTHLY WHERE MACHINE = \'{kmr}\' AND YEAR = {selected_year}'
         length = ag.run_query(lengtquery)
         print(df1)
         print('yyyyyy')
@@ -269,7 +282,6 @@ for i in range(1, num_cameras + 1):
 
         x_values = month
 
-
         fig2 = go.Figure()
         fig2.add_trace(go.Scatter(
             x=x_values,
@@ -291,10 +303,11 @@ for i in range(1, num_cameras + 1):
 
 @app.callback(
     Output('output-div', 'children'),
-    Input('month-dropdown', 'value')
+    [Input('month-dropdown', 'value'),
+     Input('year-dropdown', 'value')]
 )
-def update_output(selected_month):
-    if selected_month:
+def update_output(selected_month, selected_year):
+    if selected_month and selected_year:
         selected_month_name = datetime(current_year, selected_month, 1).strftime('%B')
-        return f"Seçilen Ay: {selected_month_name}"
-    return "Henüz bir ay seçilmedi."
+        return f"Seçilen Ay ve Yıl: {selected_month_name} {selected_year}"
+    return "Henüz bir ay ve yıl seçilmedi."
