@@ -16,6 +16,7 @@ from valfapp.functions.functions_prd import indicator_for_tvs
 import statistics
 from dash.dependencies import Input, Output
 
+
 length_camera= f'SELECT COUNT(DISTINCT MACHINE) as Lenght FROM VLFAYIKLAMAMONTHLY'
 lengthc = ag.run_query(length_camera)
 num_cameras = lengthc["Lenght"].iloc[0]

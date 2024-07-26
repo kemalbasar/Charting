@@ -102,6 +102,7 @@ def login(n_clicks, username, password):
     Input('login-status-store', 'data')
     ]
 )
+
 def display_page(pathname,login_status_data):
     if pathname == '/':
         return index_layout

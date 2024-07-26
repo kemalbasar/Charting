@@ -389,6 +389,7 @@ def update_summary_table(start_date, end_date):
                 number={'font': {'size': 20, 'color':'darkgreen'}})
             )
             print('ccccccccccccccccc')
+
             print(type(indicator_data['OEE']))
             print('ccccccccccccccccc')
             fig2.add_trace(go.Indicator(
