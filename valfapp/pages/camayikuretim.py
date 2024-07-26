@@ -19,7 +19,7 @@ from dash.dependencies import Input, Output
 
 
 
-def generate_styles(data):
+def generate_styles(data): #rapor kısmını referans değerlere göre renklendirme
     styles = []
     for index, row in data.iterrows():
         val = row['SANIYE_DENETLENEN']
@@ -40,7 +40,7 @@ def generate_styles(data):
         })
 
         ppm_val = row['PPM']
-        diff = ppm_val - 10000
+        diff = ppm_val - 6000
         absdif = abs(diff) / 10
         if diff > 0:
             if absdif <= 0.10:
@@ -56,6 +56,21 @@ def generate_styles(data):
             'if': {'row_index': index, 'column_id': 'PPM'},
             'backgroundColor': color
         })
+
+        durus_val = row['DURUS']
+        if durus_val >= 400:
+            color = f'rgba(255, 0, 0, 1)'
+        elif durus_val >= 250:
+            color = f'rgba(255, 0, 0, {min(1, durus_val / 1000)})'
+        else:
+            color = f'rgba(255, 0, 0, {max(0.10, durus_val / 1000)})'
+        styles.append({
+            'if': {'row_index': index, 'column_id': 'DURUS'},
+            'backgroundColor': color
+        })
+
+
+
     return styles
 
 
@@ -64,7 +79,7 @@ def generate_styles(data):
 layout = [
     dcc.Store(id='filtered-data'),
 
-    dbc.Row([html.H1("Günlük Üretim Raporu", #başlık görünmüyordu onu görünür kıldım
+    dbc.Row([html.H1("Günlük Üretim Raporu",
                      style={'text-align': 'center', "fontFamily": 'Arial Black',
                             'backgroundColor': 'rgba(33, 73, 180, 1)', 'color':'white'})]),
     dbc.Row(html.Div(children=[
@@ -337,9 +352,10 @@ def update_summary_table(start_date, end_date):
         print('++++++++++++++++++++++++')
         print('xxxxxxxxxxxxxxxxxxxxxxx')
         print(merged_df3)
-        print('xxxxxxxxxxxxxxxxxxxxxxx')
+        print('xxxxxxxxxxxttttttxxxxxxxxxxxx')
         print(indicator_data['PPM'])
-        print(indicator_data['MACHINETIME'])
+        print(indicator_data['OEE'])
+        print((indicator_data['OEE'] / indicator_data['QUANTITY']) * 100)
         counter += 1
 
         if counter <=3:
