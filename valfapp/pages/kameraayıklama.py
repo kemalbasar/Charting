@@ -346,7 +346,6 @@ def update_table_data(start_date, end_date, selected_rows, table_data):
     return data, columns, selected_material, selected_confirmation
 
 
-
 ##### bubble chart
 @app.callback(
     Output('all_intervals_ic', 'columns'),
@@ -371,6 +370,8 @@ def draw_dist_plot(material,confirmation, start_date, end_date):
         scaled_size = max(min_size, min(max_size, quantity))
         return scaled_size
 
+    if not material and not confirmation:
+        raise PreventUpdate
 
     data = ag.run_query(
         f"SELECT A.* ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAP2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAP2 ELSE '0' END AS NOM ,CASE WHEN A.MTYPE = 'ICCAP' THEN  C.ICCAPTOL2 WHEN A.MTYPE = 'DISCAP' THEN C.DISCAPTOL2 ELSE '0' END AS TOL FROM VLFAYIKLAMA A "
@@ -425,6 +426,8 @@ def draw_dist_plot(material,confirmation, start_date, end_date):
         # Loop through the data and add traces
         dtick_value = (data_interval["midpoints"].max() - data_interval["midpoints"].min()) / 20
 
+        print(f"ÇAP BİLGİLERİ2")
+        print(data_interval)
 
         for i, row in data_interval.iterrows():
             if row["QUANTITY"] > 0:

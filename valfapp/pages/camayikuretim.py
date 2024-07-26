@@ -148,13 +148,9 @@ def update_summary_table(start_date, end_date):
         text_to_put2 = [f'KMR-0{x}', start_date, end_date]
         data2 = ag.editandrun_query(query_path2, text_to_find2, text_to_put2)
 
-
-
         data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
 
         data['NAME_LENGTH'] = data['NAME'].apply(lambda x: len(x))
-
-
 
         # Sort by NAME_LENGTH in descending order
         data_sorted = data.sort_values('NAME_LENGTH', ascending=False)
@@ -165,9 +161,6 @@ def update_summary_table(start_date, end_date):
         # Sort the dataframe back to the original order if necessary (optional)
         data_unique = data_unique.sort_index()
         data = data_unique
-
-        print(f"UZUNLUK")
-        print(data_unique)
 
         merged_data = pd.merge(data, data2, left_on=['PRDORDER', 'AYKDATE', 'SHIFTURETIM'],
                                right_on=['CONFIRMATION', 'MACHINEDATE', 'SHIFTAYK'], how='inner')
@@ -193,8 +186,12 @@ def update_summary_table(start_date, end_date):
          'CALISIYOR': 'sum',
          'DURUS': 'sum', 'SANIYE_DENETLENEN': 'first', 'MACHINETIME': 'first', 'PPM': 'first'})
 
-    print(f"TABLEE DATA:AAAAAAAAAAA");
-    print(table_data);
+
+    table_data['PPM'] = ((table_data['NOTOK'] * 1000000 ) / table_data['QUANTITY'])
+    table_data['PPM'] = table_data['PPM'].astype(int)
+
+    print (f'PPM2')
+    print( table_data['PPM'] )
 
     oee_data = final_result.groupby(['MACHINE' , 'MATERIAL_x', 'PRDORDER']).agg(
         {'QUANTITY': 'sum', 'MACHINETIME': 'first', 'CALISIYOR': 'sum', 'NOTOK': 'sum', 'PPM': 'first'})
@@ -202,9 +199,6 @@ def update_summary_table(start_date, end_date):
     oee_data['OEE'] = '0'
     oee_data['PPM'] = '0'
 
-    print(oee_data)
-
-    print(oee_data.dtypes)
 
     oee_data['OEE'] = oee_data['OEE'].astype(int)
     oee_data['QUANTITY'] = oee_data['QUANTITY'].astype(int)
@@ -213,18 +207,10 @@ def update_summary_table(start_date, end_date):
     oee_data['NOTOK'] = oee_data['NOTOK'].astype(int)
     oee_data['PPM'] = oee_data['PPM'].astype(int)
 
-    print(oee_data.dtypes)
-
     oee_data['OEE'] = ((oee_data['QUANTITY'] / ((oee_data['CALISIYOR'] * 1000) / oee_data['MACHINETIME'])) * (
             oee_data['CALISIYOR'] / 1440)) * oee_data['QUANTITY']
 
     oee_data['PPM'] = ((oee_data['NOTOK'] * 1000000) / oee_data['QUANTITY'])
-
-    print(oee_data)
-
-
-    print(oee_data)
-    print(f"OEE DATA")
 
     denominator = table_data['CALISIYOR']
     denominator_nonzero = denominator.replace(0, np.nan)
@@ -253,6 +239,9 @@ def update_summary_table(start_date, end_date):
 
     machine_data = oee_data.groupby(['MACHINE']).agg(
         {'QUANTITY': 'sum', 'OEE': 'sum', 'PPM': 'first'})
+
+    print(f"FOR ÖNCESİ TABLEDATA");
+    print(table_data);
 
     print(f"MACHINE DATAM :BBBBBBBBBBBBB");
     print(machine_data);
@@ -364,7 +353,8 @@ def update_summary_table(start_date, end_date):
                                                    'min-width': '20%'
                                                    }))
 
-
+    print(f"FOR SONRASI TABLEDATA");
+    print(table_data);
 
     columns = [{"name": i, "id": i} for i in table_data.columns]
 
