@@ -1,9 +1,6 @@
 import pandas as pd
 
-server = *******
-database = *********
-username = ********
-password = *********
+"""passwords"""
 
 project_directory = r"F:\pycarhm projects"
 
