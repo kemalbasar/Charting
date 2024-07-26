@@ -9,7 +9,7 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor,kalite ,satismuhasebe, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
+    tvmonitor, uretimrapor,kalite ,aylikmakver ,satismuhasebe, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
     adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page, adr_CNC_week, adr_PRES1_week, adr_PRES2_week, adr_CNCTORNA_week, \
     adr_MONTAJ_week, adr_CNC_month, adr_CNCTORNA_month, adr_MONTAJ_month, adr_PRES1_month, adr_PRES2_month, \
     adr_CNCreal, adr_CNCTORNAreal, \
@@ -102,6 +102,7 @@ def login(n_clicks, username, password):
     Input('login-status-store', 'data')
     ]
 )
+
 def display_page(pathname,login_status_data):
     if pathname == '/':
         return index_layout
@@ -142,6 +143,8 @@ def display_page(pathname,login_status_data):
         return uretimrapor.layout
     elif pathname =='/kalite':
         return kalite.layout
+    elif pathname =='/aylikmakver':
+        return aylikmakver.layout
     elif pathname =='/satismuhasebe':
         return satismuhasebe.layout
     elif pathname == '/kapasite':
@@ -257,6 +260,7 @@ app.validation_layout = html.Div(
         kapasite.layout,
         gvt_page.layout,
         costing.layout,
+        aylikmakver.layout,
         yonlendirme_pagee.layout,
         livekamera.layout,
         adr_CNC.layout,
