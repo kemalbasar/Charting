@@ -64,6 +64,24 @@ layout = [
                     ),
                     className="mt-2 col-lg-4 col-md-6 col-sm-12",
                 ),
+                dbc.Col(
+                    html.A(
+                        html.Div(
+                            "Aylık Makine Verileri",
+                            style={
+                                "height": "200px",
+                                "border-radius": "10px",
+                                "justify-content": "center",
+                                "align-items": "center",
+                                "display": "flex",
+                                "background-color": "white"
+                            },
+                        ),
+                        href="/aylikmakver",
+                        style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                    ),
+                    className="mt-2 col-lg-4 col-md-6 col-sm-12",
+                ),
             ],
                 className="justify-content-center align-items-center"
             ),
