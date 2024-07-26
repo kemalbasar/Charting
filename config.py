@@ -2,9 +2,7 @@ import pandas as pd
 from datetime import datetime
 
 
-reengen_username = "takgun@valfsan.com.tr"
-reengen_password = '1234Ta1234'
-reengen_company = 'valfsan'
+"""passwords"""
 
 
 project_directory = r"C:\Users\fozturk\Documents\GitHub"
