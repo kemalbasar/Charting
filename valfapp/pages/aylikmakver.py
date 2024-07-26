@@ -266,7 +266,9 @@ for i in range(1, num_cameras + 1):
             month.append(monthdef[monthloc - 1])
 
         y_values = mktr
+
         x_values = month
+
 
         fig2 = go.Figure()
         fig2.add_trace(go.Scatter(

@@ -79,7 +79,6 @@ layout = [
                     'border': '1px dotted brown',
                     'borderRadius': '2px'
                 },
-                fixed_rows={'headers': True},
                 row_selectable='single',
                 selected_rows=[],
             ),

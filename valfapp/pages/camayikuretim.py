@@ -320,7 +320,6 @@ def update_summary_table(start_date, end_date):
     merged_df3['MACHINETIME'] = merged_df3['MACHINETIME'].astype(float)
     merged_df3['MACHINETIME'] = merged_df3['MACHINETIME'].round(3)
 
-
     for machine_index, indicator_data in merged_df3.iterrows():
 
         counter += 1
@@ -336,6 +335,7 @@ def update_summary_table(start_date, end_date):
                     'axis': {'visible': False, 'range': [None, 100]},
                     'bordercolor': 'darkgreen',
                     'bar': {'thickness': 1, 'color': 'green'}
+
                 },
                 number={'font': {'color': 'darkgreen'}}
                 ,)
