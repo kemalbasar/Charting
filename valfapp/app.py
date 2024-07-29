@@ -54,8 +54,8 @@ TIMEOUT = 1200000
 def clear_cache():
     cache.clear()
     return "Cache has been cleared!"
-# data=[date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=1)).isoformat(),"day"]
-# params = ['2023-12-25','2023-12-25','day']
+
+
 
 @cache.memoize(timeout=TIMEOUT)
 def prdconf(params=None):
@@ -123,6 +123,7 @@ def prdconf(params=None):
 
     details, df_metrics, df_metrics_forwc, df_metrics_forpers = calculate_oeemetrics(
         df=prd_conf, nontimes=non_times)
+
     result = [{item: details[item].to_json(date_format='iso', orient='split')
                for item in details.keys()},
               df_metrics.to_json(date_format='iso', orient='split'),
@@ -193,7 +194,6 @@ def workcenters(option_slctd, report_type, params, oeelist1w, oeelist3w, oeelist
 
     else:
         if report_type == 'wc':
-            max_output = len(oeelist1w)
             for item in oeelist1w.loc[oeelist1w["COSTCENTER"] == option_slctd]["WORKCENTER"].unique():
                 list_of_items.append(item)
         else:
