@@ -4,7 +4,7 @@ from dash.exceptions import PreventUpdate
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta, date
 from config import project_directory
-import dash_table
+import json
 from valfapp.functions.functions_prd import indicator_for_tvs, get_daily_qty, working_machinesf, scatter_plot, \
     legend_generater, indicator_with_color, generate_for_sparkline
 from dash import dcc, html, Input, Output, State, no_update
@@ -48,7 +48,7 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
     dbc.Container([
         html.Div(className="logo-div resim-container", children=[
             html.A(className="logo", href="/", children=[
-                html.Img(src='./assets/valfsan_logo.jpg', className="logo")
+                html.Img(src='./assets/valflogo.png', className="logo")
             ])
         ]),
         html.Div(className="settings"),
@@ -60,12 +60,12 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                         html.Span(className="nav-text nav-text-2", children="MAIN")
                     ])
                 ]),
-                html.Li(className="darkerlishadow", children=[
-                    html.A(href="/value", children=[
-                        html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
-                        html.Span(className="nav-text", children="Tutarlama")
-                    ])
-                ]),
+                #html.Li(className="darkerlishadow", children=[
+                  #  html.A(href="/value", children=[
+                  #      html.Img(src="../assets/tutarlama-icon.PNG", className="nav-icon"),
+                  #      html.Span(className="nav-text", children="Tutarlama")
+                  #  ])
+               # ]),
                 html.Li(className="darkerli", children=[
                     html.A(href="/uretimrapor", children=[
                         html.Img(src="../assets/uretim-raporlari-icon.png", className="nav-icon"),
@@ -84,7 +84,7 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                         html.Span(className="nav-text", children="Tv Monitor")
                     ])
                 ]),
-                html.Li(className="darken", children=[
+                html.Li(className="darkerli", children=[
                     html.A(href="/kapasite", children=[
                         html.Img(src="../assets/kapaste-removebg-preview.png", className="nav-icon"),
                         html.Span(className="nav-text", children="Kapasite")
@@ -102,16 +102,22 @@ nav_bar = html.Nav(className="main-menu side-bar", children=[
                         html.Span(className="nav-text", children="Prod Energy")
                     ])
                 ]),
-                html.Li(className="darken", children=[
-                    html.A(href="/kameraayiklama", children=[
-                        html.Img(src="../assets/k-ayıklama-removebg-preview.png", className="nav-icon"),
-                        html.Span(className="nav-text", children="Kam. Ayıklama")
+                #html.Li(className="darkerli", children=[
+                  #  html.A(href="/kameraayiklama", children=[
+                  #      html.Img(src="../assets/k-ayıklama-removebg-preview.png", className="nav-icon"),
+                  #      html.Span(className="nav-text", children="Kam. Ayıklama")
+                  #  ])
+                #]),
+                html.Li(className="darkerli", children=[
+                    html.A(href="/kalite", children=[
+                        html.Img(src="../assets/kaliteikon.png", className="nav-icon"),
+                        html.Span(className="nav-text", children="kalite")
                     ])
                 ]),
                 html.Li(className="darkerli", children=[
-                    html.A(href="/gvt_page", children=[
-                        html.Img(src="../assets/tornaremove.jpg", className="nav-icon"),
-                        html.Span(className="nav-text", children="CncTo Aylık Ra.")
+                    html.A(href="/satismuhasebe", children=[
+                        html.Img(src="../assets/muhasebeikon.png", className="nav-icon"),
+                        html.Span(className="nav-text", children="satismuhasebe")
                     ])
                 ]),
                 html.Label("Valfsan Engineers © 2024 ", id="signature-label", className="float-left signature-label-sb")
@@ -282,28 +288,28 @@ layout_12 = dbc.Container([
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
 
-layout_12_loginpage_v2 = layout = html.Div(children=[
+layout_12_loginpage_v2 = html.Div(children=[
     nav_bar,
 
     dbc.Container(children=[
         dbc.Row(
             [
-                dbc.Col(
-                    html.A(
-                        html.Div(
-                            "Tutarlama",
-                            style={
-                                "height": "200px",
-                                "border-radius": "10px",
-                                "justify-content": "center",
-                                "align-items": "center",
-                                "display": "flex",
-                                "background-color": "white"
-                            }, className="deneme"
-                        ),
-                        href="/value", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
-                    ), className="mt-2 col-lg-3 col-md-7 col-sm-12",
-                ),
+              #  dbc.Col(
+               #     html.A(
+                 #       html.Div(
+                 #           "Tutarlama",
+                 ##           style={
+                  #              "height": "200px",
+                  #              "border-radius": "10px",
+                  #              "justify-content": "center",
+                  #              "align-items": "center",
+                  #              "display": "flex",
+                   #             "background-color": "white"
+                   #         }, className="deneme"
+                   #     ),
+                   #     href="/value", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                  #  ), className="mt-2 col-lg-3 col-md-7 col-sm-12",
+               # ),
                 dbc.Col(
                     html.A(
                         html.Div(
@@ -355,6 +361,22 @@ layout_12_loginpage_v2 = layout = html.Div(children=[
                 dbc.Col(
                     html.A(
                         html.Div(
+                            "Satış-Muhasebe",
+                            style={
+                                "height": "200px",
+                                "border-radius": "10px",
+                                "justify-content": "center",
+                                "align-items": "center",
+                                "display": "flex",
+                                "background-color": "white"
+                            }, className="deneme"
+                        ),
+                        href="/satismuhasebe", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                    ), className="mt-2 col-lg-3 col-md-7 col-sm-12",
+                ),
+                dbc.Col(
+                    html.A(
+                        html.Div(
                             "Enerji Ölçüm",
                             style={
                                 "height": "200px",
@@ -384,8 +406,30 @@ layout_12_loginpage_v2 = layout = html.Div(children=[
                         href="/kapasite", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
                     ), className="mt-2 col-lg-3 col-md-7 col-sm-12 link-hover",
                 ),
+                dbc.Col(
+                    html.A(
+                        html.Div(
+                            "Kalite",
+                            style={
+                                "height": "200px",
+                                "border-radius": "10px",
+                                "justify-content": "center",
+                                "align-items": "center",
+                                "display": "flex",
+                                "background-color": "white"
+                            }, className="deneme"
+                        ),
+                        href="/kalite", style={"text-decoration": "none", "color": "#2149b4", "font-size": "24px"},
+                    ), className="mt-2 col-lg-3 col-md-7 col-sm-12",
+                ),
+
+
+
+
+
             ], style={"justify-content": "center", "align-items": "center", }
-        )
+
+ )
     ], )
 ])
 
@@ -675,7 +719,11 @@ layout_12_loginpage = dbc.Container([
     dcc.Link(
         children='Kamera Ayıklama Üretim Raporu',
         href='/camayikuretim',
-    )
+    ),
+    dcc.Link(
+        children='Kamera Ayıklama Üretim Takip ',
+        href='/livekamera',
+    ),
 ], style={"height": "100vh", "position": "relative"}, fluid=True)
 
 ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######
@@ -941,33 +989,34 @@ def layout_for_tvs(costcenter='MONTAJ'):
         ], className="g-0")]
 
 
-def return_adr_layout(costcenter='cnc', interval='day'):
+def return_adr_layout(costcenter='cnc', interval='day',position= '200px'):
 
     header = 'Haftalık' if interval == 'week' else ( 'Aylık' if interval == 'month' else 'Günlük' )
     # Main Layout
     return dbc.Container([
 
-        dcc.Store(id=f'trigger-timestamp_{costcenter}_{interval}', data=None),
+        dcc.Store(id=f'trigger-timestamp_{costcenter}_{interval}_{position}', data=None),
         # Stores the timestamp of the initial trigger
         dcc.Interval(
-            id=f'check-interval_{costcenter}_{interval}',
+            id=f'check-interval_{costcenter}_{interval}_{position}',
             interval=60 * 1000,  # Check every minute
             n_intervals=0
         ),
         dcc.Interval(
-            id=f'interval-trigger_{costcenter}_{interval}',
+            id=f'interval-trigger_{costcenter}_{interval}_{position}',
             interval=1000,  # 1 second
             n_intervals=0,
             max_intervals=1  # Trigger once initially
         ),
-        dcc.Store(id=f'oeeelist0_{costcenter}_{interval}'),
-        dcc.Store(id=f'oeeelist1_{costcenter}_{interval}'),
-        dcc.Store(id=f'oeeelist2_{costcenter}_{interval}'),
-        dcc.Store(id=f'oeeelist3_{costcenter}_{interval}'),
-        dcc.Store(id=f'oeeelist6_{costcenter}_{interval}'),
-        dcc.Store(id=f'oeeelist7_{costcenter}_{interval}'),
+        dcc.Store(id=f'oeeelist0_{costcenter}_{interval}_{position}'),
+        dcc.Store(id=f'oeeelist1_{costcenter}_{interval}_{position}'),
+        dcc.Store(id=f'oeeelist2_{costcenter}_{interval}_{position}'),
+        dcc.Store(id=f'oeeelist3_{costcenter}_{interval}_{position}'),
+        dcc.Store(id=f'oeeelist5_{costcenter}_{interval}_{position}'),
+        dcc.Store(id=f'oeeelist6_{costcenter}_{interval}_{position}'),
+        dcc.Store(id=f'oeeelist7_{costcenter}_{interval}_{position}'),
 
-        dcc.Store(id=f'work-dates_{costcenter}_{interval}'),
+        dcc.Store(id=f'work-dates_{costcenter}_{interval}_{position}'),
 
         dbc.Row([
             dbc.Col(html.H2(f"{costcenter.upper()} {header} Bölüm Raporu", style={
@@ -981,8 +1030,12 @@ def return_adr_layout(costcenter='cnc', interval='day'):
             "box-shadow": "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
         }))
         ]),
+        dbc.Row([
+            dbc.Col(html.H5(id=f'valid_data_{costcenter}_{interval}_{position}'))
+        ]),
 
-        dbc.Row(
+        dbc.Row( dbc.Row() if interval == 'day' else
+        [dbc.Row(
             justify="center",
             align="center",
             children=[
@@ -996,14 +1049,14 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                         dbc.Col(html.H3("Genel Tezgah Verimliliği"),
                                                 className="bg-primary col-lg-7 ic-yazilar"),
                                         dbc.Col([
-                                            html.H3(id=f'availability_{costcenter}_{interval}'),
+                                            html.H3(id=f'availability_{costcenter}_{interval}_{position}'),
                                             html.P("Hedef %80")
-                                        ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
+                                        ], className="bg-warning col-lg-5 ic-yazilar-2 p-2")
                                     ]
                                 )
                             ),
                             dbc.CardBody(
-                                dcc.Graph(id=f'fig_tezgah_{costcenter}_{interval}')
+                                dcc.Graph(id=f'fig_tezgah_{costcenter}_{interval}_{position}')
                             ),
                         ],
                         className="grafik",
@@ -1020,14 +1073,14 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                         dbc.Col(html.H3("Genel Personel Verimliliği"),
                                                 className="bg-primary col-lg-7 ic-yazilar"),
                                         dbc.Col([
-                                            html.H3(id=f'performance_{costcenter}_{interval}'),
+                                            html.H3(id=f'performance_{costcenter}_{interval}_{position}'),
                                             html.P("Hedef %90")
-                                        ], className="bg-danger col-lg-5 ic-yazilar-2 p-2")
+                                        ], className="bg-warning col-lg-5 ic-yazilar-2 p-2")
                                     ]
                                 )
                             ),
                             dbc.CardBody(
-                                dcc.Graph(id=f'fig_personal_{costcenter}_{interval}')
+                                dcc.Graph(id=f'fig_personal_{costcenter}_{interval}_{position}')
                             ),
                         ],
                         className="grafik",
@@ -1044,14 +1097,14 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                         dbc.Col(html.H3("Genel OEE Verimliliği"),
                                                 className="bg-primary col-lg-7 ic-yazilar"),
                                         dbc.Col([
-                                            html.H3(id=f'oee_{costcenter}_{interval}'),
+                                            html.H3(id=f'oee_{costcenter}_{interval}_{position}'),
                                             html.P("Hedef %65")
-                                        ], className="bg-success col-lg-5 ic-yazilar-2 p-2")
+                                        ], className="bg-warning col-lg-5 ic-yazilar-2 p-2")
                                     ]
                                 )
                             ),
                             dbc.CardBody(
-                                dcc.Graph(id=f'fig_oee_{costcenter}_{interval}')
+                                dcc.Graph(id=f'fig_oee_{costcenter}_{interval}_{position}')
                             ),
                         ],
                         className="grafik",
@@ -1070,12 +1123,12 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                         dbc.Col([
                                             html.H3("nan"),
                                             html.P("nan")
-                                        ], className="bg-primary col-lg-5 ic-yazilar-2 p-2")
+                                        ], className="bg-warning col-lg-5 ic-yazilar-2 p-2")
                                     ]
                                 )
                             ),
                             dbc.CardBody(
-                                dcc.Graph(id=f'fig_kapasite_{costcenter}_{interval}')
+                                dcc.Graph(id=f'fig_kapasite_{costcenter}_{interval}_{position}')
                             ),
                         ],
                         className="grafik",
@@ -1093,7 +1146,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                 dbc.Card([
                                     dbc.CardHeader(html.H5("Planlı Duruş (Set-up)", className="card-title")),
                                     dbc.CardBody([
-                                        dcc.Graph(id=f"fig_planlı_{costcenter}_{interval}", style={"height": "400px"})
+                                        dcc.Graph(id=f"fig_planlı_{costcenter}_{interval}_{position}", style={"height": "400px"})
                                     ])
                                 ], className="grafik-divler")
                             ], className="mt-4")
@@ -1104,7 +1157,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                 dbc.Card([
                                     dbc.CardHeader(html.H5("Plansız Duruş", className="card-title")),
                                     dbc.CardBody([
-                                        dcc.Graph(id=f"fig_plansız_{costcenter}_{interval}", style={"height": "400px"})
+                                        dcc.Graph(id=f"fig_plansız_{costcenter}_{interval}_{position}", style={"height": "400px"})
                                     ])
                                 ], className="grafik-divler mt-4")
                             ])
@@ -1115,7 +1168,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                                 dbc.Card([
                                     dbc.CardHeader(html.H5("Kalite Duruşları", className="card-title")),
                                     dbc.CardBody([
-                                        dcc.Graph(id=f"fig_kalite_{costcenter}_{interval}", style={"height": "400px"})
+                                        dcc.Graph(id=f"fig_kalite_{costcenter}_{interval}_{position}", style={"height": "400px"})
                                     ])
                                 ], className="grafik-divler mt-4")
                             ])
@@ -1123,7 +1176,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                     ], className="justify-content-center aligns-item-center d-flex")
                 ])
             ], style={"margin-left": "20px", "margin-bottom": "50px"},
-        ),
+        )] ),
         dbc.Row(html.H5("Performans(( Kullanılabilirlik(( OEE", style={
             "background-color": "#2149b4",
             "text-align": "center",
@@ -1131,7 +1184,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
             "padding": 6,
         })),
         dbc.Row(
-            dbc.Col(html.Div(id=f'sunburst_forreports_{costcenter}_{interval}'),
+            dbc.Col(html.Div(id=f'sunburst_forreports_{costcenter}_{interval}_{position}'),
                     width=12, className="d-flex justify-content-center", )
             , className="g-0"),
         dbc.Row([
@@ -1144,16 +1197,16 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                 })),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Col(id=f"my-output_forreports_{costcenter}_{interval}", width={"size": 2},
+                        dbc.Col(id=f"my-output_forreports_{costcenter}_{interval}_{position}", width={"size": 2},
                                 style={"margin-left": 0}),
-                        dbc.Col([return_sparks(graph1=f"fig_prod_{costcenter}_{interval}",
-                                               graph2=f"fig_working_machine_{costcenter}_{interval}",
+                        dbc.Col([return_sparks(graph1=f"fig_prod_{costcenter}_{interval}_{position}",
+                                               graph2=f"fig_working_machine_{costcenter}_{interval}_{position}",
                                                margin_left=0)],
                                 width={"size": 2}),
-                        dbc.Col(id=f"my-output_forreports_{costcenter}2_{interval}", width={"size": 2},
+                        dbc.Col(id=f"my-output_forreports_{costcenter}2_{interval}_{position}", width={"size": 2},
                                 style={"margin-left": 0}),
-                        dbc.Col([return_sparks(graph1=f"fig_ppm_{costcenter}_{interval}",
-                                               graph2=f"fig_scrap_{costcenter}_{interval}",
+                        dbc.Col([return_sparks(graph1=f"fig_ppm_{costcenter}_{interval}_{position}",
+                                               graph2=f"fig_scrap_{costcenter}_{interval}_{position}",
                                                margin_left=0)],
                                 width={"size": 2})], className="d-flex justify-content-center", width=12)
                 ], className="g-0")
@@ -1171,7 +1224,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                 })),
                 dbc.Row(
                     dbc.Col([
-                        html.Div(id=f'gann_forreports_{costcenter}_{interval}')],
+                        html.Div(id=f'gann_forreports_{costcenter}_{interval}_{position}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
                 style={"margin-bottom": "30px"}, width={"size": 12}
@@ -1188,7 +1241,7 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                 })),
                 dbc.Row(
                     dbc.Col([
-                        html.Div(id=f'bubble_forreports_{costcenter}_{interval}')],
+                        html.Div(id=f'bubble_forreports_{costcenter}_{interval}_{position}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
                 style={"margin-bottom": "60px", }, width={"size": 12}
@@ -1207,13 +1260,13 @@ def return_adr_layout(costcenter='cnc', interval='day'):
                 }),
                 dbc.Row(
                     dbc.Col([
-                        html.Div(id=f'fig_scatscrap_forreports_{costcenter}_{interval}')],
+                        html.Div(id=f'fig_scatscrap_forreports_{costcenter}_{interval}_{position}')],
                         className="d-flex justify-content-center", width=12)
                     , className="g-0")],
                 style={"margin-bottom": "60px", }, width={"size": 12}
             ), ])
         ,
-        html.Div(id=f"generated_1graph1data_for_report_{costcenter}_{interval}")]
+        html.Div(id=f"generated_1graph1data_for_report_{costcenter}_{interval}_{position}")]
 
         , style={"justify-content": "center", "align-items": "center"}, fluid=True)
 
@@ -1227,20 +1280,20 @@ def return_sparks(graph1="fig_prod_forreports", graph2="fig_scrap_forreports", m
                                                "margin-left": margin_left})])
 
 
-def return_adr_callbacks(costcenter='cnc', interval='day'):
+def return_adr_callbacks(costcenter='cnc', interval='day',position = '475px'):
     if interval in ['week' , 'month']:
         @app.callback(
-            [Output(f'fig_oee_{costcenter}_{interval}', 'figure'),
-             Output(f'fig_personal_{costcenter}_{interval}', 'figure'),
-             Output(f'fig_tezgah_{costcenter}_{interval}', 'figure'),
-             Output(f'fig_planlı_{costcenter}_{interval}', 'figure'),
-             Output(f'fig_plansız_{costcenter}_{interval}', 'figure'),
-             Output(f'fig_kalite_{costcenter}_{interval}', 'figure'),
-             Output(f'availability_{costcenter}_{interval}', 'children'),
-             Output(f'performance_{costcenter}_{interval}', 'children'),
-             Output(f'oee_{costcenter}_{interval}', 'children')
+            [Output(f'fig_oee_{costcenter}_{interval}_{position}', 'figure'),
+             Output(f'fig_personal_{costcenter}_{interval}_{position}', 'figure'),
+             Output(f'fig_tezgah_{costcenter}_{interval}_{position}', 'figure'),
+             Output(f'fig_planlı_{costcenter}_{interval}_{position}', 'figure'),
+             Output(f'fig_plansız_{costcenter}_{interval}_{position}', 'figure'),
+             Output(f'fig_kalite_{costcenter}_{interval}_{position}', 'figure'),
+             Output(f'availability_{costcenter}_{interval}_{position}', 'children'),
+             Output(f'performance_{costcenter}_{interval}_{position}', 'children'),
+             Output(f'oee_{costcenter}_{interval}_{position}', 'children')
              ],
-            Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data')
+            Input(component_id=f'work-dates_{costcenter}_{interval}_{position}', component_property='data')
         )
         def historical_values(dates):
             work_date = datetime.strptime(dates["workend"], '%Y-%m-%d')
@@ -1254,6 +1307,11 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
 
             if costcenter == 'cnc':
                 df_downs = df_downs[df_downs["COSTCENTER"] == 'CNC']
+            elif costcenter == 'preshane1':
+                df_downs = df_downs[df_downs["COSTCENTER"] == costcenter.upper()]
+            elif costcenter == 'preshane2':
+                df_downs = df_downs[df_downs["COSTCENTER"] == costcenter.upper()]
+
 
             fig = px.line(df_oees, x="OEEDATE", y="OEE")
             fig_personal = px.line(df_oees, x="OEEDATE", y="PERFORMANCE")
@@ -1267,16 +1325,45 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                     df_oees["AVAILABILITY"][0], df_oees["PERFORMANCE"][0], df_oees["OEE"][0]]
 
     @app.callback(
-        [Output(component_id=f'my-output_forreports_{costcenter}_{interval}', component_property='children'),
-         Output(component_id=f'my-output_forreports_{costcenter}2_{interval}', component_property='children')],
-        [Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data'),
-         Input(component_id=f'oeeelist6_{costcenter}_{interval}', component_property='data')]
+        Output(f'valid_data_{costcenter}_{interval}_{position}', 'children'),
+        [Input(component_id=f'oeeelist5_{costcenter}_{interval}_{position}', component_property='data')]
+    )
+    def update_data(oeelist6):
+        oeelist6=json.loads(oeelist6)
+        oeelist6 = pd.DataFrame(oeelist6['data'], columns=oeelist6['columns'])
+
+        print(oeelist6)
+        print("*********")
+
+        oeelist6 = oeelist6[oeelist6["COSTCENTER"] == costcenter.upper()]
+        # Filtering data based on BADDATA_FLAG
+        data1 = oeelist6[oeelist6['BADDATA_FLAG'] == 0]
+        data1['SUMS'].iloc[-1]
+
+        # Alternatively, if you need the value at a specific dynamic index, say stored in a variable 'index':
+        index = data1['SUMS'].index[-1]  # This sets 'index' to the last index dynamically
+        value = data1['SUMS'][index]
+        data2 = oeelist6[oeelist6['BADDATA_FLAG'] != 0]['SUMS'].sum()
+
+        print("*****")
+        print(data2)
+        print("*****")
+
+        # Preparing the text for output
+        text = f"{costcenter}  {data1['SUMS'].iloc[-1]} adet geçerli ve  {data2} adet geçersiz data noktasına sahip."
+        return text
+
+    @app.callback(
+        [Output(component_id=f'my-output_forreports_{costcenter}_{interval}_{position}', component_property='children'),
+         Output(component_id=f'my-output_forreports_{costcenter}2_{interval}_{position}', component_property='children')],
+        [Input(component_id=f'work-dates_{costcenter}_{interval}_{position}', component_property='data'),
+         Input(component_id=f'oeeelist6_{costcenter}_{interval}_{position}', component_property='data')]
     )
     def return_summary_data(dates, oeeelist6):
         print("summary running")
         oeeelist6 = pd.read_json(oeeelist6, orient='split')
-        df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                           , params=(dates["workstart"], dates["workend"]))
+        df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?, @INTERVAL=?"
+                                           , params=(dates["workstart"], dates["workend"],interval))
         data1 = ["Production Volume", get_daily_qty(df=oeeelist6, costcenter=costcenter.upper())]
         data2 = ["Working Machines",
                  working_machinesf(working_machines=df_working_machines, costcenter=costcenter.upper())[-1]]
@@ -1321,16 +1408,16 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
     # ------------------------------------------------------------------------------
 
     @app.callback(
-        Output(component_id=f'sunburst_forreports_{costcenter}_{interval}', component_property='children'),
-        Input(component_id=f'oeeelist0_{costcenter}_{interval}', component_property='data')
+        Output(component_id=f'sunburst_forreports_{costcenter}_{interval}_{position}', component_property='children'),
+        Input(component_id=f'oeeelist0_{costcenter}_{interval}_{position}', component_property='data')
     )
     def update_graph_sunburst_forreports_(oeeelist0):
         print("pie running")
         return return_piechart(costcenter.upper(), oeeelist0, 1)
 
     @app.callback(
-        Output(component_id=f'bubble_forreports_{costcenter}_{interval}', component_property='children'),
-        Input(component_id=f'oeeelist2_{costcenter}_{interval}', component_property='data'))
+        Output(component_id=f'bubble_forreports_{costcenter}_{interval}_{position}', component_property='children'),
+        Input(component_id=f'oeeelist2_{costcenter}_{interval}_{position}', component_property='data'))
     def update_graph_bubble_forreports_(oeeelist2):
         graphwidth = 950
         oeeelist2 = pd.read_json(oeeelist2, orient='split')
@@ -1369,8 +1456,8 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                     dcc.Graph(figure=figs), width=10), dbc.Col(legend_generater(color_map, 10), width=2)])])
 
     @app.callback(
-        Output(component_id=f'gann_forreports_{costcenter}_{interval}', component_property='children'),
-        Input(component_id=f'oeeelist2_{costcenter}_{interval}', component_property='data')
+        Output(component_id=f'gann_forreports_{costcenter}_{interval}_{position}', component_property='children'),
+        Input(component_id=f'oeeelist2_{costcenter}_{interval}_{position}', component_property='data')
     )
     def update_chart_gann_forreports_(oeeelist2):
         graphwidth = 900
@@ -1447,17 +1534,17 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
         )
 
     @app.callback(
-        [Output(component_id=f'fig_prod_{costcenter}_{interval}', component_property='figure'),
-         Output(component_id=f'fig_scrap_{costcenter}_{interval}', component_property='figure'),
-         Output(component_id=f'fig_working_machine_{costcenter}_{interval}', component_property='figure'),
-         Output(component_id=f'fig_ppm_{costcenter}_{interval}', component_property='figure')],
-        Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data'),
-        Input(component_id=f'oeeelist6_{costcenter}_{interval}', component_property='data')
+        [Output(component_id=f'fig_prod_{costcenter}_{interval}_{position}', component_property='figure'),
+         Output(component_id=f'fig_scrap_{costcenter}_{interval}_{position}', component_property='figure'),
+         Output(component_id=f'fig_working_machine_{costcenter}_{interval}_{position}', component_property='figure'),
+         Output(component_id=f'fig_ppm_{costcenter}_{interval}_{position}', component_property='figure')],
+        Input(component_id=f'work-dates_{costcenter}_{interval}_{position}', component_property='data'),
+        Input(component_id=f'oeeelist6_{costcenter}_{interval}_{position}', component_property='data')
     )
     def update_spark_line(dates, oeeelist6):
         onemonth_prdqty = pd.read_json(oeeelist6, orient='split')
-        df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?"
-                                           , params=(dates["workstart"], dates["workend"]))
+        df_working_machines = ag.run_query(query=r"EXEC VLFWORKINGWORKCENTERS @WORKSTART=?, @WORKEND=?, @INTERVAL=?"
+                                           , params=(dates["workstart"], dates["workend"],interval))
         fig_prod_forreports = get_spark_line(
             data=generate_for_sparkline(data=onemonth_prdqty, proses=costcenter.upper()))
         fig_scrap__forreports = get_spark_line(
@@ -1469,8 +1556,8 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
         return [fig_prod_forreports, fig_scrap__forreports, fig_working_machine_forreports, fig_ppm_forreports]
 
     @app.callback(
-        Output(component_id=f'fig_scatscrap_forreports_{costcenter}_{interval}', component_property='children'),
-        Input(component_id=f'work-dates_{costcenter}_{interval}', component_property='data')
+        Output(component_id=f'fig_scatscrap_forreports_{costcenter}_{interval}_{position}', component_property='children'),
+        Input(component_id=f'work-dates_{costcenter}_{interval}_{position}', component_property='data')
     )
     def create_scatterplot_for_scrapqty(dates):
         graphwidth = 900
@@ -1511,11 +1598,11 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                                   dbc.Col(legend_generater(color_map, 12), width=2, style={'margin-left': 0})])])
 
     @app.callback(
-        [Output(f"generated_1graph1data_for_report_{costcenter}_{interval}", "children")],
-        [Input(f"work-dates_{costcenter}_{interval}", "data"),
-         Input(component_id=f'oeeelist1_{costcenter}_{interval}', component_property='data'),
-         Input(component_id=f'oeeelist3_{costcenter}_{interval}', component_property='data'),
-         Input(component_id=f'oeeelist7_{costcenter}_{interval}', component_property='data')])
+        [Output(f"generated_1graph1data_for_report_{costcenter}_{interval}_{position}", "children")],
+        [Input(f"work-dates_{costcenter}_{interval}_{position}", "data"),
+         Input(component_id=f'oeeelist1_{costcenter}_{interval}_{position}', component_property='data'),
+         Input(component_id=f'oeeelist3_{costcenter}_{interval}_{position}', component_property='data'),
+         Input(component_id=f'oeeelist7_{costcenter}_{interval}_{position}', component_property='data')])
     def update_ind_fig(params, oeeelist1w, oeeelist3w, oeeelist7w):
         """
         Callback to update individual figures for each work center in the selected cost center.
@@ -1549,7 +1636,7 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
             def create_column(fig, data, columns, margin_left):
                 return dbc.Col(
                     [dbc.Row(
-                        dcc.Graph(figure=fig, style={'margin-left': 200})),
+                        dcc.Graph(figure=fig, style={'margin-left': 200,'position':'relative', 'bottom':position,})),
                         dbc.Row(
                             dash_table.DataTable(
                                 data=data,
@@ -1583,7 +1670,7 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                     width=4,
                     style={'margin-left': 45, "justify-content": "center", "align-items": "center",
                            "height": "700px", "width": "850px",
-                           "background-color": "rgba(255, 255, 255, 0.314)", "margin-top": 50, "border-radius": "10px"}
+                           "background-color": "rgba(255, 255, 255, 0.314)","margin-top": 50, "border-radius": "10px"}
                 )
 
             # This list comprehension creates all columns needed for the layout
@@ -1604,26 +1691,27 @@ def return_adr_callbacks(costcenter='cnc', interval='day'):
                         "background-color": "#2149b4",
                         "text-align": "center",
                         "color": "white",
-                    }), return_layout("wc")]),
+                    }), return_layout("wc")], style={"border": "5px solid black","background-color":"gray"},),
                 dbc.Col([
                     html.H5("Personel Göstergeleri", style={
                         "background-color": "#2149b4",
                         "text-align": "center",
-                        "color": "white",
-                    }), return_layout("pers")], className="text-center per-gosterge"), ])
+                        "color": "cyan",
+                        "border-left": "5px solid black",
+                    }), return_layout("pers")], style={"border": "5px solid black","background-color":"gray"},),])
         ])]
 
 
-def return_adr_timecallbacks(costcenter, interval='day'):
+def return_adr_timecallbacks(costcenter, interval='day',position= '200px'):
     @app.callback(
-        Output(f'interval-trigger_{costcenter}_{interval}', 'max_intervals'),
-        Input(f'check-interval_{costcenter}_{interval}', 'n_intervals'),
-        State(f'trigger-timestamp_{costcenter}_{interval}', 'data')
+        Output(f'interval-trigger_{costcenter}_{interval}_{position}', 'max_intervals'),
+        Input(f'check-interval_{costcenter}_{interval}_{position}', 'n_intervals'),
+        State(f'trigger-timestamp_{costcenter}_{interval}_{position}', 'data')
     )
     def check_elapsed_time(_, trigger_timestamp):
         if trigger_timestamp is None:
             # If there's no timestamp, it means the initial trigger hasn't happened yet
-            raise PreventUpdate
+            return no_update
 
         current_time = datetime.now().timestamp()
         elapsed_time = current_time - trigger_timestamp
@@ -1631,11 +1719,11 @@ def return_adr_timecallbacks(costcenter, interval='day'):
         if elapsed_time >= 600:  # 600 seconds = 10 minutes
             return no_update  # Or set to a specific number if you want to limit future triggers
 
-        raise PreventUpdate
+        return no_update
 
     @app.callback(
-        Output(f'trigger-timestamp_{costcenter}_{interval}', 'data'),
-        Input(f'interval-trigger_{costcenter}_{interval}', 'n_intervals')
+        Output(f'trigger-timestamp_{costcenter}_{interval}_{position}', 'data'),
+        Input(f'interval-trigger_{costcenter}_{interval}_{position}', 'n_intervals')
     )
     def set_trigger_timestamp(n):
         if n == 1:  # Triggered once
@@ -1645,15 +1733,16 @@ def return_adr_timecallbacks(costcenter, interval='day'):
 
     @app.callback(
         [
-            Output(f'oeeelist0_{costcenter}_{interval}', 'data'),
-            Output(f'oeeelist1_{costcenter}_{interval}', 'data'),
-            Output(f'oeeelist2_{costcenter}_{interval}', 'data'),
-            Output(f'oeeelist3_{costcenter}_{interval}', 'data'),
-            Output(f'oeeelist6_{costcenter}_{interval}', 'data'),
-            Output(f'oeeelist7_{costcenter}_{interval}', 'data'),
-            Output(f'work-dates_{costcenter}_{interval}', 'data'),
+            Output(f'oeeelist0_{costcenter}_{interval}_{position}', 'data'),
+            Output(f'oeeelist1_{costcenter}_{interval}_{position}', 'data'),
+            Output(f'oeeelist2_{costcenter}_{interval}_{position}', 'data'),
+            Output(f'oeeelist3_{costcenter}_{interval}_{position}', 'data'),
+            Output(f'oeeelist5_{costcenter}_{interval}_{position}', 'data'),
+            Output(f'oeeelist6_{costcenter}_{interval}_{position}', 'data'),
+            Output(f'oeeelist7_{costcenter}_{interval}_{position}', 'data'),
+            Output(f'work-dates_{costcenter}_{interval}_{position}', 'data'),
         ],
-        [Input(f'interval-trigger_{costcenter}_{interval}', 'n_intervals')]
+        [Input(f'interval-trigger_{costcenter}_{interval}_{position}', 'n_intervals')]
     )
     def update_data_on_page_load(pathname):
         # If there's no specific action tied to pathname, you could check for it here
@@ -1663,28 +1752,32 @@ def return_adr_timecallbacks(costcenter, interval='day'):
         if not pathname:
             print(" prevent here")
 
+
             raise PreventUpdate
 
         print("running")
 
         if interval == 'day':
+            print("***********")
+            print(f"kb is {kb} and date is {date.today() - timedelta(days=kb)}")
+            print("***********")
             data_points = prdconf(((date.today() - timedelta(days=kb)).isoformat(),
                                    (date.today() - timedelta(days=kb - 1)).isoformat(), interval))
             # Prepare the data for each store
-            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 6, 7]]
+            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 5,6, 7]]
             work_dates_data = {"workstart": (date.today() - timedelta(days=kb)).isoformat(),
                                "workend": (date.today() - timedelta(days=kb - 1)).isoformat()}
         elif interval == 'week':
 
             #Bir önceki haftanın başlangıç ve bitiş günlerini getirir.
 
-            current_date = datetime.now().date() - timedelta(days=5)
+            current_date = datetime.now().date()
             if current_date.weekday() in (0,1,2,3):
                 first_day = current_date - (timedelta(days=current_date.weekday() + 7))
                 last_day =  current_date +(timedelta(days=current_date.weekday()-1))
             else:
                 first_day = current_date + (timedelta(days=current_date.weekday() ))
-                last_day =  current_date
+                last_day =  first_day + timedelta(days=7)
 
             print(f"***************!!!!!!! {first_day} - {last_day} Tarihleri Arası Haftalık Rapor Verileri Çekiliyor.***************!!!!!!!")
             # Assuming kb is defined and prdconf is your data-fetching function
@@ -1693,7 +1786,7 @@ def return_adr_timecallbacks(costcenter, interval='day'):
 
 
             # Prepare the data for each store
-            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 6, 7]]
+            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3,5, 6, 7]]
             work_dates_data = {"workstart": first_day.isoformat(),
                                "workend": last_day.isoformat()}
 
@@ -1701,7 +1794,7 @@ def return_adr_timecallbacks(costcenter, interval='day'):
 
             #Bir önceki haftanın başlangıç ve bitiş günlerini getirir.
 
-            current_date = datetime.now().date() - timedelta(days=5)
+            current_date = datetime.now().date()
 
 
             if current_date.day <= 17:
@@ -1721,9 +1814,10 @@ def return_adr_timecallbacks(costcenter, interval='day'):
             data_points = prdconf((first_day.isoformat(), last_day.isoformat(), interval))
 
             # Prepare the data for each store
-            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3, 6, 7]]
+            data_for_stores = [data_points[i] for i in range(len(data_points)) if i in [0, 1, 2, 3,5, 6, 7]]
             work_dates_data = {"workstart": first_day.isoformat(), "workend": last_day.isoformat()}
 
         # Return the data for each store
+        print("********")
         return *data_for_stores, work_dates_data
     # Connect the Plotly graphs with Dash Components

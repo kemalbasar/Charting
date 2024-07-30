@@ -61,7 +61,7 @@ layout = dbc.Container([
               data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[2]),
     dcc.Store(id='oeelist6',
               data=prdconf(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb-1)).isoformat(), "day"))[6]),
-    dcc.Store(id='device-info-store'),
+    # dcc.Store(id='device-info-store'),
         nav_bar,
 
         dbc.Row([
@@ -71,16 +71,16 @@ layout = dbc.Container([
                     className="dash-date-picker mt-2",
                     date=(date.today() - timedelta(days=kb)),
                     persistence=True,
-                    persistence_type='memory'
+                    persistence_type='memory',
                 ),
                 dbc.Button("Day", id="btn-day2", n_clicks=0, color="primary", className='day-button',
-                           style={"margin-left": 120, "margin-top": 60}),
+                           style={}),
                 dbc.Button("Week", id="btn-week2", n_clicks=0, color="primary", className='week-button',
-                           style={"margin-left": 120, "margin-top": 60}),
+                           style={}),
                 dbc.Button("Month", id="btn-month2", n_clicks=0, color="primary", className='month-button',
-                           style={"margin-left": 226, "margin-top": 7}),
+                           style={}),
                 dbc.Button("Year", id="btn-year2", n_clicks=0, color="primary", className='year-button',
-                           style={"margin-left": 226, "margin-top": 7}),
+                           style={}),
                 dcc.Store(
                     id="work-dates",
                     storage_type="memory",
@@ -98,7 +98,7 @@ layout = dbc.Container([
                                  ["CNC", "CNCTORNA", "TASLAMA", "MONTAJ", "PRESHANE1", "PRESHANE2"]],
                         multi=False,
                         value='CNC',
-                    ), style={"position": "relative", "left": 475, "bottom": 50}
+                    ), style={"position": "relative", "left": 700, "bottom": 55}
                 ),
             ], style={"border": "3px dashed #2149b5", "height": "70px", "border-radius": "20px",
                       "margin-top": "5rem"}, ),
@@ -335,8 +335,8 @@ def update_graph_sunburst(option_slctd, oeelist0):
 @app.callback(
     [Output(component_id='bubble', component_property='figure')],
     [Input(component_id='costcenter', component_property='value'),
-     Input(component_id='oeelist2', component_property='data'),
-     Input('device-info-store', 'data')]
+     Input(component_id='oeelist2', component_property='data')]
+     # Input('device-info-store', 'data')]
 )
 def update_graph_bubble(option_slctd, oeelist2, dev_type):
     graphwidth = 1100

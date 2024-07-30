@@ -285,6 +285,9 @@ def update_table(s_date, f_date, costcenter, m_point, date_interval):
 
     # Extract the number of months and years in the difference
 
+    print("buradayım")
+
+
     df_final = pd.DataFrame()
     analizorler = []
     if costcenter != 'Bütün':

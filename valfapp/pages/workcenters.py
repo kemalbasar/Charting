@@ -60,12 +60,6 @@ def return_1indicator1data_div(graph_id, visible=True):
 layout = dbc.Container([
     nav_bar,
     dbc.Row(
-        dcc.Link(
-            children='Main Page',
-            href='/',
-            style={"color": "black", "font-weight": "bold"}
-        )),
-    dbc.Row(
         [dcc.Store(id="list_of_wcs"),
          dcc.Store(id="max_output"),
          dcc.Store(id='oeelistw1',
@@ -88,7 +82,6 @@ layout = dbc.Container([
                        7]),
          dcc.Store(id='store-costcenter1', storage_type='memory'),
          dcc.Store(id='store-report-type', data='wc', storage_type='memory'),
-         dbc.Button("Günlük", id="btn-day1", n_clicks=0, color="primary", className='day-button'),
          dcc.Dropdown(id="costcenter1",
                       className='dropdown-style',
                       options=[{"label": cc, "value": cc} for cc in costcenters],
@@ -99,16 +92,17 @@ layout = dbc.Container([
          dcc.DatePickerSingle(id='date-picker1', date=(date.today() - timedelta(days=kb)), className="dash-date-picker",
                                style={"color": "white"}),
 
+        dbc.Button("Günlük", id="btn-day1", n_clicks=0, color="primary", className='day-button', style={"margin-left":300}),
          dbc.Button("Haftalık", id="btn-week1", n_clicks=0, color="primary", className='week-button'),
          dbc.Button("Aylık", id="btn-month1", n_clicks=0, color="primary", className='month-button'),
          dbc.Button("Yıllık", id="btn-year1", n_clicks=0, color="primary", className='year-button'),
 
          html.Button(html.Img(src='/assets/wc.jpg', style={'width': '100%', 'height': '100%'}),
                      id='wc-button', className='wc-button'),
+         
          html.Button(html.Img(src='/assets/pers.png', style={'width': '100%', 'height': '100%'}),
                      id='pers-button', className='pers-button'),
-         dbc.Button("Hataları Gizle/Göster", id="toggle_button", n_clicks=2, className="toggle-button"),
-
+         
          dcc.Store(id="work-dates1", storage_type="memory",
                    data={"workstart": (date.today() - timedelta(days=1)).isoformat(),
                          "workend": (date.today() - timedelta(days=kb-1)).isoformat(),
@@ -173,10 +167,10 @@ layout = dbc.Container([
 
          dcc.Download(id="download-data"),
          dcc.Download(id="download-data2"),
-         dcc.Download(id="download-data3")], ),
+         dcc.Download(id="download-data3")], style={"margin-left":50} ),
 
     html.Div(id = "generated_1graph1data")
-], fluid=True)
+], fluid=True,)
 
 
 
@@ -231,6 +225,11 @@ def update_work_dates(n1, date_picker, n2, n3, n4):
     if n1 or date_picker or n2 or n3 or n4:
         data = update_date('1', date_picker, callback_context)
         if data != {}:
+
+            print("burası onemli")
+            print("burası onemli")
+            print("burası onemli")
+
             oeelist = prdconf(params=(data["workstart"], data["workend"], data["interval"]))
             a = update_date_output(n1, date_picker, n2, n3, n4, data)
             return (a[0], 0) + (oeelist[1], oeelist[2], oeelist[3], oeelist[4], oeelist[5], oeelist[7])
@@ -277,7 +276,9 @@ def page_refresh2(n2):
 def clear_cache(n_clicks, key):
     if n_clicks > 0:
         cache_key = json.dumps(key)
-        print(cache_key)
+        print(key)
+        # print(type(key))
+        # print(type(cache_key))
         cache.delete_memoized(prdconf, (key["workstart"], key["workend"], key["interval"]))
         composite_key = (key["workstart"], key["workend"], key["interval"])
 

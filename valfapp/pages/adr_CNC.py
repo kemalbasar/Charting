@@ -43,9 +43,9 @@ def calculate_interval_to_target_hour(target_hour):
 
 
 
-layout = return_adr_layout('cnc')
+layout = return_adr_layout('cnc',position = '475px')
 
-return_adr_timecallbacks('cnc')
+return_adr_timecallbacks('cnc',position = '475px')
 
-return_adr_callbacks('cnc')
+return_adr_callbacks('cnc',position = '475px')
 

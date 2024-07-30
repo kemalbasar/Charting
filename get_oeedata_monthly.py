@@ -5,7 +5,7 @@ from valfapp.app import oee
 
 ccenters = ['CNC', 'TASLAMA', 'CNCTORNA', 'MONTAJ', 'PRESHANE1', 'PRESHANE2']
 
-for month in range(1, 4):  # Months 1 to 12
+for month in range(1, 5):  # Months 1 to 12
 
     try:
         current_date = date(2024, month, 1)
@@ -44,7 +44,7 @@ for month in range(1, 4):  # Months 1 to 12
                     total_oee = 0.0  # Toplam performans NaN ise, bunu 0.0 olarak ayarla
 
 
-                sql = f"INSERT INTO VLFOEE (OEEDATE,PERIOD,COSTCENTER,WORKCENTER,PERSONAL,MATERIAL,OEE,PERFORMANCE,AVAILABILITY) VALUES ('{current_date.strftime('%Y-%m-%d')}', 'day', '{ccenter}', NULL, NULL, NULL, {total_oee},{total_performance},{total_availability})"
+                sql = f"INSERT INTO VLFOEE (OEEDATE,PERIOD,COSTCENTER,WORKCENTER,PERSONAL,MATERIAL,OEE,PERFORMANCE,AVAILABILITY) VALUES ('{current_date.strftime('%Y-%m-%d')}', 'month', '{ccenter}', NULL, NULL, NULL, {total_oee},{total_performance},{total_availability})"
                 file.write(sql)
                 file.write("\n")
             # ag.run_query(f"INSERT INTO VLFOEE (OEEDATE,PERIOD,COSTCENTER,WORKCENTER,PERSONAL,MATERIAL,OEE) VALUES ('{current_date.strftime('%Y-%m-%d')}', 'day', '{ccenter}', NULL, NULL, NULL, {a[0][ccenter]['OEE'][0]})")

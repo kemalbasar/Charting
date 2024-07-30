@@ -3,7 +3,6 @@ from datetime import datetime
 
 """passwords"""
 
-project_directory = r"F:\pycarhm projects"
 
 directory = project_directory + r'\Charting\queries'
 dirofquery = project_directory + r'\Charting\queries\query2.txt'
@@ -18,6 +17,8 @@ elif today.weekday() == 0:
     kb = 3
 else:
     kb = 1
+    
+sleep_time = 2
 
 
 def set_df_size(maxrow, maxcolumn, maxwidth, maxcolwidth):

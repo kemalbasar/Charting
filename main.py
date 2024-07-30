@@ -1,33 +1,23 @@
+import numpy as np
+from matplotlib import pyplot as plt
 
-from datetime import datetime, timedelta, date
-import pandas as pd
-from run.agent import ag
-from valfapp.app import oee
+# Define the parameters for the pulse graph
+period = 1.15  # seconds
+period2 = 1  # seconds
+num_peaks = 20  # number of peaks
+num_peaks2 = 22  # number of peaks
+time = np.linspace(0, period * num_peaks, num_peaks * 1000)  # time array
+time2 = np.linspace(0, period2 * num_peaks2, num_peaks2 * 1000)  # time array
+# Generate the pulse signal
+pulse_signal = (np.sin(2 * np.pi * time / period) > 0).astype(float)
+pulse_signal2 = (np.sin(2 * np.pi * time2 / period2) > 0).astype(float)
 
-if datetime.today().weekday() == 6:
-    kb = 2
-elif datetime.today().weekday() == 0:
-    kb = 3
-else:
-    kb = 1
-
-a = oee(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb - 1)).isoformat(), "week"))
-
-ccenters = ['CNC', 'TASLAMA', 'CNCTORNA', 'MONTAJ', 'PRESHANE1', 'PRESHANE2']
-
-for month in range(1, 13):  # Months 1 to 12
-    for day in range(1, 32):  # Days 1 to 31
-        try:
-            # Attempt to create a datetime object
-            date = datetime.datetime('2024', month, day)
-            print(date.strftime("%Y-%m-%d"))  # Print the date in YYYY-MM-DD format
-
-            a = oee(((date.today() - timedelta(days=kb)).isoformat(), (date.today() - timedelta(days=kb - 1)).isoformat(), "week"))# bizim tarihler
-            for ccenter in ccenters:
-                ag.run_query(f"INSERT INTO VLFOEE ({date},{day},{ccenter},None,None,None,{a[0][ccenter]['OEE'][0]}")
-
-            except ValueError:
-            # Handle the case when the day is out of range for the month (e.g., February 30)
-            pass
-
-for index, row in a[1].iterrows():
+# Plot the pulse graph
+plt.figure(figsize=(10, 6))
+plt.plot(time, pulse_signal)
+plt.plot(time2, pulse_signal2)
+plt.title('Pulse Signal with 1.15 Seconds Period and 20 Peaks')
+plt.xlabel('Time (seconds)')
+plt.ylabel('Amplitude')
+plt.grid(True)
+plt.show()

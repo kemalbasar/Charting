@@ -7,7 +7,7 @@ options = Options()
 driver = webdriver.Chrome(options=options)
 
 # Load the page
-driver.get("http://127.0.0.1:8050/automatize_daily_reports")
+driver.get("http://172.30.134.22:8050/adrcncmonth")
 
 # Wait for a certain time or until a specific condition is met
 time.sleep(120)  # Wait for 10 seconds

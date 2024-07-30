@@ -9,9 +9,14 @@ from valfapp.app import app
 from pages import value, prod_eff, workcenters,liveprd,dragtester
 from valfapp.layouts import layout_12_loginpage_v2
 from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajtv, yuzeyislemtv, kameraayıklama, \
-    tvmonitor, uretimrapor, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
+    tvmonitor, uretimrapor,kalite ,aylikmakver ,satismuhasebe, kapasite, prd_energy, cnc1tv, cnc2tv, camayikuretim, adr_CNC, adr_CNCTORNA, \
     adr_PRES1, adr_PRES2, adr_MONTAJ, gvt_page, adr_CNC_week, adr_PRES1_week, adr_PRES2_week, adr_CNCTORNA_week, \
-    adr_MONTAJ_week, adr_CNC_month, adr_CNCTORNA_month, adr_MONTAJ_month, adr_PRES1_month, adr_PRES2_month
+    adr_MONTAJ_week, adr_CNC_month, adr_CNCTORNA_month, adr_MONTAJ_month, adr_PRES1_month, adr_PRES2_month, \
+    adr_CNCreal, adr_CNCTORNAreal, \
+    adr_PRES1real, adr_PRES2real, adr_MONTAJreal, adr_CNC_weekreal, adr_PRES1_weekreal, adr_PRES2_weekreal, \
+    adr_CNCTORNA_weekreal, \
+    adr_MONTAJ_weekreal, adr_CNC_monthreal, adr_CNCTORNA_monthreal, adr_MONTAJ_monthreal, adr_PRES1_monthreal, \
+    adr_PRES2_monthreal, yonlendirme_pagee, costing, livekamera
 from flask import request,g
 
 ### Page container ###
@@ -22,8 +27,8 @@ page_container = dbc.Container([ html.Div(
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='login-status-store', data={'logged_in': False}, storage_type='local'),
         dcc.Store(id='device-info-store'),
-        html.Div(id='page-content') ]),
-                           html.Div(id='touch-support-output', style={'display': 'none'})
+        html.Div(id='page-content')]),
+        html.Div(id='touch-support-output', style={'display': 'none'})
     ], fluid=True)
 
 
@@ -97,6 +102,7 @@ def login(n_clicks, username, password):
     Input('login-status-store', 'data')
     ]
 )
+
 def display_page(pathname,login_status_data):
     if pathname == '/':
         return index_layout
@@ -118,6 +124,7 @@ def display_page(pathname,login_status_data):
         return energy.layout
     elif pathname == '/prdenergy':
         return prd_energy.layout
+    #elif pathname =='/kaliye':
     elif pathname == '/cnctotv':
         return cnctotv.layout
     elif pathname == '/cnc1tv':
@@ -134,6 +141,12 @@ def display_page(pathname,login_status_data):
         return tvmonitor.layout
     elif pathname == '/uretimrapor':
         return uretimrapor.layout
+    elif pathname =='/kalite':
+        return kalite.layout
+    elif pathname =='/aylikmakver':
+        return aylikmakver.layout
+    elif pathname =='/satismuhasebe':
+        return satismuhasebe.layout
     elif pathname == '/kapasite':
         return kapasite.layout
     elif pathname == '/kameraayiklama':
@@ -142,6 +155,14 @@ def display_page(pathname,login_status_data):
         return gvt_page.layout
     elif pathname == '/camayikuretim':
         return camayikuretim.layout
+    elif pathname == '/costing':
+        return costing.layout
+    elif pathname == '/livekamera':
+        return livekamera.layout
+
+    #Buradan Sonrası Periyodik Üretim Raporları Endpointler
+    elif pathname == '/yonlendirmepagee':
+        return yonlendirme_pagee.layout
     elif pathname == '/adrcnc':
         return adr_CNC.layout
     elif pathname == '/adrcnctorna':
@@ -172,6 +193,36 @@ def display_page(pathname,login_status_data):
         return adr_PRES2_month.layout
     elif pathname == '/adrcncmonth':
         return adr_CNC_month.layout
+    elif pathname == '/adrcncreal':
+        return adr_CNCreal.layout
+    elif pathname == '/adrcnctornareal':
+        return adr_CNCTORNAreal.layout
+    elif pathname == '/adrpres1real':
+        return adr_PRES1real.layout
+    elif pathname == '/adrpres2real':
+        return adr_PRES2real.layout
+    elif pathname == '/adrmontajreal':
+        return adr_MONTAJreal.layout
+    elif pathname == '/adrcncweekreal':
+        return adr_CNC_weekreal.layout
+    elif pathname == '/adrcnctornaweekreal':
+        return adr_CNCTORNA_weekreal.layout
+    elif pathname == '/adrmontajweekreal':
+        return adr_MONTAJ_weekreal.layout
+    elif pathname == '/adrpres1weekreal':
+        return adr_PRES1_weekreal.layout
+    elif pathname == '/adrpres2weekreal':
+        return adr_PRES2_weekreal.layout
+    elif pathname == '/adrcnctornamonthreal':
+        return adr_CNCTORNA_monthreal.layout
+    elif pathname == '/adrmontajmonthreal':
+        return adr_MONTAJ_monthreal.layout
+    elif pathname == '/adrpres1monthreal':
+        return adr_PRES1_monthreal.layout
+    elif pathname == '/adrpres2monthreal':
+        return adr_PRES2_monthreal.layout
+    elif pathname == '/adrcncmonthreal':
+        return adr_CNC_monthreal.layout
     else:
         print(f"adsadasd{pathname}")
         return '404'
@@ -203,10 +254,15 @@ app.validation_layout = html.Div(
         yuzeyislemtv.layout,
         kameraayıklama.layout,
         camayikuretim.layout,
+        kalite.layout,
         tvmonitor.layout,
         uretimrapor.layout,
         kapasite.layout,
         gvt_page.layout,
+        costing.layout,
+        aylikmakver.layout,
+        yonlendirme_pagee.layout,
+        livekamera.layout,
         adr_CNC.layout,
         adr_CNCTORNA.layout,
         adr_PRES1.layout,
@@ -222,6 +278,21 @@ app.validation_layout = html.Div(
         adr_MONTAJ_month.layout,
         adr_PRES1_month.layout,
         adr_PRES2_month.layout,
+        adr_CNCreal.layout,
+        adr_CNCTORNAreal.layout,
+        adr_PRES1real.layout,
+        adr_PRES2real.layout,
+        adr_MONTAJreal.layout,
+        adr_PRES1_weekreal.layout,
+        adr_PRES2_weekreal.layout,
+        adr_CNC_weekreal.layout,
+        adr_CNCTORNA_weekreal.layout,
+        adr_MONTAJ_weekreal.layout,
+        adr_CNC_monthreal.layout,
+        adr_CNCTORNA_monthreal.layout,
+        adr_MONTAJ_monthreal.layout,
+        adr_PRES1_monthreal.layout,
+        adr_PRES2_monthreal.layout,
 
         # ittools.layout
     )

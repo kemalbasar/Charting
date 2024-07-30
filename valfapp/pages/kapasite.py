@@ -556,6 +556,7 @@ def update_costcenter_table(selected_costcenter, selected_capgrp,selected_units,
     State("kolon_list", "data"),
 )
 def update_workcenter_table(selected_workcenter,selected_capgrp,selected_costcenter,isfirst,is_capasity,selected_units,selected_verimlilik,table_name,kolon_sumb,kolon_sum,kolon_list):
+
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     print(button_id)
     print("here5")
@@ -579,6 +580,7 @@ def update_workcenter_table(selected_workcenter,selected_capgrp,selected_costcen
 
              elif is_capasity == 2:
                  filtered_df_pivot_cap_list = f"SELECT * FROM {table_name} WHERE CAPGRUP = '{selected_capgrp}' AND COSTCENTER = '{selected_costcenter}'"
+
                  filtered_df_pivot_cap_list = ag.run_query(filtered_df_pivot_cap_list)
                  sum_df_pivot = filtered_df_pivot_cap_list.groupby(['CAPGRUP'], as_index=False).sum()
                  print("summmm2")

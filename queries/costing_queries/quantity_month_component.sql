@@ -1,0 +1,16 @@
+SELECT MATERIAL AS MATGRP2,COMPONENT,[a],[b],[c] -- Replace these years with the actual year values relevant to your data
+FROM
+(
+ SELECT MATERIAL,COMPONENT, (CAST(PMONTH AS varchar(10))  + '-' + CAST(PYEAR AS VARCHAR(10)) ) AS PMONTH, SUM(QUANTITY) AS QUANTITY
+    FROM VLFCOMPONENT
+    WHERE PMONTH > MONTH(DATEADD(MONTH, -4, GETDATE())) AND
+		PYEAR = YEAR(DATEADD(MONTH, -4, GETDATE()))
+		AND MATERIAL = 'XXX'
+	GROUP BY MATERIAL,COMPONENT,CATEGORY,PMONTH,PYEAR
+
+) AS SourceTable
+PIVOT
+(
+    SUM(QUANTITY)
+    FOR PMONTH IN ([a],[b],[c])  -- This should match the years in the SELECT clause
+) AS PivotTable;

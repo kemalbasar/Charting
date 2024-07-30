@@ -57,7 +57,7 @@ def working_machinesf(working_machines=working_machines, costcenter='CNC'):
     return working_machines.loc[working_machines["COSTCENTER"] == costcenter, "COUNTOFWC"].tolist()
 
 
-def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shiftandmat=0, nontimes=pd.DataFrame()):
+def calculate_oeemetrics(df=prd_conf,piechart_data=1, nontimes=pd.DataFrame()):
     df = df.loc[
         df["WORKCENTER"] != "CNC-24", ["COSTCENTER", "MATERIAL", "MATCODE", "SHIFT", "CONFIRMATION", "CONFIRMPOS",
                                        "CONFTYPE",
@@ -202,7 +202,7 @@ def calculate_oeemetrics(df=prd_conf, df_x=pd.DataFrame(), piechart_data=1, shif
     df_metrics.reset_index(inplace=True)
 
     try:
-        df_piechart = df_metrics.groupby("COSTCENTER").agg({"RUNTIME": "sum",
+        df_piechart = df_metrics.loc[(df_metrics["PERFORMANCE"] >= 0) & (df_metrics["PERFORMANCE"] <1.3)].groupby("COSTCENTER").agg({"RUNTIME": "sum",
                                                             "TOTFAILURETIME": "sum",
                                                             "SETUPTIME": "sum",
                                                             "NANTIME": "sum",
@@ -355,7 +355,6 @@ def get_gann_data(df=prd_conf):
     df_final.reset_index(inplace=True)
     df_final.drop("index", inplace=True, axis=1)
     df_final.sort_values(by="WORKCENTER", inplace=True)
-    df_final.to_excel(f"{project_directory}/Charting/outputs(xlsx)/qty.xlsx")
     return df_final
 
 
