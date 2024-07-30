@@ -509,8 +509,6 @@ def draw_gann_chart(data, start_date, end_date):
 
 
 
-
-
     return fig
 
 
