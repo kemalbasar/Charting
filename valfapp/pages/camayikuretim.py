@@ -33,7 +33,8 @@ layout = [
                              persistence=True,
                              persistence_type='memory'
                              ),
-        dbc.Button("Raporu İndir", id="btn-download-excel", color="primary", className="mr-1")
+        dbc.Button("Raporu İndir", id="btn-download-excel", color="primary", className="mr-1"),
+        dbc.Button("Haftalık Rapor", id="btn-download-excel2", color="primary", className="mr-1")
 
     ], style={'display': 'flex', 'flexDirection': 'row'})),
 
@@ -114,11 +115,9 @@ layout = [
 
     ]),
     dcc.Download(id="download-excel"),
+    dcc.Download(id="download-excel2"),
 
-
-
-
-             ]
+]
 
 @app.callback(
     Output('uretim_data', 'columns'),
@@ -134,6 +133,7 @@ def update_summary_table(start_date, end_date):
     fig_container2 = []
 
     counter = 0
+
 
     query_path = project_directory + r"\Charting\queries\vlf_ayıklamakmr_uretim.sql"
     text_to_find = ['XYZ', 'XXXX-XX-XX', 'YYYY-YY-YY']
@@ -252,20 +252,20 @@ def update_summary_table(start_date, end_date):
 
         if counter <=3:
 
-
             fig2 = go.Figure()  #grafiklerin arkaplanlarını şeffaf yaptım. Sonrasında da arka planda renkten dolayı çok görünmeyen yazıların renklerini ve grafik çerçevesinin renklerini beyaz yaptım.
             fig2.add_trace(go.Indicator(
                 value= (indicator_data['OEE'] / indicator_data['QUANTITY']) * 100,
                 title={'text': f'{machine_index}','font': {'color': 'darkgreen', 'size': 20}},
                 delta={'reference': 80},
                 gauge={
-                    'axis': {'visible': False},
+                    'axis': {'visible': False },
                     'bordercolor': 'darkgreen',
                     'bar': {'thickness': 1, 'color': 'green'}
                 },
                 number={'font': {'color': 'darkgreen'}}
                 ,)
                 )
+
 
             fig2.add_trace(go.Indicator(
                 value=indicator_data['PPM'],
@@ -353,6 +353,9 @@ def update_summary_table(start_date, end_date):
                                                    'min-width': '20%'
                                                    }))
 
+    print(f'INDICATOR DATA')
+    print(fig_container)
+
     print(f"FOR SONRASI TABLEDATA");
     print(table_data);
 
@@ -370,6 +373,114 @@ def download_as_excel(n_clicks, table_data):
 
     df = pd.DataFrame(table_data)
     return dcc.send_data_frame(df.to_excel, "uretim_raporu.xlsx", sheet_name="Kamera Ayıklama Raporu", index=False)
+
+@app.callback(
+    Output("download-excel2", "data"),
+    Input("btn-download-excel2", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_as_excel(n_clicks):
+
+
+    result_data = []
+
+    # Şu anki tarihi al
+    now = datetime.now()
+
+    # Geçen hafta Pazar gününü bul
+    last_sunday = now - timedelta(days=now.weekday() + 1)
+
+    # Bir önceki hafta Pazar gününü bul
+    previous_sunday = last_sunday - timedelta(days=7)
+
+    last_sunday = last_sunday.strftime('%Y-%m-%d')
+    previous_sunday = previous_sunday.strftime('%Y-%m-%d')
+
+    print(last_sunday)
+    print(previous_sunday)
+
+    query_path3 = project_directory + r"\Charting\queries\vlf_ayıklamakmr_uretim.sql"
+    text_to_find3 = ['XYZ', 'XXXX-XX-XX', 'YYYY-YY-YY']
+
+    query_path4 = project_directory + r"\Charting\queries\vlf_ayıklamakmr_times.sql"
+    text_to_find4 = ['XYZ', 'XXXX-XX-XX', 'YYYY-YY-YY']
+
+    for x in range(1, 7):
+        text_to_put3 = [f'KMR-0{x}', previous_sunday, last_sunday]
+
+        print(text_to_put3)
+
+        data = ag.editandrun_query(query_path3, text_to_find3, text_to_put3)
+        print(data)
+
+        text_to_put4 = [f'KMR-0{x}', previous_sunday, last_sunday]
+        data2 = ag.editandrun_query(query_path4, text_to_find4, text_to_put4)
+
+        data2["MATERIAL"] = data2["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0])
+
+        data['NAME_LENGTH'] = data['NAME'].apply(lambda x: len(x))
+
+        # Sort by NAME_LENGTH in descending order
+        data_sorted = data.sort_values('NAME_LENGTH', ascending=False)
+
+        # Drop duplicates, keeping the first occurrence (which has the max NAME_LENGTH due to sorting)
+        data_unique = data_sorted.drop_duplicates(subset=['PRDORDER', 'MATERIAL','SHIFTURETIM'], keep='first')
+
+        # Sort the dataframe back to the original order if necessary (optional)
+        data_unique = data_unique.sort_index()
+        data = data_unique
+
+        merged_data = pd.merge(data, data2, left_on=['PRDORDER', 'AYKDATE', 'SHIFTURETIM'],
+                               right_on=['CONFIRMATION', 'MACHINEDATE', 'SHIFTAYK'], how='inner')
+
+        merged_data = merged_data.sort_values(by=['MACHINE', 'MIN_WORKSTART'])
+
+        print(f"MERGED DATA ÖNCESİİİİİİ:");
+        print(merged_data);
+
+        merged_data["MIN_WORKSTART"] = pd.to_datetime(merged_data["MIN_WORKSTART"]).dt.strftime('%Y-%m-%d')
+        ##merged_data["MAX_WORKEND"] = pd.to_datetime(merged_data["MAX_WORKEND"]).dt.strftime('%Y-%m-%d %H:%M:%S')
+
+        merged_data = merged_data.sort_values(by=['MACHINE' , 'MIN_WORKSTART', 'SHIFTAYK'])
+
+        result_data.append(merged_data)
+
+        print(f"MERGED DATA SONRASIIIIII");
+        print(merged_data);
+
+
+    final_result = pd.concat(result_data, ignore_index=True)
+
+    print(final_result)
+
+    table_data = final_result.groupby(['MACHINE', 'SHIFTAYK',  'PRDORDER', 'MATERIAL_x']).agg(
+        {'MACHINE': 'first', 'SHIFTAYK': 'first',  'PRDORDER': 'first', 'MATERIAL_x': 'first',
+         'MIN_WORKSTART': 'first', 'QUANTITY': 'first', 'NOTOK': 'first', 'CALISIYOR': 'sum',
+         'DURUS': 'sum', 'SANIYE_DENETLENEN': 'first', 'MACHINETIME': 'first', 'PPM': 'first'})
+
+    print(f'DENEME')
+    print(table_data)
+
+    denominator = table_data['CALISIYOR']
+    denominator_nonzero = denominator.replace(0, np.nan)
+    table_data['SANIYE_DENETLENEN']= np.where(denominator_nonzero.isna(), 0, (table_data['QUANTITY'] + table_data['NOTOK']) / denominator_nonzero / 60)
+
+    print(f'DENEME2')
+    print(table_data)
+
+    table_data['MACHINETIME'] = ((1000 / table_data['MACHINETIME']) / 60)
+    table_data['MACHINETIME'] = table_data['MACHINETIME'].astype(float)
+    table_data['MACHINETIME'] = table_data['MACHINETIME'].round(3)
+
+    table_data['PPM'] = ((table_data['NOTOK'] * 1000000 ) / table_data['QUANTITY'])
+    table_data['PPM'] = table_data['PPM'].astype(int)
+
+    print(f'DENEME3')
+    print(table_data)
+
+    return dcc.send_data_frame(table_data.to_excel, "haftalık-rapor.xlsx", sheet_name="Kamera Ayıklama Raporu", index=False)
+
+
   
 @app.callback(
     Output("gantt_chart", "figure"),
@@ -387,6 +498,7 @@ def draw_gann_chart(data, start_date, end_date):
     data3["MIN_WORKSTART"] = pd.to_datetime(data3["MIN_WORKSTART"]).dt.strftime('%Y-%m-%d %H:%M:%S')
 
     data3["MAX_WORKEND"] = pd.to_datetime(data3["MAX_WORKEND"]).dt.strftime('%Y-%m-%d %H:%M:%S')
+
 
     fig = go.Figure()
 
