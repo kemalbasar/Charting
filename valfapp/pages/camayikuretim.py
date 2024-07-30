@@ -480,7 +480,6 @@ def download_as_excel(n_clicks):
 
     return dcc.send_data_frame(table_data.to_excel, "haftalık-rapor.xlsx", sheet_name="Kamera Ayıklama Raporu", index=False)
 
-
   
 @app.callback(
     Output("gantt_chart", "figure"),
