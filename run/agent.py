@@ -1,7 +1,6 @@
 import time
-from config import server, username, password, database, database_iot, directory, project_directory,sleep_time
+from config import server, username, password, database, database_iot, directory, project_directory
 import pyodbc
-import seaborn as sns
 import pandas as pd
 import datetime as dt
 from dateutil.relativedelta import relativedelta
@@ -9,14 +8,13 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 
-import plotly.graph_objects as go
-import plotly.io as pio
+sleep_time = 2
 
 
 def readquerry(queryx):
     queryy = queryx
     if queryy[0:6] == 'SELECT' or queryy[0:4] == 'WITH' \
-            or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT' or queryy[0:6] == 'DELETE':
+            or queryy[0:4] == 'EXEC' or queryy[0:6] == 'INSERT' or queryy[0:6] == 'DELETE' or queryy[0:2] == 'IF' or queryy[0:6] == 'CREATE':
         return queryy
     else:
         if os.path.exists(queryy):
@@ -80,14 +78,19 @@ class Agent:
 
                         else:
                             try:
+
                                 cursor.execute(query, params)
+
+                                self.connection.commit()
                                 return pd.DataFrame()
                             except pyodbc.Error as e:
                                 if e == "No results.  Previous SQL was not a query.":
                                     print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
+                                    self.connection.commit()  # Make sure changes are committed if not a select query.
                                     return pd.DataFrame()
                                 elif 'UNIQUE KEY constraint' in str(e):
                                     print("unique constraint")
+                                    self.connection.commit()  # Make sure changes are committed if not a select query.
                                     return
                                 print(f"An error occurred ({retry_count + 1}/{max_retries}): {e}")
                                 retry_count += 1
@@ -188,27 +191,27 @@ class Agent:
         for i in range(len(texttoput)):
             filedata = filedata.replace(texttofind[i], texttoput[i])
 
-        ''''
-        with open(textfile, 'w') as file:
-            file.write(filedata)
-        file.close()
-        '''''
         retry_count = 0
-        if return_string == 1:
-            with self.connection.cursor() as cursor:
-                while retry_count < 10:
-                    try:
-                        cursor.execute(filedata)
+
+        print(filedata)
+
+        with self.connection.cursor() as cursor:
+            while retry_count < 10:
+                try:
+                    cursor.execute(filedata)
+                    if return_string == 1:
                         results = cursor.fetchall()
                         columns = [column[0] for column in cursor.description]
                         return pd.DataFrame.from_records(results, columns=columns)
-                    except pyodbc.Error as e:
-                        if 'No results. Previous SQL was not a query.' in str(e):
-                            print("No Result from Query")
-                            break
-                        print(f"An error occurred ({retry_count + 1}/{10}): {e}")
-                        retry_count += 1
-                        time.sleep(sleep_time)
+                    else:
+                        print("executed succesfully")
+                except pyodbc.Error as e:
+                    if 'No results. Previous SQL was not a query.' in str(e):
+                        print("No Result from Query")
+                        break
+                    print(f"An error occurred ({retry_count + 1}/{10}): {e}")
+                    retry_count += 1
+                    time.sleep(sleep_time)
 
     def replace_and_insertinto(self, path=project_directory + r"\Charting\queries\HİSTORİCALSTOCKS.sql",
                                rapto=dt.date(2022, 9, 1), torep='xxxx-xx-xx'):
@@ -219,6 +222,44 @@ class Agent:
             with self.connection.cursor() as cursor:
                 cursor.execute(query)
             rapto += relativedelta(months=-1)
+
+    def drop_table_if_exists(self, table_name):
+        drop_stmt = f"IF OBJECT_ID('{table_name}', 'U') IS NOT NULL DROP TABLE {table_name};"
+        with self.connection.cursor() as cursor:
+            cursor.execute(drop_stmt)
+            self.connection.commit()
+
+    def create_table_from_df(self, df, table_name):
+        self.drop_table_if_exists(table_name)  # Ensure the table doesn't exist
+        sql_type_mapping = {
+            'int64': 'INT',
+            'float64': 'FLOAT',
+            'object': 'VARCHAR(MAX)',  # Default for other types like strings
+            'bool': 'BIT',
+            'datetime64[ns]': 'DATETIME'
+        }
+
+        # Generate the column definitions using the mapping
+        columns = []
+        for col, dtype in df.dtypes.iteritems():
+            sql_type = sql_type_mapping.get(str(dtype), 'VARCHAR(MAX)')
+            columns.append(f"[{col}] {sql_type}")
+
+        columns = ", ".join(columns)
+        create_stmt = f"CREATE TABLE {table_name} ({columns});"
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(create_stmt)
+            self.connection.commit()
+
+    def insert_data_from_df(self, df, table_name):
+        placeholders = ", ".join("?" * len(df.columns))
+        columns = ", ".join([f"[{col}]" for col in df.columns])
+        insert_stmt = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+        with self.connection.cursor() as cursor:
+            for index, row in df.iterrows():
+                cursor.execute(insert_stmt, tuple(row))
+            self.connection.commit()
 
     # def correlation_matrix(self):
     #
@@ -251,5 +292,3 @@ ag = Agent()
 
 
 agiot = Agent(database=database_iot)
-
-
