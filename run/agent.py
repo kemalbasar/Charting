@@ -78,12 +78,9 @@ class Agent:
 
                         else:
                             try:
-                                print(query)
-                                print(params)
+
                                 cursor.execute(query, params)
-                                print("buradayızalamak")
-                                results = cursor.fetchall()
-                                columns = [column[0] for column in cursor.description]
+
                                 self.connection.commit()
                                 return pd.DataFrame()
                             except pyodbc.Error as e:
@@ -264,36 +261,8 @@ class Agent:
                 cursor.execute(insert_stmt, tuple(row))
             self.connection.commit()
 
-    # def correlation_matrix(self):
-    #
-    #     corr = self.df.corr()
-    #     sns.set_theme(style="white")
-    #     # Generate a mask for the upper triangle
-    #     mask = np.triu(np.ones_like(corr, dtype=bool))
-    #
-    #     # Set up the matplotlib figure
-    #     f, ax = plt.subplots(figsize=(11, 9))
-    #
-    #     # Generate a custom diverging colormap
-    #     cmap = sns.diverging_palette(500, 220, as_cmap=True)
-    #
-    #     # Draw the heatmap with the mask and correct aspect ratio
-    #     sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
-    #                 square=True, linewidths=.5, cbar_kws={"shrink": .5})
-
-
-
-
-
-
-    # def pie_multi_layer(self,df):
-    #     fig = px.sunburst(df, names='names'  values='value')
-    #     fig.show()
-
 
 ag = Agent()
 
 
 agiot = Agent(database=database_iot)
-
-
