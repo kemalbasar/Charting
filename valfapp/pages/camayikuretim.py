@@ -301,6 +301,8 @@ def update_summary_table(start_date, end_date):
     table_data['MACHINETIME'] = table_data['MACHINETIME'].astype(float)
     table_data['MACHINETIME'] = table_data['MACHINETIME'].round(3)
 
+    table_data['PPM'] = ((table_data['NOTOK'] * 1000000) / table_data['QUANTITY'])
+    table_data['PPM'] = table_data['PPM'].astype(int)
     ##table_data['SANIYE_DENETLENEN'] = round(table_data['SANIYE_DENETLENEN'], 3)
 
     table_data = table_data.reset_index()
