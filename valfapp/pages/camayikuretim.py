@@ -612,10 +612,10 @@ def draw_gann_chart(data, start_date, end_date):
 
     fig = go.Figure()
 
-    fig = px.timeline(data_frame=data3[["MIN_WORKSTART", "MAX_WORKEND", "MACHINEAYK","TYPE"]],
+    fig = px.timeline(data_frame=data3[["MIN_WORKSTART", "MAX_WORKEND", "MACHINE","TYPE"]],
                    x_start="MIN_WORKSTART",
                    x_end="MAX_WORKEND",
-                   y='MACHINEAYK', color="TYPE",
+                   y='MACHINE', color="TYPE",
                    color_discrete_map={"CALISIYOR": "forestgreen" , "BEKLEME DURUSU" : "red" , "MALZEME DURUSU" : "brown"})
 
 

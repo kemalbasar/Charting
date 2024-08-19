@@ -12,6 +12,8 @@ from config import project_directory
 from run.agent import ag
 from valfapp.layouts import sliding_indicator_container
 from valfapp.app import cache
+import plotly.express as px
+from dash_table import DataTable
 
 today = datetime.today()
 
@@ -24,8 +26,75 @@ else:
 
 params_list = [(date.today() - timedelta(days=kb)).isoformat(), date.today().isoformat(), "day"]
 
-layout = layout_for_tvs(costcenter='CNC2')
+layout3 = layout_for_tvs(costcenter='CNC2')
 
+layout4 = html.Div([
+    dbc.Col([
+        html.H2("Talaşlı İmalat Planları", style={"text-align": "center", 'fontWeight': 'bold','fontSize': '55px',
+                                "color": "white", 'margin-top': '8px', "background-color": "rgba(33, 73, 180, 1)"}),
+        DataTable(
+            id='table_layout_4',
+            columns=[
+                {'name': 'İş Merkezi', 'id': 'WORKCENTER'},
+                {'name': 'Malzeme', 'id': 'MATERIAL'},
+                {'name': 'Resim No.', 'id': 'DRAWNUM'},
+                {'name': 'Plan Toplam', 'id': 'BLOCKQTY'},
+                {'name': 'Üretim Toplam', 'id': 'PRODUCTBLOCKQTY'},
+                {'name': 'Kalan Plan', 'id': 'REMAINPLN'},
+                {'name': 'Plan Bitiş', 'id': 'FINISHDAY'},
+                {'name': 'Not (Planlama)', 'id': 'STEXT'},
+            ],
+
+            style_table={
+                'height': '800',
+                'overflowY': 'auto',
+                'border': 'thin lightgrey solid',
+                'fontFamily': 'Arial, sans-serif',
+                'minWidth': '100%',  # Adjust this value to set the minimum width
+                'width': '100%',  # Adjust this value to set the width
+                'textAlign': 'left',
+                'color': 'black',
+                'background-color': 'white',
+                'fontSize': '33px',
+
+            },
+            style_header={
+                'backgroundColor': 'rgba(0, 0, 0, 0)',  # Semi-transparent background
+                'fontWeight': 'bold',  # Bold font
+                'color': '#2F4F4F',  # Cool text color
+                'fontFamily': 'Arial, sans-serif',  # Font family
+                'fontSize': '35px',
+                'border': '1px solid  brown',
+                'borderRadius': '2px',
+                'textAlign': 'center',
+
+            },
+
+            style_data_conditional=[]
+
+        ),
+
+    ], width=15),
+])
+
+
+# Add the new interval component for layout switching
+layout = html.Div([
+    dcc.Interval(id='layout-switch-interval2', interval=180*1000, n_intervals=0),  # Switch every 15 seconds
+    html.Div(id='dynamic-layout-container2')
+])
+
+# Callback to switch between layouts
+@app.callback(
+    Output('dynamic-layout-container2', 'children'),
+    Input('layout-switch-interval2', 'n_intervals')
+)
+def switch_layout(n_intervals):
+
+    if n_intervals % 2 == 0:
+        return layout3
+    else:
+        return layout4
 
 @app.callback(
     Output("animate_cnc2", "disabled"),
@@ -38,7 +107,6 @@ def toggle(n, playing):
     if n:
         return not playing
     return playing
-
 
 @app.callback(
     Output('slider-output-container_cnc2', 'children'),
@@ -147,6 +215,94 @@ def update_ind_fig(n, selected_value, livedata_cnc2):
     return sliding_indicator_container(livedata=livedata_cnc2,
                                        selected_value=selected_value, costcenter='CNC2')
 
+@app.callback(
+    Output('table_layout_4', 'data'),
+    Output('table_layout_4', 'columns'),
+    Output('table_layout_4', 'style_data_conditional'),
+    Input('layout-switch-interval2', 'n_intervals')
+)
+def update_layout4_content(n):
+    # Query data from the database
+    data2 = ag.run_query(r"C:\Users\kereviz\Python Project\Charting\queries\livecnc2plan.sql")
+
+    data2["FINISHDAY"] = pd.to_datetime(data2["FINISHDAY"]).dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    # Sort data by WORKCENTER
+    data2 = data2.sort_values(by="WORKCENTER").reset_index(drop=True)
+
+    # Insert black row between different WORKCENTERs
+    modified_data = []
+    for i, row in data2.iterrows():
+        row_dict = row.to_dict()
+
+        # Calculate the bar length based on the ratio of REMAINPLN to BLOCKQTY
+        remain_pln = row_dict.get('REMAINPLN', 0)
+        block_qty = row_dict.get('BLOCKQTY', 1)  # Avoid division by zero
+        bar_length = int((remain_pln / block_qty) * 20)  # Scale bar length between 0 and 20 characters
+        bar = '|' * bar_length  # Use '|' to simulate a bar
+        row_dict['REMAINPLN'] = f"{remain_pln} {bar}"
+
+        # Append the current row
+        modified_data.append(row_dict)
+
+        # Check if the next row has a different WORKCENTER, if so, insert a black row
+        if i < len(data2) - 1 and data2.iloc[i]["WORKCENTER"] != data2.iloc[i + 1]["WORKCENTER"]:
+            black_row = {col: "" for col in data2.columns}  # Create a blank row
+            black_row['WORKCENTER'] = 'BLACK_ROW'  # You can use a special identifier for styling
+            modified_data.append(black_row)
+
+    # Rename columns just before returning
+    data2.rename(columns={
+        "WORKCENTER": "İş Merkezi",
+        "MATERIAL": "Malzeme",
+        "DRAWNUM": "Resim No.",
+        "BLOCKQTY": "Plan Toplam",
+        "PRODUCTBLOCKQTY": "Üretim Toplam",
+        "REMAINPLN": "Kalan Plan",
+        "FINISHDAY": "Plan Bitiş",
+        "STEXT": "Not (Planlama)"
+    }, inplace=True)
+
+    # Update the modified_data to reflect the new column names
+    for row in modified_data:
+        if "WORKCENTER" in row:
+            row["İş Merkezi"] = row.pop("WORKCENTER")
+        if "MATERIAL" in row:
+            row["Malzeme"] = row.pop("MATERIAL")
+        if "DRAWNUM" in row:
+            row["Resim No."] = row.pop("DRAWNUM")
+        if "BLOCKQTY" in row:
+            row["Plan Toplam"] = row.pop("BLOCKQTY")
+        if "PRODUCTBLOCKQTY" in row:
+            row["Üretim Toplam"] = row.pop("PRODUCTBLOCKQTY")
+        if "REMAINPLN" in row:
+            row["Kalan Plan"] = row.pop("REMAINPLN")
+        if "FINISHDAY" in row:
+            row["Plan Bitiş"] = row.pop("FINISHDAY")
+        if "STEXT" in row:
+            row["Not (Planlama)"] = row.pop("STEXT")
+
+    # Create column definitions from the DataFrame's columns
+    columns = [{"name": col, "id": col} for col in data2.columns]
+
+    # Style the black row conditionally
+    style_data_conditional = [
+        {
+            'if': {'filter_query': '{İş Merkezi} = "BLACK_ROW"'},
+            'backgroundColor': 'black',
+            'color': 'black',  # Make text black to effectively hide it
+            'height': '10px',  # Adjust row height as needed
+        },
+        # Styling the REMAINPLN (now "Kalan Plan") column to make the bar red
+        {
+            'if': {'column_id': 'Kalan Plan'},
+            'color': 'red',  # Make the bar red
+            'textAlign': 'left',
+            'fontFamily': 'monospace',  # Use a monospace font to keep the bar's alignment consistent
+        },
+    ]
+
+    return modified_data, columns, style_data_conditional
 
 @app.callback(
     Output("oeelist1w_tv_cnc2", "data"),
