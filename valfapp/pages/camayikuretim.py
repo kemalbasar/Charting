@@ -24,6 +24,10 @@ def generate_styles(data): #rapor kısmını referans değerlere göre renklendi
     for index, row in data.iterrows():
         val = row['SANIYE_DENETLENEN']
         ref_val = row['MACHINETIME']
+
+        val = val if val is not None else 0
+        ref_val = ref_val if ref_val is not None else 0
+
         diff = val - ref_val
         absdif=abs(diff)/10
         if diff > 0:

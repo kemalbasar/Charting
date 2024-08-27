@@ -16,7 +16,7 @@ from valfapp.pages import livecnc, livepres, energy, cnctotv, taslamatv, montajt
     adr_PRES1real, adr_PRES2real, adr_MONTAJreal, adr_CNC_weekreal, adr_PRES1_weekreal, adr_PRES2_weekreal, \
     adr_CNCTORNA_weekreal, \
     adr_MONTAJ_weekreal, adr_CNC_monthreal, adr_CNCTORNA_monthreal, adr_MONTAJ_monthreal, adr_PRES1_monthreal, \
-    adr_PRES2_monthreal, yonlendirme_pagee, costing, livekamera
+    adr_PRES2_monthreal, yonlendirme_pagee, costing, livekamera, deneme
 from flask import request,g
 
 ### Page container ###
@@ -223,6 +223,8 @@ def display_page(pathname,login_status_data):
         return adr_PRES2_monthreal.layout
     elif pathname == '/adrcncmonthreal':
         return adr_CNC_monthreal.layout
+    elif pathname == '/deneme':
+        return deneme.layout
     else:
         print(f"adsadasd{pathname}")
         return '404'
@@ -293,6 +295,7 @@ app.validation_layout = html.Div(
         adr_MONTAJ_monthreal.layout,
         adr_PRES1_monthreal.layout,
         adr_PRES2_monthreal.layout,
+        deneme.layout,
 
         # ittools.layout
     )

@@ -14,6 +14,7 @@ from valfapp.layouts import sliding_indicator_container
 from valfapp.app import cache
 import plotly.express as px
 from dash_table import DataTable
+import math
 
 today = datetime.today()
 
@@ -73,6 +74,7 @@ layout4 = html.Div([
             style_data_conditional=[]
 
         ),
+        dcc.Interval(id='row-switch-interval2', interval=30 * 1000, n_intervals=0)  # Switch every 30 seconds
 
     ], width=15),
 ])
@@ -219,9 +221,10 @@ def update_ind_fig(n, selected_value, livedata_cnc2):
     Output('table_layout_4', 'data'),
     Output('table_layout_4', 'columns'),
     Output('table_layout_4', 'style_data_conditional'),
-    Input('layout-switch-interval2', 'n_intervals')
+    Input('layout-switch-interval2', 'n_intervals'),
+    Input('row-switch-interval2', 'n_intervals'),
 )
-def update_layout4_content(n):
+def update_layout2_content(n, row_intervals):
     # Query data from the database
     data2 = ag.run_query(r"C:\Users\kereviz\Python Project\Charting\queries\livecnc2plan.sql")
 
@@ -238,7 +241,7 @@ def update_layout4_content(n):
         # Calculate the bar length based on the ratio of REMAINPLN to BLOCKQTY
         remain_pln = row_dict.get('REMAINPLN', 0)
         block_qty = row_dict.get('BLOCKQTY', 1)  # Avoid division by zero
-        bar_length = int((remain_pln / block_qty) * 20)  # Scale bar length between 0 and 20 characters
+        bar_length = int((remain_pln / block_qty) * 10)  # Scale bar length between 0 and 20 characters
         bar = '|' * bar_length  # Use '|' to simulate a bar
         row_dict['REMAINPLN'] = f"{remain_pln} {bar}"
 
@@ -282,6 +285,19 @@ def update_layout4_content(n):
         if "STEXT" in row:
             row["Not (Planlama)"] = row.pop("STEXT")
 
+    # Determine the number of rows to display
+    rows_per_display = 15
+    total_rows = len(modified_data)
+    total_displays = math.ceil(total_rows / rows_per_display)
+
+    # Determine which rows to display based on the current interval
+    current_display = row_intervals % total_displays
+    start_row = current_display * rows_per_display
+    end_row = start_row + rows_per_display
+
+    # Get the current subset of data to display
+    data_to_display = modified_data[start_row:end_row]
+
     # Create column definitions from the DataFrame's columns
     columns = [{"name": col, "id": col} for col in data2.columns]
 
@@ -300,9 +316,18 @@ def update_layout4_content(n):
             'textAlign': 'left',
             'fontFamily': 'monospace',  # Use a monospace font to keep the bar's alignment consistent
         },
+
+        {
+            'if': {'column_id': 'Resim No.'},
+            'whiteSpace': 'nowrap',
+            'overflow': 'hidden',
+            'textOverflow': 'ellipsis',
+            'maxWidth': '300px',  # Ayarlamak istediğiniz maksimum genişlik
+        },
     ]
 
-    return modified_data, columns, style_data_conditional
+    return data_to_display, columns, style_data_conditional
+
 
 @app.callback(
     Output("oeelist1w_tv_cnc2", "data"),
