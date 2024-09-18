@@ -81,7 +81,7 @@ def update_graph_method():
     df2 = df2[weeks_first]
 
 
-    df3 = ag.run_query(r"C:\Users\kereviz\Python Project\Charting\queries\prescapacity.sql")
+    df3 = ag.run_query(r"C:\Users\dayyıldız\PycharmProjects\Charting\queries\prescapacity")
 
     df3 = df3[weeks_first]
     df3.loc[df3['MATERIAL'] == 'YUZEY ISLEM-OTEC', 'COSTCENTER'] = 'YUZEY ISLEM-OTEC'
@@ -200,11 +200,11 @@ def update_graph_method():
             if code == 'A':
                 calculated_value = machine + labour + setup
             elif code == 'B':
-                calculated_value = (machine * total_need) + (labour * total_need) + setup
+                calculated_value = (machine * (total_need/base_quan)) + (labour * (total_need/base_quan)) + setup
             elif code == 'C':
-                calculated_value = (machine * total_need) + labour + setup
+                calculated_value = (machine * (total_need/base_quan)) + labour + setup
             elif code == 'D':
-                calculated_value = machine + (labour * total_need) + setup
+                calculated_value = machine + (labour * (total_need/base_quan)) + setup
             elif code == 'E':
                 calculated_value = math.ceil(total_need / base_quan) * machine + labour + setup
             elif code == 'F':
@@ -212,13 +212,13 @@ def update_graph_method():
             elif code == 'G':
                 calculated_value = math.ceil(total_need / base_quan) * (machine + labour) + setup
             elif code == 'H':
-                calculated_value = math.ceil(total_need / base_quan) * machine + (labour * total_need) + setup
+                calculated_value = math.ceil(total_need / base_quan) * machine + (labour * (total_need/base_quan)) + setup
             elif code == 'I':
-                calculated_value = (machine * total_need) + (labour * (total_need / base_quan)) + setup
+                calculated_value = (machine * (total_need/base_quan)) + (labour * (total_need / base_quan)) + setup
             elif code == 'J':
                 calculated_value = 0
 
-            return calculated_value / work_count  # Bölme işlemi burada yapılır
+            return int(calculated_value / work_count)  # Bölme işlemi burada yapılır
         else:
             return 0
 
@@ -374,4 +374,56 @@ drop_table_if_exists("VLFCAPFINALPIVOT")
 
 create_table_from_df(pivot_result, "VLFCAPFINALPIVOT")
 
-insert_data_from_df(pivot_result, 'VLFCAPFINALPIVOT')
+#insert_data_from_df(pivot_result, 'VLFCAPFINALPIVOT')
+
+
+def escape_sql_string(value):
+    """
+    Veritabanı sorgusu için SQL'e uygun kaçış karakterlerini kullanarak string'i hazırlar.
+    String değerler tek tırnak ile sarılır.
+    """
+    if isinstance(value, str):
+        # Tek tırnakları çift tek tırnakla değiştir ve değeri tek tırnak içine al
+        return "'{}'".format(value.replace("'", "''"))
+    return value
+
+
+def insert_data_from_df_in_chunks(df, table_name="VLFCAPFINALPIVOT", chunksize=1000):
+    """
+    DataFrame verilerini veritabanına parça parça eklemek için bir fonksiyon.
+
+    Args:
+    - df (pandas.DataFrame): Eklenecek veri.
+    - table_name (str): Veritabanı tablosunun adı.
+    - chunksize (int): Her bir parça için satır sayısı.
+    """
+
+    # Toplam satır sayısını al
+    total_rows = len(df)
+
+    # Tüm satırları chunksize boyutunda döngüyle böl
+    for start in range(0, total_rows, chunksize):
+        end = start + chunksize
+        chunk = df.iloc[start:end]  # DataFrame'in belirli bir bölümünü al
+
+        # Satırları SQL için uygun şekilde formatla
+        rows = []
+        for row in chunk.itertuples(index=False):
+            formatted_row = tuple(escape_sql_string(v) for v in row)
+            rows.append("({})".format(", ".join(map(str, formatted_row))))
+
+        # SQL INSERT sorgusunu oluştur
+        insert_stmt = "INSERT INTO {} VALUES {}".format(table_name, ", ".join(rows))
+
+        # Sorguyu çalıştır
+        try:
+            ag.run_query(insert_stmt, isselect=0)
+            print(f"{start} ile {end} arasındaki satırlar başarıyla eklendi.")
+        except Exception as e:
+            print(f"Hata oluştu: {e}")
+            break  # Hata durumunda döngüyü sonlandırabilirsiniz veya devam ettirebilirsiniz
+
+
+# Kullanım:
+# df, daha önce tanımlanmış ve doldurulmuş pandas DataFrame'inizdir.
+insert_data_from_df_in_chunks(pivot_result, table_name="VLFCAPFINALPIVOT", chunksize=1000)

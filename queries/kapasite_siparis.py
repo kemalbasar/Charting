@@ -125,13 +125,24 @@ def update_graph_method():
 
 
     def pivotting_table():
-        today = datetime.today()
-        one_week_ago = today - timedelta(days=7)
-        year_ago, week_num_ago, week_day_ago = one_week_ago.isocalendar()
-        formatted_date_one_week_ago = f"{year_ago}-{week_num_ago}"
+        #today = datetime.today()
+        #one_week_ago = today - timedelta(days=7)
+        #year_ago, week_num_ago, week_day_ago = one_week_ago.isocalendar()
+        #formatted_date_one_week_ago = f"{year_ago}-{week_num_ago}"
+        current_date = datetime.now()
+
+        # Bulunduğumuz haftanın yıl ve hafta numarasını alın
+        current_year, current_week = current_date.isocalendar()[:2]
+
+        # Bir önceki haftayı hesaplayın
+        previous_week_date = current_date - timedelta(weeks=1)
+        previous_year, previous_week = previous_week_date.isocalendar()[:2]
+
+        # Yıl-Hafta formatını oluşturun
+        previous_year_week = f"{previous_year}-{str(previous_week).zfill(2)}"
         print(df)
         print("sad3")
-        print(formatted_weeks())
+
         print("sad2")
         df_sade = df[formatted_weeks()]
         print(df_sade)
@@ -153,12 +164,18 @@ def update_graph_method():
         pivoted_df["SETUP"] = pivoted_df["SETUP"].astype(float)
         pivoted_df["value"] = pivoted_df["value"].astype(float)
         pivoted_df['value_min'] = pivoted_df.apply(lambda row: calculate_maxtime(row, row['WORKCUNT']), axis=1)
-        pivoted_df['current_week'] = pivoted_df['current_week'].apply(
-            lambda x: formatted_date_one_week_ago if x == '0' else x[4:].replace('_', '-'))
+        print(pivoted_df)
+        print("hhhh2")
+        #pivoted_df['current_week'] = pivoted_df['current_week'].apply(
+         #   lambda x: formatted_date_one_week_ago )
+        print(pivoted_df)
+        print("hhhh")
         pivoted_df['current_week'] = pivoted_df['current_week'].apply(
             lambda x: '-'.join([x.split('-')[0], x.split('-')[1].zfill(2)]) if len(x.split('-')) > 1 else x)
 
-
+        pivoted_df['current_week'] = pivoted_df['current_week'].apply(
+            lambda x: previous_year_week if x == '0' else x)
+        pivoted_df['current_week'] = pivoted_df['current_week'].str.replace('_', '-')
         print("------")
         print(pivoted_df)
         print("------")
@@ -229,7 +246,7 @@ def update_graph_method():
             elif code == 'J':
                 calculated_value = 0
 
-            return calculated_value / work_count  # Bölme işlemi burada yapılır
+            return int(calculated_value / work_count)  # Bölme işlemi burada yapılır
         else:
             return 0
 
@@ -387,4 +404,55 @@ drop_table_if_exists("VLFCAPFINALSIPARIS")
 
 create_table_from_df(pivot_result, "VLFCAPFINALSIPARIS")
 
-insert_data_from_df(pivot_result, 'VLFCAPFINALSIPARIS')
+#insert_data_from_df(pivot_result, 'VLFCAPFINALSIPARIS')
+
+def escape_sql_string(value):
+    """
+    Veritabanı sorgusu için SQL'e uygun kaçış karakterlerini kullanarak string'i hazırlar.
+    String değerler tek tırnak ile sarılır.
+    """
+    if isinstance(value, str):
+        # Tek tırnakları çift tek tırnakla değiştir ve değeri tek tırnak içine al
+        return "'{}'".format(value.replace("'", "''"))
+    return value
+
+
+def insert_data_from_df_in_chunks(df, table_name="VLFCAPFINALSIPARIS", chunksize=1000):
+    """
+    DataFrame verilerini veritabanına parça parça eklemek için bir fonksiyon.
+
+    Args:
+    - df (pandas.DataFrame): Eklenecek veri.
+    - table_name (str): Veritabanı tablosunun adı.
+    - chunksize (int): Her bir parça için satır sayısı.
+    """
+
+    # Toplam satır sayısını al
+    total_rows = len(df)
+
+    # Tüm satırları chunksize boyutunda döngüyle böl
+    for start in range(0, total_rows, chunksize):
+        end = start + chunksize
+        chunk = df.iloc[start:end]  # DataFrame'in belirli bir bölümünü al
+
+        # Satırları SQL için uygun şekilde formatla
+        rows = []
+        for row in chunk.itertuples(index=False):
+            formatted_row = tuple(escape_sql_string(v) for v in row)
+            rows.append("({})".format(", ".join(map(str, formatted_row))))
+
+        # SQL INSERT sorgusunu oluştur
+        insert_stmt = "INSERT INTO {} VALUES {}".format(table_name, ", ".join(rows))
+
+        # Sorguyu çalıştır
+        try:
+            ag.run_query(insert_stmt, isselect=0)
+            print(f"{start} ile {end} arasındaki satırlar başarıyla eklendi.")
+        except Exception as e:
+            print(f"Hata oluştu: {e}")
+            break  # Hata durumunda döngüyü sonlandırabilirsiniz veya devam ettirebilirsiniz
+
+
+# Kullanım:
+# df, daha önce tanımlanmış ve doldurulmuş pandas DataFrame'inizdir.
+insert_data_from_df_in_chunks(pivot_result, table_name="VLFCAPFINALSIPARIS", chunksize=1000)
