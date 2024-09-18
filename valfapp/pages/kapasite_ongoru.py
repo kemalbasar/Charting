@@ -305,7 +305,7 @@ def map_dtype_to_sql(dtype):
         # Add more mappings as required
     }
     return dtype_mapping.get(dtype, 'VARCHAR(MAX)')
-def drop_table_if_exists(table_name='VLFCAPFINAL'):
+def drop_table_if_exists(table_name='VLFCAPFINALOY'):
     drop_stmt = f"IF OBJECT_ID('{table_name}', 'U') IS NOT NULL DROP TABLE {table_name};"
     ag.run_query(drop_stmt,isselect=0)
 
@@ -321,7 +321,7 @@ def create_table_from_df(df, table_name):
     ag.run_query(create_stmt, isselect=0)
 
 
-def insert_data_from_df(df,table_name = "VLFCAPFINAL"):
+def insert_data_from_df(df,table_name = "VLFCAPFINALOY"):
     # Construct the INSERT INTO statement
     placeholders = ", ".join("?" * len(df.columns))
     columns = ", ".join([f"[{col}]" for col in df.columns])
@@ -338,6 +338,56 @@ drop_table_if_exists("VLFCAPFINALOY")
 
 create_table_from_df(pivot_result, "VLFCAPFINALOY")
 
-insert_data_from_df(pivot_result, 'VLFCAPFINALOY')
+#insert_data_from_df(pivot_result, 'VLFCAPFINALOY')
 
 
+def escape_sql_string(value):
+    """
+    Veritabanı sorgusu için SQL'e uygun kaçış karakterlerini kullanarak string'i hazırlar.
+    String değerler tek tırnak ile sarılır.
+    """
+    if isinstance(value, str):
+        # Tek tırnakları çift tek tırnakla değiştir ve değeri tek tırnak içine al
+        return "'{}'".format(value.replace("'", "''"))
+    return value
+
+
+def insert_data_from_df_in_chunks(df, table_name="VLFCAPFINALOY", chunksize=1000):
+    """
+    DataFrame verilerini veritabanına parça parça eklemek için bir fonksiyon.
+
+    Args:
+    - df (pandas.DataFrame): Eklenecek veri.
+    - table_name (str): Veritabanı tablosunun adı.
+    - chunksize (int): Her bir parça için satır sayısı.
+    """
+
+    # Toplam satır sayısını al
+    total_rows = len(df)
+
+    # Tüm satırları chunksize boyutunda döngüyle böl
+    for start in range(0, total_rows, chunksize):
+        end = start + chunksize
+        chunk = df.iloc[start:end]  # DataFrame'in belirli bir bölümünü al
+
+        # Satırları SQL için uygun şekilde formatla
+        rows = []
+        for row in chunk.itertuples(index=False):
+            formatted_row = tuple(escape_sql_string(v) for v in row)
+            rows.append("({})".format(", ".join(map(str, formatted_row))))
+
+        # SQL INSERT sorgusunu oluştur
+        insert_stmt = "INSERT INTO {} VALUES {}".format(table_name, ", ".join(rows))
+
+        # Sorguyu çalıştır
+        try:
+            ag.run_query(insert_stmt, isselect=0)
+            print(f"{start} ile {end} arasındaki satırlar başarıyla eklendi.")
+        except Exception as e:
+            print(f"Hata oluştu: {e}")
+            break  # Hata durumunda döngüyü sonlandırabilirsiniz veya devam ettirebilirsiniz
+
+
+# Kullanım:
+# df, daha önce tanımlanmış ve doldurulmuş pandas DataFrame'inizdir.
+insert_data_from_df_in_chunks(pivot_result, table_name="VLFCAPFINALOY", chunksize=1000)
