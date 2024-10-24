@@ -16,8 +16,11 @@ def create_weeks_dict():
         week_start = start_date + timedelta(weeks=i)
         year, week_num, _ = week_start.isocalendar()
         weeks_dict[f"{year}-{str(week_num).zfill(2)}"] = f"{year}-{str(week_num).zfill(2)}"
+    print(f"QWEWEEKS)")
+    print(weeks_dict)
 
     return weeks_dict
+
 def formatted_weeks_first():
 
     # Current date
@@ -27,7 +30,7 @@ def formatted_weeks_first():
     current_week_start = current_date - timedelta(days=current_date.weekday())
 
     # Generate the current week and the next 17 weeks
-    weeks = [current_week_start + timedelta(weeks=i) for i in range(18)]  # Generating the weeks
+    weeks = [current_week_start + timedelta(weeks=i) for i in range(16)]  # Generating the weeks
 
     # Formatting weeks as 'Year_WeekNumber' using ISO week date
     # Adjusting to remove leading zeros and ensuring no week "00"
@@ -35,6 +38,9 @@ def formatted_weeks_first():
 
     # Removing the first week if it is week 00 and prefixing with "IHT_"
     formatted_weeks = ["IHT_" + week for week in formatted_weeks if not week.endswith("_0")]
+
+    print(f"ASDWEEKS)")
+    print(formatted_weeks)
 
     formatted_weeks.insert(0, 'IHT0')
     formatted_weeks.insert(0, 'MATERIAL')
@@ -50,6 +56,9 @@ def formatted_weeks_first():
     formatted_weeks.insert(0, 'BASEQUAN')
 
     return formatted_weeks
+
+print(f"DENEME")
+
 def update_graph_method():
     print("first metod begin")
     print(datetime.now())
@@ -59,7 +68,10 @@ def update_graph_method():
 
     df3 = ag.run_query(r"C:\Users\fozturk\Documents\GitHub\Charting\queries\prescapacityforplans.sql")
 
+    print(f"DENEME22")
+
     df3 = df3[weeks_first]
+
     # df3.loc[df3['MATERIAL'] == 'YUZEY ISLEM-OTEC', 'COSTCENTER'] = 'YUZEY ISLEM-OTEC'
     # df3.loc[df3['MATERIAL'] == 'YUZEY ISLEM-SANTRIFUJ', 'COSTCENTER'] = 'YUZEY ISLEM-SANTRIFUJ'
     # df3.loc[df3['MATERIAL'] == 'YUZEY ISLEM-TAMBUR', 'COSTCENTER'] = 'YUZEY ISLEM-TAMBUR'
@@ -68,6 +80,7 @@ def update_graph_method():
 
     df = df3
     # df = pd.concat([df1, df2, df3], ignore_index=True)
+
 
 
 
@@ -142,7 +155,7 @@ def update_graph_method():
         current_week_start = current_date - timedelta(days=current_date.weekday())
 
         # Generate the current week and the next 17 weeks
-        weeks = [current_week_start + timedelta(weeks=i) for i in range(18)]  # Generating the weeks
+        weeks = [current_week_start + timedelta(weeks=i) for i in range(16)]  # Generating the weeks
 
         # Formatting weeks as 'Year_WeekNumber' using ISO week date
         # Adjusting to remove leading zeros and ensuring no week "00"
@@ -150,6 +163,9 @@ def update_graph_method():
 
         # Removing the first week if it is week 00 and prefixing with "IHT_"
         formatted_weeks = ["IHT_" + week for week in formatted_weeks if not week.endswith("_0")]
+
+        print(f"ZXCWEEKS)")
+        print(formatted_weeks)
 
         formatted_weeks.insert(0, 'IHT0')
         formatted_weeks.insert(0, 'MATERIAL')
@@ -251,8 +267,10 @@ def update_graph_method():
             formatted_columns_capcostcenter.append({
                 **column,
                 "type": "numeric",
-                "format": Format(precision=0, scheme=Scheme.fixed)
+                "format": {"specifier": ".0f"}  # Use string format specifier for numeric columns
             })
+
+    print(f"Warning: Column {column['id']} not found in df_prepared")
 
     columns_costcenter = [{"name": key, "id": key} for key in weeks_dict.keys()]
     columns_costcenter.insert(0, {"name": "COSTCENTER", "id": "COSTCENTER"})
@@ -265,8 +283,9 @@ def update_graph_method():
             formatted_columns.append({
                 **column,
                 "type": "numeric",
-                "format": Format(precision=0, scheme=Scheme.fixed)
+                "format": {"specifier": ".0f"}
             })
+
 
     columns_workcenter = [{"name": key, "id": key} for key in weeks_dict.keys()]
     columns_workcenter.insert(0, {"name": "WORKCENTER", "id": "WORKCENTER"})
@@ -279,7 +298,7 @@ def update_graph_method():
             formatted_columns_workcenter.append({
                 **column,
                 "type": "numeric",
-                "format": Format(precision=0, scheme=Scheme.fixed)
+                "format": {"specifier": ".0f"}
             })
 
     columns_material = [{"name": key, "id": key} for key in weeks_dict.keys()]
@@ -293,7 +312,7 @@ def update_graph_method():
             formatted_columns_material.append({
                 **column,
                 "type": "numeric",
-                "format": Format(precision=0, scheme=Scheme.fixed)
+                "format": {"specifier": ".0f"}
             })
     df_prepared = df_prepared.to_json(date_format='iso', orient='split')
 

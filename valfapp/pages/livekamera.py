@@ -1,125 +1,143 @@
 import numpy as np
 import pandas as pd
-from dash import dcc, html, Input, Output, no_update
+from dash import dcc, html, Input, Output
 import dash_bootstrap_components as dbc
+from dash_table import DataTable
 import plotly.graph_objs as go
 import plotly.express as px
 from run.agent import agiot as ag
 from valfapp.app import app
 from datetime import date, timedelta, datetime
-from config import kb
-from dash_table import DataTable
+from config import kb, project_directory
 import time
 import random
-from config import kb, project_directory
 
-from valfapp.layouts import nav_bar
-import dash_html_components as html
-import dash_core_components as dcc
+# Create the rows for each attribute
+attributes = [
+    ("Operatör Adı", 'operator-name'),
+    ("Malzeme", 'material'),
+    ("İzleme Numarası", 'part-number'),
+    ("Toplam Üretim", 'total-production'),
+    ("Ret Adeti", 'ret-count'),
+    ("Ölçüm Kamerası", 'measurement-camera'),
+    ("Görüntü Kamerası", 'image-camera'),
+    ("PPM Oranı", 'ppm-rate'),
+    ("Çalışma Süresi", 'working-time'),
+    ("Duruş Süresi", 'stop-time'),
+    ("Sn de Denetlenen Ürün Adeti", 'checked-product-count'),
+    ("OEE Değeri", 'oee-value')
+]
 
-
-
-def generate_machine_layout(machine_id):
-    machine_layout = [
-        html.Div(
-            id=f"machine-{machine_id}",
-            style={'border': '2px solid black', 'width': '100%', 'min-width': '500px', 'border-collapse': 'collapse',  'margin': '0 auto', 'padding': '10px', 'margin-bottom': '20px'},
-            children=[
-                html.H3(f"Kamera - 0{machine_id} Üretim Takip Sistemi", style={'text-align': 'center', 'background-color': '#F0F0F0', 'padding': '10px', 'border-bottom': '2px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                html.Table(
-                    style={'width': '100%', 'border-collapse': 'collapse', 'color': 'black'},
-                    children=[
-                        html.Tr(id=f'operator-row-{machine_id}', children=[
-                            html.Td("Operatör Adı", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'operator-name-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'part-number-row-{machine_id}', children=[
-                            html.Td("Parça Numarası / İzleme Numarası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'part-number-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'total-production-row-{machine_id}', children=[
-                            html.Td("Toplam Üretim", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'total-production-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'ret-count-row-{machine_id}', children=[
-                            html.Td("Ret Adeti", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'ret-count-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'measurement-camera-row-{machine_id}', children=[
-                            html.Td("Ölçüm Kamerası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold', 'padding-left': '20px'}),
-                            html.Td(id=f'measurement-camera-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'image-camera-row-{machine_id}', children=[
-                            html.Td("Görüntü Kamerası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold', 'padding-left': '20px'}),
-                            html.Td(id=f'image-camera-{machine_id}', style={'border': '1px solid black', 'color': 'black',})
-                        ]),
-                        html.Tr(id=f'ppm-rate-row-{machine_id}', children=[
-                            html.Td("PPM Oranı", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'ppm-rate-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'working-time-row-{machine_id}', children=[
-                            html.Td("Çalışma Süresi",
-                                    style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'working-time-{machine_id}',
-                                    style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'stop-time-row-{machine_id}', children=[
-                            html.Td("Duruş Süresi",
-                                    style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'stop-time-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'checked-product-count-row-{machine_id}', children=[
-                            html.Td("Sn de Denetlenen Ürün Adeti",
-                                    style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'checked-product-count-{machine_id}',
-                                    style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'oee-value-row-{machine_id}', children=[
-                            html.Td("OEE Değeri",
-                                    style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(id=f'oee-value-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                    ]
-                ),
-                html.Div(
-                    "Bu kısma önceki kontrol edilen parçanın bilgileri koyulabilir.",
-                    style={'background-color': '#3C78D8', 'color': 'black', 'padding': '20px', 'margin-top': '10px', 'text-align': 'center', 'border': '1px solid black'}
-                ),
-
-
-            ],
-
-        )
+def generate_machine_layout(machine_ids):
+    # Create the table headers (fixed across all machines)
+    table_headers = [
+        html.Tr(children=[
+            html.Td("Kolonlar / Makinalar", style={'border': '1px solid black', 'font-weight': 'bold', 'border-collapse': 'collapse'}),
+        ] + [html.Td(f"Kamera - 0{machine_id}", style={'border': '1px solid black', 'font-weight': 'bold'}) for machine_id in machine_ids])
     ]
+
+    rows = []
+    for attr_name, attr_id in attributes:
+        row = html.Tr(children=[
+            html.Td(attr_name, style={'border': '1px solid black', 'font-weight': 'bold'})
+        ] + [
+            html.Td(id=f'{attr_id}-{machine_id}', style={'border': '1px solid black'}) for machine_id in machine_ids
+        ])
+        rows.append(row)
+
+    # Combine headers and rows into the table
+    machine_layout = html.Div(
+        style={
+            'border': '2px solid black', 'width': '100%', 'min-width': '500px',
+            'border-collapse': 'collapse', 'margin': '0 auto', 'padding': '10px', 'margin-bottom': '20px'
+        },
+        children=[
+            html.H3("Üretim Takip Sistemi",
+                    style={'text-align': 'center', 'background-color': '#F0F0F0', 'padding': '10px',
+                           'border-bottom': '2px solid black', 'color': 'black', 'font-weight': 'bold'}),
+            html.Table(
+                style={'width': '100%', 'border-collapse': 'collapse', 'color': 'black'},
+                children=table_headers + rows  # Add headers and data rows
+            )
+        ]
+    )
+
     return machine_layout
 
+
+# Function to generate the shift data table
+def create_shift_table(data2):
+    # Pivot the data2 to get machine names as rows and shift types as columns
+    pivot_data = data2.pivot(index='MACHINE', columns='SHIFTAYK', values='QUANTITY').fillna(0)
+
+    # Prepare the table data for DataTable (converting the DataFrame to a format DataTable can understand)
+    table_data = pivot_data.reset_index().to_dict('records')
+
+    # Prepare the columns for DataTable (first column is MACHINE, others are shift types)
+    table_columns = [{"name": "Makinalar", "id": "MACHINE"}] + \
+                    [{"name": str(col), "id": str(col)} for col in pivot_data.columns]
+
+    return table_data, table_columns
+
+
+# Layout of the app
 layout = html.Div(
     id="main-container",
     children=[
         html.Div(
-            [
-                html.Div(generate_machine_layout(x), style={'display': 'inline-block', 'width': '33%'}) for x in range(1, 7)  # Displaying only 6 machines
-            ],
-            style={'display': 'flex', 'flex-wrap': 'wrap'}  # To wrap the machines into two rows
+            children=[generate_machine_layout(range(1, 7))],  # Now all machines are in one table
+            style={'width': '100%'}  # Adjust width accordingly
         ),
         dcc.Interval(
             id='interval-component',
-            interval=100000, # in milliseconds
+            interval=100000,  # in milliseconds
             n_intervals=0
-
         ),
-
-
+        html.Div([
+            html.H3("Vardiya Üretimleri",
+                    style={"text-align": "center", 'color': 'black', 'padding': '10px',
+                           'border-bottom': '2px solid black', 'font-weight': 'bold'}),
+            DataTable(
+                id='shift-table',
+                columns=[],  # Initially empty, will be filled by the callback
+                data=[],  # Initially empty, will be filled by the callback
+                style_table={
+                    'height': '300px',
+                    'overflowY': 'auto',
+                    'border': 'thin lightgrey solid',
+                    'fontFamily': 'Arial, sans-serif',
+                    'minWidth': '70%',
+                    'width': '100%',
+                    'text-align': 'center',
+                    'color': 'black',
+                },
+                style_header={
+                    'fontWeight': 'bold',
+                    'color': 'black',
+                    'text-align': 'center',
+                    'fontFamily': 'Arial, sans-serif',
+                    'fontSize': '16px',
+                    'border': '1px dotted brown',
+                    'borderRadius': '2px'
+                },
+            )
+        ])
     ]
 )
 
 @app.callback(
-    [Output(f"machine-{machine_id}", "children") for machine_id in range(1, 7)],
+    [Output(f'{attr_id}-{machine_id}', 'children') for machine_id in range(1, 7) for attr_name, attr_id in attributes],  # Updated to fill columns
+    [Output(f'ppm-rate-{machine_id}', 'style') for machine_id in range(1, 7)],  # Add outputs for styling ppm-rate cells
+    [Output(f'checked-product-count-{machine_id}', 'style') for machine_id in range(1, 7)],  # Add outputs for styling ppm-rate cells
     [Input("interval-component", "n_intervals")]
 )
 def update_machine_table(n):
-    updated_layout = []
+    updated_data = []
+    ppm_styles = []
+    product_count_style = []
+
     for machine_id in range(1, 7):
+        # Fetch and preprocess data for each machine
         query_path = project_directory + r"\Charting\queries\livekamera.sql"
         text_to_find = ["XYZ"]
         text_to_put = [f"KMR-0{machine_id}"]
@@ -127,7 +145,16 @@ def update_machine_table(n):
         time.sleep(2)
         data = ag.editandrun_query(query_path, text_to_find, text_to_put)
 
-        data["PRDORDER"] = data["PRDORDER"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
+        starttime = datetime.now().strftime("%Y-%m-%d")
+        endtime = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+
+        query_path2 = project_directory + r"\Charting\queries\livekamera_vardiya.sql"
+        text_to_find2 = ["XYZ", "XXXX-XX-XX", "YYYY-YY-YY"]
+        text_to_put2 = [f"KMR-0{machine_id}", starttime, endtime]
+
+        data2 = ag.editandrun_query(query_path2, text_to_find2, text_to_put2)
+        data["PRDORDER"] = data["PRDORDER"].apply(lambda x: x.split('\x00', 1)[0] if isinstance(x, str) and x is not None else None)
+
         data["MATERIAL"] = data["MATERIAL"].apply(lambda x: x.split('\x00', 1)[0] if x else None)
         data["NAME"] = data["NAME"].astype(str)
         data["MACHINE"] = data["MACHINE"].astype(str)
@@ -142,8 +169,10 @@ def update_machine_table(n):
         data['OEE'] = data['OEE'].fillna(0).astype(float)
         data['PPM'] = data['PPM'].fillna(0).astype(int)
 
+
         if data.empty:
             operator_name = "No Data"
+            material = "No Data"
             part_number = "No Data"
             total_production = 0
             ret_count = 0
@@ -154,11 +183,10 @@ def update_machine_table(n):
             stop_time = 0
             checked_product_count = 0
             oee_value = 0
-
-
         else:
             operator_name = data["NAME"].iloc[0]
-            part_number = f"{data['MATERIAL'].iloc[0]} / {data['PRDORDER'].iloc[0]}"
+            material = data['MATERIAL'].iloc[0]
+            part_number = data['PRDORDER'].iloc[0]
             total_production = data['QUANTITY'].iloc[0]
             ret_count = data['NOTOK'].iloc[0]
             measurement_camera = data['NOTOKOLCUSEL'].iloc[0]
@@ -169,91 +197,70 @@ def update_machine_table(n):
             checked_product_count = data['SANIYE_DENETLENEN'].iloc[0]
             oee_value = data['OEE'].iloc[0]
 
+        # Add the data for this machine into updated_data column-wise
+        machine_data = [
+            operator_name, material, part_number, total_production, ret_count, measurement_camera, image_camera,
+            ppm_rate, working_time, stop_time,  checked_product_count, oee_value
+        ]
 
+        updated_data.extend(machine_data)  # Ensure machine data is appended column-wise
 
-        ppm_rate_style = {'background-color': 'red', 'font-weight': 'bold'} if ppm_rate > 2500 else {'background-color': 'green', 'font-weight': 'bold'}
-        checked_product_count_style = {'background-color': 'red', 'font-weight': 'bold'} if checked_product_count < 6.5 else {'background-color': 'green', 'font-weight': 'bold'}
-
-        if part_number == "No Data":
-
-            updated_machine_layout = [
-                html.H3(f"Kamera - 0{machine_id} Üretim Takip Sistemi",
-                        style={'text-align': 'center', 'background-color': '#F0F0F0', 'padding': '10px',
-                               'border-bottom': '2px solid black', 'color': 'black', 'font-weight': 'bold'}),
-
-                html.Table(
-                    style={'width': '100%', 'border-collapse': 'collapse', 'color': 'black', 'background-color': 'red',
-                           'font-weight': 'bold'},
-                    children=[
-                        html.Tr([
-                            html.Td("NO DATA", colSpan=20,
-                                    style={'text-align': 'center', 'font-size': '100px', 'font-weight': 'bold',
-                                           'color': 'white'})
-                        ])
-                    ]
-                )
-            ]
+        if ppm_rate > 2500:
+            ppm_styles.append({'background-color': 'red', 'font-weight': 'bold'})
         else:
-            updated_machine_layout = [
-                html.H3(f"Kamera - 0{machine_id} Üretim Takip Sistemi", style={'text-align': 'center', 'background-color': '#F0F0F0', 'padding': '10px', 'border-bottom': '2px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                html.Table(
-                    style={'width': '100%', 'border-collapse': 'collapse', 'color': 'black'},
-                    children=[
-                        html.Tr(id=f'operator-row-{machine_id}', children=[
-                            html.Td("Operatör Adı", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(operator_name, id=f'operator-name-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'part-number-row-{machine_id}', children=[
-                            html.Td("Parça Numarası / İzleme Numarası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(part_number, id=f'part-number-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'total-production-row-{machine_id}', children=[
-                            html.Td("Toplam Üretim", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(total_production, id=f'total-production-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'ret-count-row-{machine_id}', children=[
-                            html.Td("Ret Adeti", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(ret_count, id=f'ret-count-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'measurement-camera-row-{machine_id}', children=[
-                            html.Td("Ölçüm Kamerası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold', 'padding-left': '20px'}),
-                            html.Td(measurement_camera, id=f'measurement-camera-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'image-camera-row-{machine_id}', children=[
-                            html.Td("Görüntü Kamerası", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold', 'padding-left': '20px'}),
-                            html.Td(image_camera, id=f'image-camera-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'ppm-rate-row-{machine_id}', children=[
-                            html.Td("PPM Oranı", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(ppm_rate, id=f'ppm-rate-{machine_id}', style={**ppm_rate_style, 'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'working-time-row-{machine_id}', children=[
-                            html.Td("Çalışma Süresi", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(working_time, id=f'working-time-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'stop-time-row-{machine_id}', children=[
-                            html.Td("Duruş Süresi", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(stop_time, id=f'stop-time-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'checked-product-count-row-{machine_id}', children=[
-                            html.Td("Sn de Denetlenen Ürün Adeti", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(checked_product_count, id=f'checked-product-count-{machine_id}', style={**checked_product_count_style, 'border': '1px solid black', 'color': 'black'})
-                        ]),
-                        html.Tr(id=f'oee-value-row-{machine_id}', children=[
-                            html.Td("OEE Değeri", style={'border': '1px solid black', 'color': 'black', 'font-weight': 'bold'}),
-                            html.Td(oee_value, id=f'oee-value-{machine_id}', style={'border': '1px solid black', 'color': 'black'})
-                        ]),
-                    ]
-                ),
-                html.Div(
-                    "Bu kısma önceki kontrol edilen parçanın bilgileri koyulabilir.",
-                    style={'background-color': '#3C78D8', 'color': 'black', 'padding': '20px', 'margin-top': '10px', 'text-align': 'center', 'border': '1px solid black'}
-                ),
-            ]
-        updated_layout.append(updated_machine_layout)
-    return updated_layout
+            ppm_styles.append({'background-color': 'green', 'font-weight': 'bold'})
+
+        if checked_product_count < 6.5:
+            product_count_style.append({'background-color': 'red', 'font-weight': 'bold'})
+        else:
+            product_count_style.append({'background-color': 'green', 'font-weight': 'bold'})
+
+    return updated_data + ppm_styles + product_count_style  # Return all the data as a flat list
+
+
+@app.callback(
+    Output('shift-table', 'data'),
+    Output('shift-table', 'columns'),
+    [Input("interval-component", "n_intervals")]
+)
+def update_shift_table(n):
+    starttime = datetime.now().strftime("%Y-%m-%d")
+    endtime = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    # Initialize an empty list to hold all machine data
+    all_data = []
+
+    for machine_id in range(1, 7):
+        query_path2 = project_directory + r"\Charting\queries\livekamera_vardiya.sql"
+        text_to_find2 = ["XYZ", "XXXX-XX-XX", "YYYY-YY-YY"]
+        text_to_put2 = [f"KMR-0{machine_id}", starttime, endtime]
+
+        # Fetch data for the current machine
+        data2 = ag.editandrun_query(query_path2, text_to_find2, text_to_put2)
+
+        print(f"DATA for Machine {machine_id}:")
+        print(data2)
+
+        # Ensure the relevant columns are in the correct format
+        data2['MACHINE'] = data2['MACHINE'].astype(str)
+        data2['SHIFTAYK'] = data2['SHIFTAYK'].astype(str)
+        data2['QUANTITY'] = data2['QUANTITY'].fillna(0).astype(int)
+        ##data2.rename(columns={'MACHINE': 'Makinalar'}, inplace=True)
+
+        # Append the data for this machine to the all_data list
+        all_data.append(data2)
+
+    # Concatenate all the machine data into a single DataFrame
+    combined_data = pd.concat(all_data, ignore_index=True)
+
+    # Generate the table data and columns by pivoting the combined data
+    table_data, table_columns = create_shift_table(combined_data)
+
+    return table_data, table_columns
+
+
+
 if __name__ == '__main__':
     app.layout = layout
     app.run_server(debug=True)
-
 
